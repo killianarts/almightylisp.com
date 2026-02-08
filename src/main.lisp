@@ -1,9 +1,12 @@
-(defpackage #:almightylisp
+(uiop:define-package #:almightylisp
   (:use #:cl)
   (:local-nicknames (#:ah #:almighty-html))
   (:import-from #:almighty-html
                 #:</>
-                #:define-component))
+                #:define-component)
+  (:import-from #:almightylisp/app
+                #:*app*)
+  (:export #:*app*))
 (in-package #:almightylisp)
 
 (define-component ac-nav-link (&key url text)

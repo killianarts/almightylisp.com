@@ -8,4 +8,6 @@
   :components ((:module "src"
                 :serial t
                 :components
-                ((:file "main")))))
+                ((:file "routes")
+                 (:file "app")
+                 (:file "main")))))
