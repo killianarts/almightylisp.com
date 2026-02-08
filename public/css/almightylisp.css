@@ -902,9 +902,6 @@
   .p-5 {
     padding: calc(var(--spacing) * 5);
   }
-  .px-2 {
-    padding-inline: calc(var(--spacing) * 2);
-  }
   .px-5 {
     padding-inline: calc(var(--spacing) * 5);
   }
@@ -1241,10 +1238,6 @@
     font-size: var(--text-7xl);
     line-height: var(--tw-leading, var(--text-7xl--line-height));
   }
-  .text-9xl {
-    font-size: var(--text-9xl);
-    line-height: var(--tw-leading, var(--text-9xl--line-height));
-  }
   .text-sm {
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
@@ -1262,9 +1255,6 @@
   }
   .text-balance {
     text-wrap: balance;
-  }
-  .text-pretty {
-    text-wrap: pretty;
   }
   .text-accent {
     color: var(--color-accent);
