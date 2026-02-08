@@ -1,4 +1,4 @@
-(uiop:define-package #:almightylisp
+(defpackage #:almightylisp
   (:use #:cl)
   (:local-nicknames (#:ah #:almighty-html))
   (:import-from #:almighty-html
