@@ -1,0 +1,25 @@
+[Unit]
+Description=Almightylisp.com
+After=network.target
+
+[Service]
+Type=simple
+# Replace with the username you create when setting up the server
+User=micah 
+# ...same here
+WorkingDirectory=/home/micah/.local/bin/
+EnvironmentFile=/etc/systemd/system/almightylisp.env
+
+# ...and here
+ExecStart=/home/micah/.local/bin/almightylisp
+
+TimeoutStartSec=120
+TimeoutStopSec=10
+KillMode=process
+KillSignal=SIGTERM
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
