@@ -1,4 +1,4 @@
-almightylisp: *.asd *.lisp src/* *.ros
+almightylisp: *.asd *.lisp src/* *.ros public/*
 	ros build almightylisp.ros
 dev: 
 	tw -i public/css/input.css -o public/css/almightylisp.css --watch
