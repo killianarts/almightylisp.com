@@ -8,6 +8,12 @@ install:
 	sudo cp almightylisp.env /etc/systemd/system/almightylisp.env
 	sudo systemctl daemon-reload
 	sudo systemctl enable almightylisp.service
+update:
+	mv almightylisp ~/.local/bin/almightylisp
+	sudo cp almightylisp.service /etc/systemd/system/almightylisp.service
+	sudo cp almightylisp.env /etc/systemd/system/almightylisp.env
+	sudo systemctl daemon-reload
+	sudo systemctl restart almightylisp.service
 run:
 	sudo systemctl start almightylisp.service
 
