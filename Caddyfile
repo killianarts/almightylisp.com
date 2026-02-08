@@ -1,6 +1,15 @@
-almightylisp.com {
-        reverse_proxy localhost:5000
+almightylisp.com, *.almightylisp.com {
 
+        tls /etc/caddy/cloudflare/cloudflare-origin-cert.pem /etc/caddy/cloudflare/cloudflare-origin-key.pem
+
+        reverse_proxy localhost:5000 {
+            # Forward real visitor IP from Cloudflare (critical for accurate logs/access in Woo)
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            header_up X-Forwarded-Proto {scheme}
+            # Optional but helpful for apps that check this specific header
+            header_up CF-Connecting-IP {http.request.header.CF-Connecting-IP}
+        }
         log {
                 output file /var/log/caddy/almightylisp.log
         }
@@ -10,6 +19,6 @@ almightylisp.com {
                 X-Content-Type-Options nosniff
                 X-Frame-Options DENY
                 X-XSS-Protection "1; mode=block"
-                Referrer-Policy strict-origin-when-cross-origin
+		Referrer-Policy strict-origin-when-cross-origin
         }
 }

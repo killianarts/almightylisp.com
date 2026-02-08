@@ -11,3 +11,48 @@ make
 make install
 make run
 #+end_src
+
+* CLOUDFLARE & CADDY
+
+Make Cloudflare Origin Server certificates, then update the Caddyfile with their locations on the server after uploading.
+#+begin_example
+mv almightylisp.com/origin-cert.pem /etc/caddy/cloudflare/origin-cert.pem
+mv almightylisp.com/origin-key.pem /etc/caddy/cloudflare/origin-key.pem
+#+end_example
+
+Set their permissions.
+#+begin_example
+sudo chown caddy:caddy /etc/caddy/cloudflare/origin-cert.pem /etc/caddy/cloudflare/origin-key.pem
+sudo chmod 644 /etc/caddy/cloudflare/origin-cert.pem
+sudo chmod 600 /etc/caddy/cloudflare/origin-key.pem
+#+end_example
+
+* FIREWALL
+
+Make sure firewall settings are correct:
+#+begin_example
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw reload
+sudo ufw status verbose
+Rule added
+Rule added (v6)
+Rule added
+Rule added (v6)
+Firewall reloaded
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+5000/tcp                   ALLOW IN    Anywhere
+22                         ALLOW IN    Anywhere
+80/tcp                     ALLOW IN    Anywhere
+443/tcp                    ALLOW IN    Anywhere
+5000/tcp (v6)              ALLOW IN    Anywhere (v6)
+22 (v6)                    ALLOW IN    Anywhere (v6)
+80/tcp (v6)                ALLOW IN    Anywhere (v6)
+443/tcp (v6)               ALLOW IN    Anywhere (v6)
+#+end_example

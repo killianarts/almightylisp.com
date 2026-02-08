@@ -5,3 +5,4 @@ tmp/
 
 *.fasl
 */.git
+*.pem
