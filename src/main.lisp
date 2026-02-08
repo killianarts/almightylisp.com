@@ -120,9 +120,9 @@
 
 (define-component ac-hero-text (&key class author children)
   (</>
-   (div :class "grid place-items-center min-h-[100dvh]"
-     (hgroup :class (almighty-html:clsx "font-hero text-9xl " class)
-       (h1 :id "page-title" children)
+   (div :class "grid place-items-center min-h-[100dvh] px-5"
+     (hgroup :class (almighty-html:clsx "font-hero text-7xl sm:text-9xl" class)
+       (h1 :id "page-title" :class "text-center text-balance" children)
        (when author
          (</> (p :class "mt-10 text-3xl font-bodoni" "by " author)))
        ;; (svg :width "0" :height "0"
