@@ -1,0 +1,378 @@
+@source "../../**/*.lisp";
+@source "../**/*.lisp";
+@source "./**/*.lisp"; 
+@source "./**/*.svg/";
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@layer base {
+    @font-face {
+        font-family: "Berkeley Mono";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: 
+            local("Berkeley Mono") format("truetype"),
+            url("/assets/fonts/BerkeleyMono-Regular.ttf") format("truetype");
+    }
+    @font-face {
+        font-family: "Berkeley Mono Thin";
+        font-style: normal;
+        font-display: swap;
+        src: 
+            local("Berkeley Mono") format("truetype"),
+            url("/assets/fonts/BerkeleyMono-Light.ttf") format("truetype");
+    }
+
+    @font-face {
+        font-family: "Berkeley Mono Black";
+        font-style: normal;
+        font-weight: 900;
+        font-display: swap;
+        src: 
+            local("Berkeley Mono Black") format("truetype"),
+            url("/assets/fonts/BerkeleyMono-Black.ttf") format("truetype");
+    }
+    @font-face {
+        font-family: "Berkeley Mono UltraCondensed";
+        font-style: condensed;
+        font-weight: 400;
+        font-display: swap;
+        src: 
+            local("Berkeley Mono UltraCondensed") format("truetype"),
+            url("/assets/fonts/BerkeleyMono-UltraCondensed.ttf") format("truetype");
+    }
+
+    @font-face {
+        font-family: "Berkeley Mono Thin UltraCondensed";
+        font-style: normal;
+        font-display: swap;
+        src: 
+            local("Berkeley Mono Thin UltraCondensed") format("truetype"),
+            url("/assets/fonts/BerkeleyMono-Light-UltraCondensed.ttf") format("truetype");
+    }
+    
+    @font-face {
+        font-family: "Berkeley Mono ExtraBold UltraCondensed";
+        font-style: condensed;
+        font-weight: 900;
+        font-display: swap;
+        src: 
+            local("Berkeley Mono ExtraBold UltraCondensed") format("truetype"),
+            url("/assets/fonts/BerkeleyMono-ExtraBold-UltraCondensed.ttf") format("truetype");
+    }
+    @font-face {
+        font-family: "League Gothic";
+        font-width: 100;
+        font-display: swap;
+        src: 
+            local("League Gothic") format("truetype"),
+            url("/assets/fonts/LeagueGothic-Regular-VariableFont_wdth.ttf") format("truetype");
+    }
+    @font-face {
+        font-family: "League Gothic Tall";
+        font-width: 100;
+        font-display: swap;
+        font-stretch: 75%;
+        src: 
+            local("League Gothic") format("truetype"),
+            url("/assets/fonts/LeagueGothic-Regular-VariableFont_wdth.ttf") format("truetype");
+    }
+    @font-face {
+        font-family: "Bodoni 72 Smallcaps";
+        font-width: 200;
+        font-display: swap;
+        src: 
+            local("Bodoni 72 Smallcaps") format("truetype"),
+            url("/assets/fonts/Bodoni 72 Smallcaps Book.ttf") format("truetype");
+    }
+
+}
+
+@theme {
+    --color-primary-50: var(--color-blue-50);
+    --color-primary-100: var(--color-blue-100);
+    --color-primary-200: var(--color-blue-200);
+    --color-primary-300: var(--color-blue-300);
+    --color-primary-400: var(--color-blue-400);
+    --color-primary-500: var(--color-blue-500);
+    --color-primary-600: var(--color-blue-600);
+    --color-primary-700: var(--color-blue-700);
+    --color-primary-800: var(--color-blue-800);
+    --color-primary-900: var(--color-blue-900);
+    --color-primary-950: var(--color-blue-950);
+    --color-primary: var(--color-primary-800);
+
+    --color-secondary-50: var(--color-yellow-50);
+    --color-secondary-100: var(--color-yellow-100);
+    --color-secondary-200: var(--color-yellow-200);
+    --color-secondary-300: var(--color-yellow-300);
+    --color-secondary-400: var(--color-yellow-400);
+    --color-secondary-500: var(--color-yellow-500);
+    --color-secondary-600: var(--color-yellow-600);
+    --color-secondary-700: var(--color-yellow-700);
+    --color-secondary-800: var(--color-yellow-800);
+    --color-secondary-900: var(--color-yellow-900);
+    --color-secondary-950: var(--color-yellow-950);
+    --color-secondary: var(--color-secondary-300);
+
+    --color-accent-50: var(--color-cyan-50);
+    --color-accent-100: var(--color-cyan-100);
+    --color-accent-200: var(--color-cyan-200);
+    --color-accent-300: var(--color-cyan-300);
+    --color-accent-400: var(--color-cyan-400);
+    --color-accent-500: var(--color-cyan-500);
+    --color-accent-600: var(--color-cyan-600);
+    --color-accent-700: var(--color-cyan-700);
+    --color-accent-800: var(--color-cyan-800);
+    --color-accent-900: var(--color-cyan-900);
+    --color-accent-950: var(--color-cyan-950);
+    --color-accent: var(--color-accent-300);
+
+    --color-tertiary-50: var(--color-orange-50);
+    --color-tertiary-100: var(--color-orange-100);
+    --color-tertiary-200: var(--color-orange-200);
+    --color-tertiary-300: var(--color-orange-300);
+    --color-tertiary-400: var(--color-orange-400);
+    --color-tertiary-500: var(--color-orange-500);
+    --color-tertiary-600: var(--color-orange-600);
+    --color-tertiary-700: var(--color-orange-700);
+    --color-tertiary-800: var(--color-orange-800);
+    --color-tertiary-900: var(--color-orange-900);
+    --color-tertiary-950: var(--color-orange-950);
+    --color-tertiary: var(--color-tertiary-400);
+
+    --font-berkeley: "Berkeley Mono", ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    --font-berkeley-thin: "Berkeley Mono Thin", ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    --font-berkeley-black: "Berkeley Mono Black", ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    --font-berkeley-uc: "Berkeley Mono UltraCondensed", ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    --font-berkeley-uc-thin: "Berkeley Mono Thin UltraCondensed", ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    --font-berkeley-uc-black: "Berkeley Mono ExtraBold UltraCondensed", ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    --font-heading: "League Gothic";
+    --font-hero: "League Gothic Tall";
+    --font-bodoni: "Bodoni 72 Smallcaps";
+}
+
+body {
+    font-family: "Instrument Serif";
+    background-image: url("../assets/images/bg-dot-pattern.png");
+    background-color: var(--color-primary-700);
+    background-repeat: repeat;
+    color: var(--color-primary-50);
+}
+
+
+/**
+ * Syntax Highlighting
+ */
+pre { white-space: pre; }
+pre code.hl-highlighted {white-space: pre; margin: 0; padding: 0; background: none; border: none; overflow-x: auto;}
+code.hl-highlighted {margin: 0 2px; padding: 0 5px; white-space: nowrap;  background: #f8f8f8; border: 1px solid #eaeaea; border-radius: 3px;}
+
+code.hl-highlighted {color: var(--color-primary-50);}
+code.hl-highlighted .function {color: var(--color-primary-50);}
+code.hl-highlighted .function.known {color: var(--color-accent);}
+code.hl-highlighted .function.known.special {color: var(--color-accent); font-weight: bold;}
+code.hl-highlighted .keyword {color: var(--color-secondary);}
+code.hl-highlighted .keyword.known {color: var(--color-accent);}
+code.hl-highlighted .symbol {color: var(--color-primary-50);}
+code.hl-highlighted .lambda-list {color: var(--color-primary-50); font-family: var(--font-berkeley-black);}
+code.hl-highlighted .number {color: var(--color-primary-50);}
+code.hl-highlighted .variable.known {color: var(--color-primary-50);}
+code.hl-highlighted .variable.global {color: var(--color-primary-50);}
+code.hl-highlighted .variable.constant {color: var(--color-primary-50);}
+code.hl-highlighted .nil {color: var(--color-primary-50);}
+code.hl-highlighted .list {color: var(--color-primary-50);}
+
+code.hl-highlighted .string, code.hl-highlighted .string * {color: var(--color-accent) !important;}
+code.hl-highlighted .comment,
+code.hl-highlighted .comment *,
+code.hl-highlighted .comment .string
+                    code.hl-highlighted .comment .string * {color: var(--color-primary-400) !important;}
+code.hl-highlighted .string .comment {color: var(--color-primary-400) !important;}
+
+code.hl-highlighted .list.active {display: inline-block; background: var(--color-accent);}
+
+/* Scrollbar */
+pre::-webkit-scrollbar {
+    height: auto;
+}
+
+pre::-webkit-scrollbar-thumb {
+    border: 1px outset var(--color-accent);
+    background-color: var(--color-accent-400);
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+    border: 1px outset var(--color-secondary);
+    background-color: var(--color-secondary);
+}
+
+pre::-webkit-scrollbar-track {
+    background-color: var(--color-primary-900);
+}
+
+/* 3D transformation stuff */
+.navigation {
+    max-width: fit-content;
+}
+
+.navigation ul {
+    & > li {
+        font-size: 9rem;
+    }
+}
+
+.nav-list {
+    perspective: 1200px;
+    perspective-origin: 50% 50%;
+}
+.nav-list__item-container {
+    transform-style:preserve-3d;
+    & > .nav-list__item {
+        transform:
+            translate3d(0px, 0px, 0px)
+            scale3d(1, 1, 1.00)
+            rotateX(10deg) rotateY(45deg) rotateZ(0deg);
+        transform-origin: left center;
+        transform-style: preserve-3d;
+        transition: all;
+        transition-duration: 300ms;
+        max-width: fit-content;
+        pointer-events: none;
+    }
+
+    &:hover > .nav-list__item {
+        z-index: 99;
+        transform:
+            translate3d(0px, 0px, 0px)
+            scale3d(1.50, 1.25, 1.00)
+            rotateX(10deg) rotateY(45deg) rotateZ(0deg);
+    }
+}
+
+.loading {
+    width: calc(100% - 1.4ch);
+    white-space: nowrap;
+    overflow-x: hidden;
+    /* Animation shorthand */
+    animation: loading 1000ms ease-in-out infinite;
+}
+@keyframes loading {
+    0% {
+        width: calc(100% - 1.4ch);
+    }
+    100% {
+        width: calc(100%);
+    }
+}
+
+.instrument-serif-regular {
+  font-family: "Instrument Serif", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.instrument-serif-regular-italic {
+  font-family: "Instrument Serif", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+
+.hero-text-right {
+    position-anchor: --hero-text-anchor;
+    top: anchor(start);
+    left: calc(anchor(right) + 1ch);
+}
+
+.ghost-text {
+    --text-color: var(--color-primary-500);
+    text-shadow: 0px 0px 5px var(--text-color);
+    color: var(--text-color);
+    filter: blur(1px);
+}
+
+a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    font-family: "Berkeley Mono UltraCondensed";
+    transition: all;
+    transition-duration: 300ms;
+    text-shadow: 1px 1px 0px var(--color-accent-950);
+    &:hover {
+        color: var(--color-secondary); 
+    }
+}
+
+/* Scanlines */
+/* scrapped due to bad performance */
+/* .scanlines { */
+/*     overflow: hidden; */
+/*     position: relative; */
+/* } */
+/* .scanlines:before, */
+/* .scanlines:after { */
+/*     display: block; */
+/*     pointer-events: none; */
+/*     content: ""; */
+/*     position: absolute; */
+/* } */
+/* .scanlines:before { */
+/*     width: 100%; */
+/*     height: 2px; */
+/*     z-index: 2147483649; */
+/*     background: rgba(0, 0, 0, 0.3); */
+/*     opacity: 0.40; */
+/*     animation: scanline 6s linear infinite; */
+/* } */
+/* .scanlines:after { */
+/*     top: 0; */
+/*     right: 0; */
+/*     bottom: 0; */
+/*     left: 0; */
+/*     z-index: 2147483648; */
+/*     background: linear-gradient( */
+/*         to bottom, */
+/*         transparent 50%, */
+/*         rgba(0, 0, 0, 0.08) 51% */
+/*     ); */
+/*     background-size: 100% 2px; */
+/*     animation: scanlines 500ms steps(60) infinite; */
+/* } */
+
+/* ANIMATE UNIQUE SCANLINE */
+/* @keyframes scanline { */
+/*     0% { */
+/*         transform: translate3d(0, 200000%, 0); */
+/*     } */
+/* } */
+/* @keyframes scanlines { */
+/*     0% { */
+/*         background-position: 0 50%; */
+/*     } */
+/* } */
+
+/* Chromatic Aberration */
+/* scrapped due to bad performance */
+/* h1, h2, p, code { */
+/*     animation: chromaticMove 100ms linear infinite,pulse-text ease 5000ms  infinite; */
+/* } */
+/* @keyframes pulse-text {  */
+/*     0%{ opacity:.9;transform: skewX(.5deg);} */
+/*     25%{ opacity:1;} */
+/*     50%{opacity:.9;} */
+/*     75%{ opacity:1; transform:skewX(.5deg);} */
+/*     100%{opacity:.9;} */
+/* } */
+/* :root { */
+/*     --chromatic-move-shadow-distance: 0.1ch; */
+/*     --n-chromatic-move-shadow-distance: calc(var(--chromatic-move-shadow-distance) * -1); */
+/*     --chromatic-move-opacity: 0.5; */
+/*     --chromatic-move-blur: 3px; */
+/* } */
+/* @keyframes chromaticMove {  */
+/*     0%{text-shadow: var(--n-chromatic-move-shadow-distance) var(--n-chromatic-move-shadow-distance) var(--chromatic-move-blur) rgba(251, 12, 12,var(--chromatic-move-opacity)), var(--chromatic-move-shadow-distance) var(--n-chromatic-move-shadow-distance) var(--chromatic-move-blur) rgba(12, 79, 251,var(--chromatic-move-opacity)),var(--chromatic-move-shadow-distance) var(--chromatic-move-shadow-distance) var(--chromatic-move-blur) rgba(52, 251, 12, var(--chromatic-move-opacity),var(--chromatic-move-opacity));} */
+/*     50%{text-shadow: 0ch 0ch var(--chromatic-move-blur) rgba(251, 12, 12,var(--chromatic-move-opacity)), 0ch 0ch var(--chromatic-move-blur) rgba(12, 79, 251,var(--chromatic-move-opacity)),0ch 0ch var(--chromatic-move-blur) rgba(52, 251, 12, var(--chromatic-move-opacity));} */
+/*     100%{text-shadow: var(--n-chromatic-move-shadow-distance) var(--n-chromatic-move-shadow-distance) var(--chromatic-move-blur) rgba(251, 12, 12,var(--chromatic-move-opacity)), var(--n-chromatic-move-shadow-distance) var(--chromatic-move-shadow-distance) var(--chromatic-move-blur) rgba(12, 79, 251,var(--chromatic-move-opacity)),var(--chromatic-move-shadow-distance) var(--chromatic-move-shadow-distance) var(--chromatic-move-blur) rgba(52, 251, 12, var(--chromatic-move-opacity));} */
+/* } */

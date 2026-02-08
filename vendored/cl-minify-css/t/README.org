@@ -1,0 +1,9 @@
+* cl-minify-css Test
+  
+** How to test cl-minify-css?
+   
+It's quite simple, in REPL:
+
+#+BEGIN_SRC lisp
+(asdf:test-system :cl-minify-css)
+#+END_SRC

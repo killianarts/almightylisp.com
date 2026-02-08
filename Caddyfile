@@ -1,0 +1,15 @@
+almightylisp.com {
+        reverse_proxy localhost:5000
+
+        log {
+                output file /var/log/caddy/almightylisp.log
+        }
+        # Optional: Add security headers (good practice)
+        header {
+                Strict-Transport-Security "max-age=31536000;"
+                X-Content-Type-Options nosniff
+                X-Frame-Options DENY
+                X-XSS-Protection "1; mode=block"
+                Referrer-Policy strict-origin-when-cross-origin
+        }
+}

@@ -1,0 +1,222 @@
+#+title: This Is A List
+** THIS IS A LIST
+*** empty list
+#+begin_src lisp
+()
+#+end_src
+This is a list.
+
+*** flat list
+#+begin_src lisp
+(1 2 3)
+#+end_src
+So is this. It has three numbers.
+
+*** nested lists
+#+begin_src lisp
+((10 11 12) (1 2 3))
+#+end_src
+This is three lists. One list contains two nested lists.
+
+*** symbols
+#+begin_src lisp
+micah
+#+end_src
+This is a symbol. A symbol holds a reference to some data.
+
+*** list beginning with symbol
+#+begin_src lisp
+(list a b c)
+#+end_src
+This is also a list. It contains four symbols, ~list~ ~a~ ~b~ ~c~.
+
+*** alists
+#+begin_src lisp
+((:micah . "lisper") (:sussman . "lisper") (:joe-blow . "jai guy") (:dhh . "ruby boob"))
+#+end_src
+This is an associative list, also called an alist. Lists can be used as tables storing key-value pairs.
+
+Symbols that begin with ~:~ are called keywords. Keywords are evaluated to themselves.
+
+*** plists
+#+begin_src lisp
+(:person "Micah" :home "Japan" :favorite-foods ("pizza" "tacos" "pinapple" "fried chicken"))
+#+end_src
+This is a property list, or plist. It also holds key-value pairs.
+
+*** trees
+#+begin_src lisp
+((a b (c d e f (g) h (i j))) k l m (n o (p)))
+#+end_src
+This is a tree of lists.
+
+*** function call
+#+begin_src lisp
+(say-hello) ; => "Hello!"
+#+end_src
+This is a list with a symbol. The first item in a list is treated as the name of a function to be called.
+
+*** passing arguments
+#+begin_src lisp
+(person-birthday :micah '((:micah . "1985-12-14")
+                          (:takae . "1987-11-19")
+                          (:mom . "1955-02-12")
+                          (:papa . "1952-07-31"))) ; => "1985-12-14"
+#+end_src
+If there are other elements in the list besides the function name, that function will do something with the rest of the elements in the list.
+
+That's called "passing arguments" to the function. *Arguments are evaluated first--from left to right--before being passed to the function*.
+
+*** quoting lists
+#+begin_src lisp
+(quote (person-birthday :micah '((:micah . "1985-12-14")
+                                 (:takae . "1987-11-19")
+                                 (:mom . "1955-02-12")
+                                 (:papa . "1952-07-31"))))
+                                        ; => (PERSON-BIRTHDAY :MICAH
+                                        ; '((:MICAH . "1985-12-14")
+                                        ;   (:TAKAE . "1987-11-19")
+                                        ;   (:MOM . "1955-02-12")
+                                        ;   (:PAPA . "1952-07-31")))
+#+end_src
+Quoting a list returns the literal list object /without evaluating its contents/. Symbols are upcased.
+#+begin_src lisp
+'(person-birthday :micah '((:micah . "1985-12-14")
+                           (:takae . "1987-11-19")
+                           (:mom . "1955-02-12")
+                           (:papa . "1952-07-31")))
+                                        ; => (PERSON-BIRTHDAY :MICAH
+                                        ; '((:MICAH . "1985-12-14")
+                                        ;   (:TAKAE . "1987-11-19")
+                                        ;   (:MOM . "1955-02-12")
+                                        ;   (:PAPA . "1952-07-31")))
+#+end_src
+~'~ is a reader macro. It performs the same function as the above call to ~quote~.
+
+*** defining a function
+#+begin_src lisp
+(defun person-birthday (name db) (cdr (assoc name db)))
+#+end_src
+
+This is how you create a function.
+
+There is one list that contains two symbols and two nested lists.
+
+The first element ~defun~ is a /macro/.
+
+The second element ~person-birthday~ is a name to give to the function.
+
+~(name db)~ is a /lambda-list/ that defines the arguments that the function can take.
+
+~(cdr (assoc name db))~ is another list--the body of the function.
+
+*** evaluating list objects
+#+begin_src lisp
+(quote (person-birthday :micah '((:micah . "1985-12-14")
+                                 (:takae . "1987-11-19")
+                                 (:mom . "1955-02-12")
+                                 (:papa . "1952-07-31"))))
+                                        ; => (PERSON-BIRTHDAY :MICAH
+                                        ; '((:MICAH . "1985-12-14")
+                                        ;   (:TAKAE . "1987-11-19")
+                                        ;   (:MOM . "1955-02-12")
+                                        ;   (:PAPA . "1952-07-31")))
+
+(eval '(person-birthday :micah '((:micah . "1985-12-14")
+                                 (:takae . "1987-11-19")
+                                 (:mom . "1955-02-12")
+                                 (:papa . "1952-07-31"))))
+                                        ; => "1985-12-14"
+#+end_src
+The first list is a function call to ~quote~. It returns the literal representation of its argument.
+
+The second list is a function call to ~eval~. It will take the data it receives and evaluate it as code.
+
+I repeat: it takes the literal representation of data and evaluates it as code.
+
+*** passing functions as data
+#+begin_src lisp
+(defun person-birthday (row) (cdr row))
+(mapcar (function person-birthday) '((:micah . "1985-12-14")
+                                     (:takae . "1987-11-19")
+                                     (:mom . "1955-02-12")
+                                     (:papa . "1952-07-31")))
+                                        ; => ("1985-12-14" "1987-11-19" "1955-02-12" "1952-07-31")
+(mapcar #'person-birthday '((:micah . "1985-12-14")
+                            (:takae . "1987-11-19")
+                            (:mom . "1955-02-12")
+                            (:papa . "1952-07-31")))
+                                        ; => ("1985-12-14" "1987-11-19" "1955-02-12" "1952-07-31")
+#+end_src
+Functions can be passed as data to other functions.
+
+Functions passed as data to other functions are called higher-order functions.
+
+The special operator ~function~ will return the function-value of the function name passed to it.
+
+The reader macro ~#'~ is similar to ~'~, except that it returns the function value and not the literal representation of the function name.
+*** traversing code like data
+#+begin_src lisp
+(defun tree-type-of (x)
+  (cond ((null x) nil)
+        ((symbolp x)
+         (cond ((macro-function x) (list 'macro))
+               ((and (boundp x) (symbol-function x)) (list 'fun))
+               ((and (boundp x) (symbol-value x)) (list 'var))
+               (t (list 'symbol))))
+        ((numberp x) (list 'number))
+        ((atom x) (list (type-of x)))
+        (t (and (append (tree-type-of (car x))
+                        (tree-type-of (cdr x)))))))
+
+(tree-type-of '(defun cube-and-double (x) (* 2 (* x x x))))
+                                        ; => (MACRO SYMBOL SYMBOL FUN NUMBER FUN SYMBOL SYMBOL SYMBOL)
+#+end_src
+Code can be traversed and transformed as data.
+
+*** macros
+#+begin_src lisp
+(defmacro to-keyword (name)
+  (typecase name
+    (keyword name)
+    (string (intern (string-upcase name) :keyword))
+    (symbol (intern (symbol-name name) :keyword))
+    (t "The argument must be either a keyword, string, or symbol.")))
+
+(to-keyword :micah)
+                                        ; => :MICAH
+(to-keyword "micah")
+                                        ; => :MICAH
+(to-keyword micah)
+                                        ; => :MICAH
+#+end_src
+This is a macro. It's like a function, but it writes code.
+
+This macro can turn a symbol passed to it into a keyword.
+
+*** macros are compiled
+#+begin_src lisp
+(defmacro person-birthday-macro (name db)
+  `(cdr (assoc (to-keyword ,name) ,db)))
+
+;; This code...
+(person-birthday-macro micah '((:micah . "1985-12-14")
+                               (:takae . "1987-11-19")
+                               (:mom . "1955-02-12")
+                               (:papa . "1952-07-31")))
+
+;; ...transforms into this code...
+(cdr
+ (assoc (to-keyword micah)
+        '((:micah . "1985-12-14") (:takae . "1987-11-19") (:mom . "1955-02-12")
+          (:papa . "1952-07-31"))))
+
+;; ...which finally completes its transformation into this code:
+(cdr
+ (assoc :micah
+        '((:micah . "1985-12-14") (:takae . "1987-11-19") (:mom . "1955-02-12")
+          (:papa . "1952-07-31"))))
+#+end_src
+Macros take code as data and rewrite it into other code.
+
+*** Data is code
