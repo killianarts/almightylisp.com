@@ -19,8 +19,6 @@ exec ros -Q -- $0 "$@"
 
 (asdf:load-system "almightylisp")
 
-(defparameter *appfile* "app.lisp")
-
 ;; Environment variable utilities.
 (defun get-env-int (env default)
   (let ((env (uiop:getenv env)))
@@ -42,7 +40,7 @@ exec ros -Q -- $0 "$@"
         (debugp (envp "DEBUGP"))) 
     (handler-case
         (progn
-          (shiso:start *appfile*)
+          (shiso:start almightylisp/app:*app*)
           (sleep most-positive-fixnum))
       (error (c)
         (format *error-output* "Aborting. ~a ~&" c)
