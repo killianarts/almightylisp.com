@@ -70,13 +70,7 @@
          (link :rel "icon" :type "image/png" :sizes "32x32" :href "assets/images/favicon/favicon-32x32.png")
          (link :rel "icon" :type "image/png" :sizes "16x16" :href "assets/images/favicon/favicon-16x16.png")
          (link :rel "manifest" :href "assets/images/favicon/site.webmanifest")
-         (script :src "https://cdn.jsdelivr.net/npm/animejs/dist/bundles/anime.umd.min.js")
          (script :src "js/highlight-lisp.js")
-         (script
-           :src "https://unpkg.com/htmx.org@2.0.4/dist/htmx.js"
-           :integrity "sha384-oeUn82QNXPuVkGCkcrInrS1twIxKhkZiFfr2TdiuObZ3n3yIeMiqcRzkIcguaof1"
-           :crossorigin "anonymous")
-         (script :src "https://unpkg.com/hyperscript.org@0.9.13")
          (ac-meta-information :title title :description "almightylisp.com"))
        ;; (script :src "js/almighty-animations.js" :type "module")
        (body
