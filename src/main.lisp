@@ -9,6 +9,20 @@
   (:export #:*app*))
 (in-package #:almightylisp)
 
+(defun current-page ()
+  (let* ((env (lack/request:request-env shiso:*request*))
+         (scheme (getf env :url-scheme))
+         (server-name (getf env :server-name))
+         (uri (getf env :request-uri))
+         (query-string (getf env :query-parameters)))
+    (format nil "~a://~a~a~a" scheme server-name uri (or query-string ""))))
+
+(defun static (path)
+  (let* ((env (lack/request:request-env shiso:*request*))
+         (scheme (getf env :url-scheme))
+         (server-name (getf env :server-name)))
+    (format nil "~a://~a/~a" scheme server-name path)))
+
 (define-component ac-nav-link (&key url text)
   (</>
    (span :class "relative"
@@ -20,7 +34,8 @@
        (span :class "truncate" text)))))
 
 
-(define-component ac-meta-information (&key title description children)
+(define-component ac-meta-information (&key title description url children)
+  
   (</>
    (<>
      ;; X/Twitter
@@ -29,7 +44,14 @@
      (meta :name "twitter:creator" :content "@killian_arts")
      (meta :name "twitter:title" :content title)
      (meta :name "twitter:description" :content description)
-     (meta :name "twitter:image" :content "https://almightylisp.com/assets/images/x-posts-preview-image.png"))))
+     (meta :name "twitter:image" :content "https://almightylisp.com/assets/images/x-posts-preview-image.png")
+     ;; Opengraph (Facebook)
+     (meta :property "og:title" :content title)
+     (meta :property "og:description" :content description)
+     (meta :property "og:image" :content (static "assets/images/x-posts-preview-image.png"))
+     (meta :property "og:url" :content (current-page))
+     (meta :property "og:type" :content title)
+     )))
 (define-component ac-skeleton (&key title children)
   (let ((html-class (string-downcase "dark"))
         (html-lang "en"))
@@ -56,7 +78,7 @@
            :crossorigin "anonymous")
          (script :src "https://unpkg.com/hyperscript.org@0.9.13")
          (ac-meta-information :title title :description "almightylisp.com"))
-       (script :src "js/almighty-animations.js" :type "module")
+       ;; (script :src "js/almighty-animations.js" :type "module")
        (body
          children
          ;; syntax highlighting
@@ -111,7 +133,7 @@
 
 (define-component ac-teaser-slide (&key id class heading code children)
   (</>
-   (section :id id :class (almighty-html:clsx "slide min-h-[100dvh] z-20 px-5 py-[2ch]" class)
+   (section :id id :class (almighty-html:clsx "slide z-20 px-5 py-[2ch]" class)
      (div :class "slide-contents max-w-[120ch] space-y-[1ch]"
        (when heading
          (</>
@@ -135,28 +157,10 @@
 (define-component ac-hero-text (&key class author children)
   (</>
    (div :class "grid place-items-center min-h-[100dvh] px-5"
-     (hgroup :class (almighty-html:clsx "font-hero text-7xl sm:text-9xl" class)
+     (hgroup :class (almighty-html:clsx "font-hero text-7xl sm:text-[20rem]" class)
        (h1 :id "page-title" :class "text-center text-balance" children)
        (when author
-         (</> (p :class "mt-10 text-3xl font-bodoni" "by " author)))
-       ;; (svg :width "0" :height "0"
-       ;;   (filter :id "kill"
-       ;;     (fecolormatrix :type "matrix"
-       ;;       :result "red_"
-       ;;       :values "4 0 0 0 0
-       ;;                0 0 0 0 0
-       ;;                0 0 0 0 0
-       ;;                0 0 0 1 0")
-       ;;     (feoffset :in "red_" :dx "2" :dy "0" :result "red")
-       ;;     (fecolormatrix :type "matrix"
-       ;;       :result "blue_"
-       ;;       :values "0 0 0 0 0
-       ;;                0 3 0 0 0
-       ;;                0 0 10 0 0
-       ;;                0 0 0 1 0")
-       ;;     (feoffset :in "blue_" :dx "-3" :dy "0" :result "blue")
-       ;;     (feblend :mode "lighten" :in "red" :in2 "blue")))
-       ))))
+         (</> (p :class "mt-10 text-3xl font-bodoni" "by " author)))))))
 
 (define-component ac-code (&key children)
   (</>
