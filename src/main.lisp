@@ -30,8 +30,7 @@
      (meta :name "twitter:title" :content title)
      (meta :name "twitter:description" :content description)
      (meta :name "twitter:image" :content "assets/images/x-posts-preview-image.png")
-     ;; Necessary to use HTML b:if
-     "<meta expr:content='data:blog.homepageUrl' name='twitter:domain'/>
+     (raw! "<meta expr:content='data:blog.homepageUrl' name='twitter:domain'/>
    <b:if cond='data:blog.pageType == &quot;item&quot;'>
       <meta expr:content='data:blog.canonicalUrl' name='twitter:url'/>
       <meta expr:content='data:blog.pageName' name='twitter:title'/>
@@ -46,7 +45,7 @@
    </b:if>
    <b:if cond='data:blog.metaDescription'>
       <meta expr:content='data:blog.metaDescription' name='twitter:description'/>
-   </b:if>")))
+   </b:if>"))))
 (define-component ac-skeleton (&key title children)
   (let ((html-class (string-downcase "dark"))
         (html-lang "en"))
