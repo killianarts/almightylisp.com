@@ -24,11 +24,29 @@
   (</>
    (<>
      ;; X/Twitter
-     (meta :name "twitter:card" :content "summary_large_image")
+     (meta :name "twitter:card" :content "summary")
      (meta :name "twitter:site" :content "@killian_arts")
+     (meta :name "twitter:creator" :content "@killian_arts")
      (meta :name "twitter:title" :content title)
      (meta :name "twitter:description" :content description)
-     (meta :name "twitter:image" :content "assets/images/x-posts-preview-image.png"))))
+     (meta :name "twitter:image" :content "assets/images/x-posts-preview-image.png")
+     ;; Necessary to use HTML b:if
+     "<meta expr:content='data:blog.homepageUrl' name='twitter:domain'/>
+   <b:if cond='data:blog.pageType == &quot;item&quot;'>
+      <meta expr:content='data:blog.canonicalUrl' name='twitter:url'/>
+      <meta expr:content='data:blog.pageName' name='twitter:title'/>
+   <b:else/>
+      <meta expr:content='data:blog.homepageUrl' name='twitter:url'/>
+      <meta expr:content='data:blog.pageTitle' name='twitter:title'/>
+   </b:if>
+   <b:if cond='data:blog.postImageUrl'>
+      <meta expr:content='data:blog.postImageUrl' name='twitter:image'/>
+   <b:else/>
+      <meta content='assets/images/x-posts-preview-image.png' name='twitter:image'/>
+   </b:if>
+   <b:if cond='data:blog.metaDescription'>
+      <meta expr:content='data:blog.metaDescription' name='twitter:description'/>
+   </b:if>")))
 (define-component ac-skeleton (&key title children)
   (let ((html-class (string-downcase "dark"))
         (html-lang "en"))
