@@ -764,6 +764,9 @@
   .table {
     display: table;
   }
+  .table\! {
+    display: table !important;
+  }
   .size-\[max\(100\%\,2\.75rem\)\] {
     width: max(100%, 2.75rem);
     height: max(100%, 2.75rem);

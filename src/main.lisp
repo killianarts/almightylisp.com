@@ -19,6 +19,16 @@
                        (if (string= url (lack/request:request-path-info shiso:*request*)) "text-secondary" "text-primary-50"))
        (span :class "truncate" text)))))
 
+
+(define-component ac-meta-information (&key title description children)
+  (</>
+   (<>
+     ;; X/Twitter
+     (meta :name "twitter:card" :content "summary_large_image")
+     (meta :name "twitter:site" :content "@killian_arts")
+     (meta :name "twitter:title" :content title)
+     (meta :name "twitter:description" :content description)
+     (meta :name "twitter:image" :content "assets/images/x-posts-preview-image.png"))))
 (define-component ac-skeleton (&key title children)
   (let ((html-class (string-downcase "dark"))
         (html-lang "en"))
@@ -28,6 +38,7 @@
          (title (str:concat (string-upcase title) " /// " (string-upcase "almightylisp.com")))
          (meta :charset "utf-8")
          (meta :name "viewport" :content "width=device-width, initial-scale=1")
+         (ac-meta-information :title title :description "almightylisp.com")
          (link :href "css/almightylisp.css" :rel "stylesheet" :type "text/css")
          (link :rel "preconnect" :href "https://fonts.googleapis.com")
          (link :rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin t)
@@ -117,6 +128,7 @@
 ;;        words 
 ;;        (when author
 ;;          (</> (p :class "mt-10 text-3xl font-bodoni" "by " author)))))))
+
 
 (define-component ac-hero-text (&key class author children)
   (</>
