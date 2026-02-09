@@ -24,28 +24,12 @@
   (</>
    (<>
      ;; X/Twitter
-     (meta :name "twitter:card" :content "summary")
+     (meta :name "twitter:card" :content "summary_large_image")
      (meta :name "twitter:site" :content "@killian_arts")
      (meta :name "twitter:creator" :content "@killian_arts")
      (meta :name "twitter:title" :content title)
      (meta :name "twitter:description" :content description)
-     (meta :name "twitter:image" :content "assets/images/x-posts-preview-image.png")
-     (raw! "<meta expr:content='data:blog.homepageUrl' name='twitter:domain'/>
-   <b:if cond='data:blog.pageType == &quot;item&quot;'>
-      <meta expr:content='data:blog.canonicalUrl' name='twitter:url'/>
-      <meta expr:content='data:blog.pageName' name='twitter:title'/>
-   <b:else/>
-      <meta expr:content='data:blog.homepageUrl' name='twitter:url'/>
-      <meta expr:content='data:blog.pageTitle' name='twitter:title'/>
-   </b:if>
-   <b:if cond='data:blog.postImageUrl'>
-      <meta expr:content='data:blog.postImageUrl' name='twitter:image'/>
-   <b:else/>
-      <meta content='assets/images/x-posts-preview-image.png' name='twitter:image'/>
-   </b:if>
-   <b:if cond='data:blog.metaDescription'>
-      <meta expr:content='data:blog.metaDescription' name='twitter:description'/>
-   </b:if>"))))
+     (meta :name "twitter:image" :content "https://almightylisp.com/assets/images/x-posts-preview-image.png"))))
 (define-component ac-skeleton (&key title children)
   (let ((html-class (string-downcase "dark"))
         (html-lang "en"))
@@ -55,7 +39,7 @@
          (title (str:concat (string-upcase title) " /// " (string-upcase "almightylisp.com")))
          (meta :charset "utf-8")
          (meta :name "viewport" :content "width=device-width, initial-scale=1")
-         (ac-meta-information :title title :description "almightylisp.com")
+         
          (link :href "css/almightylisp.css" :rel "stylesheet" :type "text/css")
          (link :rel "preconnect" :href "https://fonts.googleapis.com")
          (link :rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin t)
@@ -70,7 +54,8 @@
            :src "https://unpkg.com/htmx.org@2.0.4/dist/htmx.js"
            :integrity "sha384-oeUn82QNXPuVkGCkcrInrS1twIxKhkZiFfr2TdiuObZ3n3yIeMiqcRzkIcguaof1"
            :crossorigin "anonymous")
-         (script :src "https://unpkg.com/hyperscript.org@0.9.13"))
+         (script :src "https://unpkg.com/hyperscript.org@0.9.13")
+         (ac-meta-information :title title :description "almightylisp.com"))
        (script :src "js/almighty-animations.js" :type "module")
        (body
          children
