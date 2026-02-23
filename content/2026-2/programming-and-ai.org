@@ -1,0 +1,8 @@
+#+title: Programming And Ai
+#+author: Micah Killian
+#+date: <2026-02-11 Wed>
+
+* Money
+Let me confess something to you: I have never used MCPs or agentic programming. Why? Because I don't have the money.
+
+And I don't think I'm alone.

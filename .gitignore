@@ -6,3 +6,4 @@ tmp/
 *.fasl
 */.git
 *.pem
+vendored/*

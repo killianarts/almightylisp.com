@@ -1,0 +1,72 @@
+#+title: Getting Started With Doom Emacs
+#+author: Micah Killian
+#+date: <2026-02-10 Tue> 
+
+Emacs is /the/ editor for Common Lisp programming, but it has a big learning curve. Doom Emacs helps decrease the learning curve by taking care of the configuration, so you can focus on learning the more essential functions.
+
+* What is Doom Emacs?
+[[https://www.gnu.org/software/emacs/][Emacs]] is a text editor known for being infinitely extendable and  customizable. Much of its functionality is available via a GUI menu, but us Emacs users typically prefer the many keybindings the Emacs provides. Emacs is also the defacto standard editor for Common Lisp programming. While it's /possible/ to use other editors like VSCode, it's not nearly as comfortable.
+
+[[https://github.com/doomemacs/doomemacs][Doom Emacs]] is a popular "distribution" of Emacs. It comes with many useful packages preinstalled and preconfigured.
+
+* Why Emacs?
+Ah, the age old question: "Emacs is 50 years old! Why would I use that crusty old program when there are fresh and crispy IDEs like Jetbrains or Cursor or whatever the latest AI thing is?"
+
+The answer is in the question: A significant portion of programmers use Emacs today. Some people observe that the most "cracked" (mid-2020's-speak for "skilled") programmers use Emacs (or Neovim (hawk twah)).
+
+* Why Doom?
+Many people prefer to start with the "vanilla" version of a thing before moving on to a more "complete" or advanced version of it (and some people even stick to the basic!). With Emacs, you can of course begin and stick with vanilla Emacs, and if age of LLMs you might even be able to configure the perfect system for you in a short amount of time.
+
+However, I recommend beginning with Doom Emacs. Why?
+
+** Evil > Emacs
+If you are familiar with Vim/Neovim, then getting started with Doom Emacs will be easier because it comes with the =evil= package preinstalled and preconfigured with keybindings set for many different packages and functions.
+
+But even if you aren't familiar with Vim keybindings, it's a good idea to become familiar. Why? Because Emacs bindings are often not nearly as comfortable to type as Vim bindings. This is a controversial /opinion/ (a preference held in the minds of us humans) and a subject of much debate through the ages. My opinion is that a use of both Emacs and Evil bindings is most comfortable to type and easier to remember (counterintuitive, I know). In the beginning, you may feel swamped with too many choices of keybindings, wondering which one you /should/ use. The important thing to understand is that you should use whatever feels right. You will discover whether you have a preference for Emacs, Evil, or a mixture of both over time.
+
+** Beginner Friendly
+Another benefit of Doom is that you have a lot of functionality built in and preconfigured. With a standard Emacs install, you need to discover the most up-to-date, high quality, and well-supported package yourself (probably easy with LLMs), configure them yourself (time consuming, requires a knowledge of Emacs Lisp, but doable), and then maintain those configurations ("How do I move my config to my new computer?"). Using Doom is an easy way to /date/ Emacs before you decide to marry it (likely) or dump it (unlikely).
+
+Another beginner-friendly feature of Doom is that it disables certain commands that can be confusing to new users. One example is "narrowing", where a buffer's contents are partially hidden to focus on a portion of it. If you don't know how to use narrowing, or how to "widen" to unhide the hidden portion of the buffer, it can be irritating and confusing. Doom initially disables the feature, giving a warning message when you first try to use it, and then gives you the option to enable it.
+
+** Predictable
+Using Doom also means that you have a "standard" or well-known configuration that other people are familiar with. While one of the often touted advantages of using Emacs is that you can customize it to your hearts content, the downside of that is that if other people need to use your Emacs for some reason, your DIY Emacs config is likely to be confusing to them. The same is true if you sit down at someone else's super custom build of Emacs--you're probably going to be frustrated. If working with others is important to you, then using Doom will provide flexibility and functionality while also balancing the need for /predictability/.
+
+And importantly, the configuration is /good/. You usually have the option of using either the Emacs or the Evil binding for a particular action, and certain bindings work the way you expect them to across different modes. Doom provides a consistent, predictable experience. Nice a comfy.
+
+* Install & Configuration
+Installing Doom Emacs is fairly simple, especially if you use Linux. Refer to the [[https://github.com/doomemacs/doomemacs/blob/master/docs/getting_started.org][Doom Emacs Getting Started Guide]] to install it. The basic steps are:
+
+1. Install Emacs
+2. Install Doom's dependencies
+3. Install Doom (via install script)
+
+Once you've installed it, you can configure it by opening the =init.el= file. At the Doom dashboard, type =SPC f P= (meaning the space key, then the lower-case f key, then the upper-case P key) and then type in =init.el=. In there, you can configure what package groups are installed. For example, you can have vterm installed by uncommenting where it says =vterm=. You can have packages installed for working with Common Lisp, PHP, JS, etc. To uncomment, you can type =M-/= (meaning type the meta/command and the / key at the same time), or you can simply place the keyboard cursor over the semicolons and type the =x= key. 
+
+After making your changes, save by typing =C-x C-s=, then type =SPC h r r= to run =doom sync=. Otherwise, you can close Emacs and then run =doom sync= in the command line.
+
+* What To Do Next
+Now that you have Doom installed, there are a few things you can do:
+1. You can jump straight into trying to edit code.
+2. You can run the Emacs built-in tutorial via =M-x help-with-tutorial=.
+3. You can try learning Vim keybindings via some online tutorials (I like [[https://www.vim-hero.com/][Vim Hero]]).
+
+While jumping straight into editing might be tempting, I recommend taking the time to run the Emacs tutorial and learn Vim keybindings. Vim keybindings are often available in other editors (either built in or via extensions) and really are very nice. Learning Vim keybindings is nearly the equivalent of learning touch typing--a bit level up in capabilities happens onces you learn it.
+
+* Important Vocabulary
+When you're first getting started, it can take a while to get a handle on all the vocabulary that you need to know just to do "basic" things. I'll help you get a jump start with a tour of the vocabulary.
+** Buffer
+Buffers are the most fundamental atomic unit in Emacs. Buffers show open files, directories, Emacs-specific data, etc. Having a file open means having a buffer open and viewing the contents of a file.
+** Frame
+A frame is what is more commonly known as a window. It's the box that's open when you open Emacs--it has it's own title bar with close, minimize, and maximize buttons in one corner.
+** Window
+The "buffer" concept can be confusing (and managing them even more so), but the Emacs concept of "windows" is likely to be more confusing. In Emacs, "windows" are what other editors/IDEs might call "panes". They are divisions within the frame where buffers are displayed. Having multiple windows open means you can look at multiple files at the same time.
+** Minibuffer
+A minibuffer is a temporary buffer that will close automatically once the operation that opened it is complete. The =M-x= command minibuffer is representative of minibuffers: You type =M-x= and a minibuffer at the bottom of the frame opens. Once you pick a command to run, the minibuffer closes.
+** Mode
+Modes a designations for how to highlight text, what other code to run while the buffer is open, and a set of functionality unique to that mode. For example, =web-mode= is a mode that HTML files will open in, code highlighting the HTML (and CSS, PHP, and JavaScript) and providing keybindings for things like deleting an element and its innerHTML, renaming a pair of opening/closing tags, etc.
+** Modeline
+The modeline is where important information about the buffer is displayed: Buffer name/file path, the mode the buffer is in, etc. You can use the mouse to click on the mode's name in the modeline to discover operations (and often their keybindings) available in the mode.
+** Packages
+Packages are what other editors might call extensions or plugins. Packages provide features not initially built in to Emacs. Doom is essentially a well-thought out and nicely configured set of packages.
+

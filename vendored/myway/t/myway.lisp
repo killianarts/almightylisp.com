@@ -67,4 +67,54 @@
 (is (dispatch *mapper* "/id/1") "odd")
 (is (dispatch *mapper* "/id/2") "even")
 
+;; Route namespace tests
+
+(defparameter *ns-mapper* (make-mapper))
+
+(connect *ns-mapper* "/"
+         (lambda (params)
+           (declare (ignore params))
+           "home")
+         :name :index)
+
+(connect *ns-mapper* "/admin"
+         (lambda (params)
+           (declare (ignore params))
+           "admin home")
+         :name :index
+         :namespace :admin)
+
+(connect *ns-mapper* "/admin/users"
+         (lambda (params)
+           (declare (ignore params))
+           "admin users")
+         :name :users
+         :namespace :admin)
+
+;; route-namespace accessor
+(is (route-namespace (find-route-by-name *ns-mapper* :index)) nil
+    "Route without namespace has nil namespace")
+(is (route-namespace (find-route-by-name *ns-mapper* "admin:index")) :admin
+    "Namespaced route has correct namespace")
+
+;; find-route-by-name with keyword (backward compatible)
+(ok (find-route-by-name *ns-mapper* :index)
+    "Keyword lookup still works")
+
+;; find-route-by-name with string namespace:name syntax
+(ok (find-route-by-name *ns-mapper* "admin:index")
+    "String namespace:name lookup finds route")
+(ok (find-route-by-name *ns-mapper* "admin:users")
+    "String namespace:name lookup finds second namespaced route")
+(is (find-route-by-name *ns-mapper* "admin:nonexistent") nil
+    "String lookup returns nil for nonexistent name")
+(is (find-route-by-name *ns-mapper* "bogus:index") nil
+    "String lookup returns nil for nonexistent namespace")
+
+;; find-routes-by-namespace
+(is (length (find-routes-by-namespace *ns-mapper* :admin)) 2
+    "find-routes-by-namespace returns all routes in namespace")
+(is (find-routes-by-namespace *ns-mapper* :nonexistent) nil
+    "find-routes-by-namespace returns nil for unknown namespace")
+
 (finalize)

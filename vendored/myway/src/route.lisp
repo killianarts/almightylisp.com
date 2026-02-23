@@ -1,4 +1,5 @@
 (in-package :cl-user)
+
 (defpackage myway.route
   (:use :cl)
   (:import-from :myway.rule
@@ -8,17 +9,22 @@
                 :rule-url-for)
   (:export :route
            :route-name
+           :route-namespace
            :route-rule
            :route-handler
            :match-route
            :equal-route
            :url-for))
+
 (in-package :myway.route)
 
 (defclass route ()
   ((name :initarg :name
          :initform nil
          :accessor route-name)
+   (namespace :initarg :namespace
+              :initform nil
+              :accessor route-namespace)
    (rule :accessor route-rule)
    (handler :initarg :handler
             :accessor route-handler)))

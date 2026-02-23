@@ -1,10 +1,12 @@
 (in-package :cl-user)
+
 (defpackage myway.mapper
   (:use :cl)
   (:import-from :myway.route
                 :route-rule
                 :route-handler
                 :route-name
+                :route-namespace
                 :equal-route
                 :match-route)
   (:import-from :myway.rule
@@ -20,9 +22,11 @@
            :mapper-routes
            :member-route
            :member-route-by-name
+           :member-routes-by-namespace
            :add-route
            :next-route
            :dispatch))
+
 (in-package :myway.mapper)
 
 (defstruct mapper
@@ -44,6 +48,11 @@
           (mapper-routes mapper)
           :test #'eq
           :key #'route-name))
+
+(defun member-routes-by-namespace (mapper namespace)
+  (remove-if-not (lambda (route)
+                   (eq (route-namespace route) namespace))
+                 (mapper-routes mapper)))
 
 (defun add-route (mapper route)
   (let ((routes (member-route mapper route)))

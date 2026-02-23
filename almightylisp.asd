@@ -5,9 +5,13 @@
   :license "MIT"
   :version "0.1"
   :depends-on (:shiso)
-  :components ((:module "src"
+  :pathname "src"
+  :serial t
+  :components ((:module "components"
                 :serial t
-                :components
-                ((:file "routes")
-                 (:file "app")
-                 (:file "main")))))
+                :components ((:file "common")
+                             (:file "package")))
+               (:file "utils")
+               (:file "routes")
+               (:file "app")
+               (:file "main")))
