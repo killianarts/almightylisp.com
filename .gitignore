@@ -6,3 +6,5 @@ tmp/
 *.fasl
 */.git
 *.pem
+vendored/shiso
+vendored/almighty-html
