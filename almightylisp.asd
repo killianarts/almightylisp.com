@@ -13,5 +13,8 @@
                              (:file "package")))
                (:file "utils")
                (:file "routes")
-               (:file "app")
+               (:module "controllers"
+                :serial t
+                :components ((:file "teaser")
+                             (:file "essentials")))
                (:file "main")))
