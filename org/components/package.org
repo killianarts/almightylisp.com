@@ -1,0 +1,13 @@
+#+title: Components Package
+#+property: header-args:common-lisp :tangle ../../src/components/package.lisp
+
+Umbrella package that re-exports all component definitions.
+
+* Package Definition
+#+begin_src common-lisp
+(uiop:define-package #:almightylisp/components
+  (:use :cl)
+  (:nicknames #:almightlisp/components/main)
+  (:use-reexport #:almightylisp/components/common))
+(in-package #:almightylisp/components)
+#+end_src

@@ -1,0 +1,99 @@
+#+title: Scaffold
+
+The scaffold system generates new module directories with boilerplate
+files, similar to Django's =manage.py startapp=.
+
+* make-module
+
+- Package :: =shiso= (from =shiso/scaffold=)
+- Type :: Function
+
+#+begin_src lisp
+(make-module system-name module-name)
+#+end_src
+
+Scaffold a new shiso module under =src/modules/<module-name>/= of the
+ASDF system named =SYSTEM-NAME=.
+
+| Parameter      | Description                                      |
+|----------------+--------------------------------------------------|
+| =system-name=  | ASDF system name (e.g., =:almightylisp=)        |
+| =module-name=  | Module name string (e.g., ="articles"=)          |
+
+Uses cl-project with the shiso module skeleton template.
+
+** Example
+
+#+begin_src lisp
+(shiso:make-module :almightylisp "articles")
+;; Creates src/modules/articles/ with all boilerplate files
+#+end_src
+
+* Generated File Layout
+
+Running =make-module= creates the following structure:
+
+#+begin_example
+src/modules/<module-name>/
+  <module-name>.lisp          -- Package definition
+  models.lisp                 -- Model definitions (empty)
+  forms.lisp                  -- Form definitions (empty)
+  controllers.lisp            -- Controller functions (empty)
+  routes.lisp                 -- Route definitions (empty)
+  <module-name>.asd           -- ASDF system definition
+  hypermedia/
+    components.lisp           -- almighty-html components (empty)
+#+end_example
+
+** Actual Example from almightylisp.com
+
+The =books= module was scaffolded with =make-module= and shows the
+typical result:
+
+#+begin_example
+src/modules/books/
+  books.lisp                  -- (defpackage #:books ...)
+  models.lisp                 -- (defpackage #:books/models ...)
+  forms.lisp                  -- (defpackage #:books/forms ...)
+  controllers.lisp            -- (defpackage #:books/controllers ...)
+  routes.lisp                 -- (shiso:define-module books ...)
+  hypermedia/
+    components.lisp           -- (defpackage #:books/hypermedia ...)
+#+end_example
+
+* Workflow
+
+1. Scaffold the module:
+   #+begin_src lisp
+   (shiso:make-module :almightylisp "books")
+   #+end_src
+
+2. Define models in =models.lisp=:
+   #+begin_src lisp
+   (shiso:define-model book
+       ((title :col-type (:varchar 200))))
+   #+end_src
+
+3. Register admin (optional) in =models.lisp=:
+   #+begin_src lisp
+   (shiso:define-admin book)
+   #+end_src
+
+4. Write controllers in =controllers.lisp=:
+   #+begin_src lisp
+   (defun index ()
+     (shiso:http-response "Welcome to books"))
+   #+end_src
+
+5. Define routes in =routes.lisp=:
+   #+begin_src lisp
+   (shiso:define-module books
+     (:urls (:GET "/" 'controllers:index "index")))
+   #+end_src
+
+6. Mount in your application:
+   #+begin_src lisp
+   (shiso:define-application *app* ()
+     (:modules
+      ("/books" books)))
+   #+end_src

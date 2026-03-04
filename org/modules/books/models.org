@@ -1,0 +1,43 @@
+#+title: Books Models
+#+property: header-args:common-lisp :tangle ../../../src/modules/books/models.lisp
+
+Data models for the books module.
+
+* Package
+#+begin_src common-lisp 
+(defpackage #:books/models
+                          (:use #:cl))
+
+(in-package #:books/models)
+
+#+end_src
+
+* =book= model
+#+begin_src common-lisp 
+
+(shiso:define-model book
+  ((title :initarg :title :col-type (:varchar 200))
+   (body :initarg :body :col-type :text)
+   (published-on :initarg :date :initform (local-time:now) :col-type :timestamp)))
+
+(let ((books (mito:select-by-sql 'book (sxql:select (:book.*) (sxql:from :book)))))
+  (book-published-on (first books)))
+ ; => @2026-03-04T06:44:35.398779+09:00
+
+(let ((books (mito:select-dao 'book)))
+  (book-published-on (first books)))
+;; The slot BOOKS/MODELS::DATE is unbound in the object
+;; #<BOOK {7005848143}>.
+;; [Condition of type UNBOUND-SLOT]
+
+
+#+nil
+(setf mito:*auto-migration-mode* t)
+
+#+nil
+(mito:migrate-table 'book)
+
+(shiso/admin:define-admin "book")
+
+
+#+end_src

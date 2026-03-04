@@ -1,3 +1,11 @@
+#+title: Routes
+#+property: header-args:common-lisp :tangle ../src/routes.lisp
+
+Top-level route definitions for the almightylisp application. Currently
+commented out while the app uses module-based routing via =define-application=.
+
+* Package Definition
+#+begin_src common-lisp
 (defpackage #:almightylisp/routes
   (:use #:cl)
   (:local-nicknames (#:s #:shiso)
@@ -6,8 +14,12 @@
                     ))
 
 (in-package #:almightylisp/routes)
+#+end_src
 
+* Route Definitions
+#+begin_src common-lisp
 ;; (s:define-routes teaser :root ""
 ;;   (:GET "/" 'teaser:index "index"))
 ;; (s:define-routes essentials :root "/book"
 ;;   (:GET "/essentials" 'essentials:index "index"))
+#+end_src

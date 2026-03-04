@@ -8,3 +8,4 @@ tmp/
 *.pem
 vendored/shiso
 vendored/almighty-html
+db/

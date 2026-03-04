@@ -1,0 +1,20 @@
+#+title: Articles Routes
+#+property: header-args:common-lisp :tangle ../../../src/modules/articles/routes.lisp
+
+Route definitions for the articles module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:articles/routes
+  (:use #:cl)
+  (:local-nicknames (#:s #:shiso)
+                    (#:controllers #:articles/controllers)))
+
+(in-package #:articles/routes)
+#+end_src
+
+* Module Routes
+#+begin_src common-lisp
+(s:define-module articles
+  (:urls (:GET "/" #'controllers:index "index")))
+#+end_src

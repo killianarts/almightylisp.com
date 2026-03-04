@@ -1,3 +1,11 @@
+#+title: Common Components
+#+property: header-args:common-lisp :tangle ../../src/components/common.lisp
+
+Shared UI components used across the almightylisp site, built with
+=almighty-html=.
+
+* Package Definition
+#+begin_src common-lisp
 (defpackage #:almightylisp/components/common
   (:use #:cl #:almighty-html)
   (:export
@@ -11,7 +19,13 @@
    #:ac-hero-text
    #:ac-code))
 (in-package #:almightylisp/components/common)
+#+end_src
 
+* ac-meta-information
+
+Open Graph and Twitter Card meta tags for social sharing previews.
+
+#+begin_src common-lisp
 (define-component ac-meta-information (&key title description url children)
   (</>
    (<>
@@ -29,7 +43,14 @@
      ;; TODO add current-page to shiso
      (meta :property "og:url" :content (shiso:current-path))
      (meta :property "og:type" :content title))))
+#+end_src
 
+* ac-skeleton
+
+The HTML document skeleton: =<html>=, =<head>= with fonts/CSS/favicons, and
+=<body>= wrapping children.
+
+#+begin_src common-lisp
 (define-component ac-skeleton (&key title children)
   (let ((html-class (string-downcase "dark"))
         (html-lang "en"))
@@ -39,7 +60,7 @@
          (title (str:concat (string-upcase title) " /// " (string-upcase "almightylisp.com")))
          (meta :charset "utf-8")
          (meta :name "viewport" :content "width=device-width, initial-scale=1")
-         
+
          (link :href "css/almightylisp.css" :rel "stylesheet" :type "text/css")
          (link :rel "preconnect" :href "https://fonts.googleapis.com")
          (link :rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin t)
@@ -55,7 +76,13 @@
          children
          ;; syntax highlighting
          (script "HighlightLisp.highlight_auto();"))))))
+#+end_src
 
+* ac-nav-link
+
+Sidebar navigation link that highlights when its URL matches the current path.
+
+#+begin_src common-lisp
 (define-component ac-nav-link (&key url text)
   (</>
    (span :class "relative"
@@ -65,7 +92,13 @@
        :class (clsx "text-left sm:text-sm hover:text-accent hover:bg-primary-700 flex w-full"
                     (if (string= url (lack/request:request-path-info shiso:*request*)) "text-secondary" "text-primary-50"))
        (span :class "truncate" text)))))
+#+end_src
 
+* ac-admin-layout
+
+Full admin dashboard layout with a fixed sidebar navigation and main content area.
+
+#+begin_src common-lisp
 (define-component ac-admin-layout (&key title (header "Default Header") (subheader "default subheader") children)
   (</>
    (ac-skeleton
@@ -100,20 +133,33 @@
              (h1 :class "font-berkeley text-3xl uppercase text-secondary" (string-upcase header))
              (p :class "font-berkeley text-accent bg-primary-900 uppercase" (string-upcase subheader)))
            children))))))
+#+end_src
 
+* ac-site-layout
+
+Minimal public-facing layout: skeleton + main content area.
+
+#+begin_src common-lisp
 (define-component ac-site-layout (&key title children)
   (</>
    (ac-skeleton
      :title title
      (main :class "overflow-x-hidden"
        children))))
+#+end_src
 
-
-
+* ac-code-block
+#+begin_src common-lisp
 (define-component ac-code-block (&key children)
   (</>
    (pre :class "slide__code-block bg-primary p-5 overflow-x-auto text-sm/4" (code :class "lisp font-berkeley-uc" children))))
+#+end_src
 
+* ac-teaser-slide
+
+A content slide section with optional heading, code block, and prose.
+
+#+begin_src common-lisp
 (define-component ac-teaser-slide (&key id class heading code children)
   (</>
    (section :id id :class (almighty-html:clsx "slide z-20 px-5 py-[2ch]" class)
@@ -126,7 +172,13 @@
          (when code
            (ac-code-block code))
          (div :class "slide__slide-text pb-5 [-webkit-text-stroke:1px_var(--color-primary-950]" children))))))
+#+end_src
 
+* ac-hero-text
+
+Full-viewport hero section with large centered text and optional author byline.
+
+#+begin_src common-lisp
 (define-component ac-hero-text (&key class author children)
   (</>
    (div :class "grid place-items-center min-h-[100dvh] px-5"
@@ -134,8 +186,14 @@
        (h1 :id "page-title" :class "text-center text-balance" children)
        (when author
          (</> (p :class "mt-10 text-3xl font-bodoni" "by " author)))))))
+#+end_src
 
+* ac-code
+
+Inline code styling for use within prose.
+
+#+begin_src common-lisp
 (define-component ac-code (&key children)
   (</>
    (span :class "inline-code font-berkeley-uc-thin text-accent" children)))
-
+#+end_src

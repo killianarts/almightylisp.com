@@ -1,0 +1,13 @@
+#+title: Articles Hypermedia Components
+#+property: header-args:common-lisp :tangle ../../../../src/modules/articles/hypermedia/components.lisp
+
+Hypermedia components for the articles module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:articles/hypermedia
+  (:use #:cl)
+  (:local-nicknames (#:ah #:almighty-html)))
+
+(in-package #:articles/hypermedia)
+#+end_src

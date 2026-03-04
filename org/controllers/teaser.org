@@ -1,3 +1,12 @@
+#+title: Teaser Controller
+#+property: header-args:common-lisp :tangle ../../src/controllers/teaser.lisp
+
+The landing page controller. Renders a series of animated slides that
+introduce Lisp concepts (lists, symbols, functions, macros, etc.) with
+code examples.
+
+* Package Definition
+#+begin_src common-lisp
 (defpackage #:almightylisp/controllers/teaser
   (:use #:cl)
   (:local-nicknames (#:ah #:almighty-html)
@@ -6,14 +15,30 @@
   (:export
    #:index))
 (in-package #:almightylisp/controllers/teaser)
+#+end_src
 
+* Helpers
+
+** make-concat-count
+
+Returns a closure that appends an incrementing counter to each string it
+receives -- used to generate unique slide IDs.
+
+#+begin_src common-lisp
 (defun make-concat-count (&optional (count 0))
   (let ((count count))
     (lambda (string)
       (let ((string-count (write-to-string count)))
         (incf count)
         (concatenate 'string string string-count)))))
+#+end_src
 
+* index
+
+The main teaser page: a hero title followed by slides walking through
+Lisp fundamentals.
+
+#+begin_src common-lisp
 (defun index ()
   (let ((concat-count (make-concat-count)))
     (shiso:http-response
@@ -22,7 +47,7 @@
        (c:ac-site-layout :title "THIS IS A LIST"
          (c:ac-hero-text
            "THIS IS A LIST")
-         (div :class "slides max-w-[120ch] mx-auto relative [anchor-name:--hero-text-anchor]" 
+         (div :class "slides max-w-[120ch] mx-auto relative [anchor-name:--hero-text-anchor]"
            (c:ac-teaser-slide
              :heading "A LIST"
              :id (apply concat-count '("slide")) :code "()"
@@ -218,7 +243,7 @@
                (< (.balance new-account) minimum))
           (pure (Err (InvalidWithdrawal amount)))
           (set-account new-account)))))
-" 
+"
              (p "This is " (a :href "https://coalton-lang.github.io/" "Coalton") ", a new programming language written in Common Lisp with a Haskell-inspired type system. It's \"just a macro\".")))
          (div :class "min-h-[150dvh] max-w-[120ch] px-5 mx-auto flex items-center"
            (h2 "It all starts with a " (c:ac-code "list") "."))
@@ -229,3 +254,4 @@
              (div :class "w-fit mx-auto mt-10"
                (p :class "loading text-center" "Coming Soon..."))))
          ))))))
+#+end_src

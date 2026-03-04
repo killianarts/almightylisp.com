@@ -1,0 +1,11 @@
+#+title: Articles Module
+#+property: header-args:common-lisp :tangle ../../../src/modules/articles/articles.lisp
+
+Top-level package for the articles module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:articles
+  (:use #:cl)
+  (:local-nicknames (#:s #:shiso)))
+#+end_src

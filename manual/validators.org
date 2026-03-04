@@ -1,0 +1,189 @@
+#+title: Validators
+
+Shiso validators are functions that check a value and return =nil= on
+success or an error message string on failure. They integrate with both
+model metadata and form validation.
+
+* Validator Designators
+
+A validator designator can be:
+
+- A function object
+- A symbol naming a function (e.g., ='not-blank=)
+- A list where the car is a function name and the cdr are arguments
+  (e.g., =(max-length 200)=) --- the function is called with those
+  arguments and must return a validator function (closure)
+
+* resolve-validator
+
+- Package :: =shiso/validators=
+- Type :: Function
+
+#+begin_src lisp
+(resolve-validator designator) => function
+#+end_src
+
+Turn a validator designator into a callable function.
+
+* run-validators
+
+- Package :: =shiso/validators=
+- Type :: Function
+
+#+begin_src lisp
+(run-validators validators value) => list of error strings
+#+end_src
+
+Run all =VALIDATORS= on =VALUE=. Returns a list of error message
+strings (empty list means valid).
+
+#+begin_src lisp
+(shiso/validators:run-validators
+ '(not-blank (max-length 10))
+ "Hello World!")
+;; => ("Must be 10 characters or fewer.")
+#+end_src
+
+* auto-validators-for-field
+
+- Package :: =shiso/validators=
+- Type :: Function
+
+#+begin_src lisp
+(auto-validators-for-field field-meta) => list of validator designators
+#+end_src
+
+Derive implicit validators from a =slot-metadata= struct:
+
+- If =blankp= is nil: adds =not-blank=
+- If =choices= is set: adds =(one-of ...)=
+- If =col-type= is =(:varchar N)=: adds =(max-length N)=
+
+These are combined with explicit validators during form validation.
+
+* Built-in Validators
+
+All built-in validators are in the =shiso/validators= package.
+
+** not-blank
+
+#+begin_src lisp
+(not-blank value) => nil or "This field is required."
+#+end_src
+
+Validate that =VALUE= is not nil or empty string.
+
+** max-length
+
+#+begin_src lisp
+(max-length n) => validator-function
+#+end_src
+
+Return a validator that checks string length <= =N=.
+
+Error: ="Must be N characters or fewer."=
+
+** min-length
+
+#+begin_src lisp
+(min-length n) => validator-function
+#+end_src
+
+Return a validator that checks string length >= =N=.
+
+Error: ="Must be at least N characters."=
+
+** min-value
+
+#+begin_src lisp
+(min-value n) => validator-function
+#+end_src
+
+Return a validator that checks numeric value >= =N=.
+
+Error: ="Must be at least N."=
+
+** max-value
+
+#+begin_src lisp
+(max-value n) => validator-function
+#+end_src
+
+Return a validator that checks numeric value <= =N=.
+
+Error: ="Must be at most N."=
+
+** matches-pattern
+
+#+begin_src lisp
+(matches-pattern regex) => validator-function
+#+end_src
+
+Return a validator that checks a string matches =REGEX= (CL-PPCRE).
+
+Error: ="Does not match the expected pattern."=
+
+** valid-email
+
+#+begin_src lisp
+(valid-email value) => nil or "Enter a valid email address."
+#+end_src
+
+Basic email format validation using regex.
+
+** one-of
+
+#+begin_src lisp
+(one-of choices) => validator-function
+#+end_src
+
+Return a validator that checks =VALUE= is a member of =CHOICES=.
+
+Error: ="Must be one of: choice1, choice2, ..."=
+
+* Using Validators in Models
+
+Validators are specified in =define-model= slot options:
+
+#+begin_src lisp
+(shiso:define-model article
+    ((title :col-type (:varchar 200)
+            :validators ((max-length 200) not-blank))
+     (email :col-type (:varchar 254)
+            :validators (valid-email))
+     (status :col-type (:varchar 20)
+             :choices ((:draft . "Draft")
+                       (:published . "Published")))))
+#+end_src
+
+The =:choices= option automatically generates a =one-of= validator, and
+non-blank fields (=:blankp nil=, the default) automatically get
+=not-blank=. The =(:varchar N)= column type automatically gets
+=(max-length N)=.
+
+* Writing Custom Validators
+
+A validator is any function that takes a value and returns =nil= (valid)
+or an error string. For parameterized validators, write a function that
+returns a closure:
+
+#+begin_src lisp
+;; Simple validator
+(defun no-profanity (value)
+  (when (and (stringp value)
+             (search "badword" value))
+    "Contains inappropriate language."))
+
+;; Parameterized validator (returns a closure)
+(defun divisible-by (n)
+  (lambda (value)
+    (when (and (numberp value) (/= 0 (mod value n)))
+      (format nil "Must be divisible by ~D." n))))
+
+;; Usage in define-model
+(shiso:define-model thing
+    ((name :col-type (:varchar 100)
+           :validators (no-profanity))
+     (quantity :col-type :integer
+               :validators ((divisible-by 5)))))
+#+end_src

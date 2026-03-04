@@ -1,0 +1,254 @@
+#+title: Admin
+
+The shiso admin module provides automatic CRUD views for registered
+models. It mounts as a standard shiso module with a dashboard, list,
+create, edit, and delete views.
+
+* define-admin
+
+- Package :: =shiso/admin= (from =shiso/admin/registry=)
+- Type :: Macro
+
+#+begin_src lisp
+(define-admin model-name &body options)
+#+end_src
+
+Register a model for admin CRUD with customization options.
+
+** Options
+
+| Option            | Format                              | Description                            |
+|-------------------+-------------------------------------+----------------------------------------|
+| =:list-display=   | =field1 field2 ...=                | Columns shown in list view             |
+| =:list-filter=    | =field1 field2 ...=                | Fields available as filters            |
+| =:search-fields=  | =field1 field2 ...=                | Fields searchable in list view         |
+| =:fieldsets=       | =("Group" (field1 field2)) ...=   | Grouped field layout in forms          |
+| =:fields=         | =field1 field2 ...=                | Explicit fields for create/edit forms  |
+| =:exclude=        | =field1 field2 ...=                | Fields excluded from forms             |
+| =:readonly=       | =field1 field2 ...=                | Fields displayed but not editable      |
+| =:per-page=       | =n=                                 | Items per page in list view (default 25)|
+| =:ordering=       | =field= or =-field=                | Default sort order                     |
+
+** Example
+
+#+begin_src lisp
+;; From almightylisp.com/src/modules/articles/models.lisp
+(shiso:define-admin article)
+#+end_src
+
+A more complete example:
+
+#+begin_src lisp
+(shiso:define-admin book
+  (:list-display title status)
+  (:search-fields title description)
+  (:exclude internal-notes)
+  (:per-page 50)
+  (:ordering -created-at))
+#+end_src
+
+* Admin Config Class
+
+- Package :: =shiso/admin= (from =shiso/admin/registry=)
+- Type :: Class
+
+| Accessor                | Type    | Description                          |
+|-------------------------+---------+--------------------------------------|
+| =admin-model-name=      | symbol  | The registered model name            |
+| =admin-list-display=    | list    | Columns for list view                |
+| =admin-list-filter=     | list    | Filter fields                        |
+| =admin-search-fields=   | list    | Searchable fields                    |
+| =admin-fieldsets=        | list    | Grouped field layout                 |
+| =admin-fields=          | list    | Explicit form fields                 |
+| =admin-exclude=         | list    | Excluded form fields                 |
+| =admin-readonly=        | list    | Read-only fields                     |
+| =admin-per-page=        | integer | Items per page (default 25)          |
+| =admin-ordering=        | symbol  | Default sort field                   |
+
+* Admin Registry
+
+** *admin-registry*
+
+- Package :: =shiso/admin= (from =shiso/admin/registry=)
+- Type :: Special variable (hash-table, symbol -> admin-config)
+
+Maps model name symbols to =admin-config= instances.
+
+** register-admin
+
+#+begin_src lisp
+(register-admin model-name &rest initargs) => admin-config
+#+end_src
+
+Low-level registration function. =define-admin= expands to this.
+
+** get-admin
+
+#+begin_src lisp
+(get-admin model-name) => admin-config
+#+end_src
+
+Retrieve admin config for a model. Signals an error if not registered.
+
+** all-registered-admins
+
+#+begin_src lisp
+(all-registered-admins) => list of symbols
+#+end_src
+
+Return all registered admin model name symbols.
+
+* Admin Controllers
+
+All controllers are in =shiso/admin/controllers=.
+
+** *admin-prefix*
+
+- Type :: Special variable (string, default ="/admin"=)
+
+URL prefix for the admin dashboard. Set before mounting.
+
+** index
+
+#+begin_src lisp
+(index) => response
+#+end_src
+
+Render the admin dashboard with links to all registered models.
+
+** model-instance-list
+
+#+begin_src lisp
+(model-instance-list model-name-str) => response
+#+end_src
+
+Render a table of all instances of a model. Columns are determined by
+=:list-display= or all editable fields.
+
+** model-instance-build
+
+#+begin_src lisp
+(model-instance-build model-name-str) => response
+#+end_src
+
+Render the create form for a new instance.
+
+** model-instance-persist
+
+#+begin_src lisp
+(model-instance-persist model-name-str) => response
+#+end_src
+
+Validate and create a new instance on POST. Redirects to the list view
+on success, or re-renders the form with errors.
+
+** model-instance-rebuild
+
+#+begin_src lisp
+(model-instance-rebuild model-name-str id-str) => response
+#+end_src
+
+Render the edit form for an existing instance.
+
+** model-instance-repersist
+
+#+begin_src lisp
+(model-instance-repersist model-name-str id-str) => response
+#+end_src
+
+Validate and update the instance on PATCH. Redirects to the list view
+on success, or re-renders the form with errors.
+
+** model-instance-delete
+
+#+begin_src lisp
+(model-instance-delete model-name-str id-str) => response
+#+end_src
+
+Handle DELETE to remove a model instance. Redirects to the list view.
+
+* Admin Routes
+
+The admin module is defined as a standard shiso module named
+=shiso-admin=:
+
+| Method | Path              | Controller                 | Route Name                             |
+|--------+-------------------+----------------------------+----------------------------------------|
+| GET    | =/=               | =index=                    | =shiso-admin:index=                    |
+| GET    | =/:model=         | =model-instance-list=      | =shiso-admin:model-instance-list=      |
+| GET    | =/:model/build=   | =model-instance-build=     | =shiso-admin:model-instance-build=     |
+| POST   | =/:model/persist= | =model-instance-persist=   | =shiso-admin:model-instance-persist=   |
+| GET    | =/:model/:id=     | =model-instance-rebuild=   | =shiso-admin:model-instance-rebuild=   |
+| PATCH  | =/:model/:id=     | =model-instance-repersist= | =shiso-admin:model-instance-repersist= |
+| DELETE | =/:model/:id=     | =model-instance-delete=    | =shiso-admin:model-instance-delete=    |
+
+Use =shiso/utils:url= to generate URLs from route names:
+
+#+begin_src lisp
+;; Link to the article list page
+(shiso/utils:url "shiso-admin:model-instance-list" :model "article")
+;; => "/admin/article"
+
+;; Link to the create form
+(shiso/utils:url "shiso-admin:model-instance-build" :model "article")
+;; => "/admin/article/build"
+
+;; Link to an edit form
+(shiso/utils:url "shiso-admin:model-instance-rebuild" :model "article" :id "5")
+;; => "/admin/article/5"
+#+end_src
+
+* Mounting the Admin
+
+Mount the admin module in your application like any other module:
+
+#+begin_src lisp
+;; From almightylisp.com/src/main.lisp
+(shiso:define-application *almightylisp-application* ()
+  (:modules
+   ("/admin" shiso-admin)
+   ("/books" books)
+   ("/articles" articles)))
+#+end_src
+
+This serves the admin at =/admin/=, with model pages at
+=/admin/article/=, =/admin/article/create=, etc.
+
+* Admin Middleware Helpers
+
+These are in =shiso/admin= (from =shiso/admin/middleware=).
+
+** post-request-p
+
+#+begin_src lisp
+(post-request-p) => boolean
+#+end_src
+
+Return =T= if the current request is a POST.
+
+** parse-body-params
+
+#+begin_src lisp
+(parse-body-params) => alist
+#+end_src
+
+Parse the request body as URL-encoded form data. Returns an alist of
+=(keyword . string-value)= pairs.
+
+** redirect-response
+
+#+begin_src lisp
+(redirect-response url) => response
+#+end_src
+
+Return a 302 redirect response.
+
+** http-response
+
+#+begin_src lisp
+(http-response body &key (status 200) (content-type "text/html; charset=utf-8"))
+  => response
+#+end_src
+
+Return an HTTP response. (This is the admin-specific version; see also
+=shiso:http-response= in [[file:requests-and-utils.org][requests-and-utils]].)

@@ -1,10 +1,21 @@
+#+title: Main
+#+property: header-args:common-lisp :tangle ../src/main.lisp
+
+Application entry point: the =almightylisp= package, environment helpers,
+application definition, and server start/stop.
+
+* Package Definition
+#+begin_src common-lisp
 (defpackage #:almightylisp
   (:use #:cl)
   (:export
    #:start-server
    #:stop-server))
 (in-package #:almightylisp)
+#+end_src
 
+* Environment Variable Utilities
+#+begin_src common-lisp
 (defun get-env-int (env default)
   (let ((env (uiop:getenv env)))
     (if env
@@ -18,26 +29,42 @@
   (if (string-equal (uiop:getenvp env) "true")
       t
       nil))
+#+end_src
 
+* Application Configuration
+
+Mount the =books= and =articles= modules at their respective URL prefixes.
+
+#+begin_src common-lisp
 (shiso:define-application *almightylisp-application* ()
   (:modules
    ("/admin" shiso-admin)
     ("/books" books)
     ("/articles" articles)))
+#+end_src
 
+* Database Setup
+
+Connect to SQLite and auto-migrate all registered models.
+
+#+begin_src common-lisp
 (defun setup-database ()
   (ensure-directories-exist #P"db/")
   (mito:connect-toplevel :sqlite3 :database-name "db/almightylisp.db")
   (dolist (model-name (shiso/models:all-models))
     (mito:ensure-table-exists (shiso/models:model-class model-name))))
+#+end_src
 
+* Server Lifecycle
+#+begin_src common-lisp
 (defun start-server (&key (host (get-env "HOST" "127.0.0.1")) (port (get-env-int "PORT" 5000)) (debugp (envp "DEBUGP")))
   (setup-database)
   (shiso:start *almightylisp-application* :host host :port port :debugp debugp))
-#+nil
+,#+nil
 (start-server)
 
 (defun stop-server ()
   (shiso:stop))
-#+nil
+,#+nil
 (stop-server)
+#+end_src

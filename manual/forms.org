@@ -1,0 +1,227 @@
+#+title: Forms
+
+Shiso forms provide validation and HTML rendering for user input. Forms
+can be created manually or generated automatically from model metadata
+with =make-model-form=.
+
+* Form Classes
+
+** form
+
+- Package :: =shiso/forms= (from =shiso/forms/form=)
+- Type :: Class
+
+The base form class.
+
+| Slot           | Accessor              | Description                          |
+|----------------+-----------------------+--------------------------------------|
+| =fields=       | =form-fields=        | List of =form-field= instances       |
+| =data=         | =form-data=          | Submitted data (alist of name.value) |
+| =instance=     | =form-instance=      | Model instance (for edit forms)      |
+| =errors=       | =form-errors=        | Hash-table of field-name -> errors   |
+| =cleaned-data= | =form-cleaned-data= | Hash-table of field-name -> value    |
+
+** model-form
+
+- Package :: =shiso/forms= (from =shiso/forms/model-form=)
+- Type :: Class (extends =form=)
+
+A form backed by a model definition. Adds:
+
+| Slot          | Accessor                  | Description              |
+|---------------+---------------------------+--------------------------|
+| =model-name=  | =model-form-model-name=  | Symbol naming the model  |
+
+* Field Types
+
+All field classes are in =shiso/forms= (from =shiso/forms/fields=).
+
+** form-field (base class)
+
+| Slot         | Accessor            | Description                          |
+|--------------+---------------------+--------------------------------------|
+| =name=       | =field-name=        | Field name (symbol)                  |
+| =label=      | =field-label=       | Display label string                 |
+| =help-text=  | =field-help-text=   | Help text or nil                     |
+| =requiredp=  | =field-requiredp=   | Whether field is required (default t)|
+| =validators= | =field-validators=  | List of validator designators        |
+| =initial=    | =field-initial=     | Initial/default value                |
+| =widget=     | =field-widget=      | Widget override keyword              |
+
+** char-field
+
+Extends =form-field=. Adds =field-max-length=.
+
+** text-field
+
+Extends =form-field=. For multi-line text. Renders as =<textarea>=.
+
+** integer-field
+
+Extends =form-field=. Parses string input to integer.
+
+** boolean-field
+
+Extends =form-field=. Default =requiredp= is =nil=. Parses checkbox
+"on"/"" to =t=/=nil=.
+
+** choice-field
+
+Extends =form-field=. Adds =field-choices= (alist of keyword.label).
+Renders as =<select>=. Parses string back to keyword.
+
+** date-field
+
+Extends =form-field=. Renders as =<input type="date">=.
+
+** email-field
+
+Extends =char-field=. Renders as =<input type="email">=.
+
+* col-type-to-field-class
+
+- Package :: =shiso/forms= (from =shiso/forms/fields=)
+- Type :: Function
+
+#+begin_src lisp
+(col-type-to-field-class col-type) => symbol
+#+end_src
+
+Map a Mito column type to a form field class:
+
+| Column Type                     | Field Class      |
+|---------------------------------+------------------|
+| =(:varchar N)=                  | =char-field=     |
+| =:text=                         | =text-field=     |
+| =:integer=                      | =integer-field=  |
+| =:boolean=                      | =boolean-field=  |
+| =:timestamp=, =:date=, etc.    | =date-field=     |
+| anything else                   | =char-field=     |
+
+If the slot has =:choices=, =choice-field= is used regardless of
+column type.
+
+* make-model-form
+
+- Package :: =shiso/forms= (from =shiso/forms/model-form=)
+- Type :: Function
+
+#+begin_src lisp
+(make-model-form model-name &key fields exclude instance data) => model-form
+#+end_src
+
+Create a form instance from a registered model definition.
+
+| Parameter     | Description                                        |
+|---------------+----------------------------------------------------|
+| =model-name=  | Symbol naming a registered model                  |
+| =fields=      | Explicit list of field names to include (nil=all)  |
+| =exclude=     | List of field names to exclude                     |
+| =instance=    | Existing model instance (for edit forms)           |
+| =data=        | Submitted form data (alist of name . string-value) |
+
+Non-editable fields (=:editablep nil=) are always excluded. When
+=instance= is provided, initial values are populated from the instance's
+slots.
+
+* validate-form
+
+- Package :: =shiso/forms= (from =shiso/forms/form=)
+- Type :: Generic function
+
+#+begin_src lisp
+(validate-form form) => boolean
+#+end_src
+
+Validate all fields. For each field:
+1. Parse the raw value with =parse-field-value=
+2. Run auto-derived validators (required, max-length, one-of)
+3. Run explicit field validators
+4. Call the =clean= method for cross-field validation
+
+Returns =T= if valid, =NIL= otherwise. Populates =form-cleaned-data=
+or =form-errors=.
+
+* clean
+
+- Package :: =shiso/forms= (from =shiso/forms/form=)
+- Type :: Generic function
+
+#+begin_src lisp
+(clean form cleaned-data) => nil or list-of-error-strings
+#+end_src
+
+Cross-field validation hook. Override this method on your form subclass
+to implement validation that spans multiple fields. Return =nil= for
+success or a list of error strings.
+
+Errors are stored under the =:__all__= key in =form-errors=.
+
+* form-validp
+
+- Package :: =shiso/forms= (from =shiso/forms/form=)
+- Type :: Function
+
+#+begin_src lisp
+(form-validp form) => boolean
+#+end_src
+
+Return =T= if the form has been validated and has no errors.
+
+* save-form
+
+- Package :: =shiso/forms= (from =shiso/forms/model-form=)
+- Type :: Function
+
+#+begin_src lisp
+(save-form form) => dao-instance
+#+end_src
+
+Persist a validated model form. If =form-instance= is set, updates the
+existing record. Otherwise, creates a new record via =mito:create-dao=.
+
+* Rendering
+
+** render-form
+
+- Package :: =shiso/forms= (from =shiso/forms/rendering=)
+- Type :: Function
+
+#+begin_src lisp
+(render-form form &key (action "") (method "POST") (submit-label "Submit"))
+  => almighty-html element
+#+end_src
+
+Render an entire form to an almighty-html =<form>= element with all
+fields, error messages, and a submit button.
+
+** render-field
+
+- Package :: =shiso/forms= (from =shiso/forms/rendering=)
+- Type :: Generic function
+
+#+begin_src lisp
+(render-field field &key value errors) => almighty-html element
+#+end_src
+
+Render a single form field. Each field type has its own method that
+produces the appropriate HTML (=<input>=, =<textarea>=, =<select>=,
+etc.) wrapped in a =<div class="form-group">= with label, help text,
+and error display.
+
+* Typical Controller Pattern
+
+#+begin_src lisp
+;; Handling GET (display form) and POST (validate + save)
+(defun create-article ()
+  (let* ((is-post (shiso/admin/middleware:post-request-p))
+         (data (when is-post (shiso/admin/middleware:parse-body-params)))
+         (form (shiso/forms:make-model-form 'article :data data)))
+    (if (and is-post (shiso/forms:validate-form form))
+        (progn
+          (shiso/forms:save-form form)
+          (shiso/admin/middleware:redirect-response "/articles"))
+        (shiso:http-response
+         (ah:render-to-string
+          (shiso/forms:render-form form :action "/articles/create"))))))
+#+end_src

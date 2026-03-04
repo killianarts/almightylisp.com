@@ -1,0 +1,159 @@
+#+title: Applications and Modules
+
+Shiso applications are Lack middleware stacks that mount modules at URL
+prefixes. Modules are self-contained units with their own routes,
+controllers, and optional static files.
+
+* define-application
+
+- Package :: =shiso= (from =shiso/routing=)
+- Type :: Macro
+
+#+begin_src lisp
+(define-application name () &body options)
+#+end_src
+
+Define a Lack application that mounts modules at URL prefixes and
+configures static file serving. Expands to a =defparameter= binding a
+Lack middleware stack.
+
+Each entry in =:modules= is =(PREFIX MODULE-NAME)=. The prefix string
+is prepended to the module's routes --- =""= mounts at root, ="/books"=
+mounts at /books.
+
+Modules must be loaded (their =define-module= forms evaluated) before
+this macro runs. The registry is consulted at dispatch time, so
+re-evaluating =define-module= takes effect immediately.
+
+Static files are served by a global middleware under =/static/= that
+searches the project's =static/= directory and per-module =static/=
+directories.
+
+** Example
+
+#+begin_src lisp
+;; From almightylisp.com/src/main.lisp
+(shiso:define-application *almightylisp-application* ()
+  (:modules
+   ("/admin" shiso-admin)
+   ("/books" books)
+   ("/articles" articles)))
+#+end_src
+
+* define-module
+
+- Package :: =shiso= (from =shiso/routing=)
+- Type :: Macro
+
+#+begin_src lisp
+(define-module name &body options)
+#+end_src
+
+Define a module with routes on a per-module Myway mapper. Each URL spec
+is =(METHOD PATH CONTROLLER NAME)=. METHOD can be a keyword or a list
+of keywords. Route names are namespaced under the module name (e.g.,
+=articles:index=).
+
+The module is registered in =*module-registry*= for URL generation and
+mounting. If a =static/= directory exists next to the source file, it is
+automatically detected and registered as the module's static root.
+
+** Example
+
+#+begin_src lisp
+;; From almightylisp.com/src/modules/books/routes.lisp
+(shiso:define-module books
+  (:urls (:GET "/" 'controllers:index "index")))
+
+;; From almightylisp.com/src/modules/articles/routes.lisp
+(shiso:define-module articles
+  (:urls (:GET "/" #'controllers:index "index")
+         ((:GET :POST) "/create" 'controllers:articles-create "create")))
+#+end_src
+
+* start
+
+- Package :: =shiso= (from =shiso/server=)
+- Type :: Macro
+
+#+begin_src lisp
+(start app &key (host "127.0.0.1") (port 5000) (debugp t))
+#+end_src
+
+Start the HTTP server. =APP= is a symbol naming the application variable
+(e.g., =*almightylisp-application*=). The server runs on Woo via Clack.
+
+If a server is already running, a =restart-server= restart is available
+to stop and restart.
+
+** Example
+
+#+begin_src lisp
+;; From almightylisp.com/src/main.lisp
+(defun start-server (&key (host "127.0.0.1") (port 5000) (debugp nil))
+  (setup-database)
+  (shiso:start *almightylisp-application* :host host :port port :debugp debugp))
+#+end_src
+
+* stop
+
+- Package :: =shiso= (from =shiso/server=)
+- Type :: Function
+
+#+begin_src lisp
+(stop) => result
+#+end_src
+
+Stop the running HTTP server and clear the connection.
+
+** Example
+
+#+begin_src lisp
+;; From almightylisp.com/src/main.lisp
+(defun stop-server ()
+  (shiso:stop))
+#+end_src
+
+* Module Class
+
+- Package :: =shiso= (from =shiso/modules=)
+- Type :: Class (extends =lack-component=)
+
+Slots:
+
+| Slot        | Accessor            | Description                          |
+|-------------+---------------------+--------------------------------------|
+| =routes=    | =module-routes=     | Routes instance with Myway mapper    |
+| =prefix=    | =module-prefix=     | URL prefix set when mounted          |
+| =static-root= | =module-static-root= | Pathname to module's static/ dir  |
+
+* *module-registry*
+
+- Package :: =shiso= (from =shiso/modules=)
+- Type :: Special variable (hash-table, keyword -> module)
+
+Global registry of defined modules. Populated by =define-module=.
+
+* register-module
+
+- Package :: =shiso= (from =shiso/modules=)
+- Type :: Function
+
+#+begin_src lisp
+(register-module name module) => module
+#+end_src
+
+Register a module instance under keyword =NAME=. Called automatically by
+=define-module=.
+
+* get-module
+
+- Package :: =shiso= (from =shiso/modules=)
+- Type :: Function
+
+#+begin_src lisp
+(get-module name) => module
+#+end_src
+
+Retrieve a registered module by keyword name. Signals an error if not
+found.

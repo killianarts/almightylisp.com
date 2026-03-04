@@ -1,0 +1,12 @@
+#+title: Articles Forms
+#+property: header-args:common-lisp :tangle ../../../src/modules/articles/forms.lisp
+
+Form definitions for the articles module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:articles/forms
+  (:use #:cl))
+
+(in-package #:articles/forms)
+#+end_src

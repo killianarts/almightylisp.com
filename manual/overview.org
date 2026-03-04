@@ -1,0 +1,88 @@
+#+title: Shiso Framework Overview
+
+Shiso is a Common Lisp web framework inspired by Django. It provides a
+module-based architecture with models, forms, admin CRUD, routing, and
+static file serving built on top of Lack and Mito.
+
+* Package Architecture
+
+The framework is organized into focused internal packages, re-exported
+through the top-level =shiso= package.
+
+| Package                  | Purpose                                      |
+|--------------------------+----------------------------------------------|
+| =shiso=                  | Top-level re-export package                  |
+| =shiso/routing=          | Route definition, modules, applications      |
+| =shiso/server=           | Start/stop the HTTP server (Woo via Clack)   |
+| =shiso/modules=          | Module class and registry                    |
+| =shiso/models=           | Model definition, metadata, registry         |
+| =shiso/models/metadata=  | Slot and model metadata structs              |
+| =shiso/models/registry=  | Model registry and field introspection       |
+| =shiso/models/define-model= | The =define-model= macro                 |
+| =shiso/forms=            | Form classes, validation, rendering          |
+| =shiso/forms/fields=     | Field type classes and parsing               |
+| =shiso/forms/form=       | Base form class and validation               |
+| =shiso/forms/model-form= | Model-backed form generation                 |
+| =shiso/forms/rendering=  | HTML rendering of forms via almighty-html     |
+| =shiso/admin=            | Admin CRUD dashboard                         |
+| =shiso/admin/registry=   | Admin config class and registry              |
+| =shiso/admin/views=      | Admin list, create, edit, delete views        |
+| =shiso/admin/routes=     | Admin route definitions                      |
+| =shiso/admin/components= | Admin HTML components (almighty-html)        |
+| =shiso/admin/middleware=  | Request helpers (POST detection, body parsing)|
+| =shiso/validators=       | Built-in validators and runner               |
+| =shiso/static=           | Static file middleware and =collectstatic=   |
+| =shiso/scaffold=         | Module scaffolding (=make-module=)           |
+| =shiso/requests=         | Request binding (=*request*=) and dispatch   |
+| =shiso/utils=            | URL helpers, =http-response=, =static=       |
+
+* Core Concepts
+
+** Applications
+
+An application is a Lack middleware stack that mounts modules at URL
+prefixes and configures static file serving. Defined with
+=define-application=.
+
+** Modules
+
+A module is a self-contained unit with its own routes, controllers,
+models, forms, and static files. Defined with =define-module=. Each
+module gets its own Myway mapper and is registered globally by keyword
+name.
+
+** Models
+
+Models are Mito-backed CLOS classes with additional metadata (verbose
+names, validators, choices, help text) used by forms and admin. Defined
+with =define-model=.
+
+** Forms
+
+Forms provide validation and HTML rendering for user input. A
+=model-form= is auto-generated from a model's metadata. Forms validate
+per-field and cross-field, producing cleaned data or error messages.
+
+** Admin
+
+The admin module provides automatic CRUD views for registered models.
+=define-admin= registers a model with display customization. The admin
+mounts as a module with dashboard, list, create, edit, and delete views.
+
+** Static Files
+
+Static files are served from a project-wide =static/= directory and
+per-module =static/= directories. =collectstatic= copies module assets
+into the project directory for production.
+
+* Dependencies
+
+| Library        | Role                             |
+|----------------+----------------------------------|
+| Lack           | HTTP middleware stack             |
+| Clack          | Server adapter (Woo)             |
+| Myway          | URL routing and dispatch         |
+| Mito           | ORM (SQLite, PostgreSQL, MySQL)  |
+| almighty-html  | HTML generation and components   |
+| CL-PPCRE       | Regex for validators             |
+| cl-project     | Module scaffolding templates     |

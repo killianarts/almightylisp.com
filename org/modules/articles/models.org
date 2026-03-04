@@ -1,0 +1,20 @@
+#+title: Articles Models
+#+property: header-args:common-lisp :tangle ../../../src/modules/articles/models.lisp
+
+Data models for the articles module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:articles/models
+  (:use #:cl))
+
+(in-package #:articles/models)
+#+end_src
+
+* article
+#+begin_src common-lisp
+(shiso:define-model article
+    ((title :initarg :title :col-type (:varchar 200))))
+
+(shiso/admin:define-admin "article")
+#+end_src

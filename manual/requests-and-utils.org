@@ -1,0 +1,171 @@
+#+title: Requests and Utilities
+
+Request handling and utility functions for building responses, generating
+URLs, and working with static assets.
+
+* *request*
+
+- Package :: =shiso= (from =shiso/requests=)
+- Type :: Special variable
+
+The current Lack request object, bound during request dispatch. This is
+a =lack/request:request= instance created from the Lack environment.
+
+Bound automatically when a module's =call= method is invoked. Available
+to all controller code during a request.
+
+** Common Lack Request Accessors
+
+| Accessor                              | Description                   |
+|---------------------------------------+-------------------------------|
+| =lack/request:request-path-info=      | Request path (e.g., ="/foo"=) |
+| =lack/request:request-method=         | HTTP method keyword           |
+| =lack/request:request-uri-scheme=     | ="http"= or ="https"=        |
+| =lack/request:request-server-name=    | Server hostname               |
+| =lack/request:request-body-parameters= | Parsed POST body             |
+
+** Example
+
+#+begin_src lisp
+;; Access the current request path
+(lack/request:request-path-info shiso:*request*)
+#+end_src
+
+* http-response
+
+- Package :: =shiso= (from =shiso/utils=)
+- Type :: Function
+
+#+begin_src lisp
+(http-response body &key (code 200) (headers nil)) => response-list
+#+end_src
+
+Build a Lack response list from a body string. The =Content-Type=
+header defaults to ="text/html; charset=utf-8"= and additional headers
+can be appended.
+
+Returns a list of =(code headers (body))= suitable as a Lack response.
+
+** Example
+
+#+begin_src lisp
+;; From almightylisp.com/src/modules/books/controllers.lisp
+(defun index ()
+  (shiso:http-response "Welcome to books"))
+
+;; From almightylisp.com/src/modules/articles/controllers.lisp
+(defun index ()
+  (shiso:http-response
+   (ah:render-to-string
+    (ah:</>
+     (hy:ac-admin-layout
+       :title "Articles Index"
+       :header "Articles Index"
+       :subheader "Where it all begins"
+       "This is the index")))))
+#+end_src
+
+* url
+
+- Package :: =shiso= (from =shiso/utils=)
+- Type :: Function
+
+#+begin_src lisp
+(url name &rest params) => string or nil
+#+end_src
+
+Reverse URL lookup. See [[file:routing.org][routing]] for full documentation.
+
+#+begin_src lisp
+(shiso:url "articles:index")   ;; => "/articles/"
+(shiso:url "articles:create")  ;; => "/articles/create"
+#+end_src
+
+* current-path
+
+- Package :: =shiso= (from =shiso/utils=)
+- Type :: Function
+
+#+begin_src lisp
+(current-path) => string
+#+end_src
+
+Return the path of the current request. Reads =path-info= from
+=*request*=.
+
+#+begin_src lisp
+(shiso:current-path)  ;; => "/articles/create"
+#+end_src
+
+* static
+
+- Package :: =shiso= (from =shiso/utils=)
+- Type :: Function
+
+#+begin_src lisp
+(static path) => string
+#+end_src
+
+Return the URL path for a static file. Prepends ="/static/"= to the
+given path. Analogous to Django's ={% static %}= template tag.
+
+#+begin_src lisp
+(shiso:static "css/style.css")
+;; => "/static/css/style.css"
+
+(shiso:static "images/logo.png")
+;; => "/static/images/logo.png"
+#+end_src
+
+* absolute-url
+
+- Package :: =shiso= (from =shiso/utils=)
+- Type :: Function
+
+#+begin_src lisp
+(absolute-url path) => string
+#+end_src
+
+Prepend the current request's scheme and host to =PATH=, producing a
+fully qualified URL.
+
+#+begin_src lisp
+(shiso:absolute-url "/static/img/preview.png")
+;; => "https://almightylisp.com/static/img/preview.png"
+
+(shiso:absolute-url (shiso:static "css/style.css"))
+;; => "https://almightylisp.com/static/css/style.css"
+#+end_src
+
+* collectstatic
+
+- Package :: =shiso= (from =shiso/static=)
+- Type :: Function
+
+#+begin_src lisp
+(collectstatic &key (target (merge-pathnames "static/" (uiop:getcwd))))
+#+end_src
+
+Copy each registered module's =static/= directory into
+=TARGET/<module-name>/=. After running this, the project-wide =static/=
+directory contains everything and no module-root fallback is needed
+(production mode).
+
+#+begin_src lisp
+(shiso:collectstatic)
+;; books → /path/to/project/static/books/
+;; articles → /path/to/project/static/articles/
+;; Done.
+#+end_src
+
+* Request Dispatch
+
+When a request arrives, the module's =call= method (defined in
+=shiso/requests=):
+
+1. Creates a =lack/request:request= from the Lack environment
+2. Binds it to =*request*=
+3. Dispatches via Myway using the module's routes mapper
+4. Returns the controller's response or a 404
+
+Bad requests (malformed environments) return 400 immediately.

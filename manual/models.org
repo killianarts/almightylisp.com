@@ -1,0 +1,194 @@
+#+title: Models
+
+Shiso models are Mito-backed CLOS classes with additional field metadata
+for forms, admin, and validation. The =define-model= macro handles both
+the Mito table definition and the metadata registry.
+
+* define-model
+
+- Package :: =shiso= (from =shiso/models/define-model=)
+- Type :: Macro
+
+#+begin_src lisp
+(define-model name slots &body options)
+#+end_src
+
+Define a model class with database backing and field metadata. Expands
+to a =mito:deftable= call plus a =register-model= call.
+
+Each slot in =SLOTS= is =(slot-name &rest plist)= where the plist may
+contain both Mito keys and shiso metadata keys.
+
+** Mito Slot Keys
+
+These are passed through to =mito:deftable=:
+
+=:col-type=, =:initform=, =:initarg=, =:accessor=, =:reader=,
+=:writer=, =:inflate=, =:deflate=, =:references=, =:ghost=,
+=:documentation=, =:allocation=, =:type=
+
+** Shiso Metadata Keys
+
+These are extracted as field metadata:
+
+| Key             | Type    | Description                                        |
+|-----------------+---------+----------------------------------------------------|
+| =:verbose-name= | string  | Human-readable label (auto-derived if nil)         |
+| =:help-text=    | string  | Help text displayed in forms                       |
+| =:validators=   | list    | Validator designators (see [[file:validators.org][validators]])            |
+| =:choices=      | alist   | =(keyword . "Label")= pairs for choice fields      |
+| =:blankp=       | boolean | =t= if the field may be blank (default =nil=)      |
+| =:editablep=    | boolean | =nil= to exclude from forms (default =t=)          |
+| =:widget=       | keyword | Rendering override (=:textarea=, =:hidden=, etc.)  |
+
+** Example
+
+#+begin_src lisp
+;; From almightylisp.com/src/modules/articles/models.lisp
+(shiso:define-model article
+    ((title :initarg :title :col-type (:varchar 200))))
+#+end_src
+
+A more complete example showing all metadata keys:
+
+#+begin_src lisp
+(shiso:define-model book
+    ((title :initarg :title
+            :col-type (:varchar 200)
+            :verbose-name "Book Title"
+            :help-text "The full title of the book"
+            :validators ((max-length 200)))
+     (description :initarg :description
+                  :col-type :text
+                  :verbose-name "Description"
+                  :blankp t
+                  :widget :textarea)
+     (status :initarg :status
+             :col-type (:varchar 20)
+             :choices ((:draft . "Draft")
+                       (:published . "Published")
+                       (:archived . "Archived"))
+             :initform "draft")))
+#+end_src
+
+* Model Registry
+
+** *model-registry*
+
+- Package :: =shiso= (from =shiso/models/registry=)
+- Type :: Special variable (hash-table, symbol -> model-metadata)
+
+Maps model name symbols to =model-metadata= structs. Populated by
+=define-model=.
+
+** register-model
+
+- Package :: =shiso= (from =shiso/models/registry=)
+- Type :: Function
+
+#+begin_src lisp
+(register-model name class fields) => model-metadata
+#+end_src
+
+Register a model's metadata. Called automatically by the =define-model=
+expansion.
+
+** all-models
+
+- Package :: =shiso= (from =shiso/models/registry=)
+- Type :: Function
+
+#+begin_src lisp
+(all-models) => list of symbols
+#+end_src
+
+Return a list of all registered model name symbols.
+
+** Example
+
+#+begin_src lisp
+;; From almightylisp.com/src/main.lisp --- iterate all models to ensure tables
+(dolist (model-name (shiso/models:all-models))
+  (mito:ensure-table-exists (shiso/models:model-class model-name)))
+#+end_src
+
+* Model Introspection
+
+** model-fields
+
+- Package :: =shiso= (from =shiso/models/registry=)
+- Type :: Function
+
+#+begin_src lisp
+(model-fields model-name) => list of slot-metadata
+#+end_src
+
+Return the list of =slot-metadata= structs for =MODEL-NAME=, in
+declaration order.
+
+** model-field
+
+- Package :: =shiso= (from =shiso/models/registry=)
+- Type :: Function
+
+#+begin_src lisp
+(model-field model-name slot-name) => slot-metadata or nil
+#+end_src
+
+Return a single =slot-metadata= by slot name.
+
+** model-class
+
+- Package :: =shiso= (from =shiso/models/registry=)
+- Type :: Function
+
+#+begin_src lisp
+(model-class model-name) => class
+#+end_src
+
+Return the CLOS class object for =MODEL-NAME=.
+
+* Metadata Structs
+
+** slot-metadata
+
+Fields for a single model slot:
+
+| Accessor                    | Type    | Description                              |
+|-----------------------------+---------+------------------------------------------|
+| =slot-metadata-name=       | symbol  | The slot name                            |
+| =slot-metadata-col-type=   | varies  | Mito column type (e.g., =(:varchar 200)=) |
+| =slot-metadata-verbose-name= | string | Human-readable label                   |
+| =slot-metadata-help-text=  | string  | Help text for forms                      |
+| =slot-metadata-validators= | list    | Validator designators                    |
+| =slot-metadata-choices=    | alist   | =(keyword . "Label")= pairs             |
+| =slot-metadata-blankp=     | boolean | Whether the field may be blank           |
+| =slot-metadata-editablep=  | boolean | Whether the field appears in forms       |
+| =slot-metadata-widget=     | keyword | Rendering widget override                |
+
+** model-metadata
+
+| Accessor                | Type  | Description                       |
+|-------------------------+-------+-----------------------------------|
+| =model-metadata-class=  | class | The CLOS class object             |
+| =model-metadata-fields= | list  | List of =slot-metadata= structs  |
+
+* Field Reader Convenience Functions
+
+These wrap the =slot-metadata= struct accessors with additional behavior
+(e.g., =field-verbose-name= auto-derives a label from the slot name if
+none was provided).
+
+| Function            | Description                                         |
+|---------------------+-----------------------------------------------------|
+| =field-name=        | Slot name symbol                                    |
+| =field-col-type=    | Mito column type                                    |
+| =field-verbose-name= | Verbose name, or auto-derived from slot name       |
+| =field-help-text=   | Help text string or nil                             |
+| =field-validators=  | List of validator designators                       |
+| =field-choices=     | Choices alist or nil                                |
+| =field-blankp=      | Whether the field may be blank                      |
+| =field-editablep=   | Whether the field is editable                       |
+| =field-widget=      | Widget keyword override or nil                      |
+
+All are in package =shiso= (from =shiso/models/registry=).

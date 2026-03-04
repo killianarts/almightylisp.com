@@ -1,0 +1,11 @@
+#+title: Utilities
+#+property: header-args:common-lisp :tangle ../src/utils.lisp
+
+Application-level utility functions.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:almightylisp/utils
+  (:use #:cl))
+(in-package #:almightylisp/utils)
+#+end_src

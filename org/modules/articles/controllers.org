@@ -1,0 +1,46 @@
+#+title: Articles Controllers
+#+property: header-args:common-lisp :tangle ../../../src/modules/articles/controllers.lisp
+
+Request handlers for the articles module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:articles/controllers
+  (:use #:cl)
+  (:local-nicknames (#:s #:shiso)
+                    (#:ah #:almighty-html)
+                    (#:hy #:almightylisp/hypermedia))
+  (:export #:index
+           #:articles-create))
+
+(in-package #:articles/controllers)
+#+end_src
+
+* index
+This will later list all of the articles
+#+begin_src common-lisp
+(defun index ()
+  (s:http-response
+   (ah:render-to-string
+    (ah:</>
+     (hy:ac-admin-layout
+       :title "Articles Index"
+       :header "Articles Index"
+       :subheader "Where it all begins"
+       "This is the index")))))
+#+end_src
+
+* articles-create
+
+#+begin_src common-lisp
+(defun articles-create ()
+  (s:http-response
+   (ah:render-to-string
+    (ah:</>
+     (hy:ac-admin-layout
+       :title "Create An Article"
+       :header "Create An Article"
+       :subheader "You know you want to."
+       "Updated. Again.")))))
+#+end_src
+

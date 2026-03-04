@@ -1,0 +1,141 @@
+#+title: Routing
+
+Shiso routing is built on Myway. Routes are defined per-module with
+=define-module= or globally with =define-routes=. Each route has a
+method, path pattern, controller function, and a name used for reverse
+URL lookup.
+
+* define-routes
+
+- Package :: =shiso= (from =shiso/routing=)
+- Type :: Macro
+
+#+begin_src lisp
+(define-routes module &rest args)
+#+end_src
+
+Define routes on the global =*routes*= mapper. =ARGS= contains a
+=:root= keyword for a path prefix, followed by route specs. Each route
+spec is =(METHOD PATH CONTROLLER NAME)=.
+
+Route names are namespaced as ="module:name"=. METHOD can be a keyword
+or a list of keywords for multi-method routes.
+
+** Example
+
+#+begin_src lisp
+(shiso:define-routes teaser :root ""
+  (:GET "/" 'teaser:index "index"))
+
+(shiso:define-routes essentials :root "/book"
+  (:GET "/essentials" 'essentials:index "index"))
+#+end_src
+
+* define-route
+
+- Package :: =shiso= (from =shiso/routing=)
+- Type :: Function
+
+#+begin_src lisp
+(define-route method routing-rule &key controller name regexp routes)
+#+end_src
+
+Low-level function to register a single route. Called by =define-routes=
+and =define-module= expansions.
+
+| Parameter      | Description                                    |
+|----------------+------------------------------------------------|
+| =method=       | HTTP method keyword (e.g., =:GET=, =:POST=)   |
+| =routing-rule= | URL pattern string (e.g., ="/:model/:id"=)    |
+| =controller=   | Function or symbol to handle the request       |
+| =name=         | Route name string (e.g., ="articles:index"=)   |
+| =regexp=       | When non-nil, treat the rule as a regex         |
+| =routes=       | Routes instance (defaults to =*routes*=)       |
+
+Route names are split on =:= into name and namespace. The namespace
+defaults to =*global-routes-namespace*= (=:global=) for unqualified
+names.
+
+* url
+
+- Package :: =shiso= (from =shiso/utils=)
+- Type :: Function
+
+#+begin_src lisp
+(url name &rest params) => string or nil
+#+end_src
+
+Reverse URL lookup. Return the URL for a named route, with the module
+prefix prepended.
+
+For namespaced routes (e.g., ="articles:index"=), the module's own
+mapper is searched and the module's mount prefix is prepended. For
+non-namespaced routes, the global =*routes*= mapper is searched.
+
+** Example
+
+#+begin_src lisp
+;; Assuming articles module is mounted at "/articles"
+(shiso:url "articles:index")
+;; => "/articles/"
+
+(shiso:url "articles:create")
+;; => "/articles/create"
+#+end_src
+
+* Route Naming Conventions
+
+Route names follow the pattern ="module:action"=:
+
+| Name                | Typical Path        |
+|---------------------+---------------------|
+| ="books:index"=     | =/=                 |
+| ="articles:index"=  | =/=                 |
+| ="articles:create"= | =/create=           |
+
+When mounted via =define-application=, the module prefix is prepended:
+
+| Full URL             | Module Prefix | Route Path |
+|----------------------+---------------+------------|
+| =/books/=            | =/books=      | =/=        |
+| =/articles/=         | =/articles=   | =/=        |
+| =/articles/create=   | =/articles=   | =/create=  |
+
+* *routes*
+
+- Package :: =shiso= (from =shiso/routing=)
+- Type :: Special variable
+
+The global =routes= instance with a Myway mapper. Used by
+=define-routes= for non-module routes.
+
+* *global-routes-namespace*
+
+- Package :: =shiso= (from =shiso/routing=)
+- Type :: Special variable (keyword, default =:global=)
+
+Default namespace for routes that don't include a =:= separator in
+their name.
+
+* Routes Class
+
+- Package :: =shiso/routing=
+- Type :: Class
+
+| Slot     | Reader          | Description          |
+|----------+-----------------+----------------------|
+| =mapper= | =routes-mapper= | Myway mapper instance |
+
+* Path Parameters
+
+Myway supports path parameters with =:param= syntax. Parameter values
+are extracted and passed as arguments to the controller function.
+
+#+begin_src lisp
+;; Admin routes use path parameters:
+(:GET "/:model/:id" 'views:model-instance-rebuild "model-instance-rebuild")
+
+;; The controller receives the parameter values:
+(defun model-instance-rebuild (model-name-str id-str)
+  ...)
+#+end_src

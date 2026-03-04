@@ -1,3 +1,11 @@
+#+title: Essentials Controller
+#+property: header-args:common-lisp :tangle ../../src/controllers/essentials.lisp
+
+Controller for the "Almighty Lisp Essentials" book page, rendering the
+table of contents.
+
+* Package Definition
+#+begin_src common-lisp
 (defpackage #:almightylisp/controllers/essentials
   (:use #:cl)
   (:local-nicknames (#:ah #:almighty-html)
@@ -7,7 +15,13 @@
    #:index))
 
 (in-package #:almightylisp/controllers/essentials)
+#+end_src
 
+* index
+
+Renders the full table of contents for the Almighty Lisp Essentials book.
+
+#+begin_src common-lisp
 (defun index ()
   (ah:render-to-string
    (ah:</>
@@ -298,3 +312,4 @@
               (li
                 (a :href "#resources"
                   "15. RESOURCES"))))))))))
+#+end_src
