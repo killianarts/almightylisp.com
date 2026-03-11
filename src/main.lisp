@@ -22,8 +22,9 @@
 (shiso:define-application *almightylisp-application* ()
   (:modules
    ("/admin" shiso-admin)
-    ("/books" books)
-    ("/articles" articles)))
+   ("/book" book)
+   ("/article" article)
+   ("/author" author)))
 
 (defun setup-database ()
   (ensure-directories-exist #P"db/")

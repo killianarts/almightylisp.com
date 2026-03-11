@@ -1,0 +1,27 @@
+/* 
+ * Layout: sidebar 
+ * Mobile: Abbreviated Header
+ * Desktop: Sidebar 
+*/
+
+.sidebar-container {
+    position: fixed;
+    inset: 0;
+    width: var(--tray-size);
+}
+.sidebar-main {
+    margin-left: var(--tray-size);
+    padding-inline: var(--main-padding);
+}
+@media(width <= 48rem) {
+    .sidebar-container {
+        position: relative;
+        display: grid;
+        align-items: center;
+        width: 100%;
+        grid-template-areas: "main";
+    }
+    .sidebar-main {
+        margin-left: 0;
+    }
+}

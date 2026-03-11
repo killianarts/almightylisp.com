@@ -1,0 +1,77 @@
+@font-face {
+    font-family: "Berkeley Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: 
+        local("Berkeley Mono") format("truetype"),
+        url("/static/assets/fonts/BerkeleyMono-Regular.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Berkeley Mono Thin";
+    font-style: normal;
+    font-display: swap;
+    src: 
+        local("Berkeley Mono") format("truetype"),
+        url("/static/assets/fonts/BerkeleyMono-Light.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Berkeley Mono Black";
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: 
+        local("Berkeley Mono Black") format("truetype"),
+        url("/static/assets/fonts/BerkeleyMono-Black.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Berkeley Mono UltraCondensed";
+    font-style: condensed;
+    font-weight: 400;
+    font-display: swap;
+    src: 
+        local("Berkeley Mono UltraCondensed") format("truetype"),
+        url("/static/assets/fonts/BerkeleyMono-UltraCondensed.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Berkeley Mono Thin UltraCondensed";
+    font-style: normal;
+    font-display: swap;
+    src: 
+        local("Berkeley Mono Thin UltraCondensed") format("truetype"),
+        url("/static/assets/fonts/BerkeleyMono-Light-UltraCondensed.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Berkeley Mono ExtraBold UltraCondensed";
+    font-style: condensed;
+    font-weight: 900;
+    font-display: swap;
+    src: 
+        local("Berkeley Mono ExtraBold UltraCondensed") format("truetype"),
+        url("/static/assets/fonts/BerkeleyMono-ExtraBold-UltraCondensed.ttf") format("truetype");
+}
+@font-face {
+    font-family: "League Gothic";
+    font-width: 100;
+    font-display: swap;
+    src: 
+        local("League Gothic") format("truetype"),
+        url('/static/assets/fonts/LeagueGothic-Regular-VariableFont_wdth.ttf') format('truetype');
+}
+@font-face {
+    font-family: "League Gothic Tall";
+    font-width: 100;
+    font-display: swap;
+    font-stretch: 75%;
+    src: 
+        local("League Gothic") format("truetype"),
+        url("/static/assets/fonts/LeagueGothic-Regular-VariableFont_wdth.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Bodoni 72 Smallcaps";
+    font-width: 200;
+    font-display: swap;
+    src: 
+        local("Bodoni 72 Smallcaps") format("truetype"),
+        url("/static/assets/fonts/Bodoni 72 Smallcaps Book.ttf") format("truetype");
+}

@@ -1,0 +1,126 @@
+.book-navigation {
+    --book-navigation-bg-color: var(--color-canvas-dark);
+    --book-navigation-link-color: var(--color-canvas-dark);
+    --book-navigation-link-color-hover: var(--color-secondary);
+    background-color: oklch(var(--book-navigation-bg-color));
+    padding-inline: var(--inline-space);
+    min-height: 100dvh;
+    @media(width <= 48rem) {
+        position: relative;
+        min-height: initial;
+        display: grid;
+        align-items: center;
+        max-width: 100%;
+        grid-template-areas: "main";
+    }
+    nav {
+        margin-inline: auto;
+        @media(width <= 48rem) {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+    nav ul {
+        @media(width <= 48rem) {
+            display: none;
+        }
+    }
+    .book-navigation__chapter-name-heading {
+        padding-inline: var(--inline-space);
+        font-family: var(--font-heading);
+        font-size: var(--font-size-lg);
+        position: relative;
+        z-index: 10;
+        isolation: isolate;
+        align-items: center;
+
+        > span {
+            position: relative;
+            z-index: 2;
+            background-color: oklch(var(--color-canvas-dark));
+            border-left: 2px solid oklch(var(--color-canvas));
+            border-right: 2px solid oklch(var(--color-canvas));
+            padding-inline: var(--inline-space);
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset-inline: 0;
+            top: 50%;
+            height: 2px;
+            background-color: oklch(var(--color-canvas));
+            transform: translateY(-50%);
+            z-index: 1; 
+        }
+        @media(width <= 48rem) {
+            display: flex;
+            grid-area: main;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            z-index: 1;
+        }
+    }
+    .book-navigation__section-link {
+        --book-navigation-link-color: var(--color-ink-light);
+        --book-navigation-link-hover-color: var(--color-secondary);
+        --book-navigation-link-bg-hover-color: var(--color-ink);
+        display: flex;
+        justify-content: space-between;
+        text-decoration: none;
+        color: oklch(var(--book-navigation-link-color));
+        text-shadow: 1px 1px 0px oklch(var(--color-ink));
+        &:hover {
+            text-shadow: 1px 1px 0px oklch(var(--color-ink));
+            color: oklch(var(--book-navigation-link-hover-color));
+            background-color: oklch(var(--book-navigation-link-bg-hover-color) / 0.5);
+        }
+    }
+    .book-navigation__section-name {
+        text-decoration: underline;
+        text-decoration-style: dotted;
+    }
+    .book-navigation__section-number {
+        --book-navigation__section-number-color: var(--color-canvas-light);
+        padding-inline: var(--inline-space);
+        color: oklch(var(--book-navigation__section-number-color));
+        text-decoration-color: oklch(var(--book-navigation__section-number-color));
+    }
+
+    .book-navigation__previous-and-next {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        margin-top: var(--block-space);
+        border-top: 2px solid oklch(var(--color-canvas));
+        @media(width <= 48rem) {
+            border: 0;
+            grid-area: main;
+            z-index: 2;
+            margin-top: 0;
+        }
+    }
+}
+.book-navigation__previous-section,
+.book-navigation__next-section {
+    @media(width <= 48rem) {
+        background-color: oklch(var(--color-canvas-dark));
+        padding-inline: var(--main-padding);
+    }
+}
+
+.toc-viewer {
+    display: none;
+    @media (width <= 48rem){
+        display: block;
+        position: fixed;
+        bottom: var(--block-space);
+        right: var(--block-space);
+        font-family: var(--font-berkeley-uc);
+        background-color: oklch(var(--color-canvas-light));
+        padding-inline: var(--block-space);
+        padding-block: var(--block-space);
+    }
+}

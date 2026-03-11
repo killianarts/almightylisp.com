@@ -1,0 +1,20 @@
+#+title: Books Controllers
+#+property: header-args:common-lisp :tangle ../../../src/modules/books/controllers.lisp
+
+Request handlers for the books module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:book/controllers
+  (:use #:cl)
+  (:local-nicknames (#:s #:shiso))
+  (:export #:index))
+
+(in-package #:book/controllers)
+#+end_src
+
+* index
+#+begin_src common-lisp
+(defun index ()
+  (s:http-response "Welcome to books"))
+#+end_src

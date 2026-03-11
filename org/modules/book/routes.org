@@ -1,0 +1,20 @@
+#+title: Books Routes
+#+property: header-args:common-lisp :tangle ../../../src/modules/books/routes.lisp
+
+Route definitions for the books module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:book/routes
+  (:use #:cl)
+  (:local-nicknames (#:s #:shiso)
+                    (#:controllers #:books/controllers)))
+
+(in-package #:book/routes)
+#+end_src
+
+* Module Routes
+#+begin_src common-lisp
+(s:define-module books
+  (:urls (:GET "/" #'controllers:index "index")))
+#+end_src

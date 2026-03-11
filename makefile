@@ -2,7 +2,7 @@ almightylisp: *.asd *.lisp src/* *.ros public/*
 	vend get
 	ros build almightylisp.ros
 dev: 
-	tw -i public/css/input.css -o public/css/almightylisp.css --watch --optimize
+	tw -i static/css/input.css -o static/css/almightylisp.css --watch --optimize
 install:
 	mv almightylisp ~/.local/bin/almightylisp
 	sudo cp almightylisp.service /etc/systemd/system/almightylisp.service

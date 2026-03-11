@@ -13,7 +13,7 @@
         font-display: swap;
         src: 
             local("Berkeley Mono") format("truetype"),
-            url("/assets/fonts/BerkeleyMono-Regular.ttf") format("truetype");
+            url("/static/assets/fonts/BerkeleyMono-Regular.ttf") format("truetype");
     }
     @font-face {
         font-family: "Berkeley Mono Thin";
@@ -21,7 +21,7 @@
         font-display: swap;
         src: 
             local("Berkeley Mono") format("truetype"),
-            url("/assets/fonts/BerkeleyMono-Light.ttf") format("truetype");
+            url("/static/assets/fonts/BerkeleyMono-Light.ttf") format("truetype");
     }
 
     @font-face {
@@ -31,7 +31,7 @@
         font-display: swap;
         src: 
             local("Berkeley Mono Black") format("truetype"),
-            url("/assets/fonts/BerkeleyMono-Black.ttf") format("truetype");
+            url("/static/assets/fonts/BerkeleyMono-Black.ttf") format("truetype");
     }
     @font-face {
         font-family: "Berkeley Mono UltraCondensed";
@@ -40,7 +40,7 @@
         font-display: swap;
         src: 
             local("Berkeley Mono UltraCondensed") format("truetype"),
-            url("/assets/fonts/BerkeleyMono-UltraCondensed.ttf") format("truetype");
+            url("/static/assets/fonts/BerkeleyMono-UltraCondensed.ttf") format("truetype");
     }
 
     @font-face {
@@ -49,7 +49,7 @@
         font-display: swap;
         src: 
             local("Berkeley Mono Thin UltraCondensed") format("truetype"),
-            url("/assets/fonts/BerkeleyMono-Light-UltraCondensed.ttf") format("truetype");
+            url("/static/assets/fonts/BerkeleyMono-Light-UltraCondensed.ttf") format("truetype");
     }
     
     @font-face {
@@ -59,7 +59,7 @@
         font-display: swap;
         src: 
             local("Berkeley Mono ExtraBold UltraCondensed") format("truetype"),
-            url("/assets/fonts/BerkeleyMono-ExtraBold-UltraCondensed.ttf") format("truetype");
+            url("/static/assets/fonts/BerkeleyMono-ExtraBold-UltraCondensed.ttf") format("truetype");
     }
     @font-face {
         font-family: "League Gothic";
@@ -67,7 +67,7 @@
         font-display: swap;
         src: 
             local("League Gothic") format("truetype"),
-            url("/assets/fonts/LeagueGothic-Regular-VariableFont_wdth.ttf") format("truetype");
+            url('/static/assets/fonts/LeagueGothic-Regular-VariableFont_wdth.ttf') format('truetype');
     }
     @font-face {
         font-family: "League Gothic Tall";
@@ -76,7 +76,7 @@
         font-stretch: 75%;
         src: 
             local("League Gothic") format("truetype"),
-            url("/assets/fonts/LeagueGothic-Regular-VariableFont_wdth.ttf") format("truetype");
+            url("/static/assets/fonts/LeagueGothic-Regular-VariableFont_wdth.ttf") format("truetype");
     }
     @font-face {
         font-family: "Bodoni 72 Smallcaps";
@@ -84,7 +84,7 @@
         font-display: swap;
         src: 
             local("Bodoni 72 Smallcaps") format("truetype"),
-            url("/assets/fonts/Bodoni 72 Smallcaps Book.ttf") format("truetype");
+            url("/static/assets/fonts/Bodoni 72 Smallcaps Book.ttf") format("truetype");
     }
 
 }
@@ -155,7 +155,7 @@
 
 body {
     font-family: "Instrument Serif";
-    background-image: url("../assets/images/bg-dot-pattern.png");
+    background-image: url("../static/assets/images/bg-dot-pattern.png");
     background-color: var(--color-primary-700);
     background-repeat: repeat;
     color: var(--color-primary-50);

@@ -1,0 +1,65 @@
+/**
+ * Syntax Highlighting
+ */
+pre {
+    white-space: pre;
+}
+pre code.hl-highlighted {
+    font-family: var(--font-berkeley);
+    white-space: pre;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    overflow-x: auto;
+}
+code.hl-highlighted {
+    margin: 0 2px;
+    padding: 0 5px;
+    white-space: nowrap;
+    background: #f8f8f8;
+    border: 1px solid #eaeaea;
+    border-radius: 3px;
+}
+code.hl-highlighted                         {color: oklch(var(--color-ink-light));}
+code.hl-highlighted .function               {color: oklch(var(--color-ink-light));}
+code.hl-highlighted .function.known         {color: oklch(var(--color-secondary));}
+code.hl-highlighted .function.known.special {color: oklch(var(--color-secondary)); font-weight: bold;}
+code.hl-highlighted .keyword                {color: oklch(var(--color-accent));}
+code.hl-highlighted .keyword.known          {color: oklch(var(--color-secondary));}
+code.hl-highlighted .symbol                 {color: oklch(var(--color-ink-light));}
+code.hl-highlighted .lambda-list            {color: oklch(var(--color-ink-light)); font-family: var(--font-berkeley-black);}
+code.hl-highlighted .number                 {color: oklch(var(--color-ink-light));}
+code.hl-highlighted .variable.known         {color: oklch(var(--color-ink-light));}
+code.hl-highlighted .variable.global        {color: oklch(var(--color-ink-light));}
+code.hl-highlighted .variable.constant      {color: oklch(var(--color-ink-light));}
+code.hl-highlighted .nil                    {color: oklch(var(--color-ink-light));}
+code.hl-highlighted .list                   {color: oklch(var(--color-ink-light));}
+code.hl-highlighted .string,
+code.hl-highlighted .string *               {color: oklch(var(--color-secondary2)) !important;}
+code.hl-highlighted .comment,
+code.hl-highlighted .comment *,
+code.hl-highlighted .comment .string,
+code.hl-highlighted .comment .string *      {color: oklch(var(--color-canvas-soft)) !important;}
+code.hl-highlighted .string .comment        {color: oklch(var(--color-canvas-soft)) !important;}
+
+code.hl-highlighted .list.active {display: inline-block; background: oklch(var(--color-accent));}
+
+/* Scrollbar */
+pre::-webkit-scrollbar {
+    height: auto;
+}
+
+pre::-webkit-scrollbar-thumb {
+    border: 1px outset oklch(var(--color-accent));
+    background-color: oklch(var(--color-accent-400));
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+    border: 1px outset oklch(var(--color-secondary));
+    background-color: oklch(var(--color-secondary));
+}
+
+pre::-webkit-scrollbar-track {
+    background-color: oklch(var(--color-primary-900));
+}

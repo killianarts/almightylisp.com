@@ -1,0 +1,11 @@
+#+title: Books Module
+#+property: header-args:common-lisp :tangle ../../../src/modules/books/books.lisp
+
+Top-level package for the books module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:book
+  (:use #:cl)
+  (:local-nicknames (#:s #:shiso)))
+#+end_src

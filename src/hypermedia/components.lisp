@@ -36,6 +36,31 @@
     (</>
      (html :class html-class :lang html-lang
        (head
+         (title (str:concat (string-upcase title) " - " (string-upcase "almightylisp.com")))
+         (meta :charset "utf-8")
+         (meta :name "viewport" :content "width=device-width, initial-scale=1")
+         
+         (link :href (shiso:static "css/almightylisp.css") :rel "stylesheet" :type "text/css")
+         (link :rel "preconnect" :href "https://fonts.googleapis.com")
+         (link :rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin t)
+         (link :rel "stylesheet" :href "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa")
+         (link :rel "apple-touch-icon" :sizes "180x180" :href (shiso:static "assets/images/favicon/apple-touch-icon.png"))
+         (link :rel "icon" :type "image/png" :sizes "32x32" :href (shiso:static "assets/images/favicon/favicon-32x32.png"))
+         (link :rel "icon" :type "image/png" :sizes "16x16" :href (shiso:static "assets/images/favicon/favicon-16x16.png"))
+         (link :rel "manifest" :href (shiso:static "assets/images/favicon/site.webmanifest"))
+         (script :src (shiso:static "js/highlight-lisp.js"))
+         (ac-meta-information :title title :description "almightylisp.com"))
+       (body
+         children
+         ;; syntax highlighting
+         (script "HighlightLisp.highlight_auto();"))))))
+
+(define-component ac-admin-skeleton (&key title children)
+  (let ((html-class (string-downcase "dark"))
+        (html-lang "en"))
+    (</>
+     (html :class html-class :lang html-lang
+       (head
          (title (str:concat (string-upcase title) " /// " (string-upcase "almightylisp.com")))
          (meta :charset "utf-8")
          (meta :name "viewport" :content "width=device-width, initial-scale=1")
@@ -49,6 +74,7 @@
          (link :rel "icon" :type "image/png" :sizes "16x16" :href (shiso:static "assets/images/favicon/favicon-16x16.png"))
          (link :rel "manifest" :href (shiso:static "assets/images/favicon/site.webmanifest"))
          (script :src (shiso:static "js/highlight-lisp.js"))
+         (script :src "https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.8/bundles/datastar.js" :type "module")
          (ac-meta-information :title title :description "almightylisp.com"))
        ;; (script :src "js/almighty-animations.js" :type "module")
        (body
@@ -68,13 +94,13 @@
 
 (define-component ac-admin-layout (&key title (header "Default Header") (subheader "default subheader") children)
   (</>
-   (ac-skeleton
+   (ac-admin-skeleton
      :title title
      (div :class "flex selection:bg-primary-darker"
        (div :class "relative isolate flex min-h-svh w-full bg-primary max-lg:flex-col
                             dark:bg-primary dark:lg:bg-primary-800"
          (div :class "fixed border-r-1 border-primary-900 inset-y-0 left-0 w-(--sidebar-width) max-lg:hidden"
-           (nav :class "font-berkeley uppercase text-accent flex h-full min-h-0 flex-col"
+           (nav :class "font-berkeley-uc uppercase text-accent flex h-full min-h-0 flex-col"
              (div :class "flex flex-col border-b border-primary-900 p-4 dark:border-primary-900
                                            [&amp;>[data-slot=section]+[data-slot=section]]:mt-2.5"
                (span :class "relative"
@@ -85,7 +111,7 @@
                      :aria-hidden "true")
                    (span :data-slot "avatar" :class "flex items-center gap-5"
                      (span
-                       :class "uppercase font-berkeley-thin text-3xl"
+                       :class "uppercase font-hero text-5xl"
                        "Shiso")))))
              (div :class "flex flex-1 flex-col overflow-y-auto p-4 [&amp;>[data-slot=section]+[data-slot=section]]:mt-8"
                (div :data-slot "section"
@@ -97,7 +123,7 @@
                  (ac-nav-link :url "/keyboard/alphabet" :text "Alphabet")))))
          (main :id "main" :class "ml-72"
            (header :class "w-fit"
-             (h1 :class "font-berkeley text-3xl uppercase text-secondary" (string-upcase header))
+             (h1 :class "font-heading text-3xl uppercase text-secondary" (string-upcase header))
              (p :class "font-berkeley text-accent bg-primary-900 uppercase" (string-upcase subheader)))
            children))))))
 

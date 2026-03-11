@@ -1,0 +1,13 @@
+#+title: Books Hypermedia Components
+#+property: header-args:common-lisp :tangle ../../../../src/modules/books/hypermedia/components.lisp
+
+Hypermedia components for the books module.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:book/hypermedia
+  (:use #:cl)
+  (:local-nicknames (#:ah #:almighty-html)))
+
+(in-package #:book/hypermedia)
+#+end_src

@@ -1,0 +1,44 @@
+.book {
+    font-family: var(--font-serif);
+    size: 1rem;
+    color: oklch(var(--color-ink-light));
+    @media(width <= 48rem) {
+        margin-left: 0;
+    }
+    a {
+        --book-link-color: var(--color-accent);
+        --book-link-hover-color: var(--color-secondary);
+        color: oklch(var(--book-link-color));
+        text-shadow: 1px 1px 0px oklch(var(--color-ink));
+        transition: all;
+        transition-duration: 300ms;
+        text-decoration: underline;
+        &:hover {
+            color: oklch(var(--book-link-hover-color));
+            text-shadow: 1px 1px 0px oklch(var(--color-canvas-dark));
+        }
+    }
+    h1,h2,h3,h4,h5,h6 {
+        font-family: var(--font-heading);
+    }
+    h1 {
+        font-size: var(--font-size-2xl);
+        &:hover {
+            text-decoration: underline dotted;
+        }
+    }
+    hgroup > span:has(+ h1),
+    hgroup > span:has(+ h2),
+    hgroup > span:has(+ h3),
+    hgroup > span:has(+ h4),
+    hgroup > span:has(+ h5),
+    hgroup > span:has(+ h6) {
+        color: oklch(var(--color-accent-300));
+        font-size: var(--font-size-sm);
+        font-family: "Rockwell";
+        font-style: oblique;
+        text-transform: uppercase;
+        display: block;
+        transform: translate(0, calc(var(--block-space) * 1));
+    }
+}

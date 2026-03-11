@@ -52,13 +52,13 @@ typical result:
 
 #+begin_example
 src/modules/books/
-  books.lisp                  -- (defpackage #:books ...)
-  models.lisp                 -- (defpackage #:books/models ...)
-  forms.lisp                  -- (defpackage #:books/forms ...)
-  controllers.lisp            -- (defpackage #:books/controllers ...)
+  book.lisp                  -- (defpackage #:book ...)
+  models.lisp                 -- (defpackage #:book/models ...)
+  forms.lisp                  -- (defpackage #:book/forms ...)
+  controllers.lisp            -- (defpackage #:book/controllers ...)
   routes.lisp                 -- (shiso:define-module books ...)
   hypermedia/
-    components.lisp           -- (defpackage #:books/hypermedia ...)
+    components.lisp           -- (defpackage #:book/hypermedia ...)
 #+end_example
 
 * Workflow
