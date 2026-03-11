@@ -1,28 +1,28 @@
 .book {
+    --link-color: var(--color-accent);
+    --link-hover-color: var(--color-secondary);
     font-family: var(--font-serif);
     size: 1rem;
-    color: oklch(var(--color-ink-light));
-    @media(width <= 48rem) {
+    color: var(--color-ink-light);
+    @media(max-width: 639px) {
         margin-left: 0;
     }
     a {
-        --book-link-color: var(--color-accent);
-        --book-link-hover-color: var(--color-secondary);
-        color: oklch(var(--book-link-color));
-        text-shadow: 1px 1px 0px oklch(var(--color-ink));
         transition: all;
+        background-color: var(--colo);
         transition-duration: 300ms;
         text-decoration: underline;
         &:hover {
-            color: oklch(var(--book-link-hover-color));
-            text-shadow: 1px 1px 0px oklch(var(--color-canvas-dark));
+            color: var(--link-hover-color);
+            text-shadow: 1px 1px 0px var(--color-canvas-dark);
         }
     }
     h1,h2,h3,h4,h5,h6 {
-        font-family: var(--font-heading);
+        text-transform: uppercase;
+        font-family: var(--font-hero);
     }
     h1 {
-        font-size: var(--font-size-2xl);
+        font-size: var(--font-size-5xl);
         &:hover {
             text-decoration: underline dotted;
         }
@@ -33,12 +33,30 @@
     hgroup > span:has(+ h4),
     hgroup > span:has(+ h5),
     hgroup > span:has(+ h6) {
-        color: oklch(var(--color-accent-300));
+        color: var(--color-accent-300);
+        font-size: var(--font-size-sm);
+        font-family: "Rockwell";
+        font-style: oblique;
+        text-transform: lowercase;
+        display: block;
+        transform: translate(0, calc(var(--block-space) * 1));
+    }
+    h1 + span,
+    h2 + span,
+    h3 + span,
+    h4 + span,
+    h5 + span,
+    h6 + span {
+        color: var(--color-accent-300);
         font-size: var(--font-size-sm);
         font-family: "Rockwell";
         font-style: oblique;
         text-transform: uppercase;
         display: block;
-        transform: translate(0, calc(var(--block-space) * 1));
+        transform: translate(0, calc(var(--inline-space) * -1));
+    }
+    p {
+        margin-block: var(--inline-space);
+        text-align: justify;
     }
 }

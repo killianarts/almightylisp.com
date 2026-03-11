@@ -13,13 +13,10 @@
     margin-left: var(--tray-size);
     padding-inline: var(--main-padding);
 }
-@media(width <= 48rem) {
+@media(max-width: 639px) {
     .sidebar-container {
         position: relative;
-        display: grid;
-        align-items: center;
         width: 100%;
-        grid-template-areas: "main";
     }
     .sidebar-main {
         margin-left: 0;

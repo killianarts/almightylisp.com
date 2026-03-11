@@ -70,12 +70,13 @@
          ;; syntax highlighting
          (script "HighlightLisp.highlight_auto();"))))))
 
-(ah:define-component ac-sidebar-layout (&key chapter headings children)
+(ah:define-component ac-sidebar-layout (&key chapter book-title headings children)
   (ah:</>
    (ac-skeleton :title chapter
      (div :class "sidebar-container"
        (div :class "book-navigation"
-         (p :class "book-navigation__chapter-name-heading" (span "Chapter Name"))
+         (h1 :class "book-navigation__book-title" book-title)
+         (p :class "book-navigation__chapter-name-heading" (span chapter))
          (nav
            (ul
              (li :class "book-navigation__section-link-container" (a :class "book-navigation__section-link" :href "/" (span :class "book-navigation__section-name" "Section Name") (span :class "book-navigation__section-number" "1.0.0")))

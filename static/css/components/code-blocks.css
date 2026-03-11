@@ -2,7 +2,10 @@
  * Syntax Highlighting
  */
 pre {
+    overflow-x: auto;
     white-space: pre;
+    background-color: var(--color-canvas-dark);
+    padding: var(--block-space);
 }
 pre code.hl-highlighted {
     font-family: var(--font-berkeley);
@@ -11,39 +14,42 @@ pre code.hl-highlighted {
     padding: 0;
     background: none;
     border: none;
-    overflow-x: auto;
+    @media (width <= 48rem) {
+        font-family: var(--font-berkeley-uc);
+    }
 }
 code.hl-highlighted {
     margin: 0 2px;
     padding: 0 5px;
+    max-width: 10ch;
     white-space: nowrap;
     background: #f8f8f8;
     border: 1px solid #eaeaea;
     border-radius: 3px;
 }
-code.hl-highlighted                         {color: oklch(var(--color-ink-light));}
-code.hl-highlighted .function               {color: oklch(var(--color-ink-light));}
-code.hl-highlighted .function.known         {color: oklch(var(--color-secondary));}
-code.hl-highlighted .function.known.special {color: oklch(var(--color-secondary)); font-weight: bold;}
-code.hl-highlighted .keyword                {color: oklch(var(--color-accent));}
-code.hl-highlighted .keyword.known          {color: oklch(var(--color-secondary));}
-code.hl-highlighted .symbol                 {color: oklch(var(--color-ink-light));}
-code.hl-highlighted .lambda-list            {color: oklch(var(--color-ink-light)); font-family: var(--font-berkeley-black);}
-code.hl-highlighted .number                 {color: oklch(var(--color-ink-light));}
-code.hl-highlighted .variable.known         {color: oklch(var(--color-ink-light));}
-code.hl-highlighted .variable.global        {color: oklch(var(--color-ink-light));}
-code.hl-highlighted .variable.constant      {color: oklch(var(--color-ink-light));}
-code.hl-highlighted .nil                    {color: oklch(var(--color-ink-light));}
-code.hl-highlighted .list                   {color: oklch(var(--color-ink-light));}
+code.hl-highlighted                         {color: var(--color-ink-light);}
+code.hl-highlighted .function               {color: var(--color-ink-light);}
+code.hl-highlighted .function.known         {color: var(--color-secondary);}
+code.hl-highlighted .function.known.special {color: var(--color-secondary); font-weight: bold;}
+code.hl-highlighted .keyword                {color: var(--color-accent);}
+code.hl-highlighted .keyword.known          {color: var(--color-secondary);}
+code.hl-highlighted .symbol                 {color: var(--color-ink-light);}
+code.hl-highlighted .lambda-list            {color: var(--color-ink-light); font-family: var(--font-berkeley-black);}
+code.hl-highlighted .number                 {color: var(--color-ink-light);}
+code.hl-highlighted .variable.known         {color: var(--color-ink-light);}
+code.hl-highlighted .variable.global        {color: var(--color-ink-light);}
+code.hl-highlighted .variable.constant      {color: var(--color-ink-light);}
+code.hl-highlighted .nil                    {color: var(--color-ink-light);}
+code.hl-highlighted .list                   {color: var(--color-ink-light);}
 code.hl-highlighted .string,
-code.hl-highlighted .string *               {color: oklch(var(--color-secondary2)) !important;}
+code.hl-highlighted .string *               {color: var(--color-secondary2) !important;}
 code.hl-highlighted .comment,
 code.hl-highlighted .comment *,
 code.hl-highlighted .comment .string,
-code.hl-highlighted .comment .string *      {color: oklch(var(--color-canvas-soft)) !important;}
-code.hl-highlighted .string .comment        {color: oklch(var(--color-canvas-soft)) !important;}
+code.hl-highlighted .comment .string *      {color: var(--color-canvas-soft) !important;}
+code.hl-highlighted .string .comment        {color: var(--color-canvas-soft) !important;}
 
-code.hl-highlighted .list.active {display: inline-block; background: oklch(var(--color-accent));}
+code.hl-highlighted .list.active {display: inline-block; background: var(--color-accent);}
 
 /* Scrollbar */
 pre::-webkit-scrollbar {
@@ -51,15 +57,15 @@ pre::-webkit-scrollbar {
 }
 
 pre::-webkit-scrollbar-thumb {
-    border: 1px outset oklch(var(--color-accent));
-    background-color: oklch(var(--color-accent-400));
+    border: 1px outset var(--color-accent);
+    background-color: var(--color-accent-400);
 }
 
 pre::-webkit-scrollbar-thumb:hover {
-    border: 1px outset oklch(var(--color-secondary));
-    background-color: oklch(var(--color-secondary));
+    border: 1px outset var(--color-secondary);
+    background-color: var(--color-secondary);
 }
 
 pre::-webkit-scrollbar-track {
-    background-color: oklch(var(--color-primary-900));
+    background-color: var(--color-canvas-dark);
 }
