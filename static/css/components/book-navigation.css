@@ -1,11 +1,12 @@
 .book-navigation {
     --bg-color: var(--color-canvas-dark);
     --book-title-color: var(--color-ink-light);
+    --chapter-name-color: var(--color-ink-light);
     --link-color: var(--color-ink-light);
     --link-color-hover: var(--color-secondary);
     --link-bg-color-hover: var(--color-canvas-darker);
     --span-bg-color: var(--color-canvas-dark);
-    --span-border-color: var(--color-canvas);
+    --divider-color: var(--color-accent);
     background-color: var(--bg-color);
     padding-inline: var(--inline-space);
     padding-block: var(--block-space);
@@ -54,8 +55,8 @@
         }
     }
     .book-navigation__chapter-name-heading {
+        color: var(--chapter-name-color);
         padding-inline: var(--inline-space);
-        margin-bottom: var(--block-space);
         font-family: var(--font-heading);
         font-size: var(--font-size-lg);
         position: relative;
@@ -76,8 +77,8 @@
             position: relative;
             z-index: 2;
             background-color: var(--span-bg-color);
-            border-left: 2px solid var(--span-border-color);
-            border-right: 2px solid var(--span-border-color);
+            border-left: 2px solid var(--divider-color);
+            border-right: 2px solid var(--divider-color);
             padding-inline: var(--inline-space);
         }
 
@@ -87,7 +88,7 @@
             inset-inline: 0;
             top: 50%;
             height: 2px;
-            background-color: var(--span-border-color);
+            background-color: var(--divider-color);
             transform: translateY(-50%);
             z-index: 1; 
         }
@@ -120,7 +121,7 @@
         display: flex;
         justify-content: space-between;
         margin-top: var(--block-space);
-        border-top: 2px solid var(--color-canvas);
+        border-top: 2px solid var(--divider-color);
         text-shadow: 1px 1px 0px var(--color-ink);
         @media(max-width: 639px) {
             border: 0;

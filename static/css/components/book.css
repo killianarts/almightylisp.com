@@ -5,6 +5,12 @@
     --code-bg-color: var(--color-canvas-dark);
     --code-font: var(--font-berkeley-thin);
     --book-font: var(--font-serif);
+    --outline-1-color: var(--color-accent);
+    --outline-2-color: var(--color-ink-light);
+    --outline-3-color: var(--color-secondary);
+    --outline-4-color: var(--color-accent);
+    --outline-5-color: var(--color-secondary);
+    --outline-6-color: var(--color-ink-light);
     font-family: var(--book-font);
     size: 1rem;
     container-type: inline-size;
@@ -13,9 +19,6 @@
     @media(max-width: 639px) {
         margin-left: 0;
     }
-    section {
-        max-width: 100ch;
-    } 
     a {
         transition: all;
         color: var(--link-color);
@@ -26,27 +29,44 @@
             text-shadow: 1px 1px 0px var(--color-canvas-dark);
         }
     }
-    h1,h2,h3,h4,h5,h6 {
+    h1,h2,h3 {
         text-transform: uppercase;
         font-family: var(--font-heading);
         &:hover {
             text-decoration: underline dotted;
         }
     }
+    h4,h5,h6 {
+        font-family: var(--font-stack-slab-serif);
+    }
     h1 {
+        color: var(--outline-1-color);
         font-size: var(--font-size-5xl);
-        line-height: calc(var(--font-size-4xl) - 4px);
+        line-height: calc(var(--font-size-4xl) - 5px);
     }
     h2 {
+        color: var(--outline-2-color);
         font-size: var(--font-size-4xl);
         line-height: var(--font-size-3xl);
     }
     h3 {
+        color: var(--outline-3-color);
         font-size: var(--font-size-3xl);
+        line-height: var(--font-size-3xl);
     }
     h4 {
-        font-size: var(--font-size-2xl);
+        color: var(--outline-4-color);
+        font-size: var(--font-size-xl);
     }
+    h5 {
+        color: var(--outline-5-color);
+        font-size: var(--font-size-lg);
+    }
+    h6 {
+        color: var(--outline-6-color);
+        font-size: var(--font-size-base);
+    }
+
     hgroup > span:has(+ h1),
     hgroup > span:has(+ h2),
     hgroup > span:has(+ h3),
@@ -79,14 +99,30 @@
         margin-block: var(--inline-space);
         text-align: justify;
         letter-spacing: 0.05ch;
+        line-height: 1.5rem;
         font-weight: 100;
+    }
+    section {
+        max-width: 75ch;
+        margin-block: calc(var(--block-space) * 2);
+    }
+    pre {
+        margin-block: var(--block-space);
     }
     code {
         font-family: var(--code-font);
-        font-size: 0.9rem;
+        font-size: inherit;
         letter-spacing: initial;
         color: var(--code-color);
         background-color: var(--code-bg-color);
+    }
+    h1 code,
+    h2 code,
+    h3 code,
+    h4 code,
+    h5 code,
+    h6 code {
+        font-family: var(--font-berkeley-uc-thin);
     }
     .table-container {
         overflow-x: auto;

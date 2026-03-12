@@ -12,7 +12,7 @@ pre {
 pre code.hl-highlighted {
     font-family: var(--font-berkeley);
     white-space: pre;
-    line-height: 1ch;
+    line-height: initial;
     margin: 0;
     padding: 0;
     background: none;
@@ -25,7 +25,6 @@ pre code.hl-highlighted {
         font-family: var(--font-berkeley-uc);
         font-size: var(--font-size-sm);
     }
-
 }
 code.hl-highlighted {
     margin: 0 2px;

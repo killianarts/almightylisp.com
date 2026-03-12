@@ -302,17 +302,17 @@
     --color-accent-dark: var(--color-accent-900);
     --color-accent-soft: var(--color-accent-400);
 
-    --color-danger-50: oklch(var(--tw-lch-red-50));
-    --color-danger-100: oklch(var(--tw-lch-red-100));
-    --color-danger-200: oklch(var(--tw-lch-red-200));
-    --color-danger-300: oklch(var(--tw-lch-red-300));
-    --color-danger-400: oklch(var(--tw-lch-red-400));
-    --color-danger-500: oklch(var(--tw-lch-red-500));
-    --color-danger-600: oklch(var(--tw-lch-red-600));
-    --color-danger-700: oklch(var(--tw-lch-red-700));
-    --color-danger-800: oklch(var(--tw-lch-red-800));
-    --color-danger-900: oklch(var(--tw-lch-red-900));
-    --color-danger-950: oklch(var(--tw-lch-red-950));
+    --color-danger-50: oklch(var(--tw-lch-orange-50));
+    --color-danger-100: oklch(var(--tw-lch-orange-100));
+    --color-danger-200: oklch(var(--tw-lch-orange-200));
+    --color-danger-300: oklch(var(--tw-lch-orange-300));
+    --color-danger-400: oklch(var(--tw-lch-orange-400));
+    --color-danger-500: oklch(var(--tw-lch-orange-500));
+    --color-danger-600: oklch(var(--tw-lch-orange-600));
+    --color-danger-700: oklch(var(--tw-lch-orange-700));
+    --color-danger-800: oklch(var(--tw-lch-orange-800));
+    --color-danger-900: oklch(var(--tw-lch-orange-900));
+    --color-danger-950: oklch(var(--tw-lch-orange-950));
 
     --color-danger-lighter: var(--color-danger-300);
     --color-danger-light: var(--color-danger-400);
@@ -428,6 +428,7 @@
     --font-stack-antique: Superclarendon, "Bookman Old Style", "URW Bookman", "URW Bookman L", "Georgia Pro", Georgia, serif;
     --font-stack-didone: Didot, "Bodoni MT", "Noto Serif Display", "URW Palladio L", P052, Sylfaen, serif;
     --font-stack-handwritten: "Segoe Print", "Bradley Hand", Chilanka, TSCu_Comic, casual, cursive;
+    --font-instrument-serif: "Instrument Serif";
 
     --font-heading: "League Gothic";
     --font-hero: "League Gothic Tall";
