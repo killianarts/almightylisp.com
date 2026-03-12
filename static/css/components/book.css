@@ -1,15 +1,24 @@
 .book {
     --link-color: var(--color-accent);
     --link-hover-color: var(--color-secondary);
-    font-family: var(--font-serif);
+    --code-color: var(--color-secondary);
+    --code-bg-color: var(--color-canvas-dark);
+    --code-font: var(--font-berkeley-thin);
+    --book-font: var(--font-serif);
+    font-family: var(--book-font);
     size: 1rem;
-    color: var(--color-ink-light);
+    container-type: inline-size;
+    container-name: book-container;
+    overflow-x: clip;
     @media(max-width: 639px) {
         margin-left: 0;
     }
+    section {
+        max-width: 100ch;
+    } 
     a {
         transition: all;
-        background-color: var(--colo);
+        color: var(--link-color);
         transition-duration: 300ms;
         text-decoration: underline;
         &:hover {
@@ -19,13 +28,24 @@
     }
     h1,h2,h3,h4,h5,h6 {
         text-transform: uppercase;
-        font-family: var(--font-hero);
-    }
-    h1 {
-        font-size: var(--font-size-5xl);
+        font-family: var(--font-heading);
         &:hover {
             text-decoration: underline dotted;
         }
+    }
+    h1 {
+        font-size: var(--font-size-5xl);
+        line-height: calc(var(--font-size-4xl) - 4px);
+    }
+    h2 {
+        font-size: var(--font-size-4xl);
+        line-height: var(--font-size-3xl);
+    }
+    h3 {
+        font-size: var(--font-size-3xl);
+    }
+    h4 {
+        font-size: var(--font-size-2xl);
     }
     hgroup > span:has(+ h1),
     hgroup > span:has(+ h2),
@@ -58,5 +78,63 @@
     p {
         margin-block: var(--inline-space);
         text-align: justify;
+        letter-spacing: 0.05ch;
+        font-weight: 100;
+    }
+    code {
+        font-family: var(--code-font);
+        font-size: 0.9rem;
+        letter-spacing: initial;
+        color: var(--code-color);
+        background-color: var(--code-bg-color);
+    }
+    .table-container {
+        overflow-x: auto;
+    }
+    table {
+        background-color: var(--code-bg-color);
+        font-family: var(--code-font);
+        container-type: inline-size;
+        container-name: table-container;
+        @container book-container (width <= 100ch) {
+            font-family: var(--font-berkeley-uc-thin);
+        }
+    }
+    thead {
+        color: var(--color-accent);
+    }
+    th, td {
+        white-space: nowrap;
+        text-align: left;
+        padding-inline: var(--inline-space);
+    }
+    tbody {
+        white-space: nowrap;
+        overflow-x: auto;
+    }
+    .table-container::-webkit-scrollbar {
+        height: auto;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+        border: 1px outset var(--color-accent);
+        background-color: var(--color-accent-400);
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+        border: 1px outset var(--color-secondary);
+        background-color: var(--color-secondary);
+    }
+
+    .table-container::-webkit-scrollbar-track {
+        background-color: var(--color-canvas-darker);
+    }
+
+    table th:first-child,
+    table td:first-child {
+        background-color: var(--code-bg-color);
+        position: sticky;
+        left: 0;                    /* sticks to the left edge */
+        z-index: 1;                 /* keeps it above other cells */
     }
 }

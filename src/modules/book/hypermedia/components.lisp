@@ -68,7 +68,7 @@
        (body
          children
          ;; syntax highlighting
-         (script "HighlightLisp.highlight_auto();"))))))
+         (script (raw! "HighlightLisp.highlight_auto();")))))))
 
 (ah:define-component ac-sidebar-layout (&key chapter book-title headings children)
   (ah:</>

@@ -2,6 +2,8 @@
  * Syntax Highlighting
  */
 pre {
+    container-type: inline-size;
+    container-name: code-container;
     overflow-x: auto;
     white-space: pre;
     background-color: var(--color-canvas-dark);
@@ -10,13 +12,20 @@ pre {
 pre code.hl-highlighted {
     font-family: var(--font-berkeley);
     white-space: pre;
+    line-height: 1ch;
     margin: 0;
     padding: 0;
     background: none;
     border: none;
-    @media (width <= 48rem) {
+    @container code-container (width <= 70ch) {
         font-family: var(--font-berkeley-uc);
     }
+    @container code-container (width <= 50ch) {
+
+        font-family: var(--font-berkeley-uc);
+        font-size: var(--font-size-sm);
+    }
+
 }
 code.hl-highlighted {
     margin: 0 2px;
@@ -34,7 +43,7 @@ code.hl-highlighted .function.known.special {color: var(--color-secondary); font
 code.hl-highlighted .keyword                {color: var(--color-accent);}
 code.hl-highlighted .keyword.known          {color: var(--color-secondary);}
 code.hl-highlighted .symbol                 {color: var(--color-ink-light);}
-code.hl-highlighted .lambda-list            {color: var(--color-ink-light); font-family: var(--font-berkeley-black);}
+code.hl-highlighted .lambda-list            {color: var(--color-ink-light); font-family: var(--font-berkeley-black); @container code-container (width <= 70ch) { font-family: var(--font-berkeley-uc-black)}}
 code.hl-highlighted .number                 {color: var(--color-ink-light);}
 code.hl-highlighted .variable.known         {color: var(--color-ink-light);}
 code.hl-highlighted .variable.global        {color: var(--color-ink-light);}
@@ -67,5 +76,5 @@ pre::-webkit-scrollbar-thumb:hover {
 }
 
 pre::-webkit-scrollbar-track {
-    background-color: var(--color-canvas-dark);
+    background-color: var(--color-canvas-darker);
 }
