@@ -47,6 +47,7 @@
         --hero-body-font-size: var(--font-size-lg);
         --heading-font-size: var(--font-size-2xl);
         --heading-margin-bottom: var(--spacing-sm);
+        --list-margin-left: var(--spacing-1);
     }
 
     .logo {
@@ -80,6 +81,7 @@
         padding-block: var(--section-spacing);
     }
     h2 {
+        text-wrap: balance;
         font-family: var(--heading-font-family);
         font-size: var(--heading-font-size);
         color: var(--heading-text-color);
