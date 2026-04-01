@@ -1,4 +1,4 @@
-almightylisp: *.asd *.lisp src/* *.ros public/*
+almightylisp: *.asd *.lisp src/* *.ros static/*
 	vend get
 	ros build almightylisp.ros
 dev: 

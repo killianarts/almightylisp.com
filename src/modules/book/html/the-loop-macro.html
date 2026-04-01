@@ -1,0 +1,872 @@
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <h1 class="book-navigation__book-title">Almighty Lisp: The Essentials</h1>
+      <p class="book-navigation__chapter-name-heading"><span>Almighty Lisp: The Essentials</span></p>
+      <nav>
+        <ul>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#simple-loops">
+              <span class="book-navigation__section-name">Simple Loops</span>
+              <span class="book-navigation__section-number">1.1.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#iterating-over-lists">
+              <span class="book-navigation__section-name">Iterating Over Lists</span>
+              <span class="book-navigation__section-number">1.2.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#iterating-over-vectors-and-strings">
+              <span class="book-navigation__section-name">Iterating Over Vectors and Strings</span>
+              <span class="book-navigation__section-number">1.3.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#numeric-iteration">
+              <span class="book-navigation__section-name">Numeric Iteration</span>
+              <span class="book-navigation__section-number">1.4.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#accumulation-clauses">
+              <span class="book-navigation__section-name">Accumulation Clauses</span>
+              <span class="book-navigation__section-number">1.5.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#conditional-clauses">
+              <span class="book-navigation__section-name">Conditional Clauses</span>
+              <span class="book-navigation__section-number">1.6.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#termination">
+              <span class="book-navigation__section-name">Termination</span>
+              <span class="book-navigation__section-number">1.7.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#manually-updated-variable-bindings">
+              <span class="book-navigation__section-name">Manually Updated Variable Bindings</span>
+              <span class="book-navigation__section-number">1.8.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#parallel-iterating">
+              <span class="book-navigation__section-name">Parallel Iterating</span>
+              <span class="book-navigation__section-number">1.9.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#destructuring">
+              <span class="book-navigation__section-name">Destructuring</span>
+              <span class="book-navigation__section-number">1.10.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#the-step-binding">
+              <span class="book-navigation__section-name">The Step Binding</span>
+              <span class="book-navigation__section-number">1.11.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#running-code-before-the-first-iteration-or-after-the-last-iteration">
+              <span class="book-navigation__section-name">Running Code Before The First Iteration Or After The Last Iteration</span>
+              <span class="book-navigation__section-number">1.12.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#returning-from-named-loops">
+              <span class="book-navigation__section-name">Returning From Named Loops</span>
+              <span class="book-navigation__section-number">1.13.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#combining-everything">
+              <span class="book-navigation__section-name">Combining Everything</span>
+              <span class="book-navigation__section-number">1.14.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#when-to-use-something-else">
+              <span class="book-navigation__section-name">When to Use Something Else</span>
+              <span class="book-navigation__section-number">1.15.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#a-note-on-style-keywords-vs-symbols">
+              <span class="book-navigation__section-name">A Note on Style: Keywords vs Symbols</span>
+              <span class="book-navigation__section-number">1.16.0</span>
+            </a>
+          </li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="the-loop-macro">
+  <hgroup>
+    <span></span>
+    <h1>THE LOOP MACRO</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+<p>
+In the chapter on Lisp Fundamentals, we briefly touched on the <code>loop</code> macro.
+However, with a deeper knowledge of the <code>loop</code> macro, you can replace the use of
+several built-in functions with just <code>loop</code>. It also has the advantage of being
+easier to understand for those that are familiar with other languages (although
+that led it to being somewhat controversial among lispers when it was
+introduced).
+</p>
+
+<p>
+Given the amount of utility you can get out of a good understanding of <code>loop</code>,
+we'll take a closer look at it, comparing to other built-in functions along the way.
+</p>
+</div>
+<section id="simple-loops">
+  <hgroup>
+    <span></span>
+    <h2>Simple Loops</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-1">
+<p>
+The simplest <code>loop</code> runs forever:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop (print "forever")
+      (return))
+</code></pre>
+
+<p>
+This is the "simple" form of <code>loop</code>. It takes a body with no clauses and
+repeats it. You'll rarely use this form&#x2013;it's only useful when combined with
+<code>return</code> or <code>return-from</code> to break out manually. The "extended" form, which uses
+clauses like <code>:for</code> and <code>:collect</code>, is what the rest of this chapter covers.
+</p>
+</div>
+
+</section>
+<section id="iterating-over-lists">
+  <hgroup>
+    <span></span>
+    <h2>Iterating Over Lists</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+The most basic pattern iterates over the elements of a list:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for item :in '(one two three)
+      :do (print item))
+</code></pre>
+
+<p>
+Compare this with <code>dolist</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(dolist (item '(one two three))
+  (print item))
+</code></pre>
+
+<p>
+They do the same thing. <code>dolist</code> is shorter for this case. When you need to do
+many operations, however, then you'll find <code>loop</code> is more efficient and easier
+to understand.
+</p>
+
+<p>
+Where <code>:in</code> binds the variable to each <i>element</i> of the list, <code>:on</code> binds it to
+each successive <i>sublist</i>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for sublist :on '(a b c d)
+      :do (print sublist))
+</code></pre>
+</div>
+
+</section>
+<section id="iterating-over-vectors-and-strings">
+  <hgroup>
+    <span></span>
+    <h2>Iterating Over Vectors and Strings</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-3">
+<p>
+<code>:in</code> works on lists. For vectors (including strings), use <code>:across</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for char :across "hello"
+      :collect (char-upcase char))
+</code></pre>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for elem :across #(10 20 30 40)
+      :sum elem)
+</code></pre>
+
+<p>
+Compare with <code>map</code>:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(map 'list #'char-upcase "hello")
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(#####)</code></pre>
+</div>
+
+<p>
+<code>map</code> is more concise here, but <code>loop</code> lets you mix in conditions, multiple
+accumulations, and other clauses that <code>map</code> can't express.
+</p>
+</div>
+
+</section>
+<section id="numeric-iteration">
+  <hgroup>
+    <span></span>
+    <h2>Numeric Iteration</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-4">
+<p>
+You can, of course, iterated over number ranges. You can run the loop body a
+fixed number of times with <code>:repeat</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :repeat 3
+      :do (print "hello"))
+</code></pre>
+
+<p>
+If you need an "index" variable, then use <code>:from ... :to ...</code>
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for i :from 0 :to 4
+      :collect i)
+</code></pre>
+
+<p>
+<code>:to</code> is inclusive. If you want exclusive, use <code>:below</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for i :from 0 :below 4
+      :collect i)
+</code></pre>
+
+<p>
+Compare with <code>dotimes</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((result nil))
+  (dotimes (i 4 (nreverse result))
+    (push i result)))
+</code></pre>
+
+<p>
+<code>dotimes</code> gets the job done, but <code>loop</code> with <code>:collect</code> saves you from
+manually pushing and reversing.
+</p>
+
+<p>
+You can count down:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for i :from 10 :downto 1
+      :do (format t "~a... " i))
+</code></pre>
+
+<p>
+<code>:above</code> is the exclusive version of <code>:downto</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for i :from 10 :above 0
+      :collect i)
+</code></pre>
+
+<p>
+And you can step by any amount:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for i :from 0 :to 20 :by 5
+      :collect i)
+</code></pre>
+</div>
+
+</section>
+<section id="accumulation-clauses">
+  <hgroup>
+    <span></span>
+    <h2>Accumulation Clauses</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-5">
+<p>
+<code>:collect</code> is the most common accumulation clause, but there are several others.
+It builds a list from the values:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(1 2 3 4 5)
+      :collect (* 2 (sqrt n)))
+</code></pre>
+
+<p>
+If you need to flattens lists of lists, use <code>:append</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for sublist :in '((1 2) (3 4) (5 6))
+      :append sublist)
+</code></pre>
+<p>
+Compare with <code>reduce</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(reduce #'append '((1 2) (3 4) (5 6)))
+</code></pre>
+
+<p>
+<code>:nconc</code> does the same thing destructively (faster, but mutates the sublists).
+Use <code>:append</code> unless you're sure the sublists are freshly created and won't be
+needed again.
+</p>
+
+<p>
+You can accumulate via summing with <code>:sum</code> or counting with <code>:count</code>:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(3 1 4 1 5 9 2 6)
+      :sum n)
+
+(loop :for n :in '(3 1 4 1 5 9 2 6)
+      :count (oddp n))
+</code></pre>
+
+<p>
+Compare <code>:sum</code> with <code>reduce</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(reduce #'+ '(3 1 4 1 5 9 2 6))
+</code></pre>
+
+<p>
+You can get the maximum or minimum values in some collection with <code>:maximize</code>
+and <code>:minimize</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(3 1 4 1 5 9 2 6)
+      :maximize n)
+
+(loop :for n :in '(3 1 4 1 5 9 2 6)
+      :minimize n)
+</code></pre>
+
+<p>
+Compare <code>:count</code> with <code>count-if</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(count-if #'oddp '(3 1 4 1 5 9 2 6))
+</code></pre>
+</div>
+
+</section>
+<section id="conditional-clauses">
+  <hgroup>
+    <span></span>
+    <h2>Conditional Clauses</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-6">
+<p>
+You can filter data with <code>when</code> and <code>unless</code> clauses:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(1 2 3 4 5 6 7 8 9 10)
+      :when (evenp n)
+        :collect n)
+</code></pre>
+
+<p>
+Compare with <code>remove-if-not</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(remove-if-not #'evenp '(1 2 3 4 5 6 7 8 9 10))
+</code></pre>
+
+<p>
+<code>:unless</code> is the opposite of <code>:when</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(1 2 3 4 5 6 7 8 9 10)
+      :unless (evenp n)
+        :collect n)
+</code></pre>
+
+<p>
+For more complex branching, use <code>:if</code>, <code>:else</code>, <code>:end</code>, and <code>:finally</code>:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(1 2 3 4 5 6 7 8 9 10)
+      :if (evenp n)
+        :collect n :into evens
+      :else
+        :collect n :into odds
+      :end
+      :finally (return (list :evens evens :odds odds)))
+</code></pre>
+
+<p>
+The <code>:end</code> marks where the <code>:if</code> / <code>:else</code> block ends. <code>:into</code> collects into
+a named variable instead of the loop's default return value, and <code>:finally</code>
+runs code after the loop finishes.
+</p>
+</div>
+
+</section>
+<section id="termination">
+  <hgroup>
+    <span></span>
+    <h2>Termination</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-7">
+<p>
+<code>:while</code> continues looping as long as the condition is true. <code>:until</code> stops as
+soon as the condition becomes true:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(2 4 6 7 8 10)
+      :while (evenp n)
+      :collect n)
+</code></pre>
+
+<p>
+The loop stopped at 7 because it's odd. Note that 8 and 10 are not visited at
+all--<code>:while</code> terminates the loop immediately.
+</p>
+
+<p>
+This is useful for reading data from a file:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(with-open-file (stream #P"some-file.txt" :direction :input)
+  (loop :for line = (read-line stream nil nil)
+        :while line
+        :collect line))
+</code></pre>
+
+<p>
+Here <code>:for line \=</code> assigns the result of <code>(read-line ...)</code> to <code>line</code> each
+iteration, and <code>:while line</code> stops when <code>read-line</code> returns <code>nil</code> (end of
+file).
+</p>
+
+<p>
+You can exit a <code>loop</code> early with <code>return</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(2 4 6 7 8 10)
+      :when (oddp n)
+        :do (return n))
+</code></pre>
+
+<p>
+<code>:thereis</code>, <code>:always</code>, and <code>:never</code> are shorthand for common patterns:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(2 4 6 8 10)
+      :always (evenp n))
+
+(loop :for n :in '(2 4 6 7 8 10)
+      :always (evenp n))
+
+(loop :for n :in '(2 4 6 7 8 10)
+      :thereis (oddp n))
+
+(loop :for n :in '(2 4 6 8 10)
+      :never (oddp n))
+</code></pre>
+
+<p>
+Compare with the standard functions:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(every #'evenp '(2 4 6 8 10))
+(some #'oddp '(2 4 6 7 8 10))
+(notany #'oddp '(2 4 6 8 10))
+</code></pre>
+</div>
+
+</section>
+<section id="manually-updated-variable-bindings">
+  <hgroup>
+    <span></span>
+    <h2>Manually Updated Variable Bindings</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-8">
+<p>
+<code>:with</code> creates a local variable that persists across iterations but is <i>not</i> a
+loop variable. It won't step or update automatically. Here, the total is
+manually incremented with <code>incf</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :with total = 0
+      :for n :in '(1 2 3 4 5)
+      :do (incf total n)
+      :finally (return total))
+</code></pre>
+
+<p>
+Of course, <code>:sum</code> would be simpler here. <code>:with</code> is more useful when you need
+to maintain state that doesn't fit neatly into an accumulation clause:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :with prev = nil
+      :for n :in '(1 1 2 3 3 3 4 5 5)
+      :unless (eql n prev)
+        :collect n
+      :do (setf prev n))
+</code></pre>
+
+<p>
+This removes consecutive duplicates&#x2013;something that would require a <code>let</code> and
+manual bookkeeping with <code>dolist</code>.
+</p>
+</div>
+
+</section>
+<section id="parallel-iterating">
+  <hgroup>
+    <span></span>
+    <h2>Parallel Iterating</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-9">
+<p>
+You can iterate over multiple things in parallel. The loop ends when the
+shortest sequence runs out:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for name :in '("Alice" "Bob" "Charlie")
+      :for i :from 1
+      :collect (format nil "~a. ~a" i name))
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>("1. Alice" "2. Bob" "3. Charlie")</code></pre>
+</div>
+
+<p>
+Compare with <code>mapcar</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((i 0))
+  (mapcar (lambda (name)
+            (incf i)
+            (format nil "~a. ~a" i name))
+          '("Alice" "Bob" "Charlie")))
+</code></pre>
+
+<p>
+The <code>loop</code> version is cleaner because it has a built-in counter. No need for an
+external variable.
+</p>
+
+<p>
+You can also iterate over different types of sequences in parallel:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for letter :across "abcde"
+      :for number :in '(1 2 3 4 5)
+      :collect (list letter number))
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>((#1) (#2) (#3) (#4) (#5))</code></pre>
+</div>
+</div>
+
+</section>
+<section id="destructuring">
+  <hgroup>
+    <span></span>
+    <h2>Destructuring</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-10">
+<p>
+<code>loop</code> can destructure list elements, pulling them apart as it iterates:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for (name age) :in '(("Alice" 30) ("Bob" 25) ("Charlie" 35))
+      :collect (format nil "~a is ~a years old" name age))
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>("Alice is 30 years old" "Bob is 25 years old" "Charlie is 35 years old")</code></pre>
+</div>
+
+<p>
+This is particularly useful for association lists:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *people*
+  '((:micah male 40 japan)
+    (:takae female 35 japan)
+    (:mom female 71 america)))
+
+(loop :for (name gender age country) :in *people*
+      :when (eql country 'japan)
+        :collect name)
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(:MICAH :TAKAE)</code></pre>
+</div>
+
+<p>
+Without <code>loop</code> destructuring, you'd need <code>first</code>, <code>second</code>, <code>third</code>, etc.:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'first
+        (remove-if-not (lambda (row) (eql (fourth row) 'japan))
+                        *people*))
+</code></pre>
+
+<p>
+The <code>loop</code> version reads more naturally, especially as the structure gets more
+complex.
+</p>
+
+<p>
+If you want to step through a plist you can combine <code>:on</code> with <code>:by</code>:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for (key value) :on '(:name "Micah" :age 40 :lang "Lisp")
+        :by #'cddr
+      :do (format t "~&amp;~a: ~a" key value))
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NAME: Micah
+AGE: 40
+LANG: Lisp
+=&gt; NIL</code></pre>
+</div>
+
+<p>
+<code>:by</code> specifies the stepping function. The default is <code>#'cdr</code> (move one element
+forward). Using <code>#'cddr</code> moves two elements forward, which is exactly what you
+need for key-value pairs.
+</p>
+</div>
+
+</section>
+<section id="the-step-binding">
+  <hgroup>
+    <span></span>
+    <h2>The Step Binding</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-11">
+<p>
+Sometimes you need to compute a value each iteration rather than pull it from a
+sequence:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for line = (read-line *standard-input* nil nil)
+      :while line
+      :collect line)
+</code></pre>
+
+<p>
+This assigns the result of the expression to <code>line</code> each time through. Without
+<code>:then</code>, the same expression is evaluated every iteration.
+</p>
+
+<p>
+With <code>:then</code>, you can specify different expressions for the first iteration and
+subsequent ones:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for x = 1 :then (* x 2)
+      :repeat 8
+      :collect x)
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 2 4 8 16 32 64 128)</code></pre>
+</div>
+</div>
+
+</section>
+<section id="running-code-before-the-first-iteration-or-after-the-last-iteration">
+  <hgroup>
+    <span></span>
+    <h2>Running Code Before The First Iteration Or After The Last Iteration</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-12">
+<p>
+<code>:initially</code> runs code before the first iteration. <code>:finally</code> runs code after
+the last iteration:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(1 2 3 4 5)
+      :sum n :into total
+      :finally (return (/ total 5)))
+</code></pre>
+
+<p>
+This computes an average. <code>:finally</code> has access to variables created by <code>:into</code>,
+which makes it useful for post-processing accumulated results.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :initially (format t "~&amp;Starting...~%")
+      :for item :in '(a b c)
+      :do (format t "~&amp;Processing ~a~%" item)
+      :finally (format t "~&amp;Done.~%"))
+
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>Starting...
+Processing A
+Processing B
+Processing C
+Done.
+=&gt; NIL</code></pre>
+</div>
+</div>
+
+</section>
+<section id="returning-from-named-loops">
+  <hgroup>
+    <span></span>
+    <h2>Returning From Named Loops</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-13">
+<p>
+You can name a <code>loop</code> with <code>:named</code> and exit it with <code>return-from</code>. This is
+useful for nested loops:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :named outer
+      :for x :in '(1 2 3)
+      :do (loop :for y :in '(10 20 30)
+                :when (and (= x 2) (= y 20))
+                  :do (return-from outer (list x y))))
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(2 20)</code></pre>
+</div>
+
+<p>
+Without <code>:named</code>, a <code>return</code> from the inner loop would only exit the inner
+loop. <code>return-from</code> lets you break out of any enclosing named block.
+</p>
+</div>
+
+</section>
+<section id="combining-everything">
+  <hgroup>
+    <span></span>
+    <h2>Combining Everything</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-14">
+<p>
+The real power of <code>loop</code> shows when you combine clauses. Here's a single pass
+over a list that does several things at once:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(3 1 4 1 5 9 2 6 5 3 5)
+      :count (oddp n) :into odd-count
+      :sum n :into total
+      :maximize n :into biggest
+      :when (evenp n)
+        :collect n :into evens
+      :finally (return (list :odd-count odd-count
+                             :total total
+                             :biggest biggest
+                             :evens evens)))
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(:ODD-COUNT 8 :TOTAL 44 :BIGGEST 9 :EVENS (4 2 6))</code></pre>
+</div>
+
+<p>
+Doing this without <code>loop</code> would require a <code>let</code> with four variables and a
+<code>dolist</code> with manual bookkeeping for each accumulation. The <code>loop</code> version
+declares what you want and lets the macro handle the mechanics.
+</p>
+</div>
+
+</section>
+<section id="when-to-use-something-else">
+  <hgroup>
+    <span></span>
+    <h2>When to Use Something Else</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-15">
+<p>
+<code>loop</code> is not always the right tool.
+</p>
+
+<p>
+For a simple transformation of each element, <code>mapcar</code> is more concise:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'1+ '(1 2 3))
+(loop :for n :in '(1 2 3) :collect (1+ n))
+</code></pre>
+
+<p>
+For a simple predicate test, <code>every</code>, <code>some</code>, <code>notany</code> are clearer:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(every #'evenp numbers)
+(loop :for n :in numbers :always (evenp n))
+</code></pre>
+
+<p>
+For reducing to a single value with a known function, <code>reduce</code> says it directly:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(reduce #'+ numbers)
+(loop :for n :in numbers :sum n)
+</code></pre>
+
+<p>
+For a simple side effect on each element, <code>dolist</code> is fine:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(dolist (item items) (print item))
+(loop :for item :in items :do (print item))
+</code></pre>
+
+<p>
+Use <code>loop</code> when the iteration is complex enough that you'd otherwise need to
+combine multiple constructs, maintain manual state, or make multiple passes over
+the data. If a simpler construct expresses your intent clearly, prefer it.
+</p>
+</div>
+
+</section>
+<section id="a-note-on-style-keywords-vs-symbols">
+  <hgroup>
+    <span></span>
+    <h2>A Note on Style: Keywords vs Symbols</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-16">
+<p>
+You'll see <code>loop</code> written two ways:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;; With keywords (this book's style):
+(loop :for i :from 0 :below 5 :collect i)
+
+;; With plain symbols:
+(loop for i from 0 below 5 collect i)
+</code></pre>
+
+<p>
+Both are valid. The keyword style (with colons) makes the loop clauses visually
+distinct from variables and expressions. This helps make inner variables (like
+<code>i</code> above) distinct and easy to find. Prefer the keyword style. 
+</p>
+</div>
+
+</section>
+
+</section>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <title>THE LISP IDE - ALMIGHTYLISP.COM</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+  <script src="/static/js/highlight-lisp.js"></script>
+</head>
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <div class="book-navigation__book-title"><a href="."><div class="almighty-lisp-logo-container"><img src="/static/assets/images/almighty-lisp.png" alt="Almighty Lisp"></div><div class="the-essentials-container"><img src="/static/assets/images/the-essentials.png" alt="The Essentials"></div></div></a>
+      <p class="book-navigation__chapter-name-heading"><span>5. THE LISP IDE</span></p>
+      <nav>
+        <ul>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#sly-backtrace-navigation"><span class="book-navigation__section-link-text">SLY BACKTRACE NAVIGATION</span> <small class="book-navigation__section-link-number">5.1</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#tracing"><span class="book-navigation__section-link-text">TRACING</span> <small class="book-navigation__section-link-number">5.2</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#stickers"><span class="book-navigation__section-link-text">STICKERS</span> <small class="book-navigation__section-link-number">5.3</small></a></li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+        <a href="/book/essentials/emacs-fundamentals" class="book-navigation__previous-section">&larr; 4. EMACS FUNDAMENTALS</a>
+        <a href="/book/essentials/structured-editing" class="book-navigation__next-section">6. STRUCTURED EDITING &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="the-lisp-ide">
+  <hgroup>
+    <span class="chapter-number">5</span> 
+    <h1>THE LISP IDE</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+<p>
+I've already introduced some essential functions and keybindings for coding Lisp
+in Emacs. Now that you have a basic knowledge of both Lisp and Emacs commands
+for coding in Lisp, it will be useful to gain a deeper knowledge of the Lisp IDE
+in Emacs.
+</p>
+
+<p>
+Common Lisp includes debugging functions like <code>trace</code>, <code>break</code>, etc. that allow
+you to do debugging directly in the REPL.
+</p>
+
+<p>
+However, there are Common Lisp IDEs that help improve the ergonomics of using
+the debugger. One of those IDEs is Sly, which was installed when we configured
+the <code>init.el</code> file to include <code>common-lisp</code> language support.
+</p>
+</div>
+<section id="sly-backtrace-navigation">
+  <hgroup>
+    
+    <h2>SLY BACKTRACE NAVIGATION</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-1">
+<p>
+There are some functions within the Sly debugger that we can use for simple
+navigation. They all are prefixed with <code>sly-db-</code> and are discoverable if you run
+<code>embark-bindings</code> with <code>SPC h b b</code> or <code>C-h b b</code>. We'll look at a few of them
+here.
+</p>
+
+<p>
+Move the cursor up or down the stack in the backtrace with <code>C-k</code> (<code>sly-db-up</code>)
+and <code>C-j</code> (<code>sly-db-down</code>). If the cursor is not highlighting any frames in the
+stack, the cursor will first move to the top frame if you run <code>sly-db-down</code>.
+</p>
+
+<p>
+To show any local variables and bindings, arguments passed, etc.: With the
+cursor over a stack frame in the backtrace, type <code>t</code> (<code>sly-db-toggle-details</code>).
+</p>
+
+<p>
+If you bring the cursor over a stack frame in the backtrace and press the <code>v</code>
+(<code>sly-db-show-frame-source</code>) key, Sly will open the source code file for that
+line in the backtrace and briefly highlight the exact form that executed in that
+frame. Useful for navigating straight to possible sources of error.
+</p>
+
+<p>
+These will do all three functions above: move the cursor to a stack from in the
+backtrace, toggle open/close the details for that frame, open the source for the
+frame in a different window, and highlight the form in that source. The bindings
+are <code>M-p</code> (<code>sly-db-details-up</code>) and <code>M-n</code> (<code>sly-db-details-down</code>) (or <code>M-k</code> and
+<code>M-j</code> if you prefer more Evilly bindings consistent with the ones above for the
+normal up and down commands).
+</p>
+</div>
+
+</section>
+<section id="tracing">
+  <hgroup>
+    
+    <h2>TRACING</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Beyond simple navigation within the debugger is actual debugging methods and
+tools.
+</p>
+
+<p>
+Tracing is a debugging method that shows a form as it is called and then what it
+returns. Tracing is typically used for recursive functions.
+</p>
+
+<p>
+Let's say you have this function:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun factorial (n)
+  "Compute factorial using linear recursion."
+  (if (= n 1)
+      1
+      (* n (factorial (- n 1)))))
+</code></pre>
+<p>
+You can run <code>trace</code> on a function in Emacs like this:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(trace factorial)
+</code></pre>
+<p>
+&#x2026;or by highlighting a function name symbol and typing <code>C-c M-t</code> for
+<code>sly-fancy-trace</code>.
+</p>
+
+<p>
+If you use fancy tracing on <code>factorial</code> above, you will get output like this in
+the REPL:
+</p>
+<pre class="code-block-result-pre result"><code class="code-block-result">0: (FACTORIAL 5)
+  1: (FACTORIAL 4)
+    2: (FACTORIAL 3)
+      3: (FACTORIAL 2)
+	4: (FACTORIAL 1)
+	4: FACTORIAL returned 1
+      3: FACTORIAL returned 2
+    2: FACTORIAL returned 6
+  1: FACTORIAL returned 24
+0: FACTORIAL returned 120</code></pre>
+
+<p>
+Alternatively, you can trace using <code>sly-trace-dialog-toggle-trace</code> via <code>C-c C-t</code>
+or <code>SPC m T T</code>. The difference is that fancy trace will show the trace in the
+REPL, whereas the trace dialog toggle requires you to open the trace dialog with
+<code>C-c T</code>.
+</p>
+
+<p>
+If you use the trace dialog, you get output like this:
+</p>
+<pre class="code-block-result-pre result"><code class="code-block-result">0 - factorial
+&gt; 5 (3 bits, #x5, #o5, #b101)&lt; 120 (7 bits, #x78, #o170, #b1111000)1 `-- factorial
+&gt; 4 (3 bits, #x4, #o4, #b100)&lt; 24 (5 bits, #x18, #o30, #b11000)2    `-- factorial
+&gt; 3 (2 bits, #x3, #o3, #b11)&lt; 6 (3 bits, #x6, #o6, #b110)3       `-- factorial
+&gt; 2 (2 bits, #x2, #o2, #b10)&lt; 2 (2 bits, #x2, #o2, #b10)4          `-- factorial
+		&gt; 1 (1 bit, #x1, #o1, #b1)
+		&lt; 1 (1 bit, #x1, #o1, #b1)</code></pre>
+<p>
+You can <code>untrace</code> the function when you're done either with the Lisp function or
+by using the same commands above in Emacs.
+</p>
+</div>
+
+</section>
+<section id="stickers">
+  <hgroup>
+    
+    <h2>STICKERS</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-3">
+<p>
+Where Sly's debugging capabilities really shine is with <code>stickers</code>. Stickers are
+basically a replacement for <code>print</code> and <code>break</code> functions
+</p>
+
+<p>
+Let's say we have the following code:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun do-some-math (num)
+  (/ (+ num (* num num num) (- num 10 num)) 7))
+(do-some-math 9)
+
+</code></pre>
+<p>
+And you're thinking, "Hmm, I wonder what the result of that addition was?"
+</p>
+
+<p>
+You could wrap it in <code>print</code>. Or you could use a sticker. Highlight the opening
+parenthesis of the addition form then use <code>sly-stickers-dwim</code> via <code>C-c C-s C-s</code>
+or <code>SPC m s s</code> to place a sticker on it. After placing the sticker, you need to
+recompile the function (<code>C-c C-c</code>) to "arm" the sticker.
+</p>
+
+<p>
+With the sticker armed, when you run the function, the return value of the form
+you placed the sticker on will be recorded. You can view the recording with
+<code>sly-stickers-replay</code> using <code>C-c C-s C-r</code> or <code>SPC m s r</code>.
+</p>
+
+<p>
+You can also configure Sly to break when computation reaches the sticker using
+<code>sly-stickers-toggle-break-on-stickers</code> via <code>SPC m s b</code>. During computation,
+when a sticker is reached, the debugger will open with a message like this:
+</p>
+<pre class="code-block-result-pre result"><code class="code-block-result">#&lt;JUST BEFORE #&lt;STICKER id=145 hit-count=1&gt;&gt;
+   [Condition of type SLYNK-STICKERS::JUST-BEFORE-STICKER]</code></pre>
+<p>
+The sticker will also flash in the source code file window. Useful for when you
+have multiple stickers and need to know which one you're looking at.
+</p>
+
+<p>
+If you choose the <code>CONTINUE</code> restart (either via <code>c</code> or <code>0</code> or navigating to
+<code>[CONTINUE]</code> and typing <code>Enter</code>) or you use <code>sly-db-step</code> via <code>s</code> in the
+debugger window, you will see a message like this:
+</p>
+<pre class="code-block-result-pre result"><code class="code-block-result">#&lt;RIGHT-AFTER #&lt;STICKER id=255 hit-count=2&gt; (recorded #&lt;RECORDING 1 values&gt;)&gt;
+   [Condition of type SLYNK-STICKERS::RIGHT-AFTER-STICKER]</code></pre>
+<p>
+&#x2026;and the return value of the form where the sticker is placed.
+</p>
+
+<p>
+If you are having trouble tracking down the exact location of your error, you
+can perform a comprehensive sweep using <code>sly-stepper</code> with <code>C-c C-s P</code>. That
+will apply stickers to every form inside a function. After running
+<code>sly-stepper</code>, compile the function to arm the stickers.
+</p>
+
+<p>
+<code>sly-stickers-replay</code> is especially useful because, like with the breaking
+option, it will open the source code file and flash the exact sticker whose
+value it's displaying. You can also navigate to the next sticker with <code>n</code>, <i>or
+the previous one</i> with <code>p</code>. Every time you move forward or backward in the
+replay, the stickers will flash. This makes a bit easier to follow the control
+flow of the code.
+</p>
+</div>
+
+</section>
+
+</section>
+      <div class="book-navigation__next-chapter">
+        <a href="/book/essentials/structured-editing">Next: 6. STRUCTURED EDITING &rarr;</a>
+      </div>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <h1 class="book-navigation__book-title">Almighty Lisp: The Essentials</h1>
+      <p class="book-navigation__chapter-name-heading"><span>Almighty Lisp: The Essentials</span></p>
+      <nav>
+        <ul>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#installing-lisp">
+              <span class="book-navigation__section-name">INSTALLING LISP</span>
+              <span class="book-navigation__section-number">1.1.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#survival-lisp-commands">
+              <span class="book-navigation__section-name">SURVIVAL LISP COMMANDS</span>
+              <span class="book-navigation__section-number">1.2.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#compiling-evaluating-lisp-code-from-the-buffer">
+              <span class="book-navigation__section-name">Compiling/Evaluating Lisp Code From the Buffer</span>
+              <span class="book-navigation__section-number">1.3.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#form">
+              <span class="book-navigation__section-name">Form</span>
+              <span class="book-navigation__section-number">1.4.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#variable">
+              <span class="book-navigation__section-name">Variable</span>
+              <span class="book-navigation__section-number">1.5.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#file">
+              <span class="book-navigation__section-name">File</span>
+              <span class="book-navigation__section-number">1.6.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#lisp-images">
+              <span class="book-navigation__section-name">Lisp Images</span>
+              <span class="book-navigation__section-number">1.7.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#using-the-repl">
+              <span class="book-navigation__section-name">Using the REPL</span>
+              <span class="book-navigation__section-number">1.8.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#structural-editing">
+              <span class="book-navigation__section-name">Structural Editing</span>
+              <span class="book-navigation__section-number">1.9.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#the-lisp-debugger">
+              <span class="book-navigation__section-name">The Lisp Debugger</span>
+              <span class="book-navigation__section-number">1.10.0</span>
+            </a>
+          </li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="lisp-setup-use">
+  <hgroup>
+    <span></span>
+    <h1>LISP SETUP &amp; USE</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+</div>
+<section id="installing-lisp">
+  <hgroup>
+    <span></span>
+    <h2>INSTALLING LISP</h2>
+  </hgroup>
+
+</section>
+
+<section id="survival-lisp-commands">
+  <hgroup>
+    <span></span>
+    <h2>SURVIVAL LISP COMMANDS</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Beyond simple file/buffer operations and text editing are Common Lisp-specific concepts and commands. This chapter will quickly run through the essentials for getting started.
+</p>
+</div>
+<section id="compiling-evaluating-lisp-code-from-the-buffer">
+  <hgroup>
+    <span></span>
+    <h3>Compiling/Evaluating Lisp Code From the Buffer</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-1">
+</div>
+<section id="form">
+  <hgroup>
+    <span></span>
+    <h4>Form</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-2-1-1">
+<p>
+To <i>compile</i> a form, place the cursor anywhere in a form then in the menu navigate to <code>Sly-&gt;Compilation-&gt;Compile Defun</code>. This works for other forms, not just <code>defun</code> (which we'll learn about later).
+</p>
+
+<p>
+To <i>evaluate</i> the form place the cursor anywhere in the form then navigate to <code>Sly-&gt;Evaluation-&gt;Eval Defun</code>.
+</p>
+</div>
+
+</section>
+<section id="variable">
+  <hgroup>
+    <span></span>
+    <h4>Variable</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-2-1-2">
+<p>
+If a global variable is set, you can get the value of the variable anywhere it is in a Lisp file.
+</p>
+
+<p>
+Set the cursor at the end of the variable then navigate to <code>Sly-&gt;Evaluation-&gt;Eval last expression</code>. This works for individual symbols and other forms, too.
+</p>
+</div>
+
+</section>
+<section id="file">
+  <hgroup>
+    <span></span>
+    <h4>File</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-2-1-3">
+<p>
+To compile a whole file, navigate to <code>Sly-&gt;Compilation-&gt;Compile and Load File</code>.
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="lisp-images">
+  <hgroup>
+    <span></span>
+    <h3>Lisp Images</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-2">
+<p>
+An important concept that has deep implications for Lisp development is the Lisp Image.
+</p>
+
+<p>
+When you first open a Common Lisp file in Emacs, a new REPL session and Lisp image is created. Code is then loaded, compiled, and executed in the image. It is sometimes likened to an operating system.
+</p>
+
+<p>
+Some operations that you perform will modify image-level settings. We will see some examples later.
+</p>
+
+<p>
+An image can be saved and restored. We'll learn how to do that at the appropriate time.
+</p>
+</div>
+
+</section>
+<section id="using-the-repl">
+  <hgroup>
+    <span></span>
+    <h3>Using the REPL</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-3">
+<p>
+Since a REPL was opened when you opened a Common Lisp file, you <i>can</i> switch to it using the standard menu navigation for switching buffers. However, the entire window will be taken up with the REPL, which may not be what you want. 
+</p>
+
+<p>
+If you would like a REPL opened in a <i>minibuffer</i> under your Lisp buffer, then do the following: With a Lisp file open and the cursor in the buffer, type <code>SPC m '</code>. A Lisp REPL will be opened. The REPL/image is "attached" to the Emacs instance. If you open a different Lisp file and compile the code, it will be loaded into the same image.
+</p>
+</div>
+
+</section>
+<section id="structural-editing">
+  <hgroup>
+    <span></span>
+    <h3>Structural Editing</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-4">
+<p>
+Editing Lisp code can be tricky at first.
+</p>
+
+<p>
+If you delete a closing-parenthesis, all of the code between and including the opening and closing parentheses will be deleted.
+</p>
+
+<p>
+Deleting an end-quote will do the same.
+</p>
+
+<p>
+This is call "structural editing". It prevents unbalanced parentheses or quotes. However, there are some circumstances where it actually makes it difficult to fix unbalanced parentheses (usually because of copy/pasting code).
+</p>
+
+<p>
+There can be a lot of confusing behavior with structural editing. To turn it off, type <code>M-x lispy-mode</code> to toggle <code>lispy-mode</code> off. With lispy-mode off, you will have more freedom, but less help from the editor. As the spirit moves, you can toggle it on and play around with it. We'll cover some useful features of structural editing later.
+</p>
+</div>
+
+</section>
+<section id="the-lisp-debugger">
+  <hgroup>
+    <span></span>
+    <h3>The Lisp Debugger</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-5">
+<p>
+We will take a closer look at the debugger and errors in the chapter on errors and conditions, but before you get to that section you'll probably cause the debugger to open and display a message like this:
+</p>
+<pre class="example" id="org2d1c795">
+:AWS fell through ECASE expression.
+Wanted one of (:DEVELOPMENT :PRODUCTION).
+   [Condition of type SB-KERNEL:CASE-FAILURE]
+
+Restarts:
+ 0: [RETRY] Retry SLY evaluation request.
+ 1: [*ABORT] Return to SLY's top level.
+ 2: [ABORT] abort thread (#&lt;THREAD tid=11923 "slynk-worker" RUNNING {70071BE463}&gt;)
+</pre>
+<p>
+In this situation, you can do two things:
+</p>
+<ol class="org-ol">
+<li>Navigate the cursor to one of the <code>restarts</code> and press <code>Enter</code>.</li>
+<li>Type the key corresponding to the <code>restart</code> (0 for [RETRY], 1 for [*ABORT], etc.) to select it.</li>
+</ol>
+
+<p>
+In the beginning, it's safest to choose whichever restart says <code>[*ABORT]</code>. If your list of restarts is too long, it will be truncated and you might need to highlight and type <code>Enter</code> on a <code>Show More</code> option.
+</p>
+
+<p>
+However, if you want to, you can give Common Lisp's debugger a test drive. If you cause an error, try leaving the debugger open, fixing the bug in your code (make sure to compile it), and then selecting a <code>RETRY</code> restart if one is available. This is one of Common Lisp's most powerful <b>built-in</b> features.</p>
+</div>
+
+</section>
+
+</section>
+
+</section>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>

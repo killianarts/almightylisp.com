@@ -3,22 +3,71 @@
     --link-hover-color: var(--color-secondary);
     --code-color: var(--color-secondary);
     --code-bg-color: var(--color-canvas-dark);
+    --code-block-border-color: var(--color-secondary);
+    --code-block-border-size: 5px;
+    --result-color: var(--color-canvas-light);
     --code-font: var(--font-berkeley-thin);
+    --code-font-size: var(--font-size-base);
     --book-font: var(--font-serif);
-    --outline-1-color: var(--color-accent);
-    --outline-2-color: var(--color-ink-light);
+    --outline-1-color: var(--color-ink-light);
+    --outline-2-color: var(--color-accent);
     --outline-3-color: var(--color-secondary);
-    --outline-4-color: var(--color-accent);
-    --outline-5-color: var(--color-secondary);
-    --outline-6-color: var(--color-ink-light);
+    --outline-4-color: var(--color-ink-light);
+    --outline-5-color: var(--color-accent);
+    --outline-6-color: var(--color-secondary);
+    --outline-1-size: var(--font-size-9xl);
+    --outline-2-size: var(--font-size-4xl);
+    --outline-3-size: var(--font-size-3xl);
+    --outline-4-size: var(--font-size-2xl);
+    --outline-5-size: var(--font-size-xl);
+    --outline-6-size: var(--font-size-lg);
+    --chapter-number-font-size: var(--outline-1-size);
+
+    --book-toc-font-size: var(--font-size-lg);
+    --aside-width: 25ch;
+    --aside-left-margin: 2ch;
+    --book-right-padding: calc(var(--aside-width) + var(--aside-left-margin));
+
     font-family: var(--book-font);
     size: 1rem;
     container-type: inline-size;
     container-name: book-container;
     overflow-x: clip;
+    padding-bottom: 10ch;
+    padding-right: var(--book-right-padding);
+    @media(max-width: 1200px) {
+        --book-right-padding: 0;
+    }
     @media(max-width: 639px) {
+        --outline-1-size: var(--font-size-6xl);
+        --outline-2-size: var(--font-size-3xl);
+        --outline-3-size: var(--font-size-2xl);
+        --outline-4-size: var(--font-size-xl);
+        --outline-5-size: var(--font-size-lg);
+        --outline-6-size: var(--font-size-base);
         margin-left: 0;
     }
+
+    .book-toc {
+        font-family: var(--code-font);
+    }
+    .book-toc h1 {
+        padding-block: var(--spacing-5);
+    }
+    .book-toc > ol {
+        font-size: var(--book-toc-font-size);
+    }
+    .book-toc > ol li {
+        text-transform: uppercase;
+    }
+    .book-toc > ol li > ol {
+        margin-bottom: var(--spacing-1);
+    }
+    .book-toc ol li {
+        list-style-type: number;
+        list-style-position: inside;
+    }
+
     a {
         transition: all;
         color: var(--link-color);
@@ -32,39 +81,37 @@
     h1,h2,h3 {
         text-transform: uppercase;
         font-family: var(--font-heading);
-        &:hover {
-            text-decoration: underline dotted;
-        }
     }
     h4,h5,h6 {
         font-family: var(--font-stack-slab-serif);
     }
     h1 {
+        padding-bottom: var(--spacing-8);
         color: var(--outline-1-color);
-        font-size: var(--font-size-5xl);
-        line-height: calc(var(--font-size-4xl) - 5px);
+        font-size: var(--outline-1-size);
+        line-height: calc(var(--outline-1-size) + 2px);
     }
     h2 {
         color: var(--outline-2-color);
-        font-size: var(--font-size-4xl);
-        line-height: var(--font-size-3xl);
+        font-size: var(--outline-2-size);
+        line-height: calc(var(--outline-2-size) - 1px);
     }
     h3 {
         color: var(--outline-3-color);
-        font-size: var(--font-size-3xl);
-        line-height: var(--font-size-3xl);
+        font-size: var(--outline-3-size);
+        line-height: var(--outline-3-size);
     }
     h4 {
         color: var(--outline-4-color);
-        font-size: var(--font-size-xl);
+        font-size: var(--outline-4-size);
     }
     h5 {
         color: var(--outline-5-color);
-        font-size: var(--font-size-lg);
+        font-size: var(--outline-5-size);
     }
     h6 {
         color: var(--outline-6-color);
-        font-size: var(--font-size-base);
+        font-size: var(--outline-6-size);
     }
 
     hgroup > span:has(+ h1),
@@ -73,13 +120,13 @@
     hgroup > span:has(+ h4),
     hgroup > span:has(+ h5),
     hgroup > span:has(+ h6) {
+        padding-top: var(--spacing-1);
         color: var(--color-accent-300);
-        font-size: var(--font-size-sm);
-        font-family: "Rockwell";
+        font-size: var(--chapter-number-font-size);
+        font-family: var(--font-stack-slab-serif);
         font-style: oblique;
         text-transform: lowercase;
         display: block;
-        transform: translate(0, calc(var(--block-space) * 1));
     }
     h1 + span,
     h2 + span,
@@ -96,24 +143,71 @@
         transform: translate(0, calc(var(--inline-space) * -1));
     }
     p {
-        margin-block: var(--inline-space);
+        margin-block: var(--spacing-1);
+        text-shadow: 0px 0px 1px var(--color-ink-shadow);
         text-align: justify;
         letter-spacing: 0.05ch;
         line-height: 1.5rem;
         font-weight: 100;
     }
+    b {
+        font-weight: initial;
+        font-style: italic;
+        color: var(--color-accent);
+    }
+    
     section {
-        max-width: 75ch;
+        max-width: 100ch;
         margin-block: calc(var(--block-space) * 2);
     }
     pre {
-        margin-block: var(--block-space);
+        padding: var(--spacing-sm);
     }
     code {
         font-family: var(--code-font);
         font-size: inherit;
+        padding-inline: calc(var(--inline-space) / 2);
         letter-spacing: initial;
         color: var(--code-color);
+        background-color: var(--code-bg-color);
+    }
+
+    .code-block-source-pre ~ .result {
+        border-top: 1px dotted var(--result-color);
+        border-left: var(--code-block-border-size) solid var(--result-color);
+    }
+
+    .code-block-source-pre ~ .error {
+        --result-color: var(--color-danger);
+    }
+
+    .code-block-source-pre {
+        border-left: var(--code-block-border-size) solid var(--code-block-border-color);
+        font-size: var(--code-font-size);
+    }
+    .code-block-result {
+        padding: 0;
+        font-size: var(--code-font-size);
+        color: var(--color-ink-light);
+        font-family: var(--font-berkeley-uc-thin);
+    }
+
+    .code-block-result-label {
+        display: block;
+        font-size: var(--code-font-size);
+        font-family: var(--font-heading);
+        line-height: initial;
+        color: var(--result-color);
+        &::after {
+            content: ": ";
+        }
+    }
+
+    .code-block-result-value {
+        font-family: var(--code-font);
+        line-height: initial;
+        position: relative;
+        margin-block: 0;
         background-color: var(--code-bg-color);
     }
     h1 code,
@@ -124,11 +218,34 @@
     h6 code {
         font-family: var(--font-berkeley-uc-thin);
     }
+    
+    h1 > .chapter-number {
+        font-size: var(--chapter-number-font-size);
+        color: var(--color-canvas-soft);
+        order: 2;
+    }
+    
+
+    ul {
+        list-style-type: square;
+        margin-left: calc(var(--inline-space) * 2);
+    }
+    ol {
+        list-style-type: number;
+        margin-left: calc(var(--inline-space) * 2);
+    }
+    li {
+        line-height: 1.5;
+    }
+    li::marker {
+        color: var(--color-accent);
+    }
     .table-container {
         overflow-x: auto;
     }
     table {
         background-color: var(--code-bg-color);
+        padding-block: var(--spacing-1);
         font-family: var(--code-font);
         container-type: inline-size;
         container-name: table-container;
@@ -172,5 +289,32 @@
         position: sticky;
         left: 0;                    /* sticks to the left edge */
         z-index: 1;                 /* keeps it above other cells */
+    }
+
+    aside {
+        position: relative;
+    }
+    aside > p {
+        font-family: var(--font-berkeley-thin);
+        text-align: left;
+        font-size: var(--font-size-sm);
+        background-color: oklch(var(--tw-lch-blue-500) / 0.3);
+        padding-inline: var(--spacing-1);
+        padding-block: var(--spacing-xs);
+        width: var(--aside-width);
+        position: absolute;
+        top: -2ch;
+        right: calc(var(--book-right-padding) * -1);
+        @container book-container (width <= 80ch) {
+            position: relative
+        }
+    }
+    blockquote {
+        background-color: var(--color-canvas-600);
+        font-family: var(--font-stack-neo-grotesque);
+        padding: var(--spacing-xs) var(--spacing-1);
+    }
+    .example {
+        font-family: var(--font-code);
     }
 }

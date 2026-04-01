@@ -1,0 +1,141 @@
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <h1 class="book-navigation__book-title">Almighty Lisp: The Essentials</h1>
+      <p class="book-navigation__chapter-name-heading"><span>Almighty Lisp: The Essentials</span></p>
+      <nav>
+        <ul>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#why-i-wrote-this-book">
+              <span class="book-navigation__section-name">WHY I WROTE THIS BOOK</span>
+              <span class="book-navigation__section-number">1.1.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#almighty">
+              <span class="book-navigation__section-name">ALMIGHTY</span>
+              <span class="book-navigation__section-number">1.2.0</span>
+            </a>
+          </li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="meta">
+  <hgroup>
+    <span></span>
+    <h1>META</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+</div>
+<section id="why-i-wrote-this-book">
+  <hgroup>
+    <span></span>
+    <h2>WHY I WROTE THIS BOOK</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-1">
+<p>
+Common Lisp is an old programming language that hasn't changed since it was standardized. That means that any learning material produced for the language is still useful even today. You can read Touretzky, Norvig, etc. and learn from people far smarter than me.
+</p>
+
+<p>
+However, the methods of teaching material, the culture of the people reading the material, and the problems or projects presented in the material may not be as relevant to modern audiences. Touretzky writes for new programmers and doesn't even teach Lisp's OOP facilities; Norvig teaches first principles of programming geared toward old fashioned AI; SICP is heavy on math and wasn't written in an age of ubiquitous ecosystems like JavaScript or Python; Steele wrote a language reference, not a tutorial; various other authors focus on macros, CLOS, etc. These older teaching materials are still irreplaceable masterpieces (Norvig perhaps the best of them), but a modern audience has modern needs and sensibilities. 
+</p>
+
+<p>
+Practical Common Lisp at one time was the book for modern audiences, but even when it was released it fell short of what it should have been. It provides lots of practical projects, but doesn't provide a detailed guide for how to present those projects to the world. It's a book written for experienced programmers who are Lisp-curious and is partially meant to advocate for Lisp, but does little to fix the problem of Lisp's steep learning curve.
+</p>
+
+<p>
+And it does have a steep learning curve. Why? Not really because of any feature of Common Lisp. The parentheses can be a bit challenging at first, but it's more of an emotional challenge than a technical one. Macros are tough to master, but not so hard to get started with. Common Lisp is a big language, but beginning is not particularly hard and searching the HyperSpec can go a long way to deepen your knowledge of the language.
+</p>
+
+<p>
+No, it's not the language that's the source of the learning curve&#x2013;it's Emacs. Emacs is the defacto-standard text editor for Common Lisp development. It's also 50 years old and doesn't have the mainstream popularity of other editors, creating a considerable mental block to even considering learning it or Common Lisp. On top of that, developers interact with Emacs very differently from how they interact with VSCode or the JetBrains IDEs (let alone OpenCode or Claude Code-like agentic LLM CLIs), hindering new users from transferring knowledge from the development environments they are familiar with.
+</p>
+
+<p>
+Emacs is the elephant in the room that no books on Common Lisp address. PCL made a half-hearted attempt with Lisp in a Box (a distribution of Emacs somewhat analogous to the later Portacle, now deprecated), but it was insufficient to the task.
+</p>
+
+<p>
+With this book I hope to provide you&#x2013;the experienced Lisp-curious developer&#x2013;with a source for learning both Common Lisp and Emacs at the same time, help you get oriented to the Lisp ecosystem and current practices, and get you deploying your applications in your preferred medium by the time you're finished reading.
+</p>
+</div>
+
+</section>
+<section id="almighty">
+  <hgroup>
+    <span></span>
+    <h2>ALMIGHTY</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+When you are given the job of choosing the tech stack for a job, how do you choose? If the task is data science, what language would you choose? Would your choice be different if your task was web development? Would it be different if it was embedded development? Or accounting? Or mobile apps?
+</p>
+
+<p>
+Programming is fraught with choices. Probably the most important choice is which language to use for any particular task. If you're doing data analytics, you need to use Python. If you're developing a web application, you need to use JavaScript or Ruby. If you're writing accounting software, you need to use Java. If you're writing real-time software with performance and size limitations, you use C or Rust.
+</p>
+
+<p>
+We take it for granted that such choices are necessary, that we need to choose a language based on a task. No language is adapted to every task; when you need to drill, you don't use a hammer.
+</p>
+
+<p>
+But what if we had a special, universal tool? What if the tool could be <i>adapted</i> to the task, rather than <i>chosen</i> for it?
+</p>
+
+<p>
+Common Lisp is just such a language. It's the highest level language out there thanks to macros and the parentheses, but a surprisingly low level language thanks to the ability to inspect generated assembly output and the ability to specify types (although in a somewhat sloppy way) to optimize for speed and memory efficiency. As a result, Lisp is both highly expressive while sacrificing little performance. The result is a highly adaptable language&#x2013;perhaps the <i>most</i> adaptable.
+</p>
+
+<p>
+Lisp does sacrifice <i>something</i>, though. Well-optimized C is going to yield smaller executables, lower memory use, and faster performance. Well written Ruby or Python is probably aesthetically more pleasing than well written Lisp&#x2013;and I believe that aesthetics are important. The Lisp ecosystem can usually get you started, but it's not going to do most of the heavy lifting like in Java or JavaScript's ecosystems.
+</p>
+
+<p>
+With Lisp, you sacrifice choosing the absolute optimal tool for the job in exchange for absolute <i>flexibility</i>. Lisp may not initially be the best tool for any single job, but you can <i>mould</i> it into the best tool for many jobs. It's not the fastest, but it's competitive with the fastest. It's not the prettiest, but you can make it prettier if that's important to you. There may not be a free library available to do exactly what you want, but you usually don't have to start from scratch, either.
+</p>
+
+<p>
+Lisp is not a language specialized to a domain of work; it's a language specialized to being <i>generally adaptable</i>. It's not a master of any domain, but it can be adapted to a wide variety of domains.
+</p>
+
+<p>
+In English, a man who isn't a specialist in any field, but who commands a holistic knowledge and capabilities in many domains, is called a <i>generalist</i>.
+</p>
+
+<p>
+In Japanese, such a man is called オールマイティ&#x2013;almighty.
+</p>
+
+<p>
+That's what Lisp is. Lisp is almighty, and it summons programmers to become almighty.
+</p>
+
+<p>
+And in the current environment, you have no choice. AI is here. Whether we like it or not, many people will gladly trade their birthright for a bowl of stew; their ability to do things themselves now and in the future for their ability to do a lot of things (badly) <i>now</i>; craftmanship for crude replacements; their fellow humans and society as a whole for the chance at "generational wealth".
+</p>
+
+<p>
+Lines are being drawn. Either you join them on their quest or they will seek to crush you.
+</p>
+
+<p>
+You and I, friend, must become almighty. 
+</p>
+</div>
+
+</section>
+
+</section>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>

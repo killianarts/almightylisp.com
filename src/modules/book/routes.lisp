@@ -6,4 +6,5 @@
 (in-package #:book/routes)
 
 (s:define-module book
-  (:urls (:GET "/" 'controllers:index "index")))
+  (:urls (:GET "/:book-name"       'controllers:chapter "book-index")
+         (:GET "/:book-name/:slug" 'controllers:chapter "book-chapter")))

@@ -5,6 +5,7 @@
 */
 
 .sidebar-container {
+    overflow-y: auto;
     position: fixed;
     inset: 0;
     width: var(--tray-size);
@@ -22,3 +23,22 @@
         margin-left: 0;
     }
 }
+/* Scrollbar */
+.sidebar-container::-webkit-scrollbar {
+    height: auto;
+}
+
+.sidebar-container::-webkit-scrollbar-thumb {
+    border: 1px outset var(--color-accent);
+    background-color: var(--color-accent-400);
+}
+
+.sidebar-container::-webkit-scrollbar-thumb:hover {
+    border: 1px outset var(--color-secondary);
+    background-color: var(--color-secondary);
+}
+
+.sidebar-container::-webkit-scrollbar-track {
+    background-color: var(--color-canvas-darker);
+}
+

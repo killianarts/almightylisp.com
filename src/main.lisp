@@ -2,7 +2,8 @@
   (:use #:cl)
   (:export
    #:start-server
-   #:stop-server))
+   #:stop-server
+   #:*almightylisp-application*))
 (in-package #:almightylisp)
 
 (defun get-env-int (env default)
@@ -24,7 +25,8 @@
    ("/admin" shiso-admin)
    ("/book" book)
    ("/article" article)
-   ("/author" author)))
+   ("/author" author)
+   ("" home)))
 
 (defun setup-database ()
   (ensure-directories-exist #P"db/")

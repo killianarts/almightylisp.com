@@ -1,49 +1,12 @@
 (defpackage #:book/hypermedia
   (:use #:cl)
-  (:local-nicknames (#:ah #:almighty-html)
-                    (#:css #:lass))
+  (:local-nicknames (#:ah #:almighty-html))
   (:export #:ac-skeleton
            #:ac-code-block
            #:ac-book-layout
            #:ac-sidebar-layout))
 
 (in-package #:book/hypermedia)
-
-(css:define-special-block layer (&rest args)
-  "Full native support for CSS Cascade Layers (@layer) in LASS.
-
-   Declaration forms:
-     (:layer reset base utilities)
-     (:layer \"reset, base, utilities\")
-
-   Named block form:
-     (:layer base
-       (html :font-size \"16px\")
-       (.card :background white))"
-  (cond
-    ;; 1. Single-string declaration (most common in real CSS)
-    ;;    (:layer "reset, base, utilities")
-    ((and (= (length args) 1)
-          (stringp (first args)))
-     (list (css:make-property (format nil "@layer ~a" (first args)))))
-
-    ;; 2. Multiple-name declaration (symbols/keywords/strings)
-    ;;    (:layer reset base utilities)
-    ((every (lambda (x) (or (stringp x) (symbolp x) (keywordp x))) args)
-     (list (css:make-property
-            (format nil "@layer ~{~a~^, ~}"
-                    (mapcar #'css:resolve args)))))
-
-    ;; 3. Named layer block (the important one)
-    ;;    (:layer base ...rules...)
-    (t
-     (destructuring-bind (name &rest body) args
-       (list (css::make-superblock
-              "layer"
-              (list (list :constraint :literal (css:resolve name)))
-              (apply #'css:compile-sheet body)))))))
-
-
 
 (ah:define-component ac-skeleton (&key title children)
   (let ((html-class "dark")
@@ -70,21 +33,22 @@
          ;; syntax highlighting
          (script (raw! "HighlightLisp.highlight_auto();")))))))
 
-(ah:define-component ac-sidebar-layout (&key chapter book-title headings children)
+(ah:define-component ac-sidebar-layout (&key navigation chapter book-title headings children)
   (ah:</>
    (ac-skeleton :title chapter
-     (div :class "sidebar-container"
-       (div :class "book-navigation"
-         (h1 :class "book-navigation__book-title" book-title)
-         (p :class "book-navigation__chapter-name-heading" (span chapter))
-         (nav
-           (ul
-             (li :class "book-navigation__section-link-container" (a :class "book-navigation__section-link" :href "/" (span :class "book-navigation__section-name" "Section Name") (span :class "book-navigation__section-number" "1.0.0")))
-             (li :class "book-navigation__section-link-container" (a :class "book-navigation__section-link" :href "/" (span :class "book-navigation__section-name" "Section Name") (span :class "book-navigation__section-number" "1.1.0")))
-             (li :class "book-navigation__section-link-container" (a :class "book-navigation__section-link" :href "/" (span :class "book-navigation__section-name" "Section Name") (span :class "book-navigation__section-number" "1.2.0")))
-             (li :class "book-navigation__section-link-container" (a :class "book-navigation__section-link" :href "/" (span :class "book-navigation__section-name" "Section Name") (span :class "book-navigation__section-number" "1.3.0"))))
-           )
-         (div :class "book-navigation__previous-and-next" (a :href "previous/" :class "book-navigation__previous-section" "Previous") (a :href "next/" :class "book-navigation__next-section" "Next"))))
+     navigation
+     ;; (div :class "sidebar-container"
+     ;;   (div :class "book-navigation"
+     ;;     (h1 :class "book-navigation__book-title" book-title)
+     ;;     (p :class "book-navigation__chapter-name-heading" (span chapter))
+     ;;     (nav
+     ;;       (ul
+     ;;         (li :class "book-navigation__section-link-container" (a :class "book-navigation__section-link" :href "/" (span :class "book-navigation__section-name" "Section Name") (span :class "book-navigation__section-number" "1.0.0")))
+     ;;         (li :class "book-navigation__section-link-container" (a :class "book-navigation__section-link" :href "/" (span :class "book-navigation__section-name" "Section Name") (span :class "book-navigation__section-number" "1.1.0")))
+     ;;         (li :class "book-navigation__section-link-container" (a :class "book-navigation__section-link" :href "/" (span :class "book-navigation__section-name" "Section Name") (span :class "book-navigation__section-number" "1.2.0")))
+     ;;         (li :class "book-navigation__section-link-container" (a :class "book-navigation__section-link" :href "/" (span :class "book-navigation__section-name" "Section Name") (span :class "book-navigation__section-number" "1.3.0"))))
+     ;;       )
+     ;;     (div :class "book-navigation__previous-and-next" (a :href "previous/" :class "book-navigation__previous-section" "Previous") (a :href "next/" :class "book-navigation__next-section" "Next"))))
      (main :class "sidebar-main" children)
      (button :class "toc-viewer" "TOC"))))
 

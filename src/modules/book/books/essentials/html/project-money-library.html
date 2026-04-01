@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <title>PROJECT: MONEY LIBRARY - ALMIGHTYLISP.COM</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+  <script src="/static/js/highlight-lisp.js"></script>
+</head>
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <div class="book-navigation__book-title"><a href="."><div class="almighty-lisp-logo-container"><img src="/static/assets/images/almighty-lisp.png" alt="Almighty Lisp"></div><div class="the-essentials-container"><img src="/static/assets/images/the-essentials.png" alt="The Essentials"></div></div></a>
+      <p class="book-navigation__chapter-name-heading"><span>13. Project: Money Library</span></p>
+      <nav>
+        <ul>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#project-setup"><span class="book-navigation__section-link-text">Project Setup</span> <small class="book-navigation__section-link-number">13.1</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#a-money-type"><span class="book-navigation__section-link-text">A Money Type</span> <small class="book-navigation__section-link-number">13.2</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#making-money"><span class="book-navigation__section-link-text">Making Money</span> <small class="book-navigation__section-link-number">13.3</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#adding-money"><span class="book-navigation__section-link-text">Adding money</span> <small class="book-navigation__section-link-number">13.4</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#the-rest-of-the-math-functions"><span class="book-navigation__section-link-text">The rest of the math functions</span> <small class="book-navigation__section-link-number">13.5</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#improving-ergonomics"><span class="book-navigation__section-link-text">Improving Ergonomics</span> <small class="book-navigation__section-link-number">13.6</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#formatting-for-human-consumption"><span class="book-navigation__section-link-text">Formatting for Human Consumption</span> <small class="book-navigation__section-link-number">13.7</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#adding-currencies"><span class="book-navigation__section-link-text">Adding Currencies</span> <small class="book-navigation__section-link-number">13.8</small></a></li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+        <a href="/book/essentials/the-ecosystem" class="book-navigation__previous-section">&larr; 12. THE ECOSYSTEM</a>
+        <a href="/book/essentials/project-accounting-library" class="book-navigation__next-section">14. Project: Accounting Library &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="project-money-library">
+  <hgroup>
+    <span class="chapter-number">13</span> 
+    <h1>Project: Money Library</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+<p>
+Now that we have covered most of the essentials for Lisp development in Emacs,
+we'll develop a couple of projects to get a little more practice in. You'll be
+able to see how the pieces fit together, how to use features like the CLOS, how
+to get dependency libraries from the Common Lisp ecosystem, etc. Later we'll
+deploy one as a CLI app.
+</p>
+
+<p>
+For this project, we are going to build a simple library for dealing with money
+called <code>almighty-money</code>.
+</p>
+
+<p>
+In our library, money will be an integer with some extras. Money has a
+currency&#x2013;USD, JPY, etc.&#x2013;that both limits how mathematical operations can be
+conducted on it and how it is displayed. You can add 5 to 5, but you can't add 5
+USD into 5 JPY directly. USD is displayed with dollars on the left of a decimal,
+cents on the right: $10.52. 1000 USD is displayed with a comma after the 1:
+$1,000. This is true of every fourth digit&#x2013;counting from right to left on the
+dollars side. USD uses the $ sign, and it's placed at the beginning of the
+number.
+</p>
+
+<p>
+The functions that will be implemented for this library are simple: <code>money+</code>,
+<code>money-</code>, <code>money*</code>, <code>money/</code>, <code>money=</code>, <code>money&gt;</code>, and <code>money&lt;</code>. We won't be
+doing any currency conversion here; we just want a way to do simple math on
+numbers that are a little special.
+</p>
+
+<p>
+We will use Common Lisp's hash-tables and OOP facilities to make our library
+extensible: I don't know how to display whatever the currency is in El Salvador or
+Poland, but we'll make it easy for someone from there to add support for
+those currencies without modifying our code.
+</p>
+</div>
+<section id="project-setup">
+  <hgroup>
+    
+    <h2>Project Setup</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-1">
+<p>
+This is going to be a simple project, requiring only one lisp file and a system
+file.
+</p>
+
+<p>
+Make a file named <code>almighty-money.asd</code> in a directory called <code>almighty-money</code>.
+Save that file and make another file in that same directory named
+<code>almighty-money.lisp</code>. Save that one, too. Those are the only files we'll need.
+Very small library.
+</p>
+
+<p>
+In <code>almighty-money.asd</code>, add this code:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defsystem "almighty-money"
+  :author "Micah Killian"
+  :version "0.0.1"
+  :description "A Library for Safely Handling Money"
+  :components ((:file "almighty-money")))
+</code></pre>
+
+<p>
+The rest of the code for this project will go inside the <code>almighty-money.lisp</code>
+file.
+</p>
+</div>
+
+</section>
+<section id="a-money-type">
+  <hgroup>
+    
+    <h2>A Money Type</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Let's say that we have two numbers, 5000 and 3000. We want to add those numbers,
+but there's a catch: we need to know that they are the same <i>type</i> of number. If
+we are putting $5,000 and ¥3,000 into our wallet, we want to keep them separate.
+7/11 in Japan doesn't want our dollars, and 7/11 in the US doesn't want our yen,
+so we can't mix them all willy nilly. We need to keep them separate and treat
+them as two entirely different <i>types</i> of money.
+</p>
+
+<p>
+In Common Lisp, to create a new type, we use <code>defclass</code>. So let's create a
+<code>money</code> type:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defclass money ()
+  ((amount :initarg :amount :initform 0 :accessor amount)
+   (currency-code :initarg :currency-code :initform nil :accessor currency-code)
+   (currency-sign :initarg :currency-sign :initform nil :accessor currency-sign))
+  (:documentation "A class that holds all the information about some money. Any
+ class that inherits from the MONEY class must provide a default CURRENCY-CODE
+ and CURRENCY-SIGN.
+
+AMOUNT is an integer. Ex. 1000000. This value reflects the smallest monetary
+unit for each currency. A MONEY object with AMOUNT 5000 and CURRENCY-CODE USD
+means $50.00, or 5,000 cents.
+
+CURRENCY-CODE is a string using the ISO 4217 format. Ex. \"USD\"
+
+CURRENCY-SIGN is a string. It is some symbol to represent the type of money
+being displayed. Ex. \"$\""))
+</code></pre>
+
+<p>
+We could add <code>:type</code> specifications to each of the slots, but how the compiler
+enforces the types is <i>implementation dependent</i>. That means we can't be sure
+if, how, or under what conditions our implementation will enforce those types.
+<code>:type</code> might be useful under certain circumstances (and perhaps the mere value
+of defining <code>:type</code> as documentation is useful to you), but for now we'll keep
+things simple.
+</p>
+
+<p>
+The <code>amount</code> slot is an integer, and it represents the smallest monetary unit
+for its currency. That means that 5000 USD is $50.00 and 5000 JPY is ¥5,000.
+</p>
+</div>
+
+</section>
+<section id="making-money">
+  <hgroup>
+    
+    <h2>Making Money</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-3">
+<p>
+Now, let's try making some money:
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(make-instance 'money :amount 4000 :currency-code "USD" :currency-sign "$")
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>#&lt;MONEY {700B58CC93}&gt;</code></pre>
+</div>
+
+
+<p>
+We see one of the downsides of using OOP: the representation of the <code>money</code>
+object in the REPL is unhelpful. We will fix DX problems like that later. For
+now, let's define a <code>make-money</code> function to make the code a bit less verbose:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun make-money (&amp;optional (amount 0) (currency *default-currency*))
+  (assert (and (integerp amount)) (amount)
+          "AMOUNT must be an integer, got ~a." amount)
+  (etypecase currency
+    (money (make-instance (class-of currency) :amount amount))
+    (string (make-instance (get-registered-currency currency) :amount amount))
+    (symbol (make-instance currency :amount amount))))
+</code></pre>
+
+<p>
+The default currency is a global variable because we would like users to be able
+to configure it to work easily with their currency. Additionally, we need a way
+for users to be able to register new currencies, and then look up registered currencies.
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *default-currency* "USD")
+
+(defparameter *registered-currencies* (make-hash-table :test #'equalp))
+
+(defun register-currency (currency-code currency-class)
+  (setf (gethash currency-code *registered-currencies*) currency-class))
+
+(defun get-registered-currency (currency-code)
+  (gethash currency-code *registered-currencies*))
+</code></pre>
+
+<p>
+This is a simple way to make this library extensible. People making new
+currencies can just register their currency and our library will find it.
+</p>
+
+<p>
+For the <code>currency</code> argument, in the <code>etypecase</code> form, <code>make-money</code> can take either another <code>money</code>
+object, a string like "USD", or a symbol like <code>'us-dollar</code>. Internally, we'll be
+sending <code>money</code> objects or using symbols, but users of the library might prefer
+to just use currency codes instead without importing the <code>defclass</code> of their
+desired currency everywhere they want to use <code>make-money</code>.
+</p>
+
+<p>
+Let's add USD as a type:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defclass us-dollar (money)
+  ((currency-code :initform "USD")
+   (currency-sign :initform "$")))
+
+(register-currency "USD" 'us-dollar)
+
+(defun usd (amount)
+  (assert (and (integerp amount)) (amount)
+          "AMOUNT must be an integer, got ~a." amount)
+  (make-money amount 'us-dollar))
+
+(usd 50)
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>#&lt;US-DOLLAR {700BA1CC73}&gt;</code></pre>
+</div>
+</div>
+
+</section>
+<section id="adding-money">
+  <hgroup>
+    
+    <h2>Adding money</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-4">
+<p>
+The core purpose of this library is this: ensure that only money of the same
+currency is combined or compared mathematically. That means that the
+implementation of the <code>money+</code> function is going to be simple:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun moneyp (x)
+  (typep x 'money))
+
+(defun currencies-match-p (expected received)
+  (eql (class-of expected) (class-of received)))
+
+(defun money+ (&amp;rest moneys)
+  (let ((expected-currency (first moneys)))
+    (unless (moneyp expected-currency)
+      (error 'type-error :expected-type 'money :datum expected-currency))
+    (let ((total (amount expected-currency)))
+      (dolist (current-currency (rest moneys))
+        (etypecase current-currency
+          (money
+           (unless (currencies-match-p expected-currency current-currency)
+             (error 'mismatched-currencies :expected expected-currency
+                                           :received current-currency))
+           (setf total (+ total (amount current-currency))))))
+      (make-money total expected-currency))))
+</code></pre>
+
+
+<p>
+<code>money+</code> takes an arbitrary number of arguments. We check each argument with
+<code>dolist</code>: in the case where <code>current-currency</code> is of type <code>money</code> and the
+currencies of <code>expected-currency</code> and <code>current-currency</code> match, we add its
+<code>amount</code> to <code>total</code>.
+</p>
+
+<p>
+This function only takes <code>money</code> objects. We try to detect non-money objects
+early by checking if the first argument is <code>moneyp</code>, but <code>etypecase</code> takes care
+of the rest.
+</p>
+
+<p>
+If the currencies of the expected and current currency don't match, then
+<code>money+</code> signals a <code>mismatched-currencies</code> condition.
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(define-condition mismatched-currencies (error)
+  ((expected :initarg :expected :initform nil :reader expected)
+   (received :initarg :received :initform nil :reader received))
+  (:report (lambda (c stream)
+             (format stream "Mismatched currencies. Expected ~a, received ~a." (expected c) (received c)))))
+</code></pre>
+<p>
+It's not strictly necessary to make a condition. We could just use a simple
+<code>error</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(error "Mismatched currencies. Expected ~a, received ~a." expected-currency current-currency)
+</code></pre>
+
+<p>
+Having a custom condition saves us the trouble of copying the same error in
+several later functions; convenient but no big deal.
+</p>
+
+<p>
+The real utility is allowing us (sometime later in a different library) or
+others (in their own application code) to act specifically on this condition. We
+aren't going to implement currency conversion functionality in this library, but
+we or others might want to be able to make a currency conversion when currencies
+are mismatched. Or maybe that would be a silly idea. I don't know, but I'm
+leaving that up to the next guy to decide. With a tiny bit of effort, I can
+provide myself and others that flexibility.
+</p>
+</div>
+
+</section>
+<section id="the-rest-of-the-math-functions">
+  <hgroup>
+    
+    <h2>The rest of the math functions</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-5">
+<p>
+<code>money-</code> is only going to look a little different:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun money- (&amp;rest moneys)
+  "A function for subtracting the AMOUNTs of MONEY objects of the same currency.
+ If passed one MONEY object, will negate the AMOUNT"
+  (let ((expected-currency (first moneys)))
+    (unless (moneyp expected-currency)
+      (error 'type-error :expected-type 'money :datum expected-currency))
+    (let ((total (amount expected-currency)))
+      (cond ((= (length moneys) 1)
+             (make-money (- (amount expected-currency)) expected-currency))
+            (t
+             (dolist (current-currency (rest moneys))
+               (etypecase current-currency
+                 (money
+                  (unless (currencies-match-p expected-currency current-currency)
+                    (error 'mismatched-currencies :expected expected-currency
+                                                  :received current-currency))
+                  (setf total (- total (amount current-currency))))))
+             (make-money total expected-currency))))))
+</code></pre>
+<p>
+The only difference here is that we check if there is more than one argument
+passed to <code>money-</code>. If you pass only one argument, then it will negate the
+total.
+</p>
+
+<p>
+<code>money*</code> and <code>money/</code> are nearly the identical to each others:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun money* (&amp;rest moneys)
+  "A function for multiplying the amounts of MONEY objects of the same currency.
+ If passed an integer after the first MONEY object, will multiply the AMOUNT of
+the MONEY by the integer."
+  (let ((expected-currency (first moneys)))
+    (unless (moneyp expected-currency)
+      (error 'type-error :expected-type 'money :datum expected-currency))
+    (let ((total (amount expected-currency)))
+      (dolist (current-currency (rest moneys))
+        (etypecase current-currency
+          (money
+           (unless (currencies-match-p expected-currency current-currency)
+             (error 'mismatched-currencies :expected expected-currency
+                                           :received current-currency))
+           (setf total (* (amount current-currency) total)))
+          (integer (setf total (floor (* total current-currency))))))
+      (make-money total expected-currency))))
+
+(defun money/ (&amp;rest moneys)
+  "A function for dividing the amounts of MONEY objects of the same currency. If
+passed an integer after the first MONEY object, will divide the AMOUNT of the
+MONEY by the integer."
+  (let ((expected-currency (first moneys)))
+    (unless (moneyp expected-currency)
+      (error 'type-error :expected-type 'money :datum expected-currency))
+    (let ((total (amount expected-currency)))
+      (dolist (current-currency (rest moneys))
+        (etypecase current-currency
+          (money
+           (unless (currencies-match-p expected-currency current-currency)
+             (error 'mismatched-currencies :expected expected-currency
+                                           :received current-currency))
+           (setf total (/ total (amount current-currency))))
+          (integer (setf total (floor (/ total current-currency))))))
+      (make-money total expected-currency))))
+</code></pre>
+<p>
+Here, we actually allow an integer type to be passed as an argument. It feels a
+bit odd to multiply currencies into each other, but it does make sense to say
+"double the amount of money" or "apply a 25% discount".
+</p>
+
+<p>
+Finally, we'll add three more simple math functions:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun money= (money1 money2)
+  "A function to check if the AMOUNTs of two MONEY objects are =."
+  (unless (moneyp money1)
+    (error 'type-error :expected-type 'money :datum money1))
+  (unless (moneyp money2)
+    (error 'type-error :expected-type 'money :datum money2))
+  (unless (currencies-match-p money1 money2)
+    (error 'mismatched-currencies :expected money1
+                                  :received money2))
+  (and (= (amount money1) (amount money2))
+       (eql (class-of money1) (class-of money2))))
+
+(defun money&gt; (money1 money2)
+  "A function that checks if the AMOUNT of one MONEY object is greater than that
+ of the other."
+  (unless (moneyp money1)
+    (error 'type-error :expected-type 'money :datum money1))
+  (unless (moneyp money2)
+    (error 'type-error :expected-type 'money :datum money2))
+  (unless (currencies-match-p money1 money2)
+    (error 'mismatched-currencies :expected money1
+                                  :received money2))
+  (&gt; (amount money1) (amount money2)))
+
+(defun money&lt; (money1 money2)
+  "A function that checks if the AMOUNT of one MONEY object is greater than that
+ of the other."
+  (unless (moneyp money1)
+    (error 'type-error :expected-type 'money :datum money1))
+  (unless (moneyp money2)
+    (error 'type-error :expected-type 'money :datum money2))
+  (unless (currencies-match-p money1 money2)
+    (error 'mismatched-currencies :expected money1
+                                  :received money2))
+  (&lt; (amount money1) (amount money2)))
+</code></pre>
+<p>
+I'm purposefully limiting these functions to only two arguments because I can't
+imagine myself trying to check more than two using any of these functions. If
+you can think of a scenario where checking the equality of 3 or more <code>money</code>
+objects would be useful, let me know.
+</p>
+</div>
+
+</section>
+<section id="improving-ergonomics">
+  <hgroup>
+    
+    <h2>Improving Ergonomics</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-6">
+<p>
+And that's it: the critical functionality of our library is complete. However,
+we really should improve the ergonomics a bit. When we print a <code>money</code> object,
+it looks like <code>#&lt;USD {7006D80343}&gt;</code>, when what we really want is for it to look
+like <code>#&lt;USD 5000&gt;</code>.
+</p>
+
+<p>
+We do that with the <code>print-object</code> generic function. We can change how an object
+is printed by creating a method specialized on our <code>money</code> or <code>us-dollar</code> types.
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defmethod print-object ((this money) stream)
+  (print-unreadable-object (this stream)
+    (format stream "MONEY ~a ~a" (slot-value this 'amount) (slot-value this
+ 'currency-code))))
+
+(defmethod print-object ((this us-dollar) stream)
+  (print-unreadable-object (this stream)
+    (format stream "~a ~a" (slot-value this 'currency-code) (slot-value this
+ 'amount))))
+</code></pre>
+
+<p>
+The <code>print-unreadable-object</code> function needs some explanation. When you return
+an object in the REPL, you can highlight it with the cursor and type <code>Enter</code> or
+left-click it with your mouse to <code>inspect</code> the object. This default behavior is
+preserved for <code>print-object</code> methods that you specialize on classes you define
+if you wrap the call to <code>format</code> in <code>print-unreadable-object</code>.
+</p>
+</div>
+
+</section>
+<section id="formatting-for-human-consumption">
+  <hgroup>
+    
+    <h2>Formatting for Human Consumption</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-7">
+<p>
+One last important job for our library will be displaying the money amount as
+normal people expect money amounts to be displayed. That means that <code>#&lt;USD
+5000&gt;</code> needs to be formatted as $50.00 and <code>#&lt;JPY 5000&gt;</code> needs to be formatted
+as <code>¥5,000</code>. We want one function to be able to format any currency properly. We
+could have one function with a big <code>cond</code> do that:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun format-money (money-obj)
+  (cond ((usdp money-obj) (format-usd money-obj))
+        ((jpyp money-obj) (format-jpy money-obj))
+        ((gbpp money-obj) (format-gbp money-obj))
+        ...))
+</code></pre>
+<p>
+But that has the one downside that it requires updating this one function any
+time we want to add support for a currency to the library. It's not a huge
+burden, it's true, and some people may even prefer it. However, Common Lisp has
+an OOP solution to make our code more extensible: generic functions.
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defgeneric format-money (stream currency)
+  (:documentation "A generic function that takes a currency object and formats
+ it in for human consumption."))
+</code></pre>
+<p>
+Then we need to make a generic <i>method</i> to format USD:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defmethod format-money (stream (this us-dollar))
+  (let ((total-cents (amount this)))
+    (cond ((&lt; total-cents 0)
+           (let* ((total-cents (- total-cents))
+                  (dollars (floor total-cents 100))
+                  (cents (mod total-cents 100)))
+             (format stream "-~a~:D.~2,'0D" (currency-sign this) dollars cents)))
+          (t
+           (let ((dollars (floor total-cents 100))
+                 (cents (mod total-cents 100)))
+             (format stream "~a~:D.~2,'0D" (currency-sign this) dollars cents))))))
+</code></pre>
+
+<p>
+For small, negative values of <code>total-cents</code>, <code>floor</code> will be inaccurate (<code>(floor
+-5 100)</code> will return <code>-1</code> rather than <code>0</code>), so we make all negative integers
+positive before formatting them, adding the minus-sign back at the beginning of
+the format string.
+</p>
+
+<p>
+<code>~2,'0D</code> looks crazy, I know. Format directives can be modified by optional
+parameters&#x2013;separated by commas&#x2013;and by modifiers <code>COLON</code> or <code>AT-SIGN</code>. For
+<code>Tilde D</code>, we have four possible parameters:
+</p>
+
+<ol class="org-ol">
+<li>mincol</li>
+<li>padchar</li>
+<li>comma</li>
+<li>interval</li>
+</ol>
+
+<p>
+Let's take a look at them in action:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((small-num 7)
+      (big-num 987654321))
+  (format t "~%~40a | ~d | ~d"                      "no modifications"                  small-num big-num)
+  (format t "~%~40a | ~4d | ~4d"                    "mincol of 4"                       small-num big-num)
+  (format t "~%~40a | ~4,'xd | ~4,'xd"              "mincol padding using character x"  small-num big-num)
+  (format t "~%~40a | ~4,'x:d | ~4,'x:d"            "colon added"                       small-num big-num)
+  (format t "~%~40a | ~4,'x,'x:d | ~4,'x,'x:d"      "commas replaced with x"            small-num big-num)
+  (format t "~%~40a | ~4,'x,'x,1:d | ~4,'x,'x,1:d"  "comma interval set to 1"           small-num big-num)
+  (format t "~%~40a | ~4,'x@d | ~4,'x,'x,1@d"       "colon replaced with at-sign"       small-num big-num)
+  (format t "~%~40a | ~4,'x@:d | ~4,'x,'x,1@:d"     "at-sign and colon combined"        small-num big-num))
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>no modifications                         | 7 | 987654321
+mincol of 4                              |    7 | 987654321
+mincol padding using character x         | xxx7 | 987654321
+colon added                              | xxx7 | 987,654,321
+commas replaced with x                   | xxx7 | 987x654x321
+comma interval set to 1                  | xxx7 | 9x8x7x6x5x4x3x2x1
+colon replaced with at-sign              | xx+7 | +987654321
+at-sign and colon combined               | xx+7 | +9x8x7x6x5x4x3x2x1 =&gt; NIL</code></pre>
+</div>
+<p>
+It should be a bit easier now to understand the format string for
+<code>format-money</code>: <code>~a</code>, just display the <code>currency-sign</code>. <code>~:D</code>, add commas to
+dollars side where appropriate. <code>.</code>, we add the dot. <code>~2,'0D</code>, set the <code>mincol</code>
+to 2 and pad empty space with 0s. This ensures that <code>(usd 5)</code> returns <code>$0.05</code>
+and not <code>$0.5</code>.
+</p>
+
+<p>
+Also, for the big-brains screaming, "Micah! What about ~$ you dummy?", <code>Tilde $</code>
+won't add commas to the number, and there's no way to combine both the effects
+of <code>Tilde $</code> and <code>Tilde D</code>.
+</p>
+</div>
+
+</section>
+<section id="adding-currencies">
+  <hgroup>
+    
+    <h2>Adding Currencies</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-8">
+<p>
+The library is "complete", in the sense that it does everything we want it to
+do. One catch: it only works with USD.
+</p>
+
+<p>
+How do we add support for more currencies?
+</p>
+
+<p>
+It's fairly simple. We'll do it with Japanese Yen:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defclass japanese-yen (money)
+  ((currency-code :initform "JPY")
+   (currency-sign :initform "¥")))
+
+(register-currency "JPY" 'japanese-yen)
+
+(defmethod format-money (stream (this japanese-yen))
+  (format stream "~a~:d" (currency-sign this) (amount this)))
+
+(defmethod print-object ((this japanese-yen) stream)
+  (print-unreadable-object (this stream)
+    (format stream "~a ~a" (slot-value this 'currency-code) (slot-value this
+ 'amount))))
+
+(defun jpy (amount)
+  (assert (integerp amount) (amount)
+          "AMOUNT must be an integer, got ~a." amount)
+  (make-money amount 'japanese-yen))
+</code></pre>
+<p>
+We inherit and extend the <code>money</code> class with the <code>japanese-yen</code> class, assigning
+default values to <code>currency-code</code> and <code>currency-sign</code>.
+</p>
+
+<p>
+We register the new currency so that <code>make-money</code> will work properly if called
+like this: <code>(make-money 5000 "JPY")</code>. It's likely that people will only use
+<code>jpy</code>, but who knows?
+</p>
+
+<p>
+We specialize the <code>format-money</code> and <code>print-object</code> generic functions with
+methods for the new <code>japanese-yen</code> type. Formatting Japanese yen is even easier
+than USD: The lowest and <i>only</i> monetary unit is the yen, so no need for a
+decimal or the yen equivalent of "cents".
+</p>
+
+<p>
+Then we make a helper-function to make Japanese Yen.
+</p>
+
+<p>
+Neither we nor future developers will need to modify any existing code; we use
+OOP modularity and extensibility that would make every senior Java developer
+proud.
+</p>
+
+<p>
+And thus, our library is complete and ready to be upgraded with support for
+other currencies in the future.
+</p>
+</div>
+
+</section>
+
+</section>
+      <div class="book-navigation__next-chapter">
+        <a href="/book/essentials/project-accounting-library">Next: 14. Project: Accounting Library &rarr;</a>
+      </div>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>
+</html>

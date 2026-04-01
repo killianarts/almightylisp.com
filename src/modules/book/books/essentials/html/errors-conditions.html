@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <title>ERRORS &amp; CONDITIONS - ALMIGHTYLISP.COM</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+  <script src="/static/js/highlight-lisp.js"></script>
+</head>
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <div class="book-navigation__book-title"><a href="."><div class="almighty-lisp-logo-container"><img src="/static/assets/images/almighty-lisp.png" alt="Almighty Lisp"></div><div class="the-essentials-container"><img src="/static/assets/images/the-essentials.png" alt="The Essentials"></div></div></a>
+      <p class="book-navigation__chapter-name-heading"><span>9. ERRORS &amp; CONDITIONS</span></p>
+      <nav>
+        <ul>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#signaling-conditions"><span class="book-navigation__section-link-text">Signaling Conditions</span> <small class="book-navigation__section-link-number">9.1</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#defining-conditions"><span class="book-navigation__section-link-text">Defining Conditions</span> <small class="book-navigation__section-link-number">9.2</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#restarts"><span class="book-navigation__section-link-text">Restarts</span> <small class="book-navigation__section-link-number">9.3</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#handling-conditions"><span class="book-navigation__section-link-text">Handling Conditions</span> <small class="book-navigation__section-link-number">9.4</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#preserving-local-state"><span class="book-navigation__section-link-text">Preserving Local State</span> <small class="book-navigation__section-link-number">9.5</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#useful-variables-functions"><span class="book-navigation__section-link-text">Useful Variables &amp; Functions</span> <small class="book-navigation__section-link-number">9.6</small></a></li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+        <a href="/book/essentials/the-loop-macro" class="book-navigation__previous-section">&larr; 8. THE LOOP MACRO</a>
+        <a href="/book/essentials/macros" class="book-navigation__next-section">10. MACROS &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="errors-conditions">
+  <hgroup>
+    <span class="chapter-number">9</span> 
+    <h1>ERRORS &amp; CONDITIONS</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+<p>
+In the next chapter we'll cover macros&#x2013;Common Lisp's most famous and powerful
+feature. But Lisp's conditional system is competitive for the next more powerful
+feature, and it's the feature we'll cover in this chapter.
+</p>
+</div>
+<section id="signaling-conditions">
+  <hgroup>
+    
+    <h2>Signaling Conditions</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-1">
+<p>
+In Lisp, instead of "throwing" or "returning" an error, you "signal a
+condition". The most common way to signal some <code>condition</code> is to use <code>error</code> or
+<code>cerror</code>.
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun oops (x)
+  (if (zerop x)
+      (error "What the h?")))
+</code></pre>
+
+<p>
+That opens the debugger:
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(oops 0)
+</code></pre>
+<pre class="code-block-result-pre result error"><code class="code-block-result"><span class="code-block-result-label">Result</span>What the h?
+   [Condition of type SIMPLE-ERROR]
+Restarts:
+ 0: [*ABORT] Return to SLY's top level.
+ 1: [ABORT] abort thread (#&lt;THREAD tid=12411 "slynk-worker" RUNNING {7007185183}&gt;)</code></pre>
+</div>
+
+
+<p>
+Notice that the <code>condition</code> is a <code>SIMPLE-ERROR</code>.
+</p>
+
+<p>
+<code>cerror</code> will create a <i>continuable</i> error.
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun oops (x)
+  (if (zerop x)
+      (cerror "Want to continue?" "You passed ~d" x))
+  (print "You continued."))
+</code></pre>
+
+<p>
+Calling it:
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(oops 0)
+</code></pre>
+<pre class="code-block-result-pre result error"><code class="code-block-result"><span class="code-block-result-label">Result</span>You passed 0
+   [Condition of type SIMPLE-ERROR]
+Restarts:
+ 0: [CONTINUE] Want to continue?
+ 1: [*ABORT] Return to SLY's top level.
+ 2: [ABORT] abort thread (#&lt;THREAD tid=12483 "slynk-worker" RUNNING {700776ADA3}&gt;)</code></pre>
+</div>
+
+
+<p>
+Continuing will continue after the point of the error.
+</p>
+
+<p>
+If you only want to make a warning, you can use <code>warn</code>.
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(progn
+  (warn "You are about to be Rick Rolled.")
+  (format t "Never Gonna Give You Up")
+  (error "You've been deserted.")
+  (format t "I hate meta."))
+</code></pre>
+
+<p>
+If you execute this, it will print the warning and the first <code>format</code> in the
+REPL and then open a debugger with the error message. You won't see the second
+<code>format</code> message.
+</p>
+
+<p>
+With <code>assert</code>, you can check a condition. If it returns <code>t</code>, the program
+continues. If the condition returns <code>nil</code>, it will signal a continuable error
+and then you can assign a value to the selected symbols and retry the assert.
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun using-assertion (x)
+  (print "before assert")
+  (assert (&gt; x 0)
+          (x)
+          "~d Needs to be a positive number." x)
+  (print "after assert")
+  (print x))
+</code></pre>
+
+<p>
+Calling it:
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(using-assertion -4)
+</code></pre>
+<pre class="code-block-result-pre result error"><code class="code-block-result"><span class="code-block-result-label">Result</span>Needs to be a positive number.
+   [Condition of type SIMPLE-ERROR]
+Restarts:
+ 0: [CONTINUE] Retry assertion with new value for X.
+ 1: [*ABORT] Return to SLY's top level.
+ 2: [ABORT] abort thread (#&lt;THREAD tid=12435 "slynk-worker" RUNNING {7007A4FF33}&gt;)</code></pre>
+</div>
+
+
+<p>
+If you choose <code>CONTINUE</code>, then you'll be prompted for a new value.
+</p>
+</div>
+
+</section>
+<section id="defining-conditions">
+  <hgroup>
+    
+    <h2>Defining Conditions</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+If you need or want to provide more control over error handling, you can define
+your own conditions.
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(define-condition naughty-word (error)
+  ()
+  (:documentation "A condition for when naughty words are detected."))
+</code></pre>
+
+<p>
+Conditions are <code>objects</code> using the CLOS.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(make-condition 'naughty-word)
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>#&lt;NAUGHTY-WORD {7009850503}&gt;</code></pre>
+</div>
+
+
+<p>
+Let's make a list of naughty words to detect and a function to detect them.
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *naughty-words* '(rust java haskell ruby python crypto bitcoin)
+  "Words that must never be uttered.")
+
+(defun naughty-word-p (word)
+  "Check if a word is in *naughty-words*."
+  (member word *naughty-words*))
+
+(defun process-word (word)
+  "Signal a naughty-word condition if a word is naughty."
+  (when (naughty-word-p word)
+    (error 'naughty-word))
+  word)
+
+(defun process-sentence (sentence)
+  "Look through all the words in a sentence and do something if any of them are
+naughty."
+  (loop :for word :in sentence
+        :collect (process-word word)))
+
+(process-sentence '(java has the best oop system among all programming languages))
+</code></pre>
+<p>
+When you run the above code, the debugger will pop up with an error:
+</p>
+
+<pre class="code-block-result-pre code-block-result-pre result error"><code class="code-block-result">Condition ALMIGHTY/KAIKEI/TESTS::NAUGHTY-WORD was signalled.
+   [Condition of type NAUGHTY-WORD]
+Restarts:
+ 0: [*ABORT] Return to SLY's top level.
+ 1: [ABORT] abort thread (#&lt;THREAD tid=12475 "slynk-worker" RUNNING {70069EF533}&gt;)</code></pre>
+
+<p>
+We can improve our error messages by modifying the condition definition.
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(define-condition naughty-word (simple-error)
+  ((bad-word :initarg :bad-word
+             :initform nil
+             :reader bad-word))
+  (:documentation "A condition for when naughty words are detected.")
+  (:report (lambda (c stream)
+             (let ((word (bad-word c)))
+               (format stream "Naughty word detected: ~a" word)))))
+</code></pre>
+
+<p>
+Notice that after the slots (we only have one: <code>bad-word</code>) come the options,
+each passed as plists.
+</p>
+
+<p>
+Then we update the call to <code>error</code>:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun process-word (word)
+  "Signal a naughty-word condition if a word is naughty."
+  (when (naughty-word-p word)
+    (error 'naughty-word :bad-word word))
+  word)
+
+(process-sentence '(java has the best oop system among all programming languages))
+</code></pre>
+
+<p>
+Run <code>process-sentence</code> again and your debugger will display the following
+message:
+</p>
+
+<pre class="code-block-result-pre code-block-result-pre result error"><code class="code-block-result">Naughty bad-word detected: JAVA
+   [Condition of type NAUGHTY-WORD]
+Restarts:
+ 0: [RETRY] Retry SLY evaluation request.
+ 1: [*ABORT] Return to SLY's top level.
+ 2: [ABORT] abort thread (#&lt;THREAD tid=21471 "slynk-worker" RUNNING {700CB7C5F3}&gt;)
+Backtrace:
+ 0: (PROCESS-WORD JAVA)
+ 1: (PROCESS-SENTENCE (JAVA HAS THE BEST OOP SYSTEM ...))</code></pre>
+</div>
+
+</section>
+<section id="restarts">
+  <hgroup>
+    
+    <h2>Restarts</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-3">
+<p>
+If you define a condition, it's usually because you want to provide the ability
+to recover from some error. One recovery mechanism you can provide are
+<code>restarts</code>. We've seen restarts many times inside the debugger: there are three
+restarts in the above debugger message.
+</p>
+
+<p>
+To provide more restarts, use <code>restart-case</code>.
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun replace-word (word)
+  "Replace a word in a list."
+  (intern (string-upcase (read-line))))
+
+(defun process-word (word)
+  "Check a word. If it's naughty, give the user the choice to replace the word."
+  (if (naughty-word-p word)
+      (restart-case
+          (error 'naughty-word :bad-word word)
+        (continue ()
+          :report "Sticks and stones. Just leave the word as it is."
+          word)
+        (censor ()
+          :report "Replace the naughty word with one you like more."
+          (replace-word word)))
+      word))
+(process-sentence '(java has the best oop system among all programming languages))
+</code></pre>
+<pre class="code-block-result-pre result error"><code class="code-block-result"><span class="code-block-result-label">Result</span>Naughty bad-word detected: &lt;unknown&gt;
+   [Condition of type NAUGHTY-WORD]
+Restarts:
+ 0: [CONTINUE] Sticks and stones. Just leave the word as it is.
+ 1: [CENSOR] Replace the naughty word with one you like more.
+ 2: [RETRY] Retry SLY evaluation request.
+ 3: [*ABORT] Return to SLY's top level.
+ 4: [ABORT] abort thread (#&lt;THREAD tid=21479 "slynk-worker" RUNNING {700CC9EDD3}&gt;)</code></pre>
+</div>
+
+
+<p>
+Now when you run <code>process-sentence</code>, you can replace any of the words found in
+the <code>*naughty-words*</code> list using a restart.
+</p>
+</div>
+
+</section>
+<section id="handling-conditions">
+  <hgroup>
+    
+    <h2>Handling Conditions</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-4">
+<p>
+Another recovery mechanism is via "handling". When the <code>naughty-word</code> condition
+is signaled, you can prevent the program from stopping and the debugger from
+opening by using <code>handler-case</code>.
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun process-sentence (sentence)
+  "Look through all the words in a sentence and do something if any of them are
+naughty."
+  (loop :for word :in sentence
+        :collect (handler-case (process-word word)
+                   (naughty-word () '***))))
+
+(process-sentence '(java has the best oop system among all programming languages))
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(*HAS THE BEST OOP SYSTEM AMONG ALL PROGRAMMING LANGUAGES)</code></pre>
+</div>
+
+
+<p>
+Now, instead of bringing up the debugger, if a naughty word is encountered
+during the iteration, it will simply be replaced by "<b>*</b>".
+</p>
+</div>
+
+</section>
+<section id="preserving-local-state">
+  <hgroup>
+    
+    <h2>Preserving Local State</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-5">
+<p>
+Being able to signal a condition, and then choose how to response based on the
+condition is very nice, but Lisp has one more trick up its sleeve.
+</p>
+
+<p>
+<code>handler-case</code> has a problem: it unwinds the stack. That means that you lose
+local state at the point where you decide to do something with a naughty-word
+condition. In the simple example above, it's difficult to understand what that
+looks like. To illustrate the problem with <code>handler-case</code>, we'll consider a
+different problem: working with a stream of data.
+</p>
+
+<p>
+Let's say we have a simple key=value style configuration system and a file like this:
+</p>
+<pre class="code-block-source-pre"><code>environment=production
+debug=false
+api_key+oh-dear
+db=sqlite
+db_username=admin
+db_password:pass
+some other broken stuff
+</code></pre>
+
+<aside class="book-aside"><p>
+Save that to a file called "my.config". In another file, add the rest of this
+code and make sure to set the directory in the REPL using <code>,set-directory</code>
+(<code>sly-mrepl-shortcut</code>) in the REPL to the directory holding the config file and
+the rest of this code.
+</p>
+</aside>
+
+<p>
+We see a few errors. While parsing this file, we'd like to signal a condition
+and recover, report which lines are broken, what the broken lines look like,
+etc. and continue reading the rest of the file.
+</p>
+
+<p>
+Let's begin by parsing the file:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun parse-line (line)
+    "Parse a 'key=value' line into a cons pair."
+    (let ((pos (position #\= line)))
+      (if pos
+          (cons (subseq line 0 pos)
+                (subseq line (1+ pos)))
+          nil)))
+
+  (defun read-config (stream)
+    "Read config lines from a stream, collecting key=value pairs."
+    (loop :for line = (read-line stream nil nil)
+          :for line-number :from 1
+          :while line
+          :for parsed = (parse-line line)
+          :if parsed
+            :collect parsed
+          :else
+            :do (restart-case
+                    (error 'malformed-line
+                           :line line
+                           :line-number line-number)
+                  (skip-line ()
+                    :report "Skip this line and continue."))))
+</code></pre>
+
+<p>
+We use <code>loop</code> to read from each line and to count line-numbers up from 1. If we
+hit a line we can't parse, we signal a <code>malformed-line</code> condition, providing the user
+the <code>skip-line</code> restart in the debugger. 
+</p>
+
+<p>
+The <code>malformed-line</code> condition looks like this:
+</p>
+
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(define-condition malformed-line (error)
+  ((line :initarg :line
+         :reader malformed-line-text)
+   (line-number :initarg :line-number
+                :reader malformed-line-number))
+  (:report (lambda (c stream)
+             (format stream "Malformed line ~d: ~a"
+                     (malformed-line-number c)
+                     (malformed-line-text c)))))
+</code></pre>
+
+<p>
+When this condition is signaled, it will tell us both the line number and content of the broken line.
+</p>
+
+<p>
+Let's try it out as is:
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(with-open-file (stream #P"my.config" :direction :input
+                                      :element-type 'character)
+  (read-config stream))
+</code></pre>
+<pre class="code-block-result-pre result error"><code class="code-block-result"><span class="code-block-result-label">Result</span>Malformed line 3: apikey+oh-dear
+   [Condition of type MALFORMED-LINE]
+Restarts:
+ 0: [SKIP-LINE] Skip this line and continue.
+ 1: [RETRY] Retry SLY evaluation request.
+ 2: [*ABORT] Return to SLY's top level.
+ 3: [ABORT] abort thread (#&lt;THREAD tid=14415 "slynk-worker" RUNNING {70054C5033}&gt;)</code></pre>
+</div>
+
+
+<p>
+All is well: that is the broken line and its contents. If you choose to skip the
+line, it will continue parsing and give us the next broken line, and so on, and
+then finally the not-broken parts of the configuration.
+</p>
+
+<pre class="code-block-result-pre result"><code class="code-block-result">((environment . production) (debug . false) (db . sqlite) (dbusername. admin))</code></pre>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-case (path)
+  (with-open-file (stream path)
+    (handler-case (read-config stream)
+      (malformed-line (c)
+        (format t "Gave up at line ~d.~%" (malformed-line-number c))
+        nil))))
+(load-config-case #P"my.config")
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>Gave up at line 3.
+ =&gt; NIL</code></pre>
+</div>
+
+
+<p>
+You don't have access to the <code>skip-line</code> restart, since that's established in the
+<code>read-config</code> loop. You've broken out of the loop and can't get back in. The
+stack has unwound.
+</p>
+
+<p>
+That's where <code>handler-bind</code> and <code>invoke-restart</code> come to the rescure. Unlike
+<code>handler-case</code>, <code>handler-bind</code> can catch that <code>malformed-line</code> condition and
+then invoke the <code>skip-line</code> restart.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-bind (path)
+    (with-open-file (stream path)
+      (handler-bind
+          ((malformed-line
+             (lambda (c)
+               (format t "Skipping line ~d.~%" (malformed-line-number c))
+               (invoke-restart 'skip-line))))
+        (read-config stream))))
+(load-config-bind #P"my.config")
+</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>((environment . production) (debug . false) (db . sqlite) (dbusername. admin))</code></pre>
+</div>
+
+
+<p>
+In this case, the debugger never popped up. Instead of manually choosing the
+restart for the broken lines, we used <code>invoke-restart</code> to skip them for us.
+</p>
+
+<p>
+What if we try to call <code>invoke-restart</code> inside the <code>handler-case</code> version?
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-case (path)
+  (with-open-file (stream path)
+    (handler-case (read-config stream)
+      (malformed-line (c)
+        (format t "Gave up at line ~d.~%" (malformed-line-number c))
+        (invoke-restart 'skip-line)))))
+(load-config-case #P"my.config")
+</code></pre>
+<pre class="code-block-result-pre result error"><code class="code-block-result"><span class="code-block-result-label">Result</span>No restart SKIP-LINE is active.
+   [Condition of type SB-INT:SIMPLE-CONTROL-ERROR]
+Restarts:
+ 0: [RETRY] Retry SLY evaluation request.
+ 1: [*ABORT] Return to SLY's top level.
+ 2: [ABORT] abort thread (#&lt;THREAD tid=14387 "slynk-worker" RUNNING {7007B59BA3}&gt;)</code></pre>
+</div>
+
+
+<p>
+Won't work. The stack has been unwound, so we no longer have access to the
+<code>skip-line</code> restart. And you need restarts to be able to return to the <code>loop</code>
+iteration. If you used a <code>skip-line</code> function in <code>handler-bind</code>, you would end
+the process in a different frame. <code>invoke-restart</code> is how you restart the
+process at the point where the condition was signaled.
+</p>
+
+<p>
+You can also
+</p>
+</div>
+
+</section>
+<section id="useful-variables-functions">
+  <hgroup>
+    
+    <h2>Useful Variables &amp; Functions</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-6">
+<p>
+If you want the program to stop just <i>before</i> the error ("break"), you can
+modify the <code>*break-on-signals*</code> variable.
+</p>
+
+<p>
+The <code>*break-on-signals*</code> variable is set to <code>nil</code> by default, but when set to some
+condition or conditions, will break just before the condition is signaled. It's
+useful for getting a look at the state of the program just before a condition is
+signaled, especially when you don't know exactly where the error is coming from
+(in which case, you could use Sly stickers + breaking as I wrote about earlier
+in <a href="essentials.html#ID-f6a4fdc2-7295-4bfa-8551-f5cf4e242ee7">THE LISP IDE/STICKERS</a>).</p>
+</div>
+
+</section>
+
+</section>
+      <div class="book-navigation__next-chapter">
+        <a href="/book/essentials/macros">Next: 10. MACROS &rarr;</a>
+      </div>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>
+</html>

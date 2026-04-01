@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <title>THE ECOSYSTEM - ALMIGHTYLISP.COM</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+  <script src="/static/js/highlight-lisp.js"></script>
+</head>
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <div class="book-navigation__book-title"><a href="."><div class="almighty-lisp-logo-container"><img src="/static/assets/images/almighty-lisp.png" alt="Almighty Lisp"></div><div class="the-essentials-container"><img src="/static/assets/images/the-essentials.png" alt="The Essentials"></div></div></a>
+      <p class="book-navigation__chapter-name-heading"><span>12. THE ECOSYSTEM</span></p>
+      <nav>
+        <ul>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#ultralisp"><span class="book-navigation__section-link-text">ULTRALISP</span> <small class="book-navigation__section-link-number">12.1</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#qlot"><span class="book-navigation__section-link-text">QLOT</span> <small class="book-navigation__section-link-number">12.2</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#ocicl"><span class="book-navigation__section-link-text">OCICL</span> <small class="book-navigation__section-link-number">12.3</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#vend"><span class="book-navigation__section-link-text">VEND</span> <small class="book-navigation__section-link-number">12.4</small></a></li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+        <a href="/book/essentials/organizing-code" class="book-navigation__previous-section">&larr; 11. ORGANIZING CODE</a>
+        <a href="/book/essentials/project-money-library" class="book-navigation__next-section">13. Project: Money Library &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="the-ecosystem">
+  <hgroup>
+    <span class="chapter-number">12</span> 
+    <h1>THE ECOSYSTEM</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+<p>
+There is a surprising amount of open source code available for Lisp. The
+<a href="https://project-awesome.org/r/awesome-cl">Awesome-CL</a> (<a href="https://project-awesome.org/r/awesome-cl">https://project-awesome.org/r/awesome-cl</a>) page contains a curated
+list of open source libraries available.
+</p>
+
+<p>
+The most common way to obtain any of these libraries is through <code>quicklisp</code>, the
+defacto-standard library manager for Lisp. As I said before, ASDF by default
+uses quicklisp to download systems defined in the <code>:depends-on</code> portion of the
+<code>defsystem</code> if no local copy exists (in the <code>~/quicklisp</code> folder). When you want
+third-party libraries, you will likely begin by using quicklisp.
+</p>
+
+<p>
+Using quicklisp is simple. Let's say you want to load the <code>local-time</code> system.
+To do that:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(ql:quickload "local-time")
+</code></pre>
+
+<p>
+If you don't already have <code>local-time</code> in your <code>~/quicklisp</code> folder, quicklisp
+will download it from the quicklisp repository. After downloading it, it will
+then load the system as if you had run <code>asdf:load-system</code>. To test it, try
+running <code>(local-time:now)</code> in the REPL.
+</p>
+
+<p>
+Quicklisp will download and load code from the <code>quicklisp</code> "dist". What if you
+want to load your own local code? How do you create your own library that you
+can add to a <code>.asd</code> file and load seamlessly like any other library?
+</p>
+
+<p>
+To do that with Quicklisp, you can add code to either the <code>~/common-lisp</code> or
+<code>~/quicklisp/local-projects</code> folders.
+</p>
+</div>
+<section id="ultralisp">
+  <hgroup>
+    
+    <h2>ULTRALISP</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-1">
+<p>
+Quicklisp is a repository that is only infrequently updated (by one guy). As a
+result, you might not be able to get the latest version of a project, or it may
+never be available at all on Quicklisp.
+</p>
+
+<p>
+An alternative to Quicklisp is <code>ultralisp</code>. Ultralisp is a "dist" that is
+installed on Quicklisp (which has its own default "dist" named <code>quicklisp</code>) and
+that is updated every five minutes. If you go to <a href="https://ultralisp.org">https://ultralisp.org</a> you can
+get instructions on how to install and use it. I haven't ever used it, so I
+can't give my opinion one way or the other.
+</p>
+
+<p>
+In passing, I've seen people have trouble using Ultralisp because they may
+inadvertently install different versions of the same library and getting
+Quicklisp (the library manager, not the dist) to load one or the other can be a
+bit troublesome.
+</p>
+</div>
+
+</section>
+<section id="qlot">
+  <hgroup>
+    
+    <h2>QLOT</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+<code>Qlot</code> is an alternative library dependency library, found at
+<a href="https://qlot.tech/">https://qlot.tech/</a>. It is designed to essentially solve "versioning" problems
+above. It allows you to pin your dependencies to certain versions of
+libraries&#x2013;as found on the Quicklisp "dist".
+</p>
+
+<p>
+Qlot is worthy of taking a closer look at. It includes useful command-line
+commands and library dependencies are defined in separate <code>qlfile</code> and
+<code>qlfile.lock</code> files, making it feel a bit more familiar to library management
+systems found in other ecosystems. After getting set up, you might find it more
+comfortable to use than Quicklisp or Ultralisp.
+</p>
+</div>
+
+</section>
+<section id="ocicl">
+  <hgroup>
+    
+    <h2>OCICL</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-3">
+<p>
+<code>ocicl</code> is another alternative to Quicklisp that does more than just package
+management. It also does linting and has project scaffolding capabilities. It's
+developed by Anthony Green, a programmer at Red Hat. Its Github page states:
+</p>
+<blockquote>
+<p>
+The main innovation behind ocicl is the idea of applying the ecosystem of
+tooling and services from the world of application container images to ordinary
+tarballs of Lisp code. In essence, OCI + CL = ocicl.
+</p>
+</blockquote>
+<p>
+If you know what it means for software to be packaged as "OCI-compliant
+artifacts", you might find ocicl of interest. I'm not sophisticated enough to
+understand the value proposition, so I've never used it.
+</p>
+</div>
+
+</section>
+<section id="vend">
+  <hgroup>
+    
+    <h2>VEND</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-4">
+<p>
+<code>vend</code> (<a href="https://github.com/fosskers/vend">https://github.com/fosskers/vend</a>) is my preferred alternative to
+Quicklisp. The vend philosophy is this: vendor dependencies, and make that
+simple.
+</p>
+
+<p>
+Unlike the other alternatives above, it makes no use of either Quicklisp the
+tool or the "dist". Instead, it downloads dependencies directly from git
+repositories. It has its own repository&#x2013;just a list of libraries and their git
+repo link. You just configure the REPL to only load dependencies from your
+project's directory (you don't want it going on a scavenger hunt in other
+project folders).
+</p>
+
+<p>
+The marketing copy from the <code>vend</code> Github readme states:
+</p>
+
+<blockquote>
+<p>
+Why vend?
+</p>
+
+<p>
+Dependency management in Common Lisp has traditionally centred around Quicklisp.
+A desire for access to more rapid package updates spawned Ultralisp. The need
+for version pinning and isolation birthed Qlot. The want for a better
+distribution system brought us ocicl.
+</p>
+
+<p>
+But, could there be a simpler paradigm than just downloading the code and
+putting it right there?
+</p>
+
+<p>
+With vend:
+</p>
+
+<p>
+We need not perform bespoke installation scripts to get started. We need not
+wait for Quicklisp to update. We need not relegate all our systems to
+~/common-lisp/. We need not worry about where ASDF is looking for systems. We
+need not fret over tools performing strange internal overrides. We need not
+manage extra config files or lockfiles. Plus, vend is actually an external tool
+with extra commands to help you inspect and manage your dependencies.
+</p>
+</blockquote>
+
+<p>
+Finding and using the simplest way to do things is a matter of survival. Vend is
+an important tool for simplifying our tech stack and empowering us to do more.
+That's why for projects in the next chapter, we will be using <code>vend</code>.
+</p>
+
+<p>
+I will explain how to install and use <code>vend</code> when it becomes necessary.
+</p>
+</div>
+
+</section>
+
+</section>
+      <div class="book-navigation__next-chapter">
+        <a href="/book/essentials/project-money-library">Next: 13. Project: Money Library &rarr;</a>
+      </div>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>
+</html>

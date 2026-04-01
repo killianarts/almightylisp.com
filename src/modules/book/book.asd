@@ -10,4 +10,5 @@
                 :components ((:file "components")))
                (:file "controllers")
                (:file "routes")
+               (:file "convert")
                (:file "book")))

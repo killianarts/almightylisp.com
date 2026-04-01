@@ -1,0 +1,2491 @@
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <h1 class="book-navigation__book-title">Almighty Lisp: The Essentials</h1>
+      <p class="book-navigation__chapter-name-heading"><span>Almighty Lisp: The Essentials</span></p>
+      <nav>
+        <ul>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#support-level-disclaimer">
+              <span class="book-navigation__section-name">SUPPORT LEVEL DISCLAIMER</span>
+              <span class="book-navigation__section-number">1.1.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#setting-expectations">
+              <span class="book-navigation__section-name">SETTING EXPECTATIONS</span>
+              <span class="book-navigation__section-number">1.2.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#text-editing">
+              <span class="book-navigation__section-name">TEXT EDITING</span>
+              <span class="book-navigation__section-number">1.3.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#evil-bindings">
+              <span class="book-navigation__section-name">Evil Bindings</span>
+              <span class="book-navigation__section-number">1.4.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#inserting">
+              <span class="book-navigation__section-name">Inserting</span>
+              <span class="book-navigation__section-number">1.5.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#cutting-copying-pasting">
+              <span class="book-navigation__section-name">Cutting/Copying/Pasting</span>
+              <span class="book-navigation__section-number">1.6.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#-kill-">
+              <span class="book-navigation__section-name">=kill=</span>
+              <span class="book-navigation__section-number">1.7.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#-yank-">
+              <span class="book-navigation__section-name">=yank=</span>
+              <span class="book-navigation__section-number">1.8.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#-paste-">
+              <span class="book-navigation__section-name">=paste=</span>
+              <span class="book-navigation__section-number">1.9.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#marking-text">
+              <span class="book-navigation__section-name">Marking Text</span>
+              <span class="book-navigation__section-number">1.10.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#simple-searching">
+              <span class="book-navigation__section-name">Simple Searching</span>
+              <span class="book-navigation__section-number">1.11.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#aborting-a-command">
+              <span class="book-navigation__section-name">Aborting A command</span>
+              <span class="book-navigation__section-number">1.12.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#undoing-an-action">
+              <span class="book-navigation__section-name">Undoing An Action</span>
+              <span class="book-navigation__section-number">1.13.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#doing-an-action-multiple-times">
+              <span class="book-navigation__section-name">Doing An Action Multiple Times</span>
+              <span class="book-navigation__section-number">1.14.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#multiple-cursors">
+              <span class="book-navigation__section-name">Multiple Cursors</span>
+              <span class="book-navigation__section-number">1.15.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#multiediting">
+              <span class="book-navigation__section-name">Multiediting</span>
+              <span class="book-navigation__section-number">1.16.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#next-match">
+              <span class="book-navigation__section-name">Next Match</span>
+              <span class="book-navigation__section-number">1.17.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#previous-match">
+              <span class="book-navigation__section-name">Previous Match</span>
+              <span class="book-navigation__section-number">1.18.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#toggling-matches">
+              <span class="book-navigation__section-name">Toggling Matches</span>
+              <span class="book-navigation__section-number">1.19.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#navigating-matches">
+              <span class="book-navigation__section-name">Navigating Matches</span>
+              <span class="book-navigation__section-number">1.20.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#quitting-multiediting">
+              <span class="book-navigation__section-name">Quitting Multiediting</span>
+              <span class="book-navigation__section-number">1.21.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#searching-replacing">
+              <span class="book-navigation__section-name">Searching &amp; Replacing</span>
+              <span class="book-navigation__section-number">1.22.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#running-commands-functions-with-no-keybindings">
+              <span class="book-navigation__section-name">Running Commands/Functions With No Keybindings</span>
+              <span class="book-navigation__section-number">1.23.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#quick-reference-table">
+              <span class="book-navigation__section-name">Quick Reference Table</span>
+              <span class="book-navigation__section-number">1.24.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#buffer-navigation-management">
+              <span class="book-navigation__section-name">BUFFER NAVIGATION &amp; MANAGEMENT</span>
+              <span class="book-navigation__section-number">1.25.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#it-all-begins-with-a-buffer">
+              <span class="book-navigation__section-name">It All Begins With A Buffer</span>
+              <span class="book-navigation__section-number">1.26.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#opening-buffers">
+              <span class="book-navigation__section-name">Opening Buffers</span>
+              <span class="book-navigation__section-number">1.27.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#scratch-buffer">
+              <span class="book-navigation__section-name">Scratch Buffer</span>
+              <span class="book-navigation__section-number">1.28.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#switching-buffers">
+              <span class="book-navigation__section-name">Switching Buffers</span>
+              <span class="book-navigation__section-number">1.29.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#closing-buffers">
+              <span class="book-navigation__section-name">Closing Buffers</span>
+              <span class="book-navigation__section-number">1.30.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#saving-file-buffers">
+              <span class="book-navigation__section-name">Saving File Buffers</span>
+              <span class="book-navigation__section-number">1.31.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#getting-more-information-about-a-buffer">
+              <span class="book-navigation__section-name">Getting More Information About A Buffer</span>
+              <span class="book-navigation__section-number">1.32.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#getting-information-about-major-minor-modes">
+              <span class="book-navigation__section-name">Getting Information About Major &amp; Minor Modes</span>
+              <span class="book-navigation__section-number">1.33.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#getting-information-about-a-function">
+              <span class="book-navigation__section-name">Getting Information About A Function</span>
+              <span class="book-navigation__section-number">1.34.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#getting-information-about-a-keybinding">
+              <span class="book-navigation__section-name">Getting Information About A Keybinding</span>
+              <span class="book-navigation__section-number">1.35.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#quick-reference-table">
+              <span class="book-navigation__section-name">Quick Reference Table</span>
+              <span class="book-navigation__section-number">1.36.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#window-navigation-management">
+              <span class="book-navigation__section-name">WINDOW NAVIGATION &amp; MANAGEMENT</span>
+              <span class="book-navigation__section-number">1.37.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#getting-familiar-with-windows">
+              <span class="book-navigation__section-name">Getting Familiar With Windows</span>
+              <span class="book-navigation__section-number">1.38.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#splitting-closing-windows">
+              <span class="book-navigation__section-name">Splitting &amp; Closing Windows</span>
+              <span class="book-navigation__section-number">1.39.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#moving-between-windows">
+              <span class="book-navigation__section-name">Moving Between Windows</span>
+              <span class="book-navigation__section-number">1.40.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#ace-window">
+              <span class="book-navigation__section-name">Ace window</span>
+              <span class="book-navigation__section-number">1.41.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#evil-window">
+              <span class="book-navigation__section-name">Evil window</span>
+              <span class="book-navigation__section-number">1.42.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#moving-window-positions">
+              <span class="book-navigation__section-name">Moving Window Positions</span>
+              <span class="book-navigation__section-number">1.43.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#resizing-windows">
+              <span class="book-navigation__section-name">Resizing Windows</span>
+              <span class="book-navigation__section-number">1.44.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#undoing-changes">
+              <span class="book-navigation__section-name">Undoing Changes</span>
+              <span class="book-navigation__section-number">1.45.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#more-about-windows">
+              <span class="book-navigation__section-name">More About Windows</span>
+              <span class="book-navigation__section-number">1.46.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#quick-reference-table">
+              <span class="book-navigation__section-name">Quick Reference Table</span>
+              <span class="book-navigation__section-number">1.47.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#project-navigation-management">
+              <span class="book-navigation__section-name">PROJECT NAVIGATION &amp; MANAGEMENT</span>
+              <span class="book-navigation__section-number">1.48.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#buffer-window-management-w-projects">
+              <span class="book-navigation__section-name">Buffer &amp; Window Management w/Projects</span>
+              <span class="book-navigation__section-number">1.49.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#project-related-packages">
+              <span class="book-navigation__section-name">Project-Related Packages</span>
+              <span class="book-navigation__section-number">1.50.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#creating-removing-emacs-projects">
+              <span class="book-navigation__section-name">Creating &amp; Removing Emacs Projects</span>
+              <span class="book-navigation__section-number">1.51.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#switching-between-projects">
+              <span class="book-navigation__section-name">Switching Between Projects</span>
+              <span class="book-navigation__section-number">1.52.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#saving-loading-project-workspaces">
+              <span class="book-navigation__section-name">Saving &amp; Loading Project Workspaces</span>
+              <span class="book-navigation__section-number">1.53.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#saving-project-files">
+              <span class="book-navigation__section-name">Saving Project Files</span>
+              <span class="book-navigation__section-number">1.54.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#switching-project-buffers">
+              <span class="book-navigation__section-name">Switching Project Buffers</span>
+              <span class="book-navigation__section-number">1.55.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#searching-in-projects">
+              <span class="book-navigation__section-name">Searching In Projects</span>
+              <span class="book-navigation__section-number">1.56.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#filename-searches">
+              <span class="book-navigation__section-name">Filename searches</span>
+              <span class="book-navigation__section-number">1.57.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#project-text-search-replace">
+              <span class="book-navigation__section-name">Project text search &amp; replace</span>
+              <span class="book-navigation__section-number">1.58.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#project-tree-view">
+              <span class="book-navigation__section-name">Project Tree View</span>
+              <span class="book-navigation__section-number">1.59.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#switching-to-treemacs-buffer">
+              <span class="book-navigation__section-name">Switching to treemacs buffer</span>
+              <span class="book-navigation__section-number">1.60.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#opening-files">
+              <span class="book-navigation__section-name">Opening Files</span>
+              <span class="book-navigation__section-number">1.61.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#renaming-files">
+              <span class="book-navigation__section-name">Renaming Files</span>
+              <span class="book-navigation__section-number">1.62.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#moving-files">
+              <span class="book-navigation__section-name">Moving Files</span>
+              <span class="book-navigation__section-number">1.63.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#deleting-files">
+              <span class="book-navigation__section-name">Deleting Files</span>
+              <span class="book-navigation__section-number">1.64.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#bulk-actions">
+              <span class="book-navigation__section-name">Bulk Actions</span>
+              <span class="book-navigation__section-number">1.65.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#quick-reference-table">
+              <span class="book-navigation__section-name">Quick Reference Table</span>
+              <span class="book-navigation__section-number">1.66.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#learning-more">
+              <span class="book-navigation__section-name">LEARNING MORE</span>
+              <span class="book-navigation__section-number">1.67.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#-describe-key-">
+              <span class="book-navigation__section-name">=describe-key=</span>
+              <span class="book-navigation__section-number">1.68.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#-describe-mode-">
+              <span class="book-navigation__section-name">=describe-mode=</span>
+              <span class="book-navigation__section-number">1.69.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#-embark-bindings-">
+              <span class="book-navigation__section-name">=embark-bindings=</span>
+              <span class="book-navigation__section-number">1.70.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#-info-">
+              <span class="book-navigation__section-name">=info=</span>
+              <span class="book-navigation__section-number">1.71.0</span>
+            </a>
+          </li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="emacs-fundamentals">
+  <hgroup>
+    <span></span>
+    <h1>EMACS FUNDAMENTALS</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+<p>
+In order to do any Lisp coding at all, you need to be able to edit text (duh).
+With Doom Emacs, you have three options: Use Emacs keybindings, use Evil
+keybindings, or use Emacs as much as possible like VSCode or other editors
+you're likely familiar with. We'll call the last one Survival Mode. So far,
+you've been in Survival Mode.
+</p>
+
+<ol class="org-ol">
+<li>You've typed <code>C-z</code> to enable Evil <code>Emacs State</code>, which enables editing using
+standard Emacs keybindings.</li>
+<li>You probably turned off <code>lispy-mode</code> to avoid confusing behavior.</li>
+<li>You edited text as usual: type, mouse click around, scroll wheel up and down,
+click and drag to highlight text, copy/paste with the keybindings you already
+know, etc.</li>
+<li>You've used the top menu bar or mode line to browse commands you can use
+while editing Lisp files.</li>
+</ol>
+
+<p>
+If you're still on the fence about this whole Emacs/Lisp thing, there is no
+shame in staying in Survival Mode. However, you probably ended up using some
+keybindings already for frequently used commands that you learned in the menu.
+This is the perfect start to learning Emacs&#x2013;gradually incorporating more and
+more keybindings/functionality into your workflow as your power grows.
+</p>
+
+<p>
+This chapter will help you increase your mastery of Emacs by introducing you to
+keybindings for many of the most common and useful functions in Doom Emacs,
+starting with text and Lisp editing, then moving on to buffers, windows, and
+projects.
+</p>
+</div>
+<section id="support-level-disclaimer">
+  <hgroup>
+    <span></span>
+    <h2>SUPPORT LEVEL DISCLAIMER</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-1">
+<p>
+None of the functionality here is necessary to continue this book. Instead, you
+should consider this chapter a reference to return to whenever you are ready to
+add a little more Emacs functionality into your workflow.
+</p>
+
+<p>
+However, I won't be including any more references to the menu or using the mode
+line to navigate to and execute commands. For the rest of this book, I will
+refer to keybindings and give the names of the commands as well so that you can
+become familiar with the different packages and commands that are associated
+with different parts of Doom Emacs' functionality.
+</p>
+
+<p>
+I will also assume that you are using Evil <code>Normal State</code> at least partially. If
+you are in <code>Emacs State</code> and the keybindings aren't working, type <code>M-x</code> and type
+in the name of the command I am referencing. Some commands may not have
+keybindings in <code>Emacs State</code>, or they may be confusing.
+</p>
+
+<p>
+Example: <code>evil-delete-line</code> will not have a keybinding in <code>Emacs State</code> and
+<code>org-kill-line</code> in <code>Normal State</code> is bound to <code>&lt;deleteline&gt;</code>.
+</p>
+
+<p>
+I won't be testing any of the keybindings in <code>Emacs State</code>. If you want to use
+<code>Emacs State</code> exclusively you <i>might</i> be able to run some keybindings using
+<code>M-SPC</code> instead of <code>SPC</code>, but not all commands have such alternative bindings.
+</p>
+
+<p>
+I will only test keybindings in <code>lisp-mode</code>; other modes may have different
+bindings, or commands that do similar but subtly different things may share
+bindings in different major modes.
+</p>
+</div>
+
+</section>
+<section id="setting-expectations">
+  <hgroup>
+    <span></span>
+    <h2>SETTING EXPECTATIONS</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Learning Evil bindings + Doom Emacs exclusive bindings will take time. Expect to
+stumble around for two weeks, feel somewhat productive in two months, and
+proficient in about 6-12 months. As always, focus on the keybindings and
+features that seem most useful to the task at hand&#x2013;learning Common Lisp&#x2013;and
+learn more Emacs as you learn more Common Lisp.
+</p>
+</div>
+
+</section>
+<section id="text-editing">
+  <hgroup>
+    <span></span>
+    <h2>TEXT EDITING</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-3">
+</div>
+<section id="evil-bindings">
+  <hgroup>
+    <span></span>
+    <h3>Evil Bindings</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-1">
+<p>
+By default, <code>evil-mode</code> is available and active in Doom Emacs. This means that
+you have access to both Emac's default bindings as well as bindings typical of
+Vim/Neovim.
+</p>
+
+<p>
+If you don't already know how to use the Neovim keybindings, you can check out
+<a href="https://openvim.com">https://openvim.com</a> or <a href="https://vim-adventures.com/">https://vim-adventures.com/</a>. Both provide an interactive
+experience for learning the VIM text navigation keybindings.
+</p>
+
+<p>
+<code>evil</code> uses several different editing states. The three most common are Normal,
+Insert, and Visual. In <code>Normal State</code>, you navigate and run commands, often
+starting with <code>SPC</code>. In <code>Insert State</code>, you can edit text. In <code>Visual State</code>,
+you can select and act upon regions of text.
+</p>
+
+<p>
+These states are set on a per-buffer basis. The state of the current buffer is
+displayed on the left side of the mode line.
+</p>
+
+<p>
+Whenever a keybinding in this book mentions a keybinding starting with <code>SPC</code>, I
+assume you are in Evil <code>Normal State</code>.
+</p>
+</div>
+
+</section>
+<section id="inserting">
+  <hgroup>
+    <span></span>
+    <h3>Inserting</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-2">
+<p>
+Type <code>i</code> to enter Evil <code>Insert State</code> and type as usual.
+</p>
+</div>
+
+</section>
+<section id="cutting-copying-pasting">
+  <hgroup>
+    <span></span>
+    <h3>Cutting/Copying/Pasting</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-3">
+</div>
+<section id="-kill-">
+  <hgroup>
+    <span></span>
+    <h4><code>kill</code></h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-3-3-1">
+<p>
+To cut some text, you must <code>kill</code> it.
+</p>
+
+<p>
+The simplest way to kill some text is to kill the entire contents right of the
+cursor with <code>D</code> (<code>lispyville-delete-line</code>) while in <code>Normal State</code>.
+</p>
+
+<p>
+To kill a whole line, type <code>d d</code> in <code>Normal State</code>.
+</p>
+
+<p>
+You can kill single characters with <code>x</code>, single words with <code>k i w</code> or
+<code>M-backspace</code>. You can kill the contents within some textual boundaries like ()
+or "" with <code>k i (</code> or <code>k i quotemark</code>. You can include the boundaries with <code>k o</code>
+instead of <code>k i</code>.
+</p>
+</div>
+
+</section>
+<section id="-yank-">
+  <hgroup>
+    <span></span>
+    <h4><code>yank</code></h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-3-3-2">
+<p>
+To copy something, you must <code>yank</code> it.
+</p>
+
+<p>
+Use <code>y y</code> in Evil <code>Normal State</code> to yank a line. You can yank a word with <code>y i
+w</code> or a symbol with <code>y i o</code>.
+</p>
+</div>
+
+</section>
+<section id="-paste-">
+  <hgroup>
+    <span></span>
+    <h4><code>paste</code></h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-3-3-3">
+<p>
+To paste some text, type <code>p</code> in Evil <code>Normal State</code>, or <code>s-v</code> (or whatever
+keyboard shortcut you're accustomed to using to paste text).
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="marking-text">
+  <hgroup>
+    <span></span>
+    <h3>Marking Text</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-4">
+<p>
+You can mark regions of text to work on using <code>Visual State</code>. Type <code>v</code> and then
+navigate text to select it from where you first entered.
+</p>
+
+<p>
+Marked text can be killed or yanked. There are plenty of other operations that
+you can do on marked text, but we'll save that for another time.
+</p>
+</div>
+
+</section>
+<section id="simple-searching">
+  <hgroup>
+    <span></span>
+    <h3>Simple Searching</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-5">
+<p>
+You can search for some text in a buffer with <code>SPC s s</code>
+(<code>+default/search-buffer</code>).
+</p>
+</div>
+
+</section>
+<section id="aborting-a-command">
+  <hgroup>
+    <span></span>
+    <h3>Aborting A command</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-6">
+<p>
+Let's say you pressed <code>SPC f</code>, but you decided you don't want to continue. To
+abort the command, press <code>C-g</code> (<code>doom/escape</code>).
+</p>
+
+<p>
+It's common to accidently hit a key or combination of keys you didn't mean to.
+If you are "stuck" inside <i>some</i> command, or in the middle of a keybinding, the
+quickest solution is to press <code>C-g</code> a few times.
+</p>
+</div>
+
+</section>
+<section id="undoing-an-action">
+  <hgroup>
+    <span></span>
+    <h3>Undoing An Action</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-7">
+<p>
+<code>C-/</code> (<code>undo-fu-only-undo</code>) will undo the previous action. Doom also includes
+the <code>s-z</code> keybinding, which is the same as undo in the browser, MS Word, etc.
+</p>
+</div>
+
+</section>
+<section id="doing-an-action-multiple-times">
+  <hgroup>
+    <span></span>
+    <h3>Doing An Action Multiple Times</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-8">
+<p>
+In Doom Emacs, if you press a number while in <code>Normal State</code> before running a
+command, entering Evil <code>Insert State</code>, etc. Emacs will run the action the same
+number of times as the number you typed.
+</p>
+
+<p>
+If you don't know VIM/evil keybindings, you probably won't <i>want</i> to do this,
+but you may accidently do so. For example, you may be in Evil <code>Normal State</code>,
+press 9, enter <code>Insert State</code> and type something, then return to <code>Normal State</code>
+with <code>ESC</code>, at which point you now have inserted the same text 9 times. It might
+look something like this:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(+ 1 1(+ 1 1(+ 1 1(+ 1 1(+ 1 1(+ 1 1(+ 1 1(+ 1 1(+ 1 1)))))))))
+</code></pre>
+<p>
+The best thing to do in this situation is just undo and retype.
+</p>
+
+<p>
+This functionality can be quite useful. For example, if you want to navigate
+down 10 lines, you can type <code>10 j</code> in <code>Normal State</code> to navigate down ten lines.
+It also makes it easy to type decorative dividers in comments like this:
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;; ==============================
+</code></pre>
+</div>
+
+</section>
+<section id="multiple-cursors">
+  <hgroup>
+    <span></span>
+    <h3>Multiple Cursors</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-9">
+<p>
+Type <code>g z z</code> (<code>+multiple-cursors/evil-mc-toggle-cursor-here</code>) to create a
+cursor. Move your cursor and the one you created stays in place. You can create
+arbitrary numbers of cursors. Once you've made all the cursors you need, you can
+begin editing them by entering Evil <code>Insert State</code>.
+</p>
+
+<p>
+If you need to pause the cursors, type <code>g z t</code>
+(<code>+multiple-cursors/evil-mc-toggle-cursors</code>). If you need to undo the creation
+of the last cursor, type <code>g z u</code> (<code>+multiple-cursors/evil-mc-undo-cursor</code>).
+</p>
+</div>
+
+</section>
+<section id="multiediting">
+  <hgroup>
+    <span></span>
+    <h3>Multiediting</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-10">
+<p>
+If you like multicursor editing in other editors, you're going to love
+multiediting in Doom Emacs. With multiple cursors, you can place cursors in
+arbitrary locations. The downside is that you need to move the cursor to each
+location you want to place the cursor. With multiediting, you can search and
+highlight text and edit all highlighted areas simultaneously. You can leave the
+highlighted regions and edit other text, then return to the highlighted region
+an
+</p>
+</div>
+<section id="next-match">
+  <hgroup>
+    <span></span>
+    <h4>Next Match</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-3-10-1">
+<p>
+Place the cursor or mark a region. Type <code>M-d</code>
+(<code>evil-multiedit-match-symbol-and-next</code>) to begin multiediting. If you type
+<code>M-d</code> again, you will mark the next symbol or region that matches the first one.
+You can continue that as many times as you want.
+</p>
+</div>
+
+</section>
+<section id="previous-match">
+  <hgroup>
+    <span></span>
+    <h4>Previous Match</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-3-10-2">
+<p>
+You can also match backwards with <code>M-D</code>
+(<code>evil-multiedit-match-symbol-and-prev</code>).
+</p>
+</div>
+
+</section>
+<section id="toggling-matches">
+  <hgroup>
+    <span></span>
+    <h4>Toggling Matches</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-3-10-3">
+<p>
+While multiediting, if you press <code>Enter</code>, you will remove a match from being
+edited. <code>C-g</code> to quit multiediting. Typing <code>Enter</code> again will toggle the match
+back on.
+</p>
+</div>
+
+</section>
+<section id="navigating-matches">
+  <hgroup>
+    <span></span>
+    <h4>Navigating Matches</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-3-10-4">
+<p>
+After marking several matches, you can navigate directly between them with <code>C-n</code>
+(<code>evil-multiedit-next</code>) and <code>C-p</code> (<code>evil-multiedit-prev</code>).
+</p>
+</div>
+
+</section>
+<section id="quitting-multiediting">
+  <hgroup>
+    <span></span>
+    <h4>Quitting Multiediting</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-3-10-5">
+<p>
+To unmark all matches and quit multiediting, type <code>C-g</code> (maybe a few times).
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="searching-replacing">
+  <hgroup>
+    <span></span>
+    <h3>Searching &amp; Replacing</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-11">
+<p>
+When you want to rename a few instances of a symbol in a <code>defun</code>, multiediting
+is the right tool for the job. If you want to rename a function throughout a
+file, there is a better tool for the job: VIM search and replace.
+</p>
+
+<p>
+To begin using it, just type <code>:</code> (<code>evil-ex</code>). How you proceed from there depends
+on how sophisticated your search and replace operation needs to be. The simplest
+case is replacing all instances of some text throughout the buffer:
+</p>
+<pre class="example" id="org5ddb936">
+:%s/TEXT TO REPLACE/TEXT TO REPLACE IT WITH/g
+</pre>
+<p>
+This search and replace tool is very powerful, but a full treatment is out of
+the scope of this book. A good place to learn more is <a href="https://vim.fandom.com/wiki/Search_and_replace">the Vim tips wiki</a>
+(<a href="https://vim.fandom.com/wiki/Search_and_replace">https://vim.fandom.com/wiki/Search_and_replace</a>).
+</p>
+</div>
+
+</section>
+<section id="running-commands-functions-with-no-keybindings">
+  <hgroup>
+    <span></span>
+    <h3>Running Commands/Functions With No Keybindings</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-12">
+<p>
+There are many commands that don't have keybindings. There are also many
+commands you don't know the keybindings for.
+</p>
+
+<p>
+To find and run those commands, type <code>M-x</code>. A minibuffer will open with a list
+of commands and a short description. If they have a keybinding, it will be
+displayed in parentheses next to the command itself.
+</p>
+
+<p>
+<code>C-n</code> will move the cursor down a line inside that minibuffer. <code>C-p</code> will move
+the cursor up a line.
+</p>
+</div>
+
+</section>
+<section id="quick-reference-table">
+  <hgroup>
+    <span></span>
+    <h3>Quick Reference Table</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-3-13">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Action</th>
+<th scope="col" class="org-left">Emacs Binding</th>
+<th scope="col" class="org-left">Evil Binding (Normal State)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">enter Insert State</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">i</td>
+</tr>
+
+<tr>
+<td class="org-left">delete character</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">x</td>
+</tr>
+
+<tr>
+<td class="org-left">delete to end of line</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">D</td>
+</tr>
+
+<tr>
+<td class="org-left">delete whole line</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">dd</td>
+</tr>
+
+<tr>
+<td class="org-left">delete inner word</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">diw</td>
+</tr>
+
+<tr>
+<td class="org-left">delete a word</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">daw</td>
+</tr>
+
+<tr>
+<td class="org-left">delete inner parentheses</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">di(</td>
+</tr>
+
+<tr>
+<td class="org-left">delete inner quotes</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">di"</td>
+</tr>
+
+<tr>
+<td class="org-left">delete around parentheses</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">da(</td>
+</tr>
+
+<tr>
+<td class="org-left">delete around quotes</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">da"</td>
+</tr>
+
+<tr>
+<td class="org-left">delete with alt-backspace</td>
+<td class="org-left">M-Backspace</td>
+<td class="org-left">M-Backspace</td>
+</tr>
+
+<tr>
+<td class="org-left">yank (copy) line</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">yy</td>
+</tr>
+
+<tr>
+<td class="org-left">yank (copy) inner word</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">yiw</td>
+</tr>
+
+<tr>
+<td class="org-left">yank (copy) inner symbol</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">yis</td>
+</tr>
+
+<tr>
+<td class="org-left">paste after cursor</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">p</td>
+</tr>
+
+<tr>
+<td class="org-left">paste from system clipboard</td>
+<td class="org-left">C-v</td>
+<td class="org-left">s-v</td>
+</tr>
+
+<tr>
+<td class="org-left">enter Visual State</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">v</td>
+</tr>
+
+<tr>
+<td class="org-left">search in buffer</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC s s</td>
+</tr>
+
+<tr>
+<td class="org-left">abort command</td>
+<td class="org-left">C-g</td>
+<td class="org-left">C-g</td>
+</tr>
+
+<tr>
+<td class="org-left">undo</td>
+<td class="org-left">C-/</td>
+<td class="org-left">s-z or C-/</td>
+</tr>
+
+<tr>
+<td class="org-left">repeat action N times</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&lt;number&gt; then command</td>
+</tr>
+
+<tr>
+<td class="org-left">multiedit: match symbol and next</td>
+<td class="org-left">M-d</td>
+<td class="org-left">M-d</td>
+</tr>
+
+<tr>
+<td class="org-left">multiedit: match symbol and prev</td>
+<td class="org-left">M-D</td>
+<td class="org-left">M-D</td>
+</tr>
+
+<tr>
+<td class="org-left">multiedit: toggle match</td>
+<td class="org-left">Enter</td>
+<td class="org-left">Enter</td>
+</tr>
+
+<tr>
+<td class="org-left">multiedit: next match</td>
+<td class="org-left">C-n</td>
+<td class="org-left">C-n</td>
+</tr>
+
+<tr>
+<td class="org-left">multiedit: previous match</td>
+<td class="org-left">C-p</td>
+<td class="org-left">C-p</td>
+</tr>
+
+<tr>
+<td class="org-left">quit multiediting</td>
+<td class="org-left">C-g</td>
+<td class="org-left">C-g</td>
+</tr>
+
+<tr>
+<td class="org-left">start ex command (search &amp; replace)</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">:</td>
+</tr>
+
+<tr>
+<td class="org-left">execute command (M-x)</td>
+<td class="org-left">M-x</td>
+<td class="org-left">M-x</td>
+</tr>
+
+<tr>
+<td class="org-left">navigate down in minibuffer</td>
+<td class="org-left">C-n</td>
+<td class="org-left">C-n</td>
+</tr>
+
+<tr>
+<td class="org-left">navigate up in minibuffer</td>
+<td class="org-left">C-p</td>
+<td class="org-left">C-p</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+
+</section>
+<section id="buffer-navigation-management">
+  <hgroup>
+    <span></span>
+    <h2>BUFFER NAVIGATION &amp; MANAGEMENT</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-4">
+</div>
+<section id="it-all-begins-with-a-buffer">
+  <hgroup>
+    <span></span>
+    <h3>It All Begins With A Buffer</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-4-1">
+<p>
+Buffers are the most fundamental abstraction in Emacs. A buffer is a named place
+that displays some data. Usually buffers display the contents of text files, but
+they can also point to Emacs-specific functionality like the <code>*scratch*</code>,
+<code>*Messages*</code>, or <code>*Org-Agenda*</code> buffers. Some buffers may be called
+<code>minibuffers</code>. Minibuffers are typically designed to be ephemeral, like the
+buffer that appears when you type <code>M-x</code> to run some command.
+</p>
+
+<p>
+Once you're done learning the essentials of buffer navigation and management,
+you'll be able to:
+</p>
+<ul class="org-ul">
+<li>Open &amp; Close buffers.</li>
+<li>Open a "scratch" buffer.</li>
+<li>Switch between buffers.</li>
+<li>View lists of buffers.</li>
+<li>Save Files.</li>
+<li>Get more information about buffers.</li>
+</ul>
+</div>
+
+</section>
+<section id="opening-buffers">
+  <hgroup>
+    <span></span>
+    <h3>Opening Buffers</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-4-2">
+<p>
+To open a file buffer, type <code>C-x C-f</code> or <code>SPC f f</code> to run <code>find-file</code>. You can
+open a file that already exists, or you can navigate to a directory and/or file
+that doesn't exist, type <code>Enter</code>, and create a buffer for that location. The
+file/directory doesn't exist until you save the buffer.
+</p>
+
+<p>
+Besides file buffers, there are many other kinds of buffers. The most important
+buffer to know as a beginner is the <code>M-x</code> command minibuffer. There you can get
+a list of function you can (possibly) run. There are many commands that aren't
+bound to keybindings that you may want to use on occasion (or perhaps you would
+like bind them to a custom key command).
+</p>
+</div>
+
+</section>
+<section id="scratch-buffer">
+  <hgroup>
+    <span></span>
+    <h3>Scratch Buffer</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-4-3">
+<p>
+The scratch buffer is a buffer that can be opened to use the same way "scratch"
+paper is use&#x2013;to do a little work that you'll quickly save somewhere else or
+discard after a short time. You can open it with <code>SPC x</code>. Once in the buffer,
+you can change the mode using <code>M-x</code> and typing in the mode.
+</p>
+</div>
+
+</section>
+<section id="switching-buffers">
+  <hgroup>
+    <span></span>
+    <h3>Switching Buffers</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-4-4">
+<p>
+You can switch buffers by typing <code>C-x b</code> or <code>SPC b B</code> (<code>consult-buffer</code>). You
+will be presented with a minibuffer listing all buffers that are open. Unlike
+<code>list-buffers</code>, you can navigate the list of buffers using <code>C-n/C-p</code> and peak at
+the buffer before switching to it. The minibuffer is smaller and disappears
+after you select a buffer to switch to.
+</p>
+
+<p>
+You can't mouse click buffers in the list to switch to them. You have to either
+type the name (often the ideal way to switch to a buffer anyway) or use Emacs
+keybindings to move the cursor up and down the list with <code>C-n</code> an <code>C-p</code> and
+select with <code>Enter</code>.
+</p>
+</div>
+
+</section>
+<section id="closing-buffers">
+  <hgroup>
+    <span></span>
+    <h3>Closing Buffers</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-4-5">
+<p>
+To close the active buffer, type <code>s-k</code> or <code>SPC b k</code>. If you want to close
+multiple buffers, you can type <code>C-x C-b</code> to run <code>list-buffers</code>. Inside the
+<code>*Buffer List*</code> buffer, you can mark a buffer to close with <code>d</code>. After marking
+all of the buffers you want to close, you can "execute" the closing with <code>x</code>.
+</p>
+
+<p>
+Different minibuffers often can be closed with simpler keybindings like <code>ESC</code> or
+<code>q</code>.
+</p>
+</div>
+
+</section>
+<section id="saving-file-buffers">
+  <hgroup>
+    <span></span>
+    <h3>Saving File Buffers</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-4-6">
+<p>
+You can save the current file buffer with <code>C-x C-s</code> or <code>s-s</code>.
+</p>
+</div>
+
+</section>
+<section id="getting-more-information-about-a-buffer">
+  <hgroup>
+    <span></span>
+    <h3>Getting More Information About A Buffer</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-4-7">
+<p>
+As you get more experience with Emacs, you may want to know how something works.
+Many functions&#x2013;especially in a distribution like Doom&#x2013;are not native
+functions. They are often available because of a major or minor mode created by
+a certain package that's installed. Thus, learning more about the environment
+can help you come to grips with what package does what and what other
+functionality is available but "hidden".
+</p>
+</div>
+<section id="getting-information-about-major-minor-modes">
+  <hgroup>
+    <span></span>
+    <h4>Getting Information About Major &amp; Minor Modes</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-4-7-1">
+<p>
+You can get more information about the major and minor modes of the active
+buffer using <code>C-h m</code> or <code>SPC h m</code> (<code>describe-mode</code>). A minibuffer listing all
+the modes&#x2013;including all of the functions/keybindings those modes provide&#x2013;will
+appear.
+</p>
+</div>
+
+</section>
+<section id="getting-information-about-a-function">
+  <hgroup>
+    <span></span>
+    <h4>Getting Information About A Function</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-4-7-2">
+<p>
+You can go deeper and find information about a function with <code>C-h o</code> or <code>SPC h
+o</code> (<code>describe-symbol</code>) and then typing in an Emacs Lisp symbol or function name.
+Documentation and the actual code of the function will be made available in a
+minibuffer.
+</p>
+
+<p>
+The documentation that <code>describe-symbol</code> shows includes keybindings for the
+function. Unlike the <code>M-x</code> minibuffer, you can see all of the bindings for a
+single function (many functions have multiple bindings, as you've probably
+noticed already). The <code>M-x</code> minibuffer will only show one binding.
+</p>
+</div>
+
+</section>
+<section id="getting-information-about-a-keybinding">
+  <hgroup>
+    <span></span>
+    <h4>Getting Information About A Keybinding</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-4-7-3">
+<p>
+Maybe you know a keybinding but don't know or remember the function that the
+keybinding calls? Maybe you hit a key that did something surprising and want to
+know what the heck it was?
+</p>
+
+<p>
+In that case, you can use <code>C-h k</code> or <code>SPC h k</code> (<code>describe-key</code>). You will be
+prompted to type the keybinding you want to know more about.
+</p>
+
+<p>
+To browse keybindings and functions, you can either type <code>M-x</code> to open a list of
+all commands, or you can open <code>embark-bindings</code> with <code>C-h b b</code> or <code>SPC h b b</code>.
+embark-bindings is especially useful because it only shows the keybindings
+available in the current buffer. <code>describe-mode</code> also shows all of the functions
+a mode provides, but only shows a maximum of one binding per function. Embark
+bindings shows you all of them. Additionally, <code>embark-bindings</code> lets you search
+<i>keybindings</i>. For example, you can search for "C-c" and find all keybindings
+that include <code>C-c</code> in any of them. This will be especially useful for cases
+where you might not know the <i>exact</i> keybinding you are looking for, or if
+you're looking for an open keybinding in a buffer you want to make a custom
+shortcut for.
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="quick-reference-table">
+  <hgroup>
+    <span></span>
+    <h3>Quick Reference Table</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-4-8">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Action</th>
+<th scope="col" class="org-left">Emacs Binding</th>
+<th scope="col" class="org-left">Evil Binding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">find file / open buffer</td>
+<td class="org-left">C-x C-f</td>
+<td class="org-left">SPC f f</td>
+</tr>
+
+<tr>
+<td class="org-left">open scratch buffer</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC x</td>
+</tr>
+
+<tr>
+<td class="org-left">switch buffers</td>
+<td class="org-left">C-x b</td>
+<td class="org-left">SPC b B</td>
+</tr>
+
+<tr>
+<td class="org-left">close active buffer</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">s-k or SPC b k</td>
+</tr>
+
+<tr>
+<td class="org-left">list buffers</td>
+<td class="org-left">C-x C-b</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">mark buffer to close (in list)</td>
+<td class="org-left">d</td>
+<td class="org-left">d</td>
+</tr>
+
+<tr>
+<td class="org-left">execute closing (in list)</td>
+<td class="org-left">x</td>
+<td class="org-left">x</td>
+</tr>
+
+<tr>
+<td class="org-left">save current file buffer</td>
+<td class="org-left">C-x C-s</td>
+<td class="org-left">s-s</td>
+</tr>
+
+<tr>
+<td class="org-left">describe mode</td>
+<td class="org-left">C-h m</td>
+<td class="org-left">SPC h m</td>
+</tr>
+
+<tr>
+<td class="org-left">describe symbol</td>
+<td class="org-left">C-h o</td>
+<td class="org-left">SPC h o</td>
+</tr>
+
+<tr>
+<td class="org-left">describe key</td>
+<td class="org-left">C-h k</td>
+<td class="org-left">SPC h k</td>
+</tr>
+
+<tr>
+<td class="org-left">embark bindings</td>
+<td class="org-left">C-h b b</td>
+<td class="org-left">SPC h b b</td>
+</tr>
+
+<tr>
+<td class="org-left">close minibuffer</td>
+<td class="org-left">ESC or q</td>
+<td class="org-left">ESC or q</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+
+</section>
+<section id="window-navigation-management">
+  <hgroup>
+    <span></span>
+    <h2>WINDOW NAVIGATION &amp; MANAGEMENT</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-5">
+</div>
+<section id="getting-familiar-with-windows">
+  <hgroup>
+    <span></span>
+    <h3>Getting Familiar With Windows</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-5-1">
+<p>
+In Emacs, a "frame" is what most people would call a window: an operating
+system-level defined space to display the contents of an application.
+</p>
+
+<p>
+Emacs uses the word "window" differently from how operating systems do. Emacs
+windows are separate places where buffers can be displayed. Buffers, of course,
+show either file contents or things like the Lisp REPL. A frame can be
+subdivided into many windows, each displaying a single buffer at a time.
+</p>
+
+<p>
+Opening, closing, and navigating between windows are essential skills for using
+Emacs. Now that you know the basics of Lisp, it's time to become more familiar
+with windows.
+</p>
+</div>
+
+</section>
+<section id="splitting-closing-windows">
+  <hgroup>
+    <span></span>
+    <h3>Splitting &amp; Closing Windows</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-5-2">
+<p>
+You can split a window vertically or horizontally (creating another window).
+</p>
+
+<p>
+To split vertically, type <code>C-x 2</code> or <code>SPC w s</code>. To split horizontally, type <code>C-x
+3</code> or <code>SPC w v</code>.
+</p>
+
+<p>
+You can delete a window with <code>C-x 0</code> or <code>SPC w d</code>, or you can close all <i>except</i>
+the currently selected window with <code>C-x 1</code> or <code>C-w C-o</code>.
+</p>
+</div>
+
+</section>
+<section id="moving-between-windows">
+  <hgroup>
+    <span></span>
+    <h3>Moving Between Windows</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-5-3">
+<p>
+While you can use the mouse to move the cursor around, eventually you'll want to
+learn to use keybindings instead. Trust me, it's nice.
+</p>
+</div>
+<section id="ace-window">
+  <hgroup>
+    <span></span>
+    <h4>Ace window</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-5-3-1">
+<p>
+You can use the <code>ace-window</code> packages' functionality to switch windows. Type
+<code>C-x o</code> or <code>C-w C-w</code> to run <code>ace-window</code>. If there are only two windows open,
+then it will move the cursor to the one that isn't currently active. If however,
+you have three or more windows open, <code>ace-window</code> will display letters at the
+top left of each buffer. Typing the letter displayed in a window will move the
+cursor to that window.
+</p>
+
+<p>
+This method is my preferred method of switching windows because it works
+regardless of what Evil state or Emacs major mode I'm in. It's also more direct.
+However, it does require some getting used to. As a beginner, you can't predict
+what letter you can use to switch to a window. Thus, in the beginning this
+method will often be slower then the next method I'll introduce to you.
+</p>
+</div>
+
+</section>
+<section id="evil-window">
+  <hgroup>
+    <span></span>
+    <h4>Evil window</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-5-3-2">
+<p>
+The next method uses <code>evil-window</code> keybindings. With <code>evil</code> navigation, in
+Normal State, you navigate the cursor one line up and down with <code>j</code> and <code>k</code>, and
+one character left and right with <code>h</code> and <code>l</code>.
+</p>
+
+<p>
+Using this familiar navigation method, you switch windows like this:
+</p>
+<ul class="org-ul">
+<li><code>SPC w l</code> or <code>C-w l</code> (<code>evil-window-right</code>), move the cursor one window to the
+right.</li>
+<li><code>SPC w h</code> or <code>C-w h</code> (<code>evil-window-left</code>), move the cursor one window to the
+left.</li>
+<li><code>SPC w j</code> or <code>C-w j</code> (<code>evil-window-down</code>), move the cursor one window down.</li>
+<li><code>SPC w k</code> or <code>C-w k</code> (<code>evil-window-down</code>), move the cursor one window up.</li>
+</ul>
+
+<p>
+It's simple and effective. Even with experience, you may prefer it over using
+<code>ace-window</code>. However, as I said above, all of these shortcuts require you to be
+in Evil Normal State (<code>C-w</code> in Insert State is mapped to
+<code>evil-delete-backward-word</code>).
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="moving-window-positions">
+  <hgroup>
+    <span></span>
+    <h3>Moving Window Positions</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-5-4">
+<p>
+The above commands move the <i>cursor</i> from one window to another. It's also
+possible to move a window from one position to another.
+</p>
+
+<ul class="org-ul">
+<li><code>SPC w L</code> or <code>C-w L</code> (<code>+evil/window-move-right</code>)</li>
+<li><code>SPC w H</code> or <code>C-w H</code> (<code>+evil/window-move-left</code>)</li>
+<li><code>SPC w J</code> or <code>C-w J</code> (<code>+evil/window-move-down</code>)</li>
+<li><code>SPC w K</code> or <code>C-w K</code> (<code>+evil/window-move-up</code>)</li>
+</ul>
+
+<p>
+Technically, it's more like you are switching <i>buffers</i> between windows. What
+this means is that all windows maintain their current size; if you have one
+large window and one small window, if you run one of the above commands while
+the cursor is in the large window, the buffer in that window will appear in the
+smaller window
+</p>
+</div>
+
+</section>
+<section id="resizing-windows">
+  <hgroup>
+    <span></span>
+    <h3>Resizing Windows</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-5-5">
+<p>
+You probably won't find yourself resizing windows very often. Sometimes Emacs
+will do some weird resizing of windows for certain actions (keep an eye out when
+using <code>sly-sticker-replay</code>, introduced in a later chapter) that you need to fix,
+you might want to dedicate a window to a certain buffer (such as the
+<code>org-agenda</code> buffer, introduced in a later chapter) and keep it open, and thus
+want to make the window smaller. Or maybe you really need to micro-adjust
+everything.
+</p>
+
+<p>
+You can use the mouse to resize windows (click and drag the border between
+windows). It's honestly not such a bad idea since it will likely be an
+infrequent activity. However, it's also possible to resize windows with
+keybindings.
+</p>
+
+<ul class="org-ul">
+<li><code>C-x {</code> (<code>shrink-window-horizontally</code>) or <code>SPC w &gt;</code> or <code>C-w &gt;</code>
+(<code>evil-window-increase-width</code>).</li>
+<li><code>C-x }</code> (<code>enlarge-window-horizontally</code>) or <code>SPC w &lt;</code> or <code>C-w &lt;</code>
+(<code>evil-window-decrease-width</code>).</li>
+<li><code>SPC w +</code> or <code>C-w +</code> (<code>evil-window-increase-height</code>)</li>
+<li><code>SPC w -</code> or <code>C-w -</code> (<code>evil-window-decrease-height</code>)</li>
+</ul>
+
+<p>
+Each of the above commands will resize by one line or character. If you are in
+<code>evil</code> Normal State, you can type a number <code>n</code> and then run the command <code>n</code>
+times. In Normal State, typing <code>50 SPC w &gt;</code> will increase the window width by 50
+characters.
+</p>
+
+<p>
+You can also make one window larger than all your other windows using <code>C-w o</code> or
+<code>SPC w o</code> (<code>doom/window-enlargen</code>).
+</p>
+
+<p>
+You can make all windows equal in size with <code>SPC w =</code> or <code>C-w =</code>
+(<code>balance-windows</code>).
+</p>
+</div>
+
+</section>
+<section id="undoing-changes">
+  <hgroup>
+    <span></span>
+    <h3>Undoing Changes</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-5-6">
+<p>
+Undoing any change is simple: <code>C-w u</code> or <code>SPC w u</code> (<code>winner-undo</code>).
+</p>
+
+<p>
+This is useful not only for typos (for example, maybe you accidentally typed
+<code>C-x C-x a</code> and accidently closed all but one window) or for strange changes
+made by Emacs (sometimes closing a minibuffer drastically resizes other windows
+for no known reason), but also for intentional changes. For example, the above
+<code>doom/window-enlargen</code> command drastically resizes all windows. You can undo
+that change with <code>winner-undo</code>.
+</p>
+
+<p>
+<code>winner-undo</code> no only undoes window resizes, but any changes to windows. If you
+accidentally closed a window, you can undo with <code>winner-undo</code>. If you move a
+window, you can undo the move. It's perhaps one of the most essential commands
+for beginners who are most likely to make mistakes or be faced with strange
+changes in window arrangements they weren't expecting.
+</p>
+
+<p>
+Of course, you can also run <code>winner-redo</code> with <code>C-w C-r</code> or <code>SPC w C-r</code>
+</p>
+</div>
+
+</section>
+<section id="more-about-windows">
+  <hgroup>
+    <span></span>
+    <h3>More About Windows</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-5-7">
+<p>
+If you want to learn more about what's possible with windows, just type <code>C-w</code>
+and look at the list of commands available in the minibuffer.
+</p>
+</div>
+
+</section>
+<section id="quick-reference-table">
+  <hgroup>
+    <span></span>
+    <h3>Quick Reference Table</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-5-8">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Action</th>
+<th scope="col" class="org-left">Emacs Binding</th>
+<th scope="col" class="org-left">Evil Binding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">split window vertically</td>
+<td class="org-left">C-x 3</td>
+<td class="org-left">C-w C-v</td>
+</tr>
+
+<tr>
+<td class="org-left">split window horizontally</td>
+<td class="org-left">C-x 2</td>
+<td class="org-left">C-w C-s</td>
+</tr>
+
+<tr>
+<td class="org-left">kill window</td>
+<td class="org-left">C-x 0</td>
+<td class="org-left">C-w d</td>
+</tr>
+
+<tr>
+<td class="org-left">split window vertically</td>
+<td class="org-left">C-x 2</td>
+<td class="org-left">SPC w s</td>
+</tr>
+
+<tr>
+<td class="org-left">split window horizontally</td>
+<td class="org-left">C-x 3</td>
+<td class="org-left">SPC w v</td>
+</tr>
+
+<tr>
+<td class="org-left">delete window</td>
+<td class="org-left">C-x 0</td>
+<td class="org-left">SPC w d</td>
+</tr>
+
+<tr>
+<td class="org-left">close all except the currently selected window</td>
+<td class="org-left">C-x 1</td>
+<td class="org-left">C-w C-o</td>
+</tr>
+
+<tr>
+<td class="org-left">run ace-window</td>
+<td class="org-left">C-x o</td>
+<td class="org-left">C-w C-w</td>
+</tr>
+
+<tr>
+<td class="org-left">move the cursor one window to the right</td>
+<td class="org-left">C-w l</td>
+<td class="org-left">SPC w l</td>
+</tr>
+
+<tr>
+<td class="org-left">move the cursor one window to the left</td>
+<td class="org-left">C-w h</td>
+<td class="org-left">SPC w h</td>
+</tr>
+
+<tr>
+<td class="org-left">move the cursor one window down</td>
+<td class="org-left">C-w j</td>
+<td class="org-left">SPC w j</td>
+</tr>
+
+<tr>
+<td class="org-left">move the cursor one window up</td>
+<td class="org-left">C-w k</td>
+<td class="org-left">SPC w k</td>
+</tr>
+
+<tr>
+<td class="org-left">move window right</td>
+<td class="org-left">C-w L</td>
+<td class="org-left">SPC w L</td>
+</tr>
+
+<tr>
+<td class="org-left">move window left</td>
+<td class="org-left">C-w H</td>
+<td class="org-left">SPC w H</td>
+</tr>
+
+<tr>
+<td class="org-left">move window down</td>
+<td class="org-left">C-w J</td>
+<td class="org-left">SPC w J</td>
+</tr>
+
+<tr>
+<td class="org-left">move window up</td>
+<td class="org-left">C-w K</td>
+<td class="org-left">SPC w K</td>
+</tr>
+
+<tr>
+<td class="org-left">shrink window horizontally</td>
+<td class="org-left">C-x {</td>
+<td class="org-left">SPC w &gt; or C-w &gt;</td>
+</tr>
+
+<tr>
+<td class="org-left">enlarge window horizontally</td>
+<td class="org-left">C-x }</td>
+<td class="org-left">SPC w &lt; or C-w &lt;</td>
+</tr>
+
+<tr>
+<td class="org-left">increase window height</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC w + or C-w +</td>
+</tr>
+
+<tr>
+<td class="org-left">decrease window height</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC w - or C-w -</td>
+</tr>
+
+<tr>
+<td class="org-left">make one window larger than all your other windows</td>
+<td class="org-left">C-w o</td>
+<td class="org-left">SPC w o</td>
+</tr>
+
+<tr>
+<td class="org-left">make all windows equal in size</td>
+<td class="org-left">C-w =</td>
+<td class="org-left">SPC w =</td>
+</tr>
+
+<tr>
+<td class="org-left">undoing any change</td>
+<td class="org-left">C-w u</td>
+<td class="org-left">SPC w u</td>
+</tr>
+
+<tr>
+<td class="org-left">redoing any change</td>
+<td class="org-left">C-w C-r</td>
+<td class="org-left">SPC w C-r</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+
+</section>
+<section id="project-navigation-management">
+  <hgroup>
+    <span></span>
+    <h2>PROJECT NAVIGATION &amp; MANAGEMENT</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-6">
+</div>
+<section id="buffer-window-management-w-projects">
+  <hgroup>
+    <span></span>
+    <h3>Buffer &amp; Window Management w/Projects</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-1">
+<p>
+Beyond buffers and windows are projects&#x2013;groups of buffers and windows related
+to a project. Using projects will provide the following benefits:
+</p>
+
+<ul class="org-ul">
+<li>Project-focused <code>find-file</code> searches.</li>
+<li>Project-focused buffer switching/listing.</li>
+<li>Project-focused text searches.</li>
+<li>Project buffer saving.</li>
+<li>Project state saving/loading.</li>
+<li>Project switching.</li>
+<li>Project file tree view.</li>
+</ul>
+
+<p>
+And probably more I'm not aware of.
+</p>
+</div>
+
+</section>
+<section id="project-related-packages">
+  <hgroup>
+    <span></span>
+    <h3>Project-Related Packages</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-2">
+<p>
+Project-level functionality is not the result of just a single package. Instead,
+it is the result of the coordination between several packages.
+</p>
+
+<ul class="org-ul">
+<li><code>projectile</code> provides many of the functions like project-level file searching,
+project-wide file saving, project switching, etc.</li>
+<li><code>helm/ido/ivy/vertico</code> provide the project-level text search functionality.</li>
+<li><code>persp-mode</code> provides "workspaces" that can be saved and loaded.</li>
+<li><code>embark</code> enables project-wide text search-replace operations.</li>
+</ul>
+
+<p>
+Doom Emacs provides some abstractions over some of these modes, so some names
+could become confusing later.
+</p>
+</div>
+
+</section>
+<section id="creating-removing-emacs-projects">
+  <hgroup>
+    <span></span>
+    <h3>Creating &amp; Removing Emacs Projects</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-3">
+<p>
+To create a project:
+</p>
+<ul class="org-ul">
+<li>Create an empty <code>.project</code> file in the project root directory.</li>
+<li>Type <code>SPC p a</code> (<code>project-add-known-project</code>), navigate to the project root
+directory and then type <code>Enter</code>.</li>
+</ul>
+
+<p>
+Now if you type <code>SPC p p</code> (<code>projectile-switch-project</code>) you will find your
+project in a list of projects you can open or switch to.
+</p>
+</div>
+
+</section>
+<section id="switching-between-projects">
+  <hgroup>
+    <span></span>
+    <h3>Switching Between Projects</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-4">
+<p>
+After creating and switching to a project, a small label at the bottom will
+appear with the name of the project (the name of the project root directory).
+That label is a <code>workspace</code>.
+</p>
+
+<p>
+If you have multiple projects open, you can switch between them via several
+means.
+</p>
+
+<ul class="org-ul">
+<li><code>SPC TAB [</code> (<code>+workspace/switch-left</code>) to switch to the workspace to the right
+in the list of workspaces.</li>
+<li><code>SPC TAB ]</code> (<code>+workspace/switch-right</code>)</li>
+<li><code>SPC TAB .</code> (<code>+workspace/switch-to</code>) to choose from a list of open workspaces.</li>
+<li><code>SPC TAB &lt;number&gt;</code> Switch to the <code>nth</code> workspace.</li>
+</ul>
+</div>
+
+</section>
+<section id="saving-loading-project-workspaces">
+  <hgroup>
+    <span></span>
+    <h3>Saving &amp; Loading Project Workspaces</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-5">
+<p>
+Workspaces are not strictly speaking exclusive to projects. A workspace can be
+created independent of projects using <code>SPC TAB n</code> (<code>+workspace/new</code>). If open
+some buffers, windows, etc. and then save the workspace with <code>SPC TAB s</code>, you
+can close the workspace and reopen it with <code>SPC TAB l</code>.
+</p>
+
+<p>
+If you have a complex setup that you want to save, the ability to save the state
+of your workspace is a useful feature.
+</p>
+</div>
+
+</section>
+<section id="saving-project-files">
+  <hgroup>
+    <span></span>
+    <h3>Saving Project Files</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-6">
+<p>
+Once you have a project/workspace open and start editing, you may find several
+files in your project haven't been saved. This is especially true in Common Lisp
+projects where you update them by compiling files or individual functions&#x2013;with
+no need to save the application files in order to update them in memory.
+</p>
+
+<p>
+To save all the files in your project, type <code>SPC p s</code>
+(<code>projectile-save-project-buffers</code>).
+</p>
+</div>
+
+</section>
+<section id="switching-project-buffers">
+  <hgroup>
+    <span></span>
+    <h3>Switching Project Buffers</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-7">
+<p>
+Using <code>C-x b</code> or <code>SPC b B</code> you can switch between <i>all</i> buffers. However, if you
+want switch between <i>project</i> buffers, you can use <code>C-c p b</code> or <code>SPC b b</code>. The
+exact function is called depends on the <code>:completion</code> library you chose in the
+<code>init.el</code> file when we first installed Doom Emacs.
+</p>
+<pre class="code-block-source-pre"><code class="code-block-source lisp">:completion
+company           ; the ultimate code completion backend
+;;helm ; the *other* search engine for love and life ido ; the other
+;;*other* search engine... ivy ; a search engine for love and life
+vertico           ; the search engine of the future
+</code></pre>
+<p>
+I recommended vertico, but <code>helm</code>, <code>ido</code>, and <code>ivy</code> will all have similar
+functionality.
+</p>
+
+<p>
+The vertico command called is <code>+vertico/switch-workspace-buffer</code>.
+</p>
+</div>
+
+</section>
+<section id="searching-in-projects">
+  <hgroup>
+    <span></span>
+    <h3>Searching In Projects</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-8">
+<p>
+There are two kinds of searches: filename searches and text searches.
+</p>
+</div>
+<section id="filename-searches">
+  <hgroup>
+    <span></span>
+    <h4>Filename searches</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-6-8-1">
+<p>
+You can search for a file within your project using <code>SPC SPC</code>
+(<code>projectile-find-file</code>). Searching with the normal <code>find-file</code> begins with a
+view of files within a directory, then you need to navigate to the directory and
+file you want. With <code>projectile-find-file</code>, all files in your project root
+directory&#x2013;including subdirectories&#x2013;will be available to search.
+</p>
+
+<p>
+This is a very powerful feature allowing quick searching. If you know you have a
+file in <code>src/system/components/ui/button.lisp</code>, you can type <code>SPC SPC ui but
+Enter</code> and open the file without doing any scrolling or navigation of your
+filesystem.
+</p>
+</div>
+
+</section>
+<section id="project-text-search-replace">
+  <hgroup>
+    <span></span>
+    <h4>Project text search &amp; replace</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-6-8-2">
+<p>
+You can search for some text within the files of your project using <code>SPC /</code>
+(<code>+default/search-project</code>).
+</p>
+
+<p>
+While searching, you can type <code>C-c C-e</code> (<code>embark-export</code>) to export all the
+search matches to an <i>editable buffer</i>. Inside the buffer, you can type <code>Enter</code>
+on individual matches to go to the file to see context. In the Embark buffer,
+after editing the buffer, you can save changes to all of the files with <code>C-c
+C-c</code>, or discard changes with <code>C-c C-k</code>.
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="project-tree-view">
+  <hgroup>
+    <span></span>
+    <h3>Project Tree View</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-9">
+<p>
+<code>treemacs</code> provides a tree view of your project. Open it with <code>SPC o p</code>
+(<code>+treemacs/toggle</code>).
+</p>
+</div>
+<section id="switching-to-treemacs-buffer">
+  <hgroup>
+    <span></span>
+    <h4>Switching to treemacs buffer</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-6-9-1">
+<p>
+If you have a treemacs buffer open and move away from it into another buffer, if
+you use <code>ace-window</code>, ace-window won't give you the option of switching to the
+treemacs buffer. You either need to use one of the <code>evil-window-</code> commands from
+the previous chapter, or toggle the treemacs buffer closed and reopen it.
+</p>
+</div>
+
+</section>
+<section id="opening-files">
+  <hgroup>
+    <span></span>
+    <h4>Opening Files</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-6-9-2">
+<p>
+In addition to using treemacs to browse your project, you can open files by
+typing <code>Enter</code> while highlighting a file.
+</p>
+</div>
+
+</section>
+<section id="renaming-files">
+  <hgroup>
+    <span></span>
+    <h4>Renaming Files</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-6-9-3">
+<p>
+While highlighting a file, type <code>R</code> to rename it.
+</p>
+
+<p>
+The advantage of using treemacs to rename files is this: if the file is open in
+a buffer, treemacs will automatically (or in some cases, provide you the option
+to) rename <i>the open buffer for the file</i>, too. The other usual means of
+renaming files (<code>rename-file</code>) doesn't automatically rename the buffer.
+</p>
+
+<p>
+If you rename a directory, and you have files in the directory open in buffers,
+<i>those buffers will also be renamed</i>.
+</p>
+</div>
+
+</section>
+<section id="moving-files">
+  <hgroup>
+    <span></span>
+    <h4>Moving Files</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-6-9-4">
+<p>
+While highlighting a file, type <code>m</code> to move it. You will be asked where to move
+it.
+</p>
+
+<p>
+When you move a file that is currently open in a buffer, treemacs will ask if
+you want to delete the open buffer. If you don't delete it and save the buffer,
+you will recreate the file in the old location.
+</p>
+
+<p>
+Unfortunately, if you move a directory with files from that directory open in
+buffers, those buffers won't be renamed and you won't be prompted to kill them,
+so you will need to do that yourself.
+</p>
+</div>
+
+</section>
+<section id="deleting-files">
+  <hgroup>
+    <span></span>
+    <h4>Deleting Files</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-6-9-5">
+<p>
+While highlighting a file or directory, type <code>d</code> to delete it. You'll be
+prompted to confirm you want to delete the file.
+</p>
+
+<p>
+Similarly for moving directories, if you have files open from a directory you
+delete, treemacs will not delete the buffers for you.
+</p>
+</div>
+
+</section>
+<section id="bulk-actions">
+  <hgroup>
+    <span></span>
+    <h4>Bulk Actions</h4>
+  </hgroup>
+<div class="outline-text-5" id="text-1-6-9-6">
+<p>
+If you need to delete, copy, or move multiple files, you can type <code>M-m</code> to be
+given options for the currently highlighted file.
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="quick-reference-table">
+  <hgroup>
+    <span></span>
+    <h3>Quick Reference Table</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-6-10">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Action</th>
+<th scope="col" class="org-left">Emacs Binding</th>
+<th scope="col" class="org-left">Evil Binding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">add known project</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC p a</td>
+</tr>
+
+<tr>
+<td class="org-left">switch project</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC p p</td>
+</tr>
+
+<tr>
+<td class="org-left">switch workspace left</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC TAB [</td>
+</tr>
+
+<tr>
+<td class="org-left">switch workspace right</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC TAB ]</td>
+</tr>
+
+<tr>
+<td class="org-left">switch to workspace</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC TAB .</td>
+</tr>
+
+<tr>
+<td class="org-left">switch to nth workspace</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC TAB &lt;number&gt;</td>
+</tr>
+
+<tr>
+<td class="org-left">create new workspace</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC TAB n</td>
+</tr>
+
+<tr>
+<td class="org-left">save workspace</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC TAB s</td>
+</tr>
+
+<tr>
+<td class="org-left">load workspace</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC TAB l</td>
+</tr>
+
+<tr>
+<td class="org-left">save all project buffers</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC p s</td>
+</tr>
+
+<tr>
+<td class="org-left">switch between all buffers</td>
+<td class="org-left">C-x b</td>
+<td class="org-left">SPC b B</td>
+</tr>
+
+<tr>
+<td class="org-left">switch between project buffers</td>
+<td class="org-left">C-c p b</td>
+<td class="org-left">SPC b b</td>
+</tr>
+
+<tr>
+<td class="org-left">find file in project</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC SPC</td>
+</tr>
+
+<tr>
+<td class="org-left">search text in project</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC /</td>
+</tr>
+
+<tr>
+<td class="org-left">embark export</td>
+<td class="org-left">C-c C-e</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">save changes in embark buffer</td>
+<td class="org-left">C-c C-c</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">discard changes in embark buffer</td>
+<td class="org-left">C-c C-k</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">toggle treemacs</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">SPC o p</td>
+</tr>
+
+<tr>
+<td class="org-left">open file in treemacs</td>
+<td class="org-left">Enter</td>
+<td class="org-left">Enter</td>
+</tr>
+
+<tr>
+<td class="org-left">rename file in treemacs</td>
+<td class="org-left">R</td>
+<td class="org-left">R</td>
+</tr>
+
+<tr>
+<td class="org-left">move file in treemacs</td>
+<td class="org-left">m</td>
+<td class="org-left">m</td>
+</tr>
+
+<tr>
+<td class="org-left">delete file in treemacs</td>
+<td class="org-left">d</td>
+<td class="org-left">d</td>
+</tr>
+
+<tr>
+<td class="org-left">bulk actions in treemacs</td>
+<td class="org-left">M-m</td>
+<td class="org-left">M-m</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+
+</section>
+<section id="learning-more">
+  <hgroup>
+    <span></span>
+    <h2>LEARNING MORE</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-7">
+<p>
+Type <code>M-x</code> to open that minibuffer. Type <code>describe</code>. "Describing" is how you get
+more information about something in Emacs. This feature makes it
+"self-documenting".
+</p>
+</div>
+<section id="-describe-key-">
+  <hgroup>
+    <span></span>
+    <h3><code>describe-key</code></h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-7-1">
+<p>
+<code>C-h k</code> will run the command <code>describe-key</code>. You will be prompted to enter a
+keybinding you want described.
+</p>
+
+<p>
+Type <code>SPC f f</code> in that prompt. It will tell you that the keybinding is for the
+<code>find-file</code> function and lots of other information. It will tell you if there
+are other keybindings, for example. You may prefer an <code>evil</code> binding or a Emacs
+binding.
+</p>
+</div>
+
+</section>
+<section id="-describe-mode-">
+  <hgroup>
+    <span></span>
+    <h3><code>describe-mode</code></h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-7-2">
+<p>
+<code>C-h m</code> will run the command <code>describe-mode</code>. This will provide detailed
+information about all of the modes that are active in a given buffer.
+</p>
+</div>
+
+</section>
+<section id="-embark-bindings-">
+  <hgroup>
+    <span></span>
+    <h3><code>embark-bindings</code></h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-7-3">
+<p>
+<code>C-h b b</code> will run the command <code>embark-bindings</code>. This will show all of the
+bindings available in the current buffer. Useful especially for discovering Evil
+keybindings that may only be one character long.
+</p>
+</div>
+
+</section>
+<section id="-info-">
+  <hgroup>
+    <span></span>
+    <h3><code>info</code></h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-7-4">
+<p>
+Type <code>C-h i</code> or <code>SPC h i</code> (<code>info</code>) to open the Emacs manual.
+</p>
+</div>
+
+</section>
+
+</section>
+
+</section>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>

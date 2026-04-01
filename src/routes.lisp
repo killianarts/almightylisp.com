@@ -8,6 +8,6 @@
 (in-package #:almightylisp/routes)
 
 ;; (s:define-routes teaser :root ""
-;;   (:GET "/" 'teaser:index "index"))
+;;   (:GET "/" (lambda (params) (shiso:http-response "hello")) "index"))
 ;; (s:define-routes essentials :root "/book"
 ;;   (:GET "/essentials" 'essentials:index "index"))

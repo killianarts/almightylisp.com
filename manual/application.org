@@ -121,10 +121,10 @@ Stop the running HTTP server and clear the connection.
 
 Slots:
 
-| Slot        | Accessor            | Description                          |
-|-------------+---------------------+--------------------------------------|
-| =routes=    | =module-routes=     | Routes instance with Myway mapper    |
-| =prefix=    | =module-prefix=     | URL prefix set when mounted          |
+| Slot          | Accessor             | Description                       |
+|---------------+----------------------+-----------------------------------|
+| =routes=      | =module-routes=      | Routes instance with Myway mapper |
+| =prefix=      | =module-prefix=      | URL prefix set when mounted       |
 | =static-root= | =module-static-root= | Pathname to module's static/ dir  |
 
 * *module-registry*

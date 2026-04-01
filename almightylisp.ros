@@ -40,7 +40,7 @@ exec ros -Q -- $0 "$@"
         (debugp (envp "DEBUGP"))) 
     (handler-case
         (progn
-          (shiso:start almightylisp/app:*app*)
+          (shiso:start almightylisp:*almightylisp-application*)
           (sleep most-positive-fixnum))
       (error (c)
         (format *error-output* "Aborting. ~a ~&" c)

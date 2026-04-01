@@ -122,7 +122,7 @@ var highlight_lisp = function() {
 		'merge-pathname subst declaim merge-pathnames subst-if declaration method ' +
 		'subst-if-not declare method-combination substitute decode-float ' +
 		'method-combination-error substitute-if decode-universal-time method-qualifiers ' +
-		'substitute-if-not defclass min subtypep defconstant minusp svref defgeneric ' +
+		'substitute-if-not defclass defsystem min subtypep defconstant minusp svref defgeneric ' +
 		'mismatch sxhash define-compiler-macro mod symbol define-condition ' +
 		'most-negative-double-float symbol-function define-method-combination ' +
 		'most-negative-fixnum symbol-macrolet define-modify-macro ' +

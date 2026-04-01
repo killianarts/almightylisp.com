@@ -1,0 +1,26 @@
+.simple-landing {
+    --simple-landing-max-width: var(--container-9xl);
+    --simple-landing-padding: var(--inline-space);
+    --simple-landing-bg-color: var(--color-canvas);
+    --simple-landing-bg-image: url("static/assets/images/bg-dot-pattern-base.png");
+    --simple-landing-heading-font-family: var(--font-heading);
+    --simple-landing-text-color: var(--color-ink-light);
+    --simple-landing-heading-color: var(--color-accent);
+    --simple-landing-section-spacing: var(--spacing-1);
+
+    --logo-width: 200px;
+
+    --book-name-color: var(--color-accent);
+
+    --code-bg-color: var(--color-canvas-dark);
+    --code-text-color: var(--color-secondary);
+    --code-font-family: var(--font-code-condensed);
+    
+
+    .logo {
+
+    }
+    .hero-header {
+        font
+    }
+}

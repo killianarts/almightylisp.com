@@ -1,0 +1,312 @@
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <h1 class="book-navigation__book-title">Almighty Lisp: The Essentials</h1>
+      <p class="book-navigation__chapter-name-heading"><span>Almighty Lisp: The Essentials</span></p>
+      <nav>
+        <ul>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#restructuring-code-with-ease">
+              <span class="book-navigation__section-name">RESTRUCTURING CODE WITH EASE</span>
+              <span class="book-navigation__section-number">1.1.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#slurping-and-barfing">
+              <span class="book-navigation__section-name">Slurping and barfing</span>
+              <span class="book-navigation__section-number">1.2.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#dragging-forms-forward-backward">
+              <span class="book-navigation__section-name">Dragging forms forward/backward</span>
+              <span class="book-navigation__section-number">1.3.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#navigating-the-sea-of-parentheses">
+              <span class="book-navigation__section-name">NAVIGATING THE SEA OF PARENTHESES</span>
+              <span class="book-navigation__section-number">1.4.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#generic-searching">
+              <span class="book-navigation__section-name">Generic searching</span>
+              <span class="book-navigation__section-number">1.5.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#tab-navigation">
+              <span class="book-navigation__section-name">Tab navigation</span>
+              <span class="book-navigation__section-number">1.6.0</span>
+            </a>
+          </li>
+          <li class="book-navigation__section-link-container">
+            <a class="book-navigation__section-link" href="#more-restructuring-navigating-tools">
+              <span class="book-navigation__section-name">MORE RESTRUCTURING &amp; NAVIGATING TOOLS</span>
+              <span class="book-navigation__section-number">1.7.0</span>
+            </a>
+          </li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="structured-editing">
+  <hgroup>
+    <span></span>
+    <h1>STRUCTURED EDITING</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+</div>
+<section id="restructuring-code-with-ease">
+  <hgroup>
+    <span></span>
+    <h2>RESTRUCTURING CODE WITH EASE</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-1">
+<p>
+Writing Lisp code often involves moving forms around or wrapping forms in new forms. If you're using <code>lispy-mode</code> or <code>lispyville-mode</code>&#x2013;both turned on with Doom's <code>lispy</code> config in the <code>init.el</code> file&#x2013;you can more easily build out and modify Lisp code.
+</p>
+</div>
+<section id="slurping-and-barfing">
+  <hgroup>
+    <span></span>
+    <h3>Slurping and barfing</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-1-1">
+<p>
+Slurping and barfing are terms for describing moving parentheses to either include or exclude forms from other forms. Let me show you what I mean.
+</p>
+
+<p>
+In the tic-tac-toe project, we wrote code to find positions on the board to win or block the opponent's win. To begin, we wrote this:
+</p>
+<pre><code class="lisp">(find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*)
+</code></pre>
+<p>
+This finds any triplet that sums to 20 on the board. But we then wanted to search the result of that <code>find-if</code> form to search for the empty space in the triplet.
+</p>
+<pre><code class="lisp">(find-if #'(lambda (element) (= (nth element board) 0))
+         (find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*))
+</code></pre>
+<p>
+If you use structural editing, this can actually be difficult at first. You might naturally try to write the code like this:
+</p>
+<pre><code class="lisp">(find-if #'(lambda (element) (= (nth element board) 0)))
+(find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*)
+</code></pre>
+<p>
+And then, in order to wrap the bottom <code>find-if</code> form with the top <code>find-if</code> form, you might try to delete the final parenthesis of the top <code>find-if</code> and then move it to the end of the bottom <code>find-if</code> form:
+</p>
+<pre><code class="lisp">(find-if #'(lambda (element) (= (nth element board) 0)) ; deleted paren
+(find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*)) ; added paren
+</code></pre>
+<p>
+What actually happens, however, is that the entire top <code>find-if</code> form is deleted when you try to delete just the last parenthesis! This very confusing behavior is from <code>lispy-mode</code>. It is designed to keep parentheses balanced at all times.
+</p>
+
+<p>
+If you want to move only one parenthesis, then, what do you do?
+</p>
+
+<p>
+One option would be to <code>kill</code> the <code>find-if</code> form intended to become the inner form&#x2026;
+</p>
+<pre><code class="lisp">(find-if #'(lambda (element) (= (nth element board) 0)) ; bottom form killed
+</code></pre>
+<p>
+and then paste it at the end of the outer <code>find-if</code>&#x2026;
+</p>
+<pre><code class="lisp">(find-if #'(lambda (element) (= (nth element board) 0)) (find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*))
+</code></pre>
+<p>
+and then move the cursor to the beginning parenthesis of the inner <code>find-if</code> and press <code>ENTER</code> to place it on a new line.
+</p>
+<pre><code class="lisp">(find-if #'(lambda (element) (= (nth element board) 0))
+         (find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*))
+</code></pre>
+<p>
+This is okay, but there is an even easier method called <code>slurping</code>.
+</p>
+
+<p>
+Start with this code:
+</p>
+<pre><code class="lisp">(find-if #'(lambda (element) (= (nth element board) 0)))
+(find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*)
+</code></pre>
+<p>
+Place the cursor on the last parenthesis of the top form. While still in Evil Normal mode (not Insert mode), press <code>&gt;</code> (the <code>lispyville-mode</code> keybinding for <code>lispyville-slurp</code>). The parenthesis will move to the <b>end</b> of the bottom <code>find-if</code> form, making it an inner nested form.
+</p>
+
+<p>
+Slurping is especially useful for any time you need to "build out" from some code. Consider this:
+</p>
+<pre><code class="lisp">(find-if #'(lambda (triple)
+             (= (sum-triple *test-board* triple) target-sum))
+         *triples*)
+</code></pre>
+<p>
+This is how we started building out the code for detecting squeezes. But then we realized that we needed to add more conditions. For a strategy to be a squeeze, the triplet need to sum to the target, <b>and</b> it needs to be diagonal as well as some other conditions. That means that we needed to wrap several predicate functions in an <code>and</code> form.
+</p>
+<pre><code class="lisp">;; These need to be wrapped in an (and ...) form
+(= (sum-triple board triple) target-sum)
+(diagonal-p triple)
+</code></pre>
+<p>
+We can do that by first writing the <code>and</code> form before the other two forms:
+</p>
+<pre><code class="lisp">(and) (= (sum-triple board triple) target-sum)
+(diagonal-p triple)
+</code></pre>
+<p>
+Put the Evil Normal-mode cursor on the end paren of the <code>and</code> form, and then <code>slurp</code> up the other two forms.
+</p>
+<pre><code class="lisp">(and (= (sum-triple board triple) target-sum)
+     (diagonal-p triple))
+</code></pre>
+<p>
+Once we added the rest of the conditions, we wanted to then bind the return value of the <code>find-if</code> form to a local variable using <code>let</code>. The process looks like this:
+</p>
+<pre><code class="lisp">;; Write the LET and variable we want in the LET.
+;; let               Finished find-if
+(let ((squeeze-p))) (find-if #'(lambda (triple)
+             (and (= (sum-triple board triple) target-sum)
+                  (diagonal-p triple)
+                  (not (human-in-middle-p board))
+                  (side-empty-p board)))
+         *triples*)
+</code></pre>
+<p>
+Then use <code>lispyville-slurp</code> on the three ending parentheses of the <code>let</code> form to complete the new form.
+</p>
+
+<p>
+After adding an <code>if</code> form, we need to make this a function, so we can write the function definition above the entire <code>let</code> form:
+</p>
+<pre><code class="lisp">(defun detect-squeeze (board target-sum))
+(let ((squeeze-p
+        (find-if #'(lambda (triple)
+                     (and (= (sum-triple board triple) target-sum)
+                          (diagonal-p triple)
+                          (not (human-in-middle-p board))
+                          (side-empty-p board)))
+                 *triples*)))
+  (if squeeze-p
+      (find-empty-position board *sides*)))
+</code></pre>
+<p>
+And then just slurp up the entire <code>let</code> into the <code>defun</code> form.
+</p>
+
+<p>
+Again, you <i>could</i> just <code>kill</code> and <code>paste</code> the forms around, but killing can sometimes be dangerous (if you kill a word using <code>M-backspace</code>, you've just replaced your function in the kill-ring). It's nicer to simply keep the code on the screen and using slurp to do what you want.
+</p>
+
+<p>
+The reverse of <code>slurp</code> is <code>barf</code>, bound to <code>&lt;</code> in Doom Emacs <code>lispyville-mode</code>. I don't find it nearly as useful as slurping, but maybe you can find a use for it.
+</p>
+</div>
+
+</section>
+<section id="dragging-forms-forward-backward">
+  <hgroup>
+    <span></span>
+    <h3>Dragging forms forward/backward</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-1-2">
+<p>
+Another operation you'll probably want to do a lot is move forms around. For example, maybe you wrote this:
+</p>
+<pre><code class="lisp">(defun choose-move (board)
+  (or (make-three-in-a-row board)
+      (block-opponent-win board)
+      (take-random-position board)
+      (block-two-on-one-play board)
+      (block-squeeze-play board)))
+</code></pre>
+<p>
+Then you realized that the <code>block-two-on-one</code> and <code>block-squeeze-play</code> strategies need to take higher priority over all but the <code>make-three-in-a-row</code> strategy. You could, of course, kill/paste them into the proper position. But if you want, you can also use <code>lispyville-drag-backward</code>&#x2013;bound to <code>M-k</code>&#x2013;while the cursor is on the opening parentheses of the <code>block-</code> forms to move them. <code>lispyville-drag-forward</code>&#x2013;bound to <code>M-j</code>&#x2013;goes in the opposite direction.
+</p>
+
+<p>
+They also work on individual symbols. For example, let's say you have a call to <code>nth</code>:
+</p>
+<pre><code class="lisp">(nth 4 my-list)
+</code></pre>
+<p>
+But then you decide you want to use <code>member</code> instead.
+</p>
+<pre><code class="lisp">(member 4 my-list)
+</code></pre>
+<p>
+Unfortunately, you now need to switch the location of 4 and <code>my-list</code> in the arguments to <code>member</code>. Fortunately, you can use <code>lispyville-drag-</code> functions for that, too. Place the cursor over the 4 and use <code>lispyville-drag-forward</code> (<code>M-j</code>) to switch the 4 and <code>my-list</code>.
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="navigating-the-sea-of-parentheses">
+  <hgroup>
+    <span></span>
+    <h2>NAVIGATING THE SEA OF PARENTHESES</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Navigation is an important topic in Emacs. When programming Lisp in Doom Emacs, you have additional navigation options that can dramatically speed up your development flow.
+</p>
+</div>
+<section id="generic-searching">
+  <hgroup>
+    <span></span>
+    <h3>Generic searching</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-1">
+<p>
+Doom Emacs comes with a function called <code>+default/search-buffer</code>, bound to <code>SPC s s</code>, that you can use in any mode to search for some text. This is an essential tool for navigation.
+</p>
+</div>
+
+</section>
+<section id="tab-navigation">
+  <hgroup>
+    <span></span>
+    <h3>Tab navigation</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-2">
+<p>
+When your Normal mode cursor is on a parenthesis, if you press <code>TAB</code> the cursor will move to the matching parenthesis on the other side. This is actually a more general function called <code>evil-jump-item</code>.
+</p>
+
+<p>
+<code>+default/search-buffer</code> will only move the cursor to the <i>first</i> instance of some text on a line. It's often quicker to tab to the "cattail" at the end of a Lisp form, move the cursor to another parenthesis, and then tab to the matching parenthesis on the other side to get closer to the text you're navigating to.
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="more-restructuring-navigating-tools">
+  <hgroup>
+    <span></span>
+    <h2>MORE RESTRUCTURING &amp; NAVIGATING TOOLS</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-3">
+<p>
+Remember that you can get more information about the keybindings available in the buffer using either <code>M-x describe-key</code> (<code>SPC h k</code>), <code>M-x describe-mode</code> (<code>SPC h m</code>), and <code>M-x embark-bindings</code> (<code>SPC h b b</code>). Look into the <code>lispy-</code>, <code>lispyville-</code>, and <code>special-lispy-</code> commands and their keybindings.
+</p>
+</div>
+
+</section>
+
+</section>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>

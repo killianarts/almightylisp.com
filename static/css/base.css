@@ -265,6 +265,7 @@
 
     --color-ink: var(--color-canvas-950);
     --color-ink-light: var(--color-canvas-50);
+    --color-ink-shadow: var(--color-canvas-darker);
 
     --color-secondary-50: oklch(var(--tw-lch-cyan-50));
     --color-secondary-100: oklch(var(--tw-lch-cyan-100));
@@ -338,41 +339,45 @@
     --color-safe-dark: var(--color-safe-900);
     --color-safe-soft: var(--color-accent-400);
 
+    --inline-space: 1ch;
+    --block-space: 1rem;
 
     /* Spacing scale */
     --spacing-0: 0;
-    --spacing-1: 0.25rem;
-    --spacing-2: 0.5rem;
-    --spacing-3: 0.75rem;
-    --spacing-4: 1rem;
-    --spacing-5: 1.25rem;
-    --spacing-6: 1.5rem;
-    --spacing-8: 2rem;
-    --spacing-10: 2.5rem;
-    --spacing-12: 3rem;
-    --spacing-16: 4rem;
-    --spacing-20: 5rem;
-    --spacing-24: 6rem;
+    --spacing-xs: calc(var(--block-space) * 0.25);
+    --spacing-sm: calc(var(--block-space) * 0.50);
+    --spacing-md: calc(var(--block-space) * 0.75);
+    --spacing-1: calc(var(--block-space) * 1);
+    --spacing-2: calc(var(--block-space) * 2);
+    --spacing-3: calc(var(--block-space) * 3);
+    --spacing-4: calc(var(--block-space) * 4);
+    --spacing-5: calc(var(--block-space) * 5);
+    --spacing-6: calc(var(--block-space) * 6);
+    --spacing-7: calc(var(--block-space) * 7);
+    --spacing-8: calc(var(--block-space) * 8);
+    --spacing-9: calc(var(--block-space) * 9);
+    --spacing-10: calc(var(--block-space) * 10);
+    --spacing-12: calc(var(--block-space) * 12);
+    --spacing-16: calc(var(--block-space) * 16);
+    --spacing-20: calc(var(--block-space) * 20);
+    --spacing-24: calc(var(--block-space) * 24);
 
     /* Sizing */
-    --container-3xs: 10rem;
-    --container-2xs: 15rem;
-    --container-xs: 20rem;
-    --container-sm: 25rem;
-    --container-md: 30rem;
-    --container-lg: 35rem;
-    --container-xl: 40rem;
-    --container-2xl: 45rem;
-    --container-3xl 50rem;
-    --container-4xl: 55rem;
-    --container-5xl: 60rem;
-    --container-6xl: 65rem;
-    --container-7xl: 70rem;
-    --container-8xl: 75rem;
-    --container-9xl: 80rem;
-
-    --inline-space: 1ch;
-    --block-space: 1rem;
+    --container-3xs: calc(var(--inline-space) * 10);
+    --container-2xs: calc(var(--inline-space) * 15);
+    --container-xs: calc(var(--inline-space) * 20);
+    --container-sm: calc(var(--inline-space) * 25);
+    --container-md: calc(var(--inline-space) * 30);
+    --container-lg: calc(var(--inline-space) * 35);
+    --container-xl: calc(var(--inline-space) * 40);
+    --container-2xl: calc(var(--inline-space) * 45);
+    --container-3xl calc(var(--inline-space) * 50);
+    --container-4xl: calc(var(--inline-space) * 55);
+    --container-5xl: calc(var(--inline-space) * 60);
+    --container-6xl: calc(var(--inline-space) * 65);
+    --container-7xl: calc(var(--inline-space) * 70);
+    --container-8xl: calc(var(--inline-space) * 75);
+    --container-9xl: calc(var(--inline-space) * 80);
 
     --tray-size: clamp(12rem, 25dvw, 24rem);
     --main-padding: clamp(var(--inline-space), 3vw, calc(var(--inline-space) * 3));
@@ -390,6 +395,7 @@
     --font-size-6xl: 6rem;
     --font-size-7xl: 7rem;
     --font-size-8xl: 8rem;
+    --font-size-9xl: 9rem;
 
     --font-weight-thin: 100;
     --font-weight-light: 200;
@@ -433,8 +439,9 @@
     --font-heading: "League Gothic";
     --font-hero: "League Gothic Tall";
     --font-bodoni: "Bodoni 72 Smallcaps";
-    --font-serif: var(--font-stack-transitional);
+    --font-serif: var(--font-instrument-serif);
     --font-code: var(--font-berkeley);
+    --font-code-condensed: var(--font-berkeley-uc);
     --font-link: var(--font-berkeley-uc);
 
 }

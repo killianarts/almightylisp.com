@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <title>RESOURCES - ALMIGHTYLISP.COM</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+  <script src="/static/js/highlight-lisp.js"></script>
+</head>
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <div class="book-navigation__book-title"><a href="."><div class="almighty-lisp-logo-container"><img src="/static/assets/images/almighty-lisp.png" alt="Almighty Lisp"></div><div class="the-essentials-container"><img src="/static/assets/images/the-essentials.png" alt="The Essentials"></div></div></a>
+      <p class="book-navigation__chapter-name-heading"><span>16. RESOURCES</span></p>
+      <nav>
+        <ul>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#lisp"><span class="book-navigation__section-link-text">LISP</span> <small class="book-navigation__section-link-number">16.1</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#emacs"><span class="book-navigation__section-link-text">EMACS</span> <small class="book-navigation__section-link-number">16.2</small></a></li>        </ul>
+      </nav>
+      <div class="book-navigation__previous-and-next">
+        <a href="/book/essentials/deploying" class="book-navigation__previous-section">&larr; 15. DEPLOYING</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+<section id="resources">
+  <hgroup>
+    <span class="chapter-number">16</span> 
+    <h1>RESOURCES</h1>
+  </hgroup>
+<div class="outline-text-2" id="text-1">
+<p>
+If you've reached this chapter, you may be wondering where you can get deeper
+lessons on Common Lisp and Emacs. There are several kinds of resources to do that.
+</p>
+</div>
+<section id="lisp">
+  <hgroup>
+    
+    <h2>LISP</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-1">
+<p>
+Lisp has been around a while, so there are a variety of books, web resources,
+and even a video course.
+</p>
+</div>
+<section id="web">
+  <hgroup>
+    
+    <h3>Web</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-1-1">
+<p>
+There are many web-based resources.
+</p>
+
+<p>
+The most important by far is the <a href="https://www.lispworks.com/documentation/HyperSpec/Front/index.htm">Lisp Hyperspec</a>
+(<a href="https://www.lispworks.com/documentation/HyperSpec/Front/index.htm">https://www.lispworks.com/documentation/HyperSpec/Front/index.htm</a>). It's the
+primary reference for learning how CL works, what the API is, etc. Whenever you
+need clarity on how Lisp works, you need to use the Hyperspec.
+</p>
+
+<p>
+The best version of the Hyperspec is the <a href="https://cl-community-spec.github.io/pages/index.html">Community Spec</a>
+(<a href="https://cl-community-spec.github.io/pages/index.html">https://cl-community-spec.github.io/pages/index.html</a>), primarily because it
+lays out the TOC for the whole document, making those parts easy to search in
+addition to using the search bar for searching functions, etc.
+</p>
+
+<p>
+The <a href="https://project-awesome.org/r/awesome-cl">Awesome CL</a> (<a href="https://project-awesome.org/r/awesome-cl">https://project-awesome.org/r/awesome-cl</a>) page has a curated
+list of useful libraries for various kinds of work. I refer to this more than
+any other reference besides the Community Spec.
+</p>
+
+<p>
+The Lisp Cookbook contains many <i>code snippet</i> style guides. (
+<a href="https://lispcookbook.github.io/cl-cookbook/">https://lispcookbook.github.io/cl-cookbook/</a> ). It's a collaborative work that
+attempts to be a more exhaustive reference, but sometimes it feels more like
+some quickly scribbled notes that you shuffle through hoping to find some help.
+Often useful, but more terse than I wish.
+</p>
+
+<p>
+If you would like some more practice, you might be interested in the Common Lisp
+track on <a href="https://exercism.org/tracks/common-lisp/">Exercism</a> (<a href="https://exercism.org/tracks/common-lisp/">https://exercism.org/tracks/common-lisp/</a>).
+</p>
+
+<p>
+There are a few interesting blogs that you should know about. First, there's
+<a href="https://planet.lisp.org/">Planet Lisp</a> (<a href="https://planet.lisp.org/">https://planet.lisp.org/</a>) which is a feed of a number of different
+bloggers. I am not a fan of how they show entire (sometimes very long) posts in
+the feed.
+</p>
+
+<p>
+<a href="https://www.fosskers.ca/en/blog">Colin Woodbury</a> (<a href="https://www.fosskers.ca/en/blog">https://www.fosskers.ca/en/blog</a>), maker of the <code>vend</code>
+library, sometimes writes about interesting subjects like optimizing Lisp code.
+<a href="https://atgreen.github.io/repl-yell/">Anthony Green</a> (<a href="https://atgreen.github.io/repl-yell/">https://atgreen.github.io/repl-yell/</a>) writes often about Common
+Lisp work. His work is often heavily LLM-assisted. Controversial but worth
+reading.
+</p>
+
+<p>
+<a href="https://wmealing.github.io/">Wade Mealing</a> (<a href="https://wmealing.github.io/">https://wmealing.github.io/</a>) writes about a variety of software
+engineering topics, especially security related. While his Common Lisp posts are
+infrequent, his site provides a good variety of informative posts that it's
+still worth bookmarking and checking in on from time to time.
+</p>
+</div>
+
+</section>
+<section id="books">
+  <hgroup>
+    
+    <h3>Books</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-1-2">
+<p>
+There are several book worth reading after this one.
+</p>
+
+<p>
+<a href="https://norvig.github.io/paip-lisp/#/?id=paradigms-of-artificial-intelligence-programming">Paradigms of Artificial Intelligence Programming</a>
+(<a href="https://norvig.github.io/paip-lisp/#/?id=paradigms-of-artificial-intelligence-programming">https://norvig.github.io/paip-lisp/#/?id=paradigms-of-artificial-intelligence-programming</a>)
+by Peter Norvig is among the best Common Lisp books out there (some say it's the
+best programming book out there).
+</p>
+
+<p>
+<a href="https://leanpub.com/u/markwatson">Mark Watson</a> (<a href="https://leanpub.com/u/markwatson">https://leanpub.com/u/markwatson</a>) has several books on Common Lisp.
+<a href="https://leanpub.com/lovinglisp">Loving Lisp</a> is good if you want specifically to get into modern AI programming.
+</p>
+
+<p>
+Paul Graham's On Lisp (<a href="https://github.com/showgood/onlisp">https://github.com/showgood/onlisp</a>) is essential reading
+for learning macros in depth.
+</p>
+</div>
+
+</section>
+<section id="courses">
+  <hgroup>
+    
+    <h3>Courses</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-1-3">
+<p>
+There is a video course on <a href="https://www.udemy.com/course/common-lisp-programming/">Udemy</a>
+(<a href="https://www.udemy.com/course/common-lisp-programming/">https://www.udemy.com/course/common-lisp-programming/</a>) that might be useful for
+the visual learners out there.
+</p>
+</div>
+
+</section>
+
+</section>
+<section id="emacs">
+  <hgroup>
+    
+    <h2>EMACS</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+For Emacs, I recommend learning from Youtube. It can be difficult to tell you
+what a thing does or why you might want it, but videos allow you to see examples
+of an Emacs feature in action and a demonstration of why it's useful.
+</p>
+
+<p>
+I recommend you start with <a href="https://www.youtube.com/@DistroTube">DistroTube's</a> (<a href="https://www.youtube.com/@DistroTube">https://www.youtube.com/@DistroTube</a>)
+Youtube channel. When he's not posting about Linux, he's posting about Doom
+Emacs. If you want to learn something specific to Doom, he's a good first stop.
+</p>
+
+<p>
+<a href="https://www.youtube.com/@SystemCrafters">SystemCrafters</a> (<a href="https://www.youtube.com/@SystemCrafters">https://www.youtube.com/@SystemCrafters</a>) does many videos on
+Emacs, especially customizing Emacs packages. Lots to learn from in his videos.
+</p>
+
+<p>
+<a href="https://www.youtube.com/@protesilaos">Protesilaos Stavrou</a>'s channel (<a href="https://www.youtube.com/@protesilaos">https://www.youtube.com/@protesilaos</a>) is full of
+great videos on using and customizing Emacs' built-in features and APIs.
+</p>
+
+<p>
+If you want written help with learning Emacs, <a href="https://www.masteringemacs.org/">Mastering Emacs</a>
+(<a href="https://www.masteringemacs.org/">https://www.masteringemacs.org/</a>) looks like a great resource. I've never read
+it, but if you do, send me a review.
+</p>
+</div>
+
+</section>
+
+</section>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+  <script>HighlightLisp.highlight_auto();</script>
+</body>
+</html>

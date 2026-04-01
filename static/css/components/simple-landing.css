@@ -1,0 +1,138 @@
+/* Simple Landing Layout */
+
+.simple-landing {
+    --max-width: var(--container-9xl);
+    --padding: var(--inline-space);
+    --body-font-family: var(--font-serif);
+    --body-font-size: var(--font-size-lg);
+    --heading-font-family: var(--font-heading);
+    --heading-font-size: var(--font-size-4xl);
+    --heading-text-color: var(--color-accent);
+    --heading-margin-bottom: var(--spacing-1);
+    --section-spacing: var(--spacing-1);
+    --list-margin-bottom: var(--spacing-1);
+    --list-margin-left: var(--spacing-3);
+
+    --hero-font-family: var(--font-heading);
+    --hero-text-align: center;
+    --hero-header-size: var(--font-size-7xl);
+    --hero-header-line-height: var(--font-size-6xl);
+    --hero-body-font-size: var(--font-size-2xl);
+    --hero-margin-bottom: var(--spacing-4);
+    --logo-width: 200px;
+
+    --book-name-color: var(--color-accent);
+
+    --link-font-size: var(--font-size-2xl);
+    --link-font-family: var(--font-code-condensed);
+    --link-color: var(--color-accent);
+    --link-hover-color: var(--color-secondary);
+    --link-hover-shadow-color: var(--color-canvas-dark);
+
+    --code-bg-color: var(--color-canvas-dark);
+    --code-text-color: var(--color-secondary);
+    --code-font-family: var(--font-code-condensed);
+    --about-author-margin-top: var(--hero-margin-bottom);
+    --profile-photo-width: 200px;
+    
+    max-width: var(--max-width);
+    margin-inline: auto;
+    margin-top: var(--spacing-4);
+    padding-inline: var(--padding);
+    font-family: var(--body-font-family);
+    @media (width <= 639px) {
+        --body-font-size: var(--font-size-base);
+        --hero-header-size: var(--font-size-4xl);
+        --hero-header-line-height: var(--font-size-4xl);
+        --hero-body-font-size: var(--font-size-lg);
+        --heading-font-size: var(--font-size-2xl);
+        --heading-margin-bottom: var(--spacing-sm);
+    }
+
+    .logo {
+        max-width: 200px;
+        margin-inline: auto;
+        margin-block: var(--spacing-4);
+    }
+    .hero {
+        margin-bottom: var(--hero-margin-bottom);
+    }
+    .hero-header {
+        font-family: var(--hero-font-family);
+        font-size: var(--hero-header-size);
+        text-transform: uppercase;
+        text-align: var(--hero-text-align);
+        text-wrap: balance;
+        line-height: var(--hero-header-line-height);
+        margin-bottom: var(--heading-margin-bottom);
+    }
+    .hero-header span {
+        color: var(--book-name-color);
+    }
+    .hero-body {
+        font-size: var(--hero-body-font-size);
+    }
+    .book-name {
+        color: var(--book-name-color);
+        font-style: italic;
+    }
+    section {
+        padding-block: var(--section-spacing);
+    }
+    h2 {
+        font-family: var(--heading-font-family);
+        font-size: var(--heading-font-size);
+        color: var(--heading-text-color);
+        text-transform: uppercase;
+        margin-bottom: var(--heading-margin-bottom);
+    }
+    p {
+        margin-bottom: var(--heading-margin-bottom);
+        text-align: justify;
+        font-size: var(--body-font-size);
+        letter-spacing: 0.05ch;
+    }
+    a {
+        margin-block: var(--block-space);
+        display: flex;
+        justify-content: center;
+        text-wrap: balance;
+        text-align: center;
+        text-transform: uppercase;
+        font-family: var(--link-font-family);
+        font-size: var(--link-font-size);
+        text-decoration: underline;
+        transition: all;
+        transition-duration: 300ms;
+        color: var(--link-color);
+        &:hover {
+            color: var(--link-hover-color); 
+            text-shadow: 1px 1px 0px var(--link-hover-shadow-color);
+        }
+    }
+    ul {
+        font-size: var(--body-font-size);
+        margin-bottom: var(--list-margin-bottom);
+        margin-left: var(--list-margin-left);
+    }
+    li {
+        list-style: square;
+        list-style-position: inner;
+        &::marker {
+            color: var(--color-accent);
+        }
+    }
+
+    .code {
+        background-color: var(--code-bg-color);
+        color: var(--code-text-color);
+        font-family: var(--code-font-family);
+    }
+
+    .about-author {
+        margin-top: var(--about-author-margin-top);
+        .profile-photo {
+            max-width: var(--profile-photo-width);
+        }
+    }
+}

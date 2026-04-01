@@ -62,7 +62,6 @@ Inside is some =<p>= tag stuff.")
         ;; require raw! or else the strings produced by text-nodes are
         ;; escaped--including the HTML tags we create. Instead, we rely on the
         ;; text nodes to escape their text--including the HTML tags we create.
-        ;; Instead, we rely on the text nodes to escape their text
         
         ;; TODO almighty-html isn't designed for building up the HTML string
         ;; like this. Consider ways of improving this workflow.

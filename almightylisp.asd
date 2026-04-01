@@ -1,16 +1,19 @@
 (defsystem "almightylisp"
-  :author "Micah Killian <micah@killianarts.online>"
-  :maintainer "Micah Killian <micah@killianarts.online>"
+  :author "Micah Killian <micah@almightylisp.com>"
+  :maintainer "Micah Killian <micah@almightylisp.com>"
   :description "The almightylisp.com website"
   :license "MIT"
   :version "0.1"
   :depends-on (:almightylisp/core
                :cl-org-mode
-               :lass
                ;; Project modules
                :book
                :article
-               :author))
+               :author
+               :home)
+  :build-operation "program-op"
+  :build-pathname "almightylisp"
+  :entry-point "almightylisp:main")
 
 (defsystem "almightylisp/core"
   :author "Micah Killian <micah@killianarts.online>"

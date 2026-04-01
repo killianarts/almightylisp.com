@@ -17,8 +17,8 @@
    (<>
      ;; X/Twitter
      (meta :name "twitter:card" :content "summary_large_image")
-     (meta :name "twitter:site" :content "@killian_arts")
-     (meta :name "twitter:creator" :content "@killian_arts")
+     (meta :name "twitter:site" :content "@almighty_lisp")
+     (meta :name "twitter:creator" :content "@almighty_lisp")
      (meta :name "twitter:title" :content title)
      (meta :name "twitter:description" :content description)
      (meta :name "twitter:image" :content (shiso:absolute-url (shiso:static "assets/images/x-posts-preview-image.png")))

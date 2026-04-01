@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <title>ALMIGHTY LISP: THE ESSENTIALS - ALMIGHTYLISP.COM</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+  <script src="/static/js/highlight-lisp.js"></script>
+</head>
+<body>
+  <div class="sidebar-container">
+    <div class="book-navigation">
+      <div class="book-navigation__book-title"><a href="."><div class="almighty-lisp-logo-container"><img src="/static/assets/images/almighty-lisp.png" alt="Almighty Lisp"></div><div class="the-essentials-container"><img src="/static/assets/images/the-essentials.png" alt="The Essentials"></div></div></a>
+      <p class="book-navigation__chapter-name-heading"><span>Table of Contents</span></p>
+      <nav>
+        <ul>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/introduction"><span class="book-navigation__section-link-text">INTRODUCTION</span> <small class="book-navigation__section-link-number">1</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/getting-started-w-doom-emacs-lisp"><span class="book-navigation__section-link-text">GETTING STARTED W/DOOM EMACS &amp; LISP</span> <small class="book-navigation__section-link-number">2</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/lisp-fundamentals"><span class="book-navigation__section-link-text">LISP FUNDAMENTALS</span> <small class="book-navigation__section-link-number">3</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/emacs-fundamentals"><span class="book-navigation__section-link-text">EMACS FUNDAMENTALS</span> <small class="book-navigation__section-link-number">4</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/the-lisp-ide"><span class="book-navigation__section-link-text">THE LISP IDE</span> <small class="book-navigation__section-link-number">5</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/structured-editing"><span class="book-navigation__section-link-text">STRUCTURED EDITING</span> <small class="book-navigation__section-link-number">6</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/beyond-lists"><span class="book-navigation__section-link-text">BEYOND LISTS</span> <small class="book-navigation__section-link-number">7</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/the-loop-macro"><span class="book-navigation__section-link-text">THE LOOP MACRO</span> <small class="book-navigation__section-link-number">8</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/errors-conditions"><span class="book-navigation__section-link-text">ERRORS &amp; CONDITIONS</span> <small class="book-navigation__section-link-number">9</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/macros"><span class="book-navigation__section-link-text">MACROS</span> <small class="book-navigation__section-link-number">10</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/organizing-code"><span class="book-navigation__section-link-text">ORGANIZING CODE</span> <small class="book-navigation__section-link-number">11</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/the-ecosystem"><span class="book-navigation__section-link-text">THE ECOSYSTEM</span> <small class="book-navigation__section-link-number">12</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/project-money-library"><span class="book-navigation__section-link-text">Project: Money Library</span> <small class="book-navigation__section-link-number">13</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/project-accounting-library"><span class="book-navigation__section-link-text">Project: Accounting Library</span> <small class="book-navigation__section-link-number">14</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/deploying"><span class="book-navigation__section-link-text">DEPLOYING</span> <small class="book-navigation__section-link-number">15</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="/book/essentials/resources"><span class="book-navigation__section-link-text">RESOURCES</span> <small class="book-navigation__section-link-number">16</small></a></li>        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <main class="sidebar-main">
+    <article class="book">
+      <nav class="book-toc">
+        <h1>Table of Contents</h1>
+        <ol>
+          <li><a href="/book/essentials/introduction">INTRODUCTION</a>
+            <ol>
+              <li><a href="/book/essentials/introduction#why-i-wrote-this-book">WHY I WROTE THIS BOOK</a></li>
+              <li><a href="/book/essentials/introduction#almighty">ALMIGHTY</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/getting-started-w-doom-emacs-lisp">GETTING STARTED W/DOOM EMACS &amp; LISP</a>
+            <ol>
+              <li><a href="/book/essentials/getting-started-w-doom-emacs-lisp#install-setup-on-macos">INSTALL &amp; SETUP ON MACOS</a></li>
+              <li><a href="/book/essentials/getting-started-w-doom-emacs-lisp#emacs-dictionary">EMACS DICTIONARY</a></li>
+              <li><a href="/book/essentials/getting-started-w-doom-emacs-lisp#survival-emacs">SURVIVAL EMACS</a></li>
+              <li><a href="/book/essentials/getting-started-w-doom-emacs-lisp#survival-lisp-commands">SURVIVAL LISP COMMANDS</a></li>
+              <li><a href="/book/essentials/getting-started-w-doom-emacs-lisp#speeding-up-w-keybindings">SPEEDING UP W/KEYBINDINGS</a></li>
+              <li><a href="/book/essentials/getting-started-w-doom-emacs-lisp#need-help-">NEED HELP?</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/lisp-fundamentals">LISP FUNDAMENTALS</a>
+            <ol>
+              <li><a href="/book/essentials/lisp-fundamentals#syntax-grammar">SYNTAX &amp; GRAMMAR</a></li>
+              <li><a href="/book/essentials/lisp-fundamentals#symbols">SYMBOLS</a></li>
+              <li><a href="/book/essentials/lisp-fundamentals#functions">FUNCTIONS</a></li>
+              <li><a href="/book/essentials/lisp-fundamentals#lists">LISTS</a></li>
+              <li><a href="/book/essentials/lisp-fundamentals#control-flow">CONTROL FLOW</a></li>
+              <li><a href="/book/essentials/lisp-fundamentals#iteration">ITERATION</a></li>
+              <li><a href="/book/essentials/lisp-fundamentals#strings-i-o">STRINGS &amp; I/O</a></li>
+              <li><a href="/book/essentials/lisp-fundamentals#putting-it-all-together-tic-tac-toe">PUTTING IT ALL TOGETHER: TIC-TAC-TOE</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/emacs-fundamentals">EMACS FUNDAMENTALS</a>
+            <ol>
+              <li><a href="/book/essentials/emacs-fundamentals#support-level-disclaimer">SUPPORT LEVEL DISCLAIMER</a></li>
+              <li><a href="/book/essentials/emacs-fundamentals#setting-expectations">SETTING EXPECTATIONS</a></li>
+              <li><a href="/book/essentials/emacs-fundamentals#text-editing">TEXT EDITING</a></li>
+              <li><a href="/book/essentials/emacs-fundamentals#buffer-navigation-management">BUFFER NAVIGATION &amp; MANAGEMENT</a></li>
+              <li><a href="/book/essentials/emacs-fundamentals#window-navigation-management">WINDOW NAVIGATION &amp; MANAGEMENT</a></li>
+              <li><a href="/book/essentials/emacs-fundamentals#project-navigation-management">PROJECT NAVIGATION &amp; MANAGEMENT</a></li>
+              <li><a href="/book/essentials/emacs-fundamentals#learning-more">LEARNING MORE</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/the-lisp-ide">THE LISP IDE</a>
+            <ol>
+              <li><a href="/book/essentials/the-lisp-ide#sly-backtrace-navigation">SLY BACKTRACE NAVIGATION</a></li>
+              <li><a href="/book/essentials/the-lisp-ide#tracing">TRACING</a></li>
+              <li><a href="/book/essentials/the-lisp-ide#stickers">STICKERS</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/structured-editing">STRUCTURED EDITING</a>
+            <ol>
+              <li><a href="/book/essentials/structured-editing#slurping-and-barfing">SLURPING AND BARFING</a></li>
+              <li><a href="/book/essentials/structured-editing#dragging-forms-forward-backward">DRAGGING FORMS FORWARD/BACKWARD</a></li>
+              <li><a href="/book/essentials/structured-editing#navigating-the-sea-of-parentheses">NAVIGATING THE SEA OF PARENTHESES</a></li>
+              <li><a href="/book/essentials/structured-editing#more-restructuring-navigating-tools">MORE RESTRUCTURING &amp; NAVIGATING TOOLS</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/beyond-lists">BEYOND LISTS</a>
+            <ol>
+              <li><a href="/book/essentials/beyond-lists#oop">OOP</a></li>
+              <li><a href="/book/essentials/beyond-lists#hash-tables">HASH-TABLES</a></li>
+              <li><a href="/book/essentials/beyond-lists#arrays">ARRAYS</a></li>
+              <li><a href="/book/essentials/beyond-lists#structures">STRUCTURES</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/the-loop-macro">THE LOOP MACRO</a>
+            <ol>
+              <li><a href="/book/essentials/the-loop-macro#simple-loops">Simple Loops</a></li>
+              <li><a href="/book/essentials/the-loop-macro#iterating-over-lists">Iterating Over Lists</a></li>
+              <li><a href="/book/essentials/the-loop-macro#iterating-over-vectors-and-strings">Iterating Over Vectors and Strings</a></li>
+              <li><a href="/book/essentials/the-loop-macro#iterating-over-hash-tables">Iterating over Hash-Tables</a></li>
+              <li><a href="/book/essentials/the-loop-macro#numeric-iteration">Numeric Iteration</a></li>
+              <li><a href="/book/essentials/the-loop-macro#accumulation-clauses">Accumulation Clauses</a></li>
+              <li><a href="/book/essentials/the-loop-macro#conditional-clauses">Conditional Clauses</a></li>
+              <li><a href="/book/essentials/the-loop-macro#termination">Termination</a></li>
+              <li><a href="/book/essentials/the-loop-macro#manually-updated-variable-bindings">Manually Updated Variable Bindings</a></li>
+              <li><a href="/book/essentials/the-loop-macro#parallel-iterating">Parallel Iterating</a></li>
+              <li><a href="/book/essentials/the-loop-macro#destructuring">Destructuring</a></li>
+              <li><a href="/book/essentials/the-loop-macro#the-step-binding">The Step Binding</a></li>
+              <li><a href="/book/essentials/the-loop-macro#running-code-before-the-first-iteration-or-after-the-last-iteration">Running Code Before The First Iteration Or After The Last Iteration</a></li>
+              <li><a href="/book/essentials/the-loop-macro#returning-from-named-loops">Returning From Named Loops</a></li>
+              <li><a href="/book/essentials/the-loop-macro#combining-everything">Combining Everything</a></li>
+              <li><a href="/book/essentials/the-loop-macro#when-to-use-something-else">When to Use Something Else</a></li>
+              <li><a href="/book/essentials/the-loop-macro#a-note-on-style-keywords-vs-symbols">A Note on Style: Keywords vs Symbols</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/errors-conditions">ERRORS &amp; CONDITIONS</a>
+            <ol>
+              <li><a href="/book/essentials/errors-conditions#signaling-conditions">Signaling Conditions</a></li>
+              <li><a href="/book/essentials/errors-conditions#defining-conditions">Defining Conditions</a></li>
+              <li><a href="/book/essentials/errors-conditions#restarts">Restarts</a></li>
+              <li><a href="/book/essentials/errors-conditions#handling-conditions">Handling Conditions</a></li>
+              <li><a href="/book/essentials/errors-conditions#preserving-local-state">Preserving Local State</a></li>
+              <li><a href="/book/essentials/errors-conditions#useful-variables-functions">Useful Variables &amp; Functions</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/macros">MACROS</a>
+            <ol>
+              <li><a href="/book/essentials/macros#the-almighty-html-macro">The almighty-html &lt;/&gt; macro</a></li>
+              <li><a href="/book/essentials/macros#the-sxql-macro">The sxql macro</a></li>
+              <li><a href="/book/essentials/macros#the-coalton-language">The Coalton language</a></li>
+              <li><a href="/book/essentials/macros#compilation-before-evaluation">Compilation Before Evaluation</a></li>
+              <li><a href="/book/essentials/macros#defining-macros">Defining Macros</a></li>
+              <li><a href="/book/essentials/macros#redefining-macros">Redefining Macros</a></li>
+              <li><a href="/book/essentials/macros#determining-when-to-use-macros">Determining When To Use Macros</a></li>
+              <li><a href="/book/essentials/macros#determining-when-not-to-use-macros">Determining When Not To Use Macros</a></li>
+              <li><a href="/book/essentials/macros#variable-capture-hygiene">Variable Capture &amp; Hygiene</a></li>
+              <li><a href="/book/essentials/macros#much-more">Much More</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/organizing-code">ORGANIZING CODE</a>
+            <ol>
+              <li><a href="/book/essentials/organizing-code#packages">Packages</a></li>
+              <li><a href="/book/essentials/organizing-code#systems">Systems</a></li>
+              <li><a href="/book/essentials/organizing-code#styles-of-factoring-packages-systems">Styles of Factoring Packages &amp; Systems</a></li>
+              <li><a href="/book/essentials/organizing-code#the-great-debate-package-system-best-practices">The Great Debate: Package &amp; System Best Practices</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/the-ecosystem">THE ECOSYSTEM</a>
+            <ol>
+              <li><a href="/book/essentials/the-ecosystem#ultralisp">ULTRALISP</a></li>
+              <li><a href="/book/essentials/the-ecosystem#qlot">QLOT</a></li>
+              <li><a href="/book/essentials/the-ecosystem#ocicl">OCICL</a></li>
+              <li><a href="/book/essentials/the-ecosystem#vend">VEND</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/project-money-library">Project: Money Library</a>
+            <ol>
+              <li><a href="/book/essentials/project-money-library#project-setup">Project Setup</a></li>
+              <li><a href="/book/essentials/project-money-library#a-money-type">A Money Type</a></li>
+              <li><a href="/book/essentials/project-money-library#making-money">Making Money</a></li>
+              <li><a href="/book/essentials/project-money-library#adding-money">Adding money</a></li>
+              <li><a href="/book/essentials/project-money-library#the-rest-of-the-math-functions">The rest of the math functions</a></li>
+              <li><a href="/book/essentials/project-money-library#improving-ergonomics">Improving Ergonomics</a></li>
+              <li><a href="/book/essentials/project-money-library#formatting-for-human-consumption">Formatting for Human Consumption</a></li>
+              <li><a href="/book/essentials/project-money-library#adding-currencies">Adding Currencies</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/project-accounting-library">Project: Accounting Library</a>
+            <ol>
+              <li><a href="/book/essentials/project-accounting-library#requirements">Requirements</a></li>
+              <li><a href="/book/essentials/project-accounting-library#testing-examples">Testing &amp; Examples</a></li>
+              <li><a href="/book/essentials/project-accounting-library#dependencies">Dependencies</a></li>
+              <li><a href="/book/essentials/project-accounting-library#vendor-your-dependencies">Vendor Your Dependencies</a></li>
+              <li><a href="/book/essentials/project-accounting-library#project-setup">Project Setup</a></li>
+              <li><a href="/book/essentials/project-accounting-library#introducing-our-dependencies">Introducing Our Dependencies</a></li>
+              <li><a href="/book/essentials/project-accounting-library#why-sql-">Why SQL?</a></li>
+              <li><a href="/book/essentials/project-accounting-library#accounts">Accounts</a></li>
+              <li><a href="/book/essentials/project-accounting-library#transactions">Transactions</a></li>
+              <li><a href="/book/essentials/project-accounting-library#legs">Legs</a></li>
+              <li><a href="/book/essentials/project-accounting-library#playing-around">Playing around</a></li>
+              <li><a href="/book/essentials/project-accounting-library#account-balance">Account Balance</a></li>
+              <li><a href="/book/essentials/project-accounting-library#long-term-problems">Long-term problems</a></li>
+              <li><a href="/book/essentials/project-accounting-library#optimization">Optimization</a></li>
+              <li><a href="/book/essentials/project-accounting-library#example-usage">Example Usage</a></li>
+              <li><a href="/book/essentials/project-accounting-library#tests">Tests</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/deploying">DEPLOYING</a>
+            <ol>
+              <li><a href="/book/essentials/deploying#executable-cli-apps">EXECUTABLE CLI APPS</a></li>
+              <li><a href="/book/essentials/deploying#executable-web-app">EXECUTABLE WEB APP</a></li>
+            </ol>
+          </li>
+          <li><a href="/book/essentials/resources">RESOURCES</a>
+            <ol>
+              <li><a href="/book/essentials/resources#lisp">LISP</a></li>
+              <li><a href="/book/essentials/resources#emacs">EMACS</a></li>
+            </ol>
+          </li>
+        </ol>
+      </nav>
+    </article>
+  </main>
+  <button class="toc-viewer">TOC</button>
+</body>
+</html>
