@@ -1,0 +1,71 @@
+#+title: Server
+#+property: header-args:common-lisp
+
+
+Server lifecycle management -- starting and stopping the Clack/Woo HTTP server.
+
+* Package Definition
+#+begin_src common-lisp
+(defpackage #:shiso/server
+  (:use #:cl)
+  (:export
+   #:*server-connection*
+   #:start
+   #:stop))
+
+(in-package #:shiso/server)
+#+end_src
+
+* Server Connection
+#+begin_src common-lisp
+(defparameter *server-connection* nil)
+#+end_src
+
+* start
+
+Boot the HTTP server. =start= is the third and outermost level of late binding
+in Shiso's hot-reload architecture (see =routing.org= for the full picture).
+
+The problem: =clack:clackup= expects a function (the Lack app). If we pass the
+app directly, the server captures that specific function object. Re-evaluating
+=define-application= creates a /new/ function and rebinds the =defparameter=,
+but the running server still holds the old one.
+
+The solution: =start= is a macro that uses =to-symbol= to extract the app's
+symbol name at compile time, regardless of how the user writes it — =my-app=,
+='my-app=, or =#'my-app= all work. It then passes that symbol to =%start=,
+which gives Clack a thin wrapper lambda:
+
+#+begin_src lisp
+(lambda (env) (funcall (symbol-value app-symbol) env))
+#+end_src
+
+On every HTTP request, =symbol-value= looks up the /current/ value of the app
+symbol. If the user re-evaluates =define-application=, the =defparameter=
+rebinds that symbol to the new Lack app, and the next request goes through the
+new middleware chain. No restart needed.
+
+#+begin_src common-lisp
+(defmacro start (app &rest args &key (host "127.0.0.1") (port 5000) (debugp t))
+  (declare (ignore host port debugp))
+  (let ((app-sym (shiso/routing:to-symbol-form app)))
+    `(%start ,app-sym ,@args)))
+
+(defun %start (app-symbol &key (host "127.0.0.1") (port 5000) (debugp t))
+  (when *server-connection*
+    (restart-case (error "Server is already running.")
+      (restart-server ()
+        :report "Restart the server"
+        (stop))))
+  (setf *server-connection*
+        (clack:clackup (lambda (env) (funcall (symbol-value app-symbol) env))
+                       :server :woo :address host :port port :debug debugp)))
+#+end_src
+
+* stop
+#+begin_src common-lisp
+(defun stop ()
+  (prog1
+      (clack:stop *server-connection*)
+    (setf *server-connection* nil)))
+#+end_src

@@ -1,0 +1,43 @@
+#+title: Admin Routes & Module
+#+property: header-args:common-lisp
+
+
+Defines the admin module using =define-module=, which creates the routes
+mapper, registers all URL endpoints, and adds the module to the global
+registry.
+
+* Package
+
+#+begin_src common-lisp
+(defpackage #:shiso/admin/routes
+  (:use #:cl)
+  (:local-nicknames (#:routing #:shiso/routing)
+                    (#:controllers #:shiso/admin/controllers)))
+
+(in-package #:shiso/admin/routes)
+#+end_src
+
+* Module Definition
+
+#+begin_src common-lisp
+(routing:define-module shiso-admin
+  (:urls
+   (:GET       "/"                  'controllers:index                            "index")
+   (:GET       "/:model"            'controllers:model-instance-list              "model-instance-list")
+   (:GET       "/:model/build"      'controllers:model-instance-build             "model-instance-build")
+   (:POST      "/:model/persist"    'controllers:model-instance-persist           "model-instance-persist")
+   (:GET       "/:model/:id"        'controllers:model-instance-rebuild           "model-instance-rebuild")
+   (:POST      "/:model/:id"        'controllers:model-instance-repersist         "model-instance-repersist")
+   (:POST      "/:model/:id/delete" 'controllers:model-instance-delete            "model-instance-delete")))
+#+end_src
+#+begin_src lisp
+(routing:define-module shiso-admin
+  (:urls
+   (:GET       "/"                  'controllers:index                            "index")
+   (:GET       "/:model"            'controllers:model-instance-list              "model-instance-list")
+   (:GET       "/:model/build"      'controllers:model-instance-build             "model-instance-build")
+   (:POST      "/:model/persist"    'controllers:model-instance-persist           "model-instance-persist")
+   (:GET       "/:model/:id"        'controllers:model-instance-rebuild           "model-instance-rebuild")
+   (:PATCH     "/:model/:id"        'controllers:model-instance-repersist         "model-instance-repersist")
+   (:DELETE    "/:model/:id"        'controllers:model-instance-delete            "model-instance-delete")))
+#+end_src
