@@ -1,0 +1,30 @@
+;;;; datastar-cl.asd
+
+(asdf:defsystem #:datastar-cl
+  :description "Common Lisp implementation of the Datastar SDK for Server-Sent Events (SSE)"
+  :author "Frederico Muñoz <fsmunoz@gmail.com>"
+  :license  "MIT"
+  :version "0.0.1"
+  :serial t
+  :depends-on (#:bordeaux-threads
+               #:split-sequence
+               #:alexandria
+               #:com.inuoe.jzon
+               #:quri
+               #:flexi-streams
+               #:trivial-gray-streams
+               #:cffi
+               #:hunchentoot
+               #:clack
+               #:lack-util-writer-stream
+               ;; TODO add to vend
+               #:zstd
+               ;; TODO add to vend
+               #:gzip-stream
+               #:salza2)
+  :components ((:file "package")
+               (:file "conditions")
+               (:file "datastar-cl")
+               (:file "hunchentoot")
+               (:file "clack")
+               (:file "woo-async")))  ; Load last - needs clack symbols

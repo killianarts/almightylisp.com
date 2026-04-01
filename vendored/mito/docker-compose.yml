@@ -1,0 +1,44 @@
+version: '3.7'
+services:
+  tests:
+    container_name: mito-tests
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+      target: base
+      args:
+        - LISP=${LISP:-sbcl}
+    restart: "no"
+    volumes:
+      - .:/app
+      - /app/.qlot
+    depends_on:
+      - postgres
+      - mysql
+    environment:
+      POSTGRES_HOST: mito-test-postgres
+      POSTGRES_USER: mito
+      POSTGRES_PASS: mito
+      MYSQL_HOST: mito-test-mysql
+      MYSQL_USER: root
+      MYSQL_PASS: mito
+
+  postgres:
+    container_name: mito-postgres
+    image: "postgres:10"
+    hostname: mito-test-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: mito
+      POSTGRES_PASSWORD: mito
+
+  mysql:
+    container_name: mito-mysql
+    image: "mysql:8.4"
+    hostname: mito-test-mysql
+    ports:
+      - "3306:3306"
+    command: --mysql_native_password=ON
+    environment:
+      MYSQL_ROOT_PASSWORD: mito
