@@ -1,8 +1,6 @@
 almightylisp: *.asd *.lisp src/* *.ros static/*
 	vend get
 	ros build almightylisp.ros
-dev: 
-	tw -i static/css/input.css -o static/css/almightylisp.css --watch --optimize
 install:
 	mv almightylisp ~/.local/bin/almightylisp
 	sudo cp almightylisp.service /etc/systemd/system/almightylisp.service
@@ -12,6 +10,15 @@ install:
 update:
 	rm ~/.local/bin/almightylisp
 	mv almightylisp ~/.local/bin/almightylisp
+	sudo cp almightylisp.service /etc/systemd/system/almightylisp.service
+	sudo cp almightylisp.env /etc/systemd/system/almightylisp.env
+	sudo systemctl daemon-reload
+	sudo systemctl restart almightylisp.service
+backup:
+	cp ~/.local/bin/almightylisp ~/.local/bin/almightylisp.backup
+recover:
+	rm ~/.local/bin/almightylisp
+	cp ~/.local/bin/almightylisp.backup ~/.local/bin/almightylisp
 	sudo cp almightylisp.service /etc/systemd/system/almightylisp.service
 	sudo cp almightylisp.env /etc/systemd/system/almightylisp.env
 	sudo systemctl daemon-reload
