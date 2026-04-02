@@ -2,25 +2,32 @@
  * Layout: sidebar 
  * Mobile: Abbreviated Header
  * Desktop: Sidebar 
-*/
+ */
 
 .sidebar-container {
+    --width: var(--tray-size);
     overflow-y: auto;
     position: fixed;
     inset: 0;
-    width: var(--tray-size);
-}
-.sidebar-main {
-    margin-left: var(--tray-size);
-    padding-inline: var(--main-padding);
-}
-@media(max-width: 639px) {
-    .sidebar-container {
-        position: relative;
-        width: 100%;
-    }
+    width: var(--width);
+
     .sidebar-main {
-        margin-left: 0;
+        margin-left: var(--tray-size);
+        padding-inline: var(--main-padding);
+    }
+    @media(max-width: 639px) {
+        .sidebar-container {
+            display: block;
+            position: relative;
+        }
+        .sidebar-main {
+            margin-left: 0;
+        }
+    }
+    /* @media (min-width: 640px) {  } */
+    @media (max-width: 799px) {
+        --width: 100%;
+        position: relative;
     }
 }
 /* Scrollbar */

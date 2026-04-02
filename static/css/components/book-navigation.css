@@ -6,6 +6,7 @@
     --link-color-hover: var(--color-secondary);
     --link-bg-color-hover: var(--color-canvas-darker);
     --link-gap: var(--inline-space);
+    --link-font-family: var(--font-berkeley-uc);
     --span-bg-color: var(--color-canvas-dark);
     --divider-color: var(--color-accent);
 
@@ -15,7 +16,19 @@
     padding-block: var(--block-space);
     min-height: 100dvh;
     text-transform: uppercase;
-    @media(max-width: 639px) {
+    @media(max-width: 799px) {
+        position: relative;
+        min-height: initial;
+        display: grid;
+        align-items: center;
+        max-width: 100%;
+        grid-template-areas:
+            "top"
+            "middle"
+            "bottom";
+    }
+    /* @media (min-width: 640px) {  } */
+    @media (max-width: 799px) {
         position: relative;
         min-height: initial;
         display: grid;
@@ -28,14 +41,14 @@
     }
     nav {
         margin-inline: auto;
-        @media(max-width: 639px) {
+        @media(max-width: 799px) {
             display: flex;
             justify-content: center;
             align-items: center;
         }
     }
     nav ul {
-        @media(max-width: 639px) {
+        @media(max-width: 799px) {
             display: none;
         }
     }
@@ -43,6 +56,7 @@
     .book-navigation__book-title {
         --title-font-size: var(--font-size-5xl);
         --title-line-height: var(--font-size-4xl);
+        --logo-max-width: 200px;
         color: var(--book-title-color);
         font-family: var(--font-hero);
         font-size: var(--title-font-size);
@@ -51,7 +65,11 @@
         text-align: center;
         text-wrap: balance;
         grid-area: top;
-        @media(max-width: 639px) {
+        display: grid;
+        justify-items: center;
+        flex-wrap: wrap;
+        gap: var(--spacing-1);
+        @media(max-width: 799px) {
             --title-font-size: var(--font-size-base);
             font-family: var(--font-heading);
             line-height: var(--font-size-base);
@@ -59,23 +77,19 @@
             display: flex;
             justify-content: center;
         }
+        a {
+            display: contents;
+        }
         .almighty-lisp-logo-container {
-            --margin-inline: auto;
             max-width: var(--logo-max-width);
-            margin-inline: var(--margin-inline);
-            margin-bottom: var(--spacing-1);
-            @media(max-width: 639px) {
+            @media(max-width: 799px) {
                 --logo-max-width: 50px;
-                --margin-inline: 0;
             }
         }
         .the-essentials-container {
-            --margin-inline: auto;
             max-width: calc(var(--logo-max-width) / 1.8);
-            margin-inline: var(--margin-inline);
-            @media(max-width: 639px) {
+            @media(max-width: 799px) {
                 --logo-max-width: 170px;
-                --margin-inline: var(--spacing-1);
             }
         }
     }
@@ -91,7 +105,7 @@
         align-items: center;
         z-index: 10;
         isolation: isolate;
-        @media(max-width: 639px) {
+        @media(max-width: 799px) {
             margin-bottom: 0;
             justify-content: center;
             width: 100%;
@@ -120,8 +134,9 @@
         gap: var(--link-gap);
         justify-content: space-between;
         align-items: start;
-        padding-inline: var(--spacing-xs);
+        padding: var(--spacing-xs) var(--spacing-xs);
         color: var(--link-color);
+        font-family: var(--link-font-family);
         &:hover {
             color: var(--link-color-hover);
             background-color: var(--link-bg-color-hover);
@@ -152,11 +167,10 @@
     }
 
     .book-navigation__previous-and-next {
-        
         display: block;
         margin-top: var(--block-space);
         border-top: 2px solid var(--divider-color);
-        @media(max-width: 639px) {
+        @media(max-width: 799px) {
             display: flex;
             justify-content: space-between;
             border: 0;
@@ -172,17 +186,19 @@
         justify-content: space-between;
         align-items: center;
         padding-inline: var(--spacing-xs);
+        font-family: var(--link-font-family);
+        text-decoration: underline;
         &:hover {
             color: var(--link-color-hover);
             background-color: var(--link-bg-color-hover);
         }
-        @media(max-width: 639px) {
+        @media(max-width: 799px) {
             display: flex;
         }
     }
     .book-navigation__next-section {
         text-align: right;
-        @media(max-width: 639px) {
+        @media(max-width: 799px) {
             display: flex;
         }
     }
@@ -192,7 +208,6 @@
 .toc-viewer {
     display: none;
     @media (max-width: 639px){
-        display: block;
         position: fixed;
         bottom: var(--block-space);
         right: var(--block-space);

@@ -9,6 +9,8 @@
     --code-font: var(--font-berkeley-thin);
     --code-font-size: var(--font-size-base);
     --book-font: var(--font-serif);
+    --book-font-size: var(--font-size-base);
+    --book-text-line-height: var(--leading-wide);
     --outline-1-color: var(--color-ink-light);
     --outline-2-color: var(--color-accent);
     --outline-3-color: var(--color-secondary);
@@ -27,16 +29,26 @@
     --aside-width: 25ch;
     --aside-left-margin: 2ch;
     --book-right-padding: calc(var(--aside-width) + var(--aside-left-margin));
+    --book-left-padding: var(--spacing-2);
+    --book-margin-left: var(--tray-size);
 
     font-family: var(--book-font);
-    size: 1rem;
+    font-size: var(--book-font-size);
     container-type: inline-size;
     container-name: book-container;
     overflow-x: clip;
     padding-bottom: 10ch;
     padding-right: var(--book-right-padding);
+    padding-left: var(--book-left-padding);
+    margin-left: var(--book-margin-left);
     @media(max-width: 1200px) {
-        --book-right-padding: 0;
+        --book-right-padding: var(--spacing-1);
+        --book-left-padding: var(--book-right-padding);
+    }
+    @media(max-width: 799px) {
+        --book-margin-left: 0; 
+        --book-right-padding: var(--spacing-1);
+        --book-left-padding: var(--book-right-padding);
     }
     @media(max-width: 639px) {
         --outline-1-size: var(--font-size-6xl);
@@ -45,7 +57,6 @@
         --outline-4-size: var(--font-size-xl);
         --outline-5-size: var(--font-size-lg);
         --outline-6-size: var(--font-size-base);
-        margin-left: 0;
     }
 
     .book-toc {
@@ -75,7 +86,6 @@
         text-decoration: underline;
         &:hover {
             color: var(--link-hover-color);
-            text-shadow: 1px 1px 0px var(--color-canvas-dark);
         }
     }
     h1,h2,h3 {
@@ -144,10 +154,9 @@
     }
     p {
         margin-block: var(--spacing-1);
-        text-shadow: 0px 0px 1px var(--color-ink-shadow);
         text-align: justify;
         letter-spacing: 0.05ch;
-        line-height: 1.5rem;
+        line-height: var(--book-text-line-height);
         font-weight: 100;
     }
     b {
@@ -299,20 +308,26 @@
         text-align: left;
         font-size: var(--font-size-sm);
         background-color: oklch(var(--tw-lch-blue-500) / 0.3);
-        padding-inline: var(--spacing-1);
-        padding-block: var(--spacing-xs);
+        padding: var(--inline-space) var(--block-space);
         width: var(--aside-width);
         position: absolute;
         top: -2ch;
         right: calc(var(--book-right-padding) * -1);
-        @container book-container (width <= 80ch) {
-            position: relative
+        @media(max-width: 1200px) {
+            --aside-width: auto;
+            position: relative;
+            right: 0;
+            top: 0;
         }
     }
     blockquote {
         background-color: var(--color-canvas-600);
         font-family: var(--font-stack-neo-grotesque);
-        padding: var(--spacing-xs) var(--spacing-1);
+        padding: var(--inline-space) var(--block-space);
+        p {
+            margin: 0;
+            padding: 0;
+        }
     }
     .example {
         font-family: var(--font-code);

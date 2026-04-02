@@ -488,7 +488,7 @@ symbols in manually. Some of the above functions will come in handy for those
 kinds of operations.
 </p>
 
-<div class="matters_of_style" id="orgf732ff9">
+<div class="matters_of_style" id="orgc485aee">
 <p>
 Now that you know that <code>let</code> and <code>let*</code> are nearly the same, with <code>let*</code>
 providing more functionality that <code>let</code>, you are probably tempted to never use
@@ -537,17 +537,17 @@ will be available at the top level.
 To define locally-scoped named functions, use <code>flet</code> or <code>labels</code>:
 </p>
 
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun squirt-then-double (x)
-  (flet ((squirt (y)
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun square-then-double (x)
+  (flet ((square (y)
            (* y y)))
-    (* 2 (squirt x))))
+    (* 2 (square x))))
 
-(defun squirt-then-double-with-labels (x)
-  (labels ((squirt (y)        
+(defun square-then-double-with-labels (x)
+  (labels ((square (y)        
              (* y y))
-           (double-squirted ()
-             (* 2 (squirt x))))
-    (double-squirted x)))
+           (double-squareed ()
+             (* 2 (square x))))
+    (double-squareed x)))
 </code></pre>
 
 <p>
@@ -770,7 +770,7 @@ be the return value.
 (defun do-a-bunch-of-stuff ()
   (setf *some-var* "I assigned a value to *some-var*.")
   (let ((num 5))
-    (squirt-then-double num)
+    (square-then-double num)
     (random 10)
     "I am the value that this function will return"))
 (do-a-bunch-of-stuff)
@@ -914,12 +914,12 @@ To pass a function as an argument, you have a few options.
 <p>
 You can use <code>function</code>:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar (function squirt-then-double) '(1 2 3 4 5))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar (function square-then-double) '(1 2 3 4 5))
 </code></pre>
 <p>
 Or, more commonly, use the reader macro <code>#'</code>:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'squirt-then-double '(1 2 3 4 5))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'square-then-double '(1 2 3 4 5))
 </code></pre>
 <p>
 Or you can use anonymous functions.
@@ -1716,7 +1716,7 @@ You can iterate by using a functional programming style mapping. You've seen it
 in action already:
 </p>
 
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'squirt-then-double '(1 2 3 4 5))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'square-then-double '(1 2 3 4 5))
 </code></pre>
 
 <div class="code-block">

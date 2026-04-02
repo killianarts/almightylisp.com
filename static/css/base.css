@@ -241,9 +241,11 @@
     --tw-lch-rose-800: 0.455 0.188 13.697;
     --tw-lch-rose-900: 0.41 0.159 10.272;
     --tw-lch-rose-950: 0.271 0.105 12.094;
-    --tw-lch-black: #000000;
-    --tw-lch-white: #ECE6D5;
+    --tw-lch-black: 0 0 129.63;
+    --tw-lch-white: 1 0 129.63;
 
+    --color-black: oklch(var(--tw-lch-black));
+    --color-white: oklch(var(--tw-lch-white));
     --color-canvas-50: oklch(var(--tw-lch-blue-50));
     --color-canvas-100: oklch(var(--tw-lch-blue-100));
     --color-canvas-200: oklch(var(--tw-lch-blue-200));
@@ -256,11 +258,11 @@
     --color-canvas-900: oklch(var(--tw-lch-blue-900));
     --color-canvas-950: oklch(var(--tw-lch-blue-950));
 
-    --color-canvas-lighter: var(--color-canvas-500);
-    --color-canvas-light: var(--color-canvas-600);
-    --color-canvas: var(--color-canvas-700);
-    --color-canvas-dark: var(--color-canvas-800);
-    --color-canvas-darker: var(--color-canvas-900);
+    --color-canvas-lighter: var(--color-canvas-600);
+    --color-canvas-light: var(--color-canvas-700);
+    --color-canvas: var(--color-canvas-800);
+    --color-canvas-dark: var(--color-canvas-900);
+    --color-canvas-darker: var(--color-canvas-950);
     --color-canvas-soft: var(--color-canvas-400);
 
     --color-ink: var(--color-canvas-950);
@@ -379,6 +381,8 @@
     --container-8xl: calc(var(--inline-space) * 75);
     --container-9xl: calc(var(--inline-space) * 80);
 
+    --leading-wide: auto;
+    
     --tray-size: clamp(12rem, 25dvw, 24rem);
     --main-padding: clamp(var(--inline-space), 3vw, calc(var(--inline-space) * 3));
 
@@ -386,8 +390,8 @@
     --font-size-xs: 0.5rem;
     --font-size-sm: 0.75rem;
     --font-size-base: 1rem;
-    --font-size-lg: 1.5rem;
-    --font-size-xl: 1.75rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.50rem;
     --font-size-2xl: 2rem;
     --font-size-3xl: 3rem;
     --font-size-4xl: 4rem;
@@ -439,15 +443,15 @@
     --font-heading: "League Gothic";
     --font-hero: "League Gothic Tall";
     --font-bodoni: "Bodoni 72 Smallcaps";
-    --font-serif: var(--font-instrument-serif);
+    --font-serif: var(--font-stack-transitional);
     --font-code: var(--font-berkeley);
     --font-code-condensed: var(--font-berkeley-uc);
-    --font-link: var(--font-berkeley-uc);
+    --font-link: var(--font-berkeley);
 
 }
 
 body {
-    background-image: url("../../static/assets/images/bg-dot-pattern-base.png");
+    /* background-image: url("../../static/assets/images/bg-dot-pattern-base.png"); */
     background-color: var(--color-canvas);
     background-repeat: repeat;
     color: var(--color-ink-light);
@@ -458,4 +462,8 @@ a {
     font-family: var(--font-link);
     transition: all;
     transition-duration: 300ms;
+}
+
+p {
+    padding-bottom: var(--spacing-sm)
 }
