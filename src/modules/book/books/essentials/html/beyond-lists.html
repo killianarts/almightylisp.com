@@ -1009,7 +1009,7 @@ Use <code>maphash</code> to print key/value pairs or do other mapping operations
 </p>
 
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun print-hash (hash-table)
-  (maphash #'(lambda (key value) (format t "~&amp;~a -&gt; ~a~%" key value)) hash-table))
+  (maphash (lambda (key value) (format t "~&amp;~a -&gt; ~a~%" key value)) hash-table))
 </code></pre>
 
 <p>

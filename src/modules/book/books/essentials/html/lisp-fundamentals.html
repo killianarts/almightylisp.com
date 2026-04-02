@@ -488,7 +488,7 @@ symbols in manually. Some of the above functions will come in handy for those
 kinds of operations.
 </p>
 
-<div class="matters_of_style" id="orgc485aee">
+<div class="matters_of_style" id="org3c08edf">
 <p>
 Now that you know that <code>let</code> and <code>let*</code> are nearly the same, with <code>let*</code>
 providing more functionality that <code>let</code>, you are probably tempted to never use
@@ -936,14 +936,21 @@ Or you can use anonymous functions.
 <p>
 You can use anonymous functions with <code>lambda</code>:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">((lambda (x) (* x x)) 5) ; =&gt; 25
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">((lambda (x) (* x x)) 5)
 </code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>25</code></pre>
+</div>
+
 <p>
 Lambdas are useful when using functional programming functions like <code>mapcar</code> or
 <code>remove-if-not</code>.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'(lambda (x) (+ (* x x) (* x x))) '(1 2 3 4 5)) ; =&gt; (2 8 18 32 50)
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar (lambda (x) (+ (* x x) (* x x))) '(1 2 3 4 5))
 </code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(2 8 18 32 50)</code></pre>
+</div>
 </div>
 
 </section>
@@ -2939,7 +2946,7 @@ Next, we need a way to calculate the state of those triplets.
      (nth (third triplet) board)))
 
 (defun compute-sums (board)
-  (mapcar #'(lambda (triplet) (sum-triplet board triplet)) *triplets*))
+  (mapcar (lambda (triplet) (sum-triplet board triplet)) *triplets*))
 </code></pre>
 <p>
 <code>mapcar</code> is one of the many built-in functions that takes a function as an argument.
@@ -3228,7 +3235,7 @@ First, let's make a test board.
 What we want to is to find a triplet that sums to 20.
 </p>
 <div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) ,*triplets*)
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) ,*triplets*)
 </code></pre>
 <pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 4 7)</code></pre>
 </div>
@@ -3244,8 +3251,8 @@ board to take. That means we need to find the element in the winning triplet
 that is 0.
 </p>
 <div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (element) (= 0 (nth element *test-board*)))
-         (find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= 0 (nth element *test-board*)))
+         (find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*))
 </code></pre>
 <pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>7</code></pre>
 </div>
@@ -3254,9 +3261,9 @@ that is 0.
 Since we need to do the same thing to check if we need to block&#x2026;
 </p>
 <div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (element) (= 0 (nth element *test-board*)))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= 0 (nth element *test-board*)))
          ;; Notice (= 2 ...), not (= 20 ...)
-         (find-if #'(lambda (triplet) (= 2 (sum-triplet *test-board* triplet))) *triplets*))
+         (find-if (lambda (triplet) (= 2 (sum-triplet *test-board* triplet))) *triplets*))
 </code></pre>
 <pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>8</code></pre>
 </div>
@@ -3267,10 +3274,10 @@ Since we need to do the same thing to check if we need to block&#x2026;
 
 <pre class="code-block-source-pre"><code class="code-block-source lisp">;; NOTE: bug left purposefully for teaching purposes
 (defun win-or-block (board target-sum)
-  (let ((target-triplet (find-if #'(lambda (triplet) (= target-sum (sum-triplet *test-board* triplet)))
+  (let ((target-triplet (find-if (lambda (triplet) (= target-sum (sum-triplet *test-board* triplet)))
                                  *triplets*)))
-    (if target-triplet
-        (find-if #'(lambda (element) (= (nth element board) 0)) target-triplet))))
+    (when target-triplet
+        (find-if (lambda (element) (= (nth element board) 0)) target-triplet))))
 </code></pre>
 
 <p>
@@ -3448,12 +3455,12 @@ strategy: I see a winning move at"</code>. We expect it to simply pick a random 
  function.
 </p>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun win-or-block (board target-sum)
-  (let ((target-triplet (find-if #'(lambda (triplet)
+  (let ((target-triplet (find-if (lambda (triplet)
                                     ;; NOTE: *test-board* -&gt; board
                                     (= target-sum (sum-triplet board triplet)))
                                 *triplets*)))
-    (if target-triplet
-        (find-if #'(lambda (element) (= (nth element board) 0)) target-triplet))))
+    (when target-triplet
+        (find-if (lambda (element) (= (nth element board) 0)) target-triplet))))
 </code></pre>
 
 <p>
@@ -3566,7 +3573,7 @@ any triplet with values that reduce to 12
 </p>
 
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun detect-squeeze (board)
-  (find-if #'(lambda (triplet)
+  (find-if (lambda (triplet)
                (= 12 (sum-triplet board triplet)))
            *triplets*))
 </code></pre>
@@ -3589,13 +3596,13 @@ any triplet with values that reduce to 12
 We need to know for sure this is a diagonal triplet, though.
 </p>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun diagonal-p (triplet)
-  (every #'(lambda (item)
+  (every (lambda (item)
              ;; Every item is either a corner or the middle.
              (or (member item *corners*)
                  (= 5 item)))
          triplet))
 (defun detect-squeeze (board)
-  (find-if #'(lambda (triplet)
+  (find-if (lambda (triplet)
                ;; Add AND and DIAGONAL-P
                (and (= 12 (sum-triplet board triplet))
                     (diagonal-p triplet)))
@@ -3639,7 +3646,7 @@ We also need to know who is in the middle.
 
 ;; Add TARGET-SUM as an argument.
 (defun detect-squeeze (board target-sum)
-  (find-if #'(lambda (triplet)
+  (find-if (lambda (triplet)
                ;; Use TARGET-SUM.
                (and (= target-sum (sum-triplet board triplet))
                     (diagonal-p triplet)
@@ -3675,17 +3682,17 @@ otherwise progressed beyond the first diagonals.
   (find-empty-position board *sides*))
 
 (defun find-empty-position (board search-area)
-  (find-if #'(lambda (x) (= 0 (nth x board))) search-area))
+  (find-if (lambda (x) (= 0 (nth x board))) search-area))
 
 (defun detect-squeeze (board target-sum)
   (let ((squeeze-p
-          (find-if #'(lambda (triplet)
+          (find-if (lambda (triplet)
                        (and (= (sum-triplet board triplet) target-sum)
                             (diagonal-p triplet)                           
                             (not (human-in-middle-p board))               
                             (side-empty-p board)))                       
                    *triplets*)))
-    (if squeeze-p
+    (when squeeze-p
         (find-empty-position board *sides*))))
 </code></pre>
 <p>
@@ -3710,7 +3717,7 @@ If we test <code>detect-squeeze</code>, we should get an empty space on one of t
 </p>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun detect-two-on-one (board target-sum)
   (let ((two-on-one-p
-          (find-if #'(lambda (triplet)
+          (find-if (lambda (triplet)
                        (and (= (sum-triplet board triplet) target-sum)
                             (diagonal-p triplet)
                             (human-in-middle-p board) 

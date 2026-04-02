@@ -597,13 +597,15 @@ exec ros -Q -- $0 "$@"
 (defun get-env-int (env default)
   (let ((env (uiop:getenv env)))
     (if env
-        (parse-integer env :junk-allowed t) default)))
+        (parse-integer env :junk-allowed t)
+        default)))
 
 (defun get-env (env default)
   (or (uiop:getenv env) default))
 
 (defun envp (env)
-  (if (string-equal (uiop:getenvp env) "true") t nil))
+  (when (string-equal (uiop:getenvp env) "true")
+        t))
 
 (defun main ()
   (let ((host (get-env "HOST" "127.0.0.1"))
@@ -612,7 +614,9 @@ exec ros -Q -- $0 "$@"
     (handler-case
         (progn
           (clack:clackup (lack:builder fuka-stack:*component*) :server :woo
-          :address host :port port :debug debugp)
+                                                               :address host
+                                                               :port port
+                                                               :debug debugp)
           (sleep most-positive-fixnum))
       (error (c)
         (format *error-output* "Aborting. ~a ~&amp;" c)
@@ -813,10 +817,8 @@ Open a buffer in <code>fuka-stack/src/main.lisp</code>, add this code, and save 
           (if (functionp response)
               response
               (destructuring-bind (status headers body) response
-                (lack/response:finalize-response (lack/response:make-response
- status headers body))))
-          (lack/response:finalize-response (lack/response:make-response 404 '(:content-type "
-text/html") '("Not found")))))))
+                (lack/response:finalize-response (lack/response:make-response status headers body))))
+          (lack/response:finalize-response (lack/response:make-response 404 '(:content-type "text/html") '("Not found")))))))
 
 ;; Clack response utility
 (defun http-response (body &amp;key (code 200) (headers nil))
@@ -831,8 +833,7 @@ text/html") '("Not found")))))))
   (lambda (params)
     (funcall (symbol-function fn) params)))
 
-(defun route (method routing-rule endpoint &amp;optional (mapper (component-routes
- *component*)))
+(defun route (method routing-rule endpoint &amp;optional (mapper (component-routes *component*)))
   (myway:connect mapper
                  routing-rule
                  (make-endpoint endpoint)
@@ -843,8 +844,7 @@ text/html") '("Not found")))))))
 (defun index (params)
   (declare (ignore params))
   (http-response (format nil
-                         "Hello, world! This is the path: ~a. This is the HTTP
- request method: ~a."
+                         "Hello, world! This is the path: ~a. This is the HTTP request method: ~a."
                          (lack/request:request-path-info *request*)
                          (lack/request:request-method *request*))))
 

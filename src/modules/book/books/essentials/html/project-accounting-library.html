@@ -1308,8 +1308,8 @@ Usage Examples:
                (debit \"CASH000\" 5000)
                (credit \"REV000\" 5000))
 "
-  (let ((date (or (find-if #'(lambda (x) (typep x 'lt:timestamp)) legs) (lt:now)))
-        (legs (remove-if-not #'(lambda (x) (typep x 'leg)) legs)))
+  (let ((date (or (find-if (lambda (x) (typep x 'lt:timestamp)) legs) (lt:now)))
+        (legs (remove-if-not (lambda (x) (typep x 'leg)) legs)))
     (unless (&gt; (length legs) 1)
       (error "transactions must have at least two legs."))
     (unless (and (find-if #'debit-p legs)
@@ -2062,8 +2062,7 @@ Let's make <code>examples/db.lisp</code> and define the package:
 This package will be in charge of helping us work with the database:
 establishing a connection, select queries, and other "business logic" queries.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; * ░ UTILS ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-(defmacro with-universals (bindings &amp;body body)
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defmacro with-universals (bindings &amp;body body)
   `(let ,(loop :for (var val) :in bindings
                :collect (list var
                               `(lt:timestamp-to-universal

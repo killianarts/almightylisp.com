@@ -61,7 +61,7 @@ condition". The most common way to signal some <code>condition</code> is to use 
 <code>cerror</code>.
 </p>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun oops (x)
-  (if (zerop x)
+  (when (zerop x)
       (error "What the h?")))
 </code></pre>
 
@@ -87,7 +87,7 @@ Notice that the <code>condition</code> is a <code>SIMPLE-ERROR</code>.
 <code>cerror</code> will create a <i>continuable</i> error.
 </p>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun oops (x)
-  (if (zerop x)
+  (when (zerop x)
       (cerror "Want to continue?" "You passed ~d" x))
   (print "You continued."))
 </code></pre>
@@ -409,10 +409,9 @@ Let's begin by parsing the file:
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun parse-line (line)
     "Parse a 'key=value' line into a cons pair."
     (let ((pos (position #\= line)))
-      (if pos
+      (when pos
           (cons (subseq line 0 pos)
-                (subseq line (1+ pos)))
-          nil)))
+                (subseq line (1+ pos))))))
 
   (defun read-config (stream)
     "Read config lines from a stream, collecting key=value pairs."

@@ -63,7 +63,7 @@ include or exclude forms from other forms. Let me show you what I mean.
 In the tic-tac-toe project, we wrote code to find positions on the board to win
 or block the opponent's win. To begin, we wrote this:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
  *triplets*)
 </code></pre>
 <p>
@@ -71,16 +71,16 @@ This finds any triplet that sums to 20 on the board. But we then wanted to
 search the result of that <code>find-if</code> form to search for the empty space in the
 triplet.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (element) (= (nth element board) 0))
-         (find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= (nth element board) 0))
+         (find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
  *triplets*))
 </code></pre>
 <p>
 If you use structural editing, this can actually be difficult at first. You
 might naturally try to write the code like this:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (element) (= (nth element board) 0)))
-(find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= (nth element board) 0)))
+(find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
  *triplets*)
 </code></pre>
 <p>
@@ -88,8 +88,8 @@ And then, in order to wrap the bottom <code>find-if</code> form with the top <co
 form, you might try to delete the final parenthesis of the top <code>find-if</code> and
 then move it to the end of the bottom <code>find-if</code> form:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (element) (= (nth element board) 0)) ; deleted paren
-(find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*)) ; added
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= (nth element board) 0)) ; deleted paren
+(find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*)) ; added
                                                                                      ; paren
 </code></pre>
 <p>
@@ -106,20 +106,20 @@ If you want to move only one parenthesis, then, what do you do?
 One option would be to <code>kill</code> the <code>find-if</code> form intended to become the inner
 form&#x2026;
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (element) (= (nth element board) 0)) ; bottom form killed
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= (nth element board) 0)) ; bottom form killed
 </code></pre>
 <p>
 and then paste it at the end of the outer <code>find-if</code>&#x2026;
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (element) (= (nth element board) 0)) (find-if #'(lambda (triplet) (=
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= (nth element board) 0)) (find-if (lambda (triplet) (=
  20 (sum-triplet *test-board* triplet))) *triplets*))
 </code></pre>
 <p>
 and then move the cursor to the beginning parenthesis of the inner <code>find-if</code> and
 press <code>ENTER</code> to place it on a new line.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (element) (= (nth element board) 0))
-         (find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= (nth element board) 0))
+         (find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
  *triplets*))
 </code></pre>
 <p>
@@ -129,8 +129,8 @@ This is okay, but there is an even easier method called <code>slurping</code>.
 <p>
 Start with this code:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (element) (= (nth element board) 0)))
-(find-if #'(lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= (nth element board) 0)))
+(find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet)))
  *triplets*)
 </code></pre>
 <p>
@@ -144,7 +144,7 @@ Normal mode (not Insert mode), press <code>&gt;</code> (the <code>lispyville-mod
 Slurping is especially useful for any time you need to "build out" from some
 code. Consider this:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if #'(lambda (triple)
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (triple)
              (= (sum-triple *test-board* triple) target-sum))
          *triples*)
 </code></pre>
@@ -178,7 +178,7 @@ value of the <code>find-if</code> form to a local variable using <code>let</code
 like this:
 </p>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">;; Write the LET and variable we want in the LET.
-(let ((squeeze-p))) (find-if #'(lambda (triple)
+(let ((squeeze-p))) (find-if (lambda (triple)
              (and (= (sum-triple board triple) target-sum)
                   (diagonal-p triple)
                   (not (human-in-middle-p board))
@@ -196,13 +196,13 @@ function definition above the entire <code>let</code> form:
 </p>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun detect-squeeze (board target-sum))
 (let ((squeeze-p
-        (find-if #'(lambda (triple)
+        (find-if (lambda (triple)
                      (and (= (sum-triple board triple) target-sum)
                           (diagonal-p triple)
                           (not (human-in-middle-p board))
                           (side-empty-p board)))
                  *triples*)))
-  (if squeeze-p
+  (when squeeze-p
       (find-empty-position board *sides*)))
 </code></pre>
 <p>
