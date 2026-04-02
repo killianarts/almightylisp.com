@@ -20,7 +20,7 @@
  Emacs is the most powerful text editor in history. Now, it is time for you to
  make history by mastering the essentials of these almighty tools with " (span :class "book-name" "Almighty
  Lisp: Lisp & Emacs Essentials") ".")
-           (a :href "book/essentials" "Learn Lisp & Emacs Immediately"))
+           (a :class "cta" :href "book/essentials" "Learn Lisp & Emacs Immediately"))
          (section
            (h2 "Who This Book Is For")
            (p "If you’re a Lisp-curious veteran programming looking for the perfect book for
@@ -85,11 +85,12 @@ command.")
            (p "Be not defeated by the rapidly shifting winds of code and craft. Embrace the
 piercing light of destiny, beaming from the flaming horizon over an effervescent
 ocean of functions, classes, and parentheses. Become Almighty.")
-           (a :href "book/essentials" "Read The Book Immediately"))
+           (a :class "cta" :href "book/essentials" "Read The Book Immediately"))
          (section :class "about-author"
            (h2 "About Me, The Author")
            (p "I’m Micah Killian. I’m a former English teacher (ALT) and current freelance
 software developer living and working in Saga, Japan. I have a wife and two
 daughters. When I’m rewriting everything in Common Lisp (which you should do
 IMMEDIATELY), I’m out with my family climbing mountains, playing at the park,
-repairing bicycles, and dreaming of lambdas (not lambos).")))))))
+repairing bicycles, and dreaming of lambdas (not lambos).")
+           (p "You can find me on X at " (a :href "https://x.com/almighty_lisp" "@almighty_lisp") " and you can email me: micah at this website's url.")))))))

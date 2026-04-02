@@ -23,8 +23,9 @@
 
     --book-name-color: var(--color-accent);
 
-    --link-font-size: var(--font-size-2xl);
-    --link-font-family: var(--font-code-condensed);
+    --cta-font-size: var(--font-size-2xl);
+    --cta-font-family: var(--font-code-condensed);
+    --link-font-family: var(--font-code);
     --link-color: var(--color-accent);
     --link-hover-color: var(--color-secondary);
     --link-hover-shadow-color: var(--color-canvas-dark);
@@ -95,14 +96,23 @@
         letter-spacing: 0.05ch;
     }
     a {
+        font-family: var(--link-font-family);
+        color: var(--link-color);
+        text-decoration: underline;
+        &:hover {
+            color: var(--link-hover-color); 
+            text-shadow: 1px 1px 0px var(--link-hover-shadow-color);
+        }
+    }
+    .cta {
         margin-block: var(--block-space);
         display: flex;
         justify-content: center;
         text-wrap: balance;
         text-align: center;
         text-transform: uppercase;
-        font-family: var(--link-font-family);
-        font-size: var(--link-font-size);
+        font-family: var(--cta-font-family);
+        font-size: var(--cta-font-size);
         text-decoration: underline;
         transition: all;
         transition-duration: 300ms;
