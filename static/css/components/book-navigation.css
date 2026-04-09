@@ -134,7 +134,7 @@
         gap: var(--link-gap);
         justify-content: space-between;
         align-items: start;
-        padding: var(--spacing-xs) var(--spacing-xs);
+        padding: var(--spacing-2xs) var(--spacing-2xs);
         color: var(--link-color);
         font-family: var(--link-font-family);
         &:hover {
@@ -185,7 +185,7 @@
         background-color: var(--color-canvas-dark);
         justify-content: space-between;
         align-items: center;
-        padding-inline: var(--spacing-xs);
+        padding-inline: var(--spacing-2xs);
         font-family: var(--link-font-family);
         text-decoration: underline;
         &:hover {

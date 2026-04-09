@@ -1,4 +1,5 @@
 .book {
+    --body-text-spacing: var(--spacing-1);
     --link-color: var(--color-accent);
     --link-hover-color: var(--color-secondary);
     --code-color: var(--color-secondary);
@@ -26,7 +27,7 @@
     --chapter-number-font-size: var(--outline-1-size);
 
     --book-toc-font-size: var(--font-size-lg);
-    --aside-width: 25ch;
+    --aside-width: 35ch;
     --aside-left-margin: 2ch;
     --book-right-padding: calc(var(--aside-width) + var(--aside-left-margin));
     --book-left-padding: var(--spacing-2);
@@ -153,7 +154,7 @@
         transform: translate(0, calc(var(--inline-space) * -1));
     }
     p {
-        margin-block: var(--spacing-1);
+        margin-block: var(--body-text-spacing);
         text-align: justify;
         letter-spacing: 0.05ch;
         line-height: var(--book-text-line-height);
@@ -170,7 +171,7 @@
         margin-block: calc(var(--block-space) * 2);
     }
     pre {
-        padding: var(--spacing-sm);
+        padding: var(--spacing-xs);
     }
     code {
         font-family: var(--code-font);
@@ -302,22 +303,31 @@
 
     .book-aside {
         position: relative;
+        width: 100%;
+        @container book-container (width <= 100ch) {
+            margin-block: var(--body-text-spacing);;
+        }
     }
     .book-aside-contents {
         font-family: var(--font-berkeley-thin);
         text-align: left;
         font-size: var(--font-size-sm);
         background-color: oklch(var(--tw-lch-blue-500) / 0.3);
-        padding: var(--inline-space) var(--block-space);
         width: var(--aside-width);
+        padding: var(--spacing-1);
         position: absolute;
-        top: -2ch;
         right: calc(var(--book-right-padding) * -1);
-        @media(max-width: 1200px) {
+        @container book-container (width <= 100ch) {
             --aside-width: auto;
             position: relative;
-            right: 0;
-            top: 0;
+            right: auto;
+        }
+        & p {
+            margin-block: var(--spacing-1);
+        }
+        & p:first-of-type,
+        & p:last-of-type {
+            margin-block: 0;
         }
     }
     blockquote {

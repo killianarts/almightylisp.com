@@ -343,12 +343,13 @@
 
     --inline-space: 1ch;
     --block-space: 1rem;
+    --pixel-space: 1px;
 
     /* Spacing scale */
-    --spacing-0: 0;
-    --spacing-xs: calc(var(--block-space) * 0.25);
-    --spacing-sm: calc(var(--block-space) * 0.50);
-    --spacing-md: calc(var(--block-space) * 0.75);
+    --spacing-none: 0;
+    --spacing-2xs: calc(var(--block-space) * 0.25);
+    --spacing-xs: calc(var(--block-space) * 0.50);
+    --spacing-sm: calc(var(--block-space) * 0.75);
     --spacing-1: calc(var(--block-space) * 1);
     --spacing-2: calc(var(--block-space) * 2);
     --spacing-3: calc(var(--block-space) * 3);
@@ -363,6 +364,23 @@
     --spacing-16: calc(var(--block-space) * 16);
     --spacing-20: calc(var(--block-space) * 20);
     --spacing-24: calc(var(--block-space) * 24);
+
+    --box-spacing-none: 0;
+    --box-spacing-2xs: calc(var(--pixel-space) * .25);
+    --box-spacing-xs: calc(var(--pixel-space) * .50);
+    --box-spacing-sm: calc(var(--pixel-space) * .75);
+    --box-spacing-1: calc(var(--pixel-space) * 1);
+    --box-spacing-2: calc(var(--pixel-space) * 2);
+    --box-spacing-3: calc(var(--pixel-space) * 3);
+    --box-spacing-4: calc(var(--pixel-space) * 4);
+    --box-spacing-5: calc(var(--pixel-space) * 5);
+    --box-spacing-6: calc(var(--pixel-space) * 6);
+    --box-spacing-7: calc(var(--pixel-space) * 7);
+    --box-spacing-8: calc(var(--pixel-space) * 8);
+    --box-spacing-9: calc(var(--pixel-space) * 9);
+    --box-spacing-10: calc(var(--pixel-space) * 10);
+
+    
 
     /* Sizing */
     --container-3xs: calc(var(--inline-space) * 10);
@@ -464,6 +482,4 @@ a {
     transition-duration: 300ms;
 }
 
-p {
-    padding-bottom: var(--spacing-sm)
-}
+

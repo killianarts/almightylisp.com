@@ -47,7 +47,7 @@
         --hero-header-line-height: var(--font-size-4xl);
         --hero-body-font-size: var(--font-size-lg);
         --heading-font-size: var(--font-size-2xl);
-        --heading-margin-bottom: var(--spacing-sm);
+        --heading-margin-bottom: var(--spacing-xs);
         --list-margin-left: var(--spacing-1);
     }
 
