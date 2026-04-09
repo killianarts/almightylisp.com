@@ -353,13 +353,20 @@ Use <code>let</code> to introduce or reassign a local variable.
 </div>
 
 
-<aside class="book-aside"><p>
+<aside class="book-aside">
+
+<div class="book-aside-contents">
+
+<p>
 <code>let</code> was initially confusing to me because of how it creates a block. It feels
 heavier than a typical <code>let var = "some value"</code> as in other languages. One
 upside to this increased weight of variable binding is that it give an
 indication of how complex the operation really is via the indentation and width
 of the code.
 </p>
+
+
+</div>
 </aside>
 
 <p>
@@ -492,7 +499,7 @@ symbols in manually. Some of the above functions will come in handy for those
 kinds of operations.
 </p>
 
-<div class="matters_of_style" id="orgf2b4482">
+<div class="matters_of_style" id="org519012c">
 <p>
 Now that you know that <code>let</code> and <code>let*</code> are nearly the same, with <code>let*</code>
 providing more functionality that <code>let</code>, you are probably tempted to never use
@@ -3300,7 +3307,11 @@ Test it. Passing <code>2</code> checks if we need to block; passing <code>20</co
 <pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>7</code></pre>
 </div>
 
-<aside class="book-aside"><p>
+<aside class="book-aside">
+
+<div class="book-aside-contents">
+
+<p>
 Reading Lisp Code
 </p>
 
@@ -3316,6 +3327,9 @@ By first assigning <code>target-triplet</code> to the triplet that sums to <code
 reverse the order of the code we read first, making it clearer. It also allows
 us to check if a <code>target-triplet</code> even exists.
 </p>
+
+
+</div>
 </aside>
 
 <p>
@@ -3351,11 +3365,18 @@ we can call it with the appropriate target-sum in our win and block strategies.
 We will return a list with the move and also the strategy employed.
 </p>
 
-<aside class="book-aside"><p>
+<aside class="book-aside">
+
+<div class="book-aside-contents">
+
+<p>
 Notice that we use <code>when</code>. We could use <code>if</code> instead, but <code>when</code> communicates
 more precisely what we mean. If we don't need the optional "else" branch of the
 <code>if</code> form, then it's better style to use <code>when</code> or <code>unless</code>.
 </p>
+
+
+</div>
 </aside>
 
 <p>

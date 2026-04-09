@@ -300,10 +300,10 @@
         z-index: 1;                 /* keeps it above other cells */
     }
 
-    aside {
+    .book-aside {
         position: relative;
     }
-    aside > p {
+    .book-aside-contents {
         font-family: var(--font-berkeley-thin);
         text-align: left;
         font-size: var(--font-size-sm);
