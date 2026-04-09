@@ -125,6 +125,25 @@ of the symbols built into Common Lisp. If you evaluate this code, you'll get a s
    [Condition of type COMMON-LISP:UNBOUND-VARIABLE]</code></pre>
 </div>
 
+<aside class="book-aside"><p>
+Okay, this is not technically true (the best kind of true amiright fellow
+nerds). If you don't have a <code>(:use ...)</code> option set, the behavior is
+implementation-dependent.
+</p>
+
+<p>
+On SBCL (the implementation used in this book), what
+is written here is true: you will have a bad time. In ECL, another
+implementation, the <code>(:use ...)</code> option defaults to use <code>#:cl</code>, meaning the above
+<code>messy-package</code> won't be messy after all.
+</p>
+
+<p>
+Common Lisp has a rich variety of implementation-dependent behavior waiting for
+you to discover in the debugger.
+</p>
+</aside>
+
 <p>
 Why? Because the <code>defun</code> special operator is actually a <i>macro</i> whose first
 argument is a name for the function you are defining. Because it's a macro, the

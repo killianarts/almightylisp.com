@@ -122,8 +122,7 @@ function that comes at the beginning of the parenthesis, and all numbers
 afterward evaluated using that operator, from left to right. In school, we learn
 math using <code>infix notation</code>, where the operators are placed between each number.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(+ (* 5 5 5) (/ 18 2) (- 20 3)) ; using infix notation: 5 * 5 * 5 + 18 / 2 + 20
-                                ; - 3
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(+ (* 5 5 5) (/ 18 2) (- 20 3)) ; using infix notation: 5 * 5 * 5 + 18 / 2 + 20 - 3
 </code></pre>
 </div>
 
@@ -227,8 +226,13 @@ However, if this variable hasn't been introduced yet, you'll get an error.
 Use <code>defvar</code> to introduce a global variable without a value.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *debug*)
+*debug*
 </code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
+</div>
+
 
 <p>
 To change the value of a <code>defvar</code> variable, you need to call <code>setf</code> on the
@@ -255,7 +259,7 @@ You have to use <code>setf</code> to modify the value of a <code>defvar</code> v
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *no-changey* 'no)
 *no-changey*
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>YES</code></pre>
+<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NO</code></pre>
 </div>
 
 
@@ -488,7 +492,7 @@ symbols in manually. Some of the above functions will come in handy for those
 kinds of operations.
 </p>
 
-<div class="matters_of_style" id="org70e875c">
+<div class="matters_of_style" id="orgf2b4482">
 <p>
 Now that you know that <code>let</code> and <code>let*</code> are nearly the same, with <code>let*</code>
 providing more functionality that <code>let</code>, you are probably tempted to never use
@@ -545,8 +549,8 @@ To define locally-scoped named functions, use <code>flet</code> or <code>labels<
 (defun square-then-double-with-labels (x)
   (labels ((square (y)        
              (* y y))
-           (double-squareed ()
-             (* 2 (square x))))
+           (double-squareed (z)
+             (* 2 (square z))))
     (double-squareed x)))
 </code></pre>
 
