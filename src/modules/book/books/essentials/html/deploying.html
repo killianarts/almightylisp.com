@@ -276,7 +276,7 @@ Now for the <code>build.lisp</code> file:
 </p>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(require :asdf)
 
-;; Force ASDF to only look here for systems.
+;;; Force ASDF to only look here for systems.
 (asdf:initialize-source-registry `(:source-registry (:tree ,(uiop:getcwd))
  :ignore-inherited-configuration))
 
@@ -331,7 +331,7 @@ The <code>:entry-point</code> in the system is set to a function called <code>ma
 haven't written that function yet. For now, we're going to make this very
 simple:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; add
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; add
 (defun main ()
   (with-coa (general-ledger "2025-12-1" "2025-12-5")))
 </code></pre>
@@ -578,14 +578,14 @@ then save:
 exec ros -Q -- $0 "$@"
 |#
 
-;; Roswell script header (above) makes this executable
+;;; Roswell script header (above) makes this executable
 
 (defpackage #:fuka-stack-script
   (:use #:cl)
   (:export #:main))
 (in-package #:fuka-stack-script)
 
-;; Load your system
+;;; Load your system
 (asdf:initialize-source-registry
  `(:source-registry
    (:tree ,(uiop:getcwd))
@@ -593,7 +593,7 @@ exec ros -Q -- $0 "$@"
 
 (asdf:load-system "fuka-stack")
 
-;; Environment variable utilities.
+;;; Environment variable utilities.
 (defun get-env-int (env default)
   (let ((env (uiop:getenv env)))
     (if env
@@ -797,7 +797,7 @@ Open a buffer in <code>fuka-stack/src/main.lisp</code>, add this code, and save 
   (:nicknames #:fuka-stack/main))
 (in-package #:fuka-stack/main)
 
-;; Lack setup
+;;; Lack setup
 (defclass fuka-component (lack/component::lack-component)
   ((routes :initarg :routes :accessor component-routes :initform (myway:make-mapper))))
 
@@ -820,7 +820,7 @@ Open a buffer in <code>fuka-stack/src/main.lisp</code>, add this code, and save 
                 (lack/response:finalize-response (lack/response:make-response status headers body))))
           (lack/response:finalize-response (lack/response:make-response 404 '(:content-type "text/html") '("Not found")))))))
 
-;; Clack response utility
+;;; Clack response utility
 (defun http-response (body &amp;key (code 200) (headers nil))
   (let ((headers (append `(:content-type "text/html; charset=utf-8"
                            :content-length ,(length body))
@@ -828,7 +828,7 @@ Open a buffer in <code>fuka-stack/src/main.lisp</code>, add this code, and save 
     `(,code ,headers (,body))))
 
 
-;; Myway routing utilities
+;;; Myway routing utilities
 (defun make-endpoint (fn)
   (lambda (params)
     (funcall (symbol-function fn) params)))
@@ -840,7 +840,7 @@ Open a buffer in <code>fuka-stack/src/main.lisp</code>, add this code, and save 
                  :method method))
 
 
-;; Index controller and route
+;;; Index controller and route
 (defun index (params)
   (declare (ignore params))
   (http-response (format nil

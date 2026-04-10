@@ -259,7 +259,7 @@
         font-family: var(--code-font);
         container-type: inline-size;
         container-name: table-container;
-        @container book-container (width <= 100ch) {
+        @container book-container (width <= 75ch) {
             font-family: var(--font-berkeley-uc-thin);
         }
     }
@@ -304,7 +304,7 @@
     .book-aside {
         position: relative;
         width: 100%;
-        @container book-container (width <= 100ch) {
+        @container book-container (width <= 75ch) {
             margin-block: var(--body-text-spacing);;
         }
     }
@@ -317,7 +317,7 @@
         padding: var(--spacing-1);
         position: absolute;
         right: calc(var(--book-right-padding) * -1);
-        @container book-container (width <= 100ch) {
+        @container book-container (width <= 75ch) {
             --aside-width: auto;
             position: relative;
             right: auto;

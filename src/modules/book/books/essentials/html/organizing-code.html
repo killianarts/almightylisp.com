@@ -629,7 +629,7 @@ No shortcut for long symbol names:
 </p>
 
 <div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; Deal with it.
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; Deal with it.
 (annoying:a-very-long-and-annoying-function-or-macro-name)
 </code></pre>
 <pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>:OOF</code></pre>
@@ -1252,9 +1252,9 @@ That's not all, friends. The mystery deepens when we look in the
            #:routes-controllers-directory
            #:route
 
-           ;; from MyWay
+           ;;; from MyWay
            #:next-route))
-;; ...
+;;; ...
 </code></pre>
 <p>
 Wait, there is a third-party library--<code>myway</code>&#x2013;imported in this package! That
@@ -1327,7 +1327,7 @@ this:
 <p>
 And the files look like this:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; src/main.lisp
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; src/main.lisp
 (uiop:define-package #:almighty
   (:use #:cl)
   (:nicknames #:almighty/main)
@@ -1336,7 +1336,7 @@ And the files look like this:
                  #:almighty/models/person))
 (in-package #:almighty)
 
-;; src/db.lisp
+;;; src/db.lisp
 (defpackage #:almighty/db
   (:use #:cl)
   (:export #:hello-from-db))
@@ -1345,7 +1345,7 @@ And the files look like this:
 (defun hello-from-db ()
   :hello-from-deebee)
 
-;; src/config.lisp
+;;; src/config.lisp
 (defpackage #:almighty/config
   (:use #:cl)
   (:export #:hello-from-config))
@@ -1354,7 +1354,7 @@ And the files look like this:
 (defun hello-from-config ()
   :hello-from-config)
 
-;; src/models/person.lisp
+;;; src/models/person.lisp
 (defpackage #:almighty/models/person
   (:use #:cl)
   (:export

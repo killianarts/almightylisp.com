@@ -871,10 +871,10 @@ separately. Since the default for <code>:test</code> is <code>#'eql</code>, <cod
 two things <i>are in identical places in memory</i>. <code>equal</code>, on the other hand, will
 compare the structure of its inputs.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(eql "hello" "hello") ;; two separately instatiated arrays
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(eql "hello" "hello") ;;; two separately instatiated arrays
                                         ; =&gt; NIL
 (let ((str "hello"))
-  (eql str str)) ;; same variable, same place in memory
+  (eql str str)) ;;; same variable, same place in memory
                                         ; =&gt; T
 (equal "hello" "hello")
                                         ; =&gt; T
@@ -1090,8 +1090,8 @@ So first, let's setup our leg table.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(m:deftable leg ()
   ((account :col-type account)
    (side :col-type :integer)
-   ;; Use LEG-ENTRY to access ENTRY-AMOUNT and ENTRY-CURRENCY as an
-   ;; ALMIGHTY-MONEY:MONEY object.
+   ;;; Use LEG-ENTRY to access ENTRY-AMOUNT and ENTRY-CURRENCY as an
+   ;;; ALMIGHTY-MONEY:MONEY object.
    (entry-amount :col-type :integer)    ; ALMIGHTY-MONEY:MONEY object AMOUNT.
    (entry-currency :col-type :text) ; ALMIGHTY-MONEY:MONEY object CURRENCY-CODE.
    (transaction :col-type (or transaction :null)))
@@ -1539,10 +1539,10 @@ such a big deal. However, as the number of leg rows grows, the slower the
 operation will become. We can confirm that by making some mock data and then
 running <code>account-balance</code> on it.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; Create lots of mock data, saving to disk. If you already had some test data
-;; of your own, you can delete the .db file before running this.
-;; 
-;; This will take some time. Emacs will freeze while this process runs.
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; Create lots of mock data, saving to disk. If you already had some test data
+;;; of your own, you can delete the .db file before running this.
+;;; 
+;;; This will take some time. Emacs will freeze while this process runs.
 (with-coa
   (let ((cash (ak:get-account "CSH000"))
         (sale (ak:get-account "SLS000"))
@@ -1553,7 +1553,7 @@ running <code>account-balance</code> on it.
       (ak:transact! (ak:debit cash (am:usd amount))
                     (ak:credit sale (am:usd amount))
                     date))))
-;; Run ACCOUNT-BALANCE on mock data
+;;; Run ACCOUNT-BALANCE on mock data
 (with-coa (ak:account-balance "CSH000"))
 </code></pre>
 <p>
@@ -1633,7 +1633,7 @@ Usage Examples:
                   (string (lt:timestamp-to-universal (lt:parse-timestring as-of)))
                   (integer as-of))))
     (m:select-by-sql 'leg
-                     ;; Only returning amount, currency, and side
+                     ;;; Only returning amount, currency, and side
                      (s:select (:entry_amount :entry_currency :side)
                        (s:from (:as :almighty_leg :l))
                        (s:inner-join (:as :almighty_transaction :t)
@@ -1839,17 +1839,17 @@ for a certain account (as we do with <code>account-legs</code>) and then sum up 
 That looks good, but let's just be sure with a smaller test.
 </p>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(with-chart-of-accounts                 ; Using in-memory database
-  ;; Use cash and revenue accounts.
+  ;;; Use cash and revenue accounts.
   (let ((cash (ak:get-account "CSH000"))
         (revenue (ak:get-account "RMR000")))
-    ;; Make transactions.
+    ;;; Make transactions.
     (ak:transact! (ak:debit cash 5000)
                   (ak:credit revenue 5000))
     (ak:transact! (ak:debit cash 5000)
                   (ak:credit revenue 5000))
     (ak:transact! (ak:debit cash 5000)
                   (ak:credit revenue 5000))
-    ;; Reverse the transactions.
+    ;;; Reverse the transactions.
     (ak:transact! (ak:credit cash 5000)
                   (ak:debit revenue 5000))
     (ak:transact! (ak:credit cash 5000)
@@ -1862,7 +1862,7 @@ That looks good, but let's just be sure with a smaller test.
            (s:from (:as :almighty_account :account))
            (s:inner-join (:as :almighty_leg :leg) :on (:= :leg.account_id
  :account.id))
-           ;; Check cash balance.
+           ;;; Check cash balance.
            (s:where (:= :account.id (m:object-id cash)))))
       (d:fetch-all (d:execute (d:prepare m:*connection* query)
                               binds)))))
@@ -1974,7 +1974,7 @@ In the project root directory, make a new directory named <code>example</code>.
 <p>
 We need a system for this example, so let's set that up.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; almighty-kaikei/almighty-kaikei-examples.asd
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; almighty-kaikei/almighty-kaikei-examples.asd
 (defsystem "almighty-kaikei-examples"
   :author "Micah Killian"
   :version "0.0.1"
@@ -2016,7 +2016,7 @@ ledger. The most basic kind of accounting report is the general ledger. It
 simply contains all of the transactions made, detailing the two sides and
 accounts affected.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; * ░ VIEWS ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; * ░ VIEWS ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 (defun format-general-ledger (from to)
   (let ((transaction-count (db:transaction-count-for-period from to))
@@ -2085,43 +2085,43 @@ data/sqlite.db")))
 (defun initialize-application-database ()
   (with-db-connection (db-path)
     (let (
-          ;; Asset Accounts
+          ;;; Asset Accounts
           (cash-account                 (ak:make-account "Cash"                "
 CSH000" "asset"))
           (inventory-account            (ak:make-account "Inventory"           "
 INV000" "asset"))
           (accounts-receivable-account  (ak:make-account "Accounts Receivable" "
 REC000" "asset"))
-          ;; Expense Accounts
+          ;;; Expense Accounts
           (cost-of-goods-sold-account   (ak:make-account "Cost of Goods Sold"  "
 CGS000" "expense"))
           (general-expenses-account     (ak:make-account "General Expenses"    "
 GEN000" "expense"))
-          ;; Income Account
+          ;;; Income Account
           (sales-revenue-account        (ak:make-account "Sales Revenue"       "
 SLS000" "income"))
-          ;; Liability Account
+          ;;; Liability Account
           (tax-account                  (ak:make-account "Tax Payable"         "
 TAX000" "liability"))
-          ;; Equity Accounts
+          ;;; Equity Accounts
           (room-revenue-account         (ak:make-account "Room Revenue"        "
 RMR000" "equity")))
       (m:ensure-table-exists 'ak:account)
       (m:ensure-table-exists 'ak:transaction)
       (m:ensure-table-exists 'ak:leg)
 
-      ;; Asset
+      ;;; Asset
       (ak:get-or-save-account cash-account)
       (ak:get-or-save-account inventory-account)
       (ak:get-or-save-account accounts-receivable-account)
-      ;; Expense
+      ;;; Expense
       (ak:get-or-save-account cost-of-goods-sold-account)
       (ak:get-or-save-account general-expenses-account)
-      ;; Income
+      ;;; Income
       (ak:get-or-save-account sales-revenue-account)
-      ;; Liablity
+      ;;; Liablity
       (ak:get-or-save-account tax-account)
-      ;; Equity
+      ;;; Equity
       (ak:get-or-save-account room-revenue-account))))
 </code></pre>
 <p>
@@ -2458,39 +2458,39 @@ context, we will make the SQL tables and then add the accounts to the database.
     (m:ensure-table-exists 'ak:transaction)
     (m:ensure-table-exists 'ak:leg)
     (let (
-          ;; Asset Accounts
+          ;;; Asset Accounts
           (cash-account                 (ak:make-account "Cash"                "
 CSH000" "asset"))
           (inventory-account            (ak:make-account "Inventory"           "
 INV000" "asset"))
           (accounts-receivable-account  (ak:make-account "Accounts Receivable" "
 REC000" "asset"))
-          ;; Expense Accounts
+          ;;; Expense Accounts
           (cost-of-goods-sold-account   (ak:make-account "Cost of Goods Sold"  "
 CGS000" "expense"))
           (general-expenses-account     (ak:make-account "General Expenses"    "
 GEN000" "expense"))
-          ;; Income Account
+          ;;; Income Account
           (sales-revenue-account        (ak:make-account "Sales Revenue"       "
 SLS000" "equity"))
-          ;; Liability Account
+          ;;; Liability Account
           (liability-account            (ak:make-account "Liabilities"         "
 LIA000" "liability"))
-          ;; Equity Accounts
+          ;;; Equity Accounts
           (room-revenue-account         (ak:make-account "Room Revenue"        "
 RMR000" "equity")))
-      ;; Asset
+      ;;; Asset
       (ak:get-or-save-account cash-account)
       (ak:get-or-save-account inventory-account)
       (ak:get-or-save-account accounts-receivable-account)
-      ;; Expense
+      ;;; Expense
       (ak:get-or-save-account cost-of-goods-sold-account)
       (ak:get-or-save-account general-expenses-account)
-      ;; Income
+      ;;; Income
       (ak:get-or-save-account sales-revenue-account)
-      ;; Liablity
+      ;;; Liablity
       (ak:get-or-save-account liability-account)
-      ;; Equity
+      ;;; Equity
       (ak:get-or-save-account room-revenue-account)
       (funcall body-fn))))
 </code></pre>
@@ -2506,43 +2506,43 @@ that lets us do that:
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defmacro with-coa (&amp;body body)
   `(with-db-connection (test-db-path)
      (let (
-           ;; Asset Accounts
+           ;;; Asset Accounts
            (cash-account                 (ak:make-account "Cash"                "
 CSH000" "asset"))
            (inventory-account            (ak:make-account "Inventory"           "
 INV000" "asset"))
            (accounts-receivable-account  (ak:make-account "Accounts Receivable" "
 REC000" "asset"))
-           ;; Expense Accounts
+           ;;; Expense Accounts
            (cost-of-goods-sold-account   (ak:make-account "Cost of Goods Sold"  "
 CGS000" "expense"))
            (general-expenses-account     (ak:make-account "General Expenses"    "
 GEN000" "expense"))
-           ;; Income Account
+           ;;; Income Account
            (sales-revenue-account        (ak:make-account "Sales Revenue"       "
 SLS000" "income"))
-           ;; Liability Account
+           ;;; Liability Account
            (liability-account            (ak:make-account "Liabilities"         "
 LIA000" "liability"))
-           ;; Equity Accounts
+           ;;; Equity Accounts
            (room-revenue-account         (ak:make-account "Room Revenue"        "
 RMR000" "equity")))
        (m:ensure-table-exists 'ak:account)
        (m:ensure-table-exists 'ak:transaction)
        (m:ensure-table-exists 'ak:leg)
 
-       ;; Asset
+       ;;; Asset
        (ak:get-or-save-account cash-account)
        (ak:get-or-save-account inventory-account)
        (ak:get-or-save-account accounts-receivable-account)
-       ;; Expense
+       ;;; Expense
        (ak:get-or-save-account cost-of-goods-sold-account)
        (ak:get-or-save-account general-expenses-account)
-       ;; Income
+       ;;; Income
        (ak:get-or-save-account sales-revenue-account)
-       ;; Liablity
+       ;;; Liablity
        (ak:get-or-save-account liability-account)
-       ;; Equity
+       ;;; Equity
        (ak:get-or-save-account room-revenue-account)
        ,@body)))
 </code></pre>
@@ -2563,9 +2563,9 @@ queries on.
 So now it's time to make some tests. We'll start with some warm-up tests just to
 see if we can do basic stuff.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; * ░ Accounting ░░░░░░░░░░░░░░░░░░░░ For our accounting scenarios, we will
-;; imagine the accounting for a hotel. The hotel sells stays, has a restaurant,
-;; and rooms have snack fridges. They take cash and credit.
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; * ░ Accounting ░░░░░░░░░░░░░░░░░░░░ For our accounting scenarios, we will
+;;; imagine the accounting for a hotel. The hotel sells stays, has a restaurant,
+;;; and rooms have snack fridges. They take cash and credit.
 
 (lu:define-test tests-get-account (:tags '(accounting) :contexts (list
  #'with-chart-of-accounts-context))
@@ -2598,10 +2598,10 @@ Assuming you have everything settled with the above tests, let's start getting
 into the meat of things. Remember that the purpose of these tests is to confirm
 both that the system is working and that we understand how the accounting works.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; * ░ Transactions ░░░░░░░░░░░░░░░░░░░░ * ░ Card Sale of Service
-;; *░░░░░░░░░░░░░░░░░░░░ ;; This scenario involves tracking: ;; 1. A card
-;; *payment going to our Receivable account. ;; 2. Card payment provider
-;; *expense. ;; 3. The revenue after paying that expense.
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; * ░ Transactions ░░░░░░░░░░░░░░░░░░░░ * ░ Card Sale of Service
+;;; *░░░░░░░░░░░░░░░░░░░░ ;;; This scenario involves tracking: ;;; 1. A card
+;;; *payment going to our Receivable account. ;;; 2. Card payment provider
+;;; *expense. ;;; 3. The revenue after paying that expense.
 
 (lu:define-test test-transact!-card-sale-of-service (:tags '(accounting
  transactions)
@@ -2656,9 +2656,9 @@ least two legs in the transaction.
 We'll make a couple more tests just to confirm that our understanding of the
 principles of double-entry accounting are solid.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; ** ░ Cash Sale of Goods ░░░░░░░░░░░░░░░░░░░░ This scenario involves tracking:
-;; 1. The cash paid. 2. The revenue earned. 3. The cost of the good sold. 4. The
-;; reduction in inventory of the good. 5. The total profit (revenue - cogs)
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; ** ░ Cash Sale of Goods ░░░░░░░░░░░░░░░░░░░░ This scenario involves tracking:
+;;; 1. The cash paid. 2. The revenue earned. 3. The cost of the good sold. 4. The
+;;; reduction in inventory of the good. 5. The total profit (revenue - cogs)
 
 (lu:define-test test-cash-sale-of-goods (:tags '(accounting transactions)
                                          :contexts (list
@@ -2686,10 +2686,10 @@ principles of double-entry accounting are solid.
  cogs-account))
                         (am:usd 2000))))
 
-;; ** ░ Credit Card Sale of Hotel Stay ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-;; This scenario involves tracking: 1. Accounts Receivable (Asset) for credit
-;; card payment. 2. The room revenue (Equity) earned. 3. Credit card processing
-;; fees (Expense)
+;;; ** ░ Credit Card Sale of Hotel Stay ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+;;; This scenario involves tracking: 1. Accounts Receivable (Asset) for credit
+;;; card payment. 2. The room revenue (Equity) earned. 3. Credit card processing
+;;; fees (Expense)
 
 (lu:define-test test-debit-card-sale-of-hotel-stay (:tags '(accounting
  transactions)
@@ -2699,8 +2699,8 @@ principles of double-entry accounting are solid.
         (general-expense-account "GEN000")
         (room-revenue-account "RMR000")
         (cash-asset-account "CSH000"))
-    ;; Sale is made--debit Receivable Account for card payment, debit general
-    ;; expenses for card fees. Credit Room Revenue for sale.
+    ;;; Sale is made--debit Receivable Account for card payment, debit general
+    ;;; expenses for card fees. Credit Room Revenue for sale.
     (ak:transact! (ak:credit room-revenue-account (am:usd 5000))
                   (ak:debit general-expense-account (am:usd 500))
                   (ak:debit receivable-asset-account (am:usd 4500)))
@@ -2713,7 +2713,7 @@ principles of double-entry accounting are solid.
     (lu:assert-equality #'am:money=
                         (ak:account-balance room-revenue-account)
                         (am:usd 5000))
-    ;; Bank fulfills payment; clear receivable and add to cash
+    ;;; Bank fulfills payment; clear receivable and add to cash
     (ak:transact! (ak:debit cash-asset-account (am:usd 4500))
                   (ak:credit receivable-asset-account (am:usd 4500)))
     (lu:assert-equality #'am:money=

@@ -276,7 +276,7 @@ Now multiple dispatch interacts with the inheritance:
 
 (defmethod attack ((attacker dragon) (target warrior))
   (format t "The dragon dives and breathes fire on the warrior!~%")
-  (call-next-method))  ;; also runs fire-breathing vs armored
+  (call-next-method))  ;;; also runs fire-breathing vs armored
 
 (defparameter *smaug* (make-instance 'dragon :max-altitude 5000 :flame-range 100))
 (defparameter *aragorn* (make-instance 'warrior :armor-rating 80))
@@ -557,7 +557,7 @@ slots in the <code>print-object</code> method using <code>slot-boundp</code>, or
 being unbound when the object is initialized.
 </p>
 <div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; Check for unbound slots.
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; Check for unbound slots.
 (defmethod print-object ((this beverage) stream)
   (let ((name (when (slot-boundp this 'name) (slot-value this 'name)))
         (amount (when (slot-boundp this 'amount) (slot-value this 'amount))))
@@ -570,7 +570,7 @@ being unbound when the object is initialized.
 
 
 <div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; Prevent slots from being unbound by specifying a default value of nil.
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; Prevent slots from being unbound by specifying a default value of nil.
 (defclass beverage ()
   ((name :initarg :name :initform nil :accessor name)
    (amount :initarg :amount :initform nil :accessor amount)))
@@ -1346,7 +1346,7 @@ no "empty" cells. This method relies on the array being created with the
 (defun inefficiently-delete-vector-element (vector index)
   (when (&lt; index (length vector))
     (loop for i from index below (1- (length vector))
-          ;; Move all elements above the target index down one cell,
+          ;;; Move all elements above the target index down one cell,
           do (setf (aref vector i) (aref vector (1+ i))))
     (adjust-array vector (1- (length vector))))  ; Resize the array.
   vector)

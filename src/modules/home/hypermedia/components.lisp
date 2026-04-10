@@ -86,6 +86,9 @@ command.")
 piercing light of destiny, beaming from the flaming horizon over an effervescent
 ocean of functions, classes, and parentheses. Become Almighty.")
            (a :class "cta" :href "book/essentials" "Read The Book Immediately"))
+         (section
+           (h2 :class "hero-header" "ALMIGHTY THEMES")
+           (p ""))
          (section :class "about-author"
            (h2 "About Me, The Author")
            (p "I’m Micah Killian. I’m a former English teacher (ALT) and current freelance

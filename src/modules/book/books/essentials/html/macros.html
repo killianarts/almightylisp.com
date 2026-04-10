@@ -275,7 +275,7 @@ macros after the first expansion.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun hello (names)
   (loop :for name :in names
         :do (format t "Hello, ~a.~&amp;" name)))
-;; expands into
+;;; expands into
 (progn
  (eval-when (:compile-toplevel) (sb-c:%compiler-defun 'hello t nil nil))
  (sb-impl::%defun 'hello
@@ -284,7 +284,7 @@ macros after the first expansion.
                     (block hello
                       (loop :for name :in names
                             :do (format t "Hello, ~a.~&amp;" name))))))
-;; which further expands into...
+;;; which further expands into...
 (progn
  (eval-when (:compile-toplevel) (sb-c:%compiler-defun 'hello t nil nil))
  (sb-impl::%defun 'hello
@@ -306,7 +306,7 @@ macros after the first expansion.
                             (format t "Hello, ~a.~&amp;" name)
                             (go sb-loop::next-loop)
                            sb-loop::end-loop)))))))
-;; and further...
+;;; and further...
 (progn
  (eval-when (:compile-toplevel) (sb-c:%compiler-defun 'hello t nil nil))
  (sb-impl::%defun 'hello
@@ -987,7 +987,7 @@ Make sure you name global variables using the <code>*...*</code> convention.
 <p>
 Instead of using parameters directly&#x2026;
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; Vulnerable
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; Vulnerable
 (defmacro comes-before-p (x y sequence)
   `(let ((sequence ,sequence))
      (&lt; (position ,x sequence)

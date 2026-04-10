@@ -155,7 +155,7 @@ the triplet need to sum to the target, <b>and</b> it needs to be diagonal as wel
 some other conditions. That means that we needed to wrap several predicate
 functions in an <code>and</code> form.
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; These need to be wrapped in an (and ...) form
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; These need to be wrapped in an (and ...) form
 (= (sum-triple board triple) target-sum)
 (diagonal-p triple)
 </code></pre>
@@ -177,7 +177,7 @@ Once we added the rest of the conditions, we wanted to then bind the return
 value of the <code>find-if</code> form to a local variable using <code>let</code>. The process looks
 like this:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">;; Write the LET and variable we want in the LET.
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; Write the LET and variable we want in the LET.
 (let ((squeeze-p))) (find-if (lambda (triple)
              (and (= (sum-triple board triple) target-sum)
                   (diagonal-p triple)
