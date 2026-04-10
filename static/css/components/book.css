@@ -47,7 +47,7 @@
         --book-left-padding: var(--book-right-padding);
     }
     @media(max-width: 799px) {
-        --book-margin-left: 0; 
+        --book-margin-left: 0;
         --book-right-padding: var(--spacing-1);
         --book-left-padding: var(--book-right-padding);
     }
@@ -307,6 +307,9 @@
         @container book-container (width <= 75ch) {
             margin-block: var(--body-text-spacing);;
         }
+        @media (max-width: 1200px) {
+            margin-block: var(--body-text-spacing);;
+        }
     }
     .book-aside-contents {
         font-family: var(--font-berkeley-thin);
@@ -318,6 +321,11 @@
         position: absolute;
         right: calc(var(--book-right-padding) * -1);
         @container book-container (width <= 75ch) {
+            --aside-width: auto;
+            position: relative;
+            right: auto;
+        }
+        @media (max-width: 1200px) {
             --aside-width: auto;
             position: relative;
             right: auto;
