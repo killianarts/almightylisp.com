@@ -27,11 +27,12 @@
       <nav>
         <ul>
         <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#install-setup-on-macos"><span class="book-navigation__section-link-text">INSTALL &amp; SETUP ON MACOS</span> <small class="book-navigation__section-link-number">2.1</small></a></li>
-        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#emacs-dictionary"><span class="book-navigation__section-link-text">EMACS DICTIONARY</span> <small class="book-navigation__section-link-number">2.2</small></a></li>
-        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#survival-emacs"><span class="book-navigation__section-link-text">SURVIVAL EMACS</span> <small class="book-navigation__section-link-number">2.3</small></a></li>
-        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#survival-lisp-commands"><span class="book-navigation__section-link-text">SURVIVAL LISP COMMANDS</span> <small class="book-navigation__section-link-number">2.4</small></a></li>
-        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#speeding-up-w-keybindings"><span class="book-navigation__section-link-text">SPEEDING UP W/KEYBINDINGS</span> <small class="book-navigation__section-link-number">2.5</small></a></li>
-        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#need-help-"><span class="book-navigation__section-link-text">NEED HELP?</span> <small class="book-navigation__section-link-number">2.6</small></a></li>        </ul>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#install-setup-on-linux"><span class="book-navigation__section-link-text">INSTALL &amp; SETUP ON LINUX</span> <small class="book-navigation__section-link-number">2.2</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#emacs-dictionary"><span class="book-navigation__section-link-text">EMACS DICTIONARY</span> <small class="book-navigation__section-link-number">2.3</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#survival-emacs"><span class="book-navigation__section-link-text">SURVIVAL EMACS</span> <small class="book-navigation__section-link-number">2.4</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#survival-lisp-commands"><span class="book-navigation__section-link-text">SURVIVAL LISP COMMANDS</span> <small class="book-navigation__section-link-number">2.5</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#speeding-up-w-keybindings"><span class="book-navigation__section-link-text">SPEEDING UP W/KEYBINDINGS</span> <small class="book-navigation__section-link-number">2.6</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#need-help-"><span class="book-navigation__section-link-text">NEED HELP?</span> <small class="book-navigation__section-link-number">2.7</small></a></li>        </ul>
       </nav>
       <div class="book-navigation__previous-and-next">
         <a href="/book/essentials/introduction" class="book-navigation__previous-section">&larr; 1. INTRODUCTION</a>
@@ -102,6 +103,30 @@ teach you the basic vocabulary to get around Emacs, and then finally provide a
 guide for using Emacs without committing too much to the task (what I call
 Survival Mode).
 </p>
+
+<aside class="book-aside">
+
+<div class="book-aside-contents">
+
+<p>
+Since the release of this book, the <a href="https://coalton-lang.github.io/mine/">mine</a> (<a href="https://coalton-lang.github.io/mine/">https://coalton-lang.github.io/mine/</a>)
+Common Lisp and Coalton IDE was released by the Almighty Robert Smith
+(<a href="https://x.com/stylewarning">https://x.com/stylewarning</a>). It is very easy to install and configure and comes
+with everything you might want as a beginner to Common Lisp programming
+built-in.
+</p>
+
+<p>
+It is not intended to replace Emacs. Rather, it's intended to help new Lisp
+learners focus on the language without being bogged down by editor challenges.
+If you are especially keep on learning Lisp, but less keen on Emacs, mine may be
+just what you're looking for. At the time of this writing, it's still
+alpha-quality, but my experience with it has been positive so far.
+</p>
+
+
+</div>
+</aside>
 </div>
 <section id="install-setup-on-macos">
   <hgroup>
@@ -347,12 +372,205 @@ usability of Emacs keybindings.
 </section>
 
 </section>
+<section id="install-setup-on-linux">
+  <hgroup>
+    
+    <h2>INSTALL &amp; SETUP ON LINUX</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Installation and configuration in Linux is as easy as installation and
+configuration of any other software in Linux. Your Linux distro will likely
+already have most of what you need in its package repository. However, as with
+anything involving Linux, you never know until you try.
+</p>
+
+<p>
+My experience installing Doom Emacs in Ubuntu was good when I tried, so I
+include the instructions for doing that here. Modify them to fit your distro.
+</p>
+</div>
+<section id="install-sbcl">
+  <hgroup>
+    
+    <h3>Install SBCL</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-1">
+<p>
+<a href="https:::sbcl.org">SBCL</a> is the most popular Common Lisp implementation.
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code>sudo apt install sbcl
+</code></pre>
+</div>
+</div>
+
+</section>
+<section id="install-curl">
+  <hgroup>
+    
+    <h3>Install curl</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-2">
+<p>
+<code>curl</code> is used for making http requests. You probably already have it installed if you're a developer.
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code>sudo apt install curl
+</code></pre>
+</div>
+</div>
+
+</section>
+<section id="install-quicklisp">
+  <hgroup>
+    
+    <h3>Install quicklisp</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-3">
+<p>
+Quicklisp is the most popular package manager for Common Lisp.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code>curl -O https://beta.quicklisp.org/quicklisp.lisp
+
+sbcl --load quicklisp.lisp
+
+(quicklisp-quickstart:install)
+
+(ql:add-to-init-file)
+</code></pre>
+</div>
+</div>
+
+</section>
+<section id="install-emacs">
+  <hgroup>
+    
+    <h3>Install Emacs</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-4">
+<p>
+<a href="https:::www.gnu.org/software/emacs/">Emacs</a> is the defacto-standard editor for Common Lisp.
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code>sudo apt install emacs
+</code></pre>
+</div>
+<p>
+Test that it's working.
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code>$ emacs
+</code></pre>
+</div>
+</div>
+
+</section>
+<section id="install-doom-dependencies">
+  <hgroup>
+    
+    <h3>Install Doom dependencies</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-5">
+<div class="code-block">
+<pre class="code-block-source-pre"><code>apt-get install ripgrep fd-find
+sudo apt install git
+</code></pre>
+</div>
+</div>
+
+</section>
+<section id="install-doom">
+  <hgroup>
+    
+    <h3>Install Doom</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-6">
+<p>
+<a href="https:::github.com/doomemacs/doomemacs">Doom</a> is an Emacs distribution. It provides everything Emacs-related for integration with Common Lisp, and generally makes Emacs more ergonomic.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code>git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+~/.config/emacs/bin/doom install
+</code></pre>
+</div>
+<p>
+After installing, add <code>~/.config/emacs/bin/</code> to <code>PATH</code>.
+</p>
+
+<p>
+If you use the default shell in Ubuntu, open <code>.bashrc</code>, add this line and save:
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code>export PATH=$HOME/.config/emacs/bin:$PATH
+</code></pre>
+</div>
+
+<p>
+Restart your terminal for the change to take effect.
+</p>
+
+<p>
+Test that Doom is installed and that the changes to your <code>PATH</code> are working.
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code>$ doom sync
+$ doom emacs
+</code></pre>
+</div>
+</div>
+
+</section>
+<section id="configure-doom-for-common-lisp">
+  <hgroup>
+    
+    <h3>Configure Doom for Common Lisp</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-2-7">
+<p>
+Edit <code>init.el</code> file.
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;; NOTE I have abbreviated the full init.el file.
+;;      The below settings are the only ones I've changed.
+(doom! :input
+       :completion
+       company           ; the ultimate code completion backend
+       :ui
+       treemacs          ; a project drawer, like neotree but cooler
+       :editor
+       lispy             ; vim for lisp, for people who don't like vim
+       :emacs
+       :term
+       vterm             ; the best terminal emulation in Emacs
+       :checkers
+       :tools
+       :os
+       :lang
+       common-lisp       ; if you've seen one lisp, you've seen them all
+</code></pre>
+</div>
+<p>
+Save the <code>init.el</code> file.
+</p>
+
+<p>
+Reload Doom with <code>SPC h r r</code> (space key then h then r then r).
+</p>
+</div>
+
+</section>
+
+</section>
 <section id="emacs-dictionary">
   <hgroup>
     
     <h2>EMACS DICTIONARY</h2>
   </hgroup>
-<div class="outline-text-3" id="text-1-2">
+<div class="outline-text-3" id="text-1-3">
 <p>
 Emacs is an old piece of software. Using it is a little like time traveling to a
 time when men were men, women were women, and computers were the size of your
@@ -365,7 +583,7 @@ survive and get help.
     
     <h3>Buffer</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-1">
+<div class="outline-text-4" id="text-1-3-1">
 <p>
 An Emacs <code>buffer</code> displays the contents of a file, terminal, repl, message/log,
 etc.
@@ -378,7 +596,7 @@ etc.
     
     <h3>Modeline</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-2">
+<div class="outline-text-4" id="text-1-3-2">
 <p>
 The <code>modeline</code> is the area at the bottom of nearly every buffer that shows
 information about that buffer&#x2013;including the file path for file buffers, the
@@ -402,7 +620,7 @@ beginners.
     
     <h3>Window</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-3">
+<div class="outline-text-4" id="text-1-3-3">
 <p>
 An Emacs <code>window</code> is closer to the modern concept of a <code>pane</code>. A window can only
 display one buffer at a time.
@@ -415,7 +633,7 @@ display one buffer at a time.
     
     <h3>Frame</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-4">
+<div class="outline-text-4" id="text-1-3-4">
 <p>
 An Emacs <code>frame</code> is the equivalent of the modern concept of a <code>window</code>. It's the
 box that displays the Emacs application. A frame can hold multiple Emacs windows
@@ -429,7 +647,7 @@ and minibuffers simultaneously.
     
     <h3>Minibuffer</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-5">
+<div class="outline-text-4" id="text-1-3-5">
 <p>
 A minibuffer is a <code>buffer</code> that is intended to be temporary. Usually they
 display some information while you are in the middle of a command or other
@@ -443,7 +661,7 @@ action, and close automatically when you finish or abort the action/command.
     
     <h3>Mode</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-6">
+<div class="outline-text-4" id="text-1-3-6">
 <p>
 Buffers have both <code>major</code> and <code>minor</code> modes. If you open a <code>.lisp</code> file, the
 file will automatically open in <code>lisp-mode</code>. <code>lisp-mode</code> is a <code>major-mode</code>.
@@ -464,7 +682,7 @@ intended to improve the editing experience.
     
     <h3>State</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-7">
+<div class="outline-text-4" id="text-1-3-7">
 <p>
 This is more specific to the <code>evil-mode</code> package. States describe the keyboard
 cursor. In normal state
@@ -477,7 +695,7 @@ cursor. In normal state
     
     <h3>Workspaces &amp; Projects</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-8">
+<div class="outline-text-4" id="text-1-3-8">
 <p>
 Doom includes packages that provide workspace and project functionality,
 allowing you to more effectively separate groups of buffers and give you the
@@ -493,7 +711,7 @@ provided by Doom Emacs through several packages.
     
     <h3>Packages</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-9">
+<div class="outline-text-4" id="text-1-3-9">
 <p>
 Emacs packages are equivalent of "extensions" or "plugins". Not to be confused
 with <i>Common Lisp packages</i> which are an entirely separate idiom and
@@ -507,7 +725,7 @@ functionality.
     
     <h3>Keybinding Basics</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-2-10">
+<div class="outline-text-4" id="text-1-3-10">
 <p>
 Doom Emacs have vanilla Emacs keybindings and vim-style keybindings (see: <code>evil</code>
 in the <code>init.el</code> file) enabled by default.
@@ -533,7 +751,7 @@ then f then f".
     
     <h2>SURVIVAL EMACS</h2>
   </hgroup>
-<div class="outline-text-3" id="text-1-3">
+<div class="outline-text-3" id="text-1-4">
 <p>
 When you first begin with this book, I assume you at least don't know Emacs
 keybindings. If you know Vim/Neovim style bindings, then you'll know how to do
@@ -563,7 +781,7 @@ it's less frustrating when you first begin.
     
     <h3>Creating &amp; Opening File Buffers</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-3-1">
+<div class="outline-text-4" id="text-1-4-1">
 <p>
 In Emacs, creating a new file buffer and opening an existing file into a buffer
 are nearly the same action, making it somewhat confusing.
@@ -597,7 +815,7 @@ in its name, and press <code>Enter</code> to open the file.
     
     <h3>Reading The Modeline</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-3-2">
+<div class="outline-text-4" id="text-1-4-2">
 <p>
 With a file buffer open, take a look at the modeline. It contains important
 information. It's contents, from left to right:
@@ -624,7 +842,7 @@ have a <code>.lisp</code> file open, it will say <code>Lisp</code>, indicating t
     
     <h3>Inserting Text</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-3-3">
+<div class="outline-text-4" id="text-1-4-3">
 <p>
 By default, you are in <code>evil-mode</code>'s <code>Normal State</code>. We want to initially avoid
 learning any complicated systems of text editing. To do that, we can switch to
@@ -654,7 +872,7 @@ To switch out of <code>Emacs State</code> and back into <code>Normal State</code
     
     <h3>Saving Files</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-3-4">
+<div class="outline-text-4" id="text-1-4-4">
 <p>
 You can save a file using your standard keybinding <code>s-s</code>, or you can save with
 the menu. Navigate to <code>File -&gt; Save</code>.
@@ -667,7 +885,7 @@ the menu. Navigate to <code>File -&gt; Save</code>.
     
     <h3>View A List Of Open Buffers</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-3-5">
+<div class="outline-text-4" id="text-1-4-5">
 <p>
 You can view a list of open buffers and switch to one in the menu. Navigate to
 <code>Buffers</code>. Buffers that have names like <code>*Messages*</code> are special Emacs buffers.
@@ -686,7 +904,7 @@ will switch to that buffer.
     
     <h3>Kill/Close A Buffer</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-3-6">
+<div class="outline-text-4" id="text-1-4-6">
 <p>
 To close a buffer, navigate to <code>File -&gt; Close</code>.
 </p>
@@ -698,7 +916,7 @@ To close a buffer, navigate to <code>File -&gt; Close</code>.
     
     <h3>Strange Behavior</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-3-7">
+<div class="outline-text-4" id="text-1-4-7">
 <p>
 That'll get you started with the basics. There are few strange behaviors to look
 out for, though.
@@ -709,7 +927,7 @@ out for, though.
     
     <h4>"I typed something once but it got repeated several times."</h4>
   </hgroup>
-<div class="outline-text-5" id="text-1-3-7-1">
+<div class="outline-text-5" id="text-1-4-7-1">
 <p>
 In <code>Emacs State</code>, if you type <code>C-u</code> and then a number <code>n</code>, the next thing you
 type will be repeated <code>n</code> times. If you type <code>C-u 8 d</code> you will type 8 d's.
@@ -730,7 +948,7 @@ State</code> because you don't even have to type <code>C-u</code>, and if you ty
     
     <h4>"I can't type anything; the window seems locked."</h4>
   </hgroup>
-<div class="outline-text-5" id="text-1-3-7-2">
+<div class="outline-text-5" id="text-1-4-7-2">
 <p>
 Look at the beginning of the buffer name. Does it have a Lock icon? You may have
 accidentally typed <code>C-x C-q</code> or <code>SPC t r</code>, putting the buffer into read-only
@@ -744,7 +962,7 @@ mode. Type <code>C-x C-q</code> or <code>SPC t r</code> again to make the buffer
     
     <h4>"I typed something and the buffer changed."</h4>
   </hgroup>
-<div class="outline-text-5" id="text-1-3-7-3">
+<div class="outline-text-5" id="text-1-4-7-3">
 <p>
 You may have accidentally closed or switched the buffer. You can try switching
 back using the method above, or you can type <code>C-w C-u</code> to undo whatever the heck
@@ -764,7 +982,7 @@ And if you accidentally undid something that you want to <i>redo</i>, you can ty
     
     <h4>"I typed something and some minibuffer or prompt came up and I want to just get rid of it."</h4>
   </hgroup>
-<div class="outline-text-5" id="text-1-3-7-4">
+<div class="outline-text-5" id="text-1-4-7-4">
 <p>
 Typically this happens to me when I accidently type <code>C-x k</code> to kill/close a
 buffer. Whatever you did, you can cancel whatever action you are in the middle
@@ -780,7 +998,7 @@ type <code>C-g</code> to hit the eject button.
     
     <h4>"My buffer has a file open but I can only see part of it (or perhaps none of it at all)."</h4>
   </hgroup>
-<div class="outline-text-5" id="text-1-3-7-5">
+<div class="outline-text-5" id="text-1-4-7-5">
 <p>
 If you're sure you have a file buffer open to a file that exists and has data in
 it, then you may be a victim of <i>narrowing</i>. You can confirm by looking at the
@@ -801,7 +1019,7 @@ To unnarrow or <i>widen</i>, switch to <code>Normal State</code> and type <code>
     
     <h4>"I cut some text, but when I try to paste, some other text appears."</h4>
   </hgroup>
-<div class="outline-text-5" id="text-1-3-7-6">
+<div class="outline-text-5" id="text-1-4-7-6">
 <p>
 Did you cut some text, delete a word with <code>C-backspace</code>, and then try to paste
 the text that you cut? Is that word you deleted with <code>C-backspace</code> the one being
@@ -829,7 +1047,7 @@ character at a time). I'll cover killing later.
     
     <h2>SURVIVAL LISP COMMANDS</h2>
   </hgroup>
-<div class="outline-text-3" id="text-1-4">
+<div class="outline-text-3" id="text-1-5">
 <p>
 Beyond simple file/buffer operations and text editing are Common Lisp-specific
 concepts and commands. This chapter will quickly run through the essentials for
@@ -841,7 +1059,7 @@ getting started.
     
     <h3>Compiling/Evaluating Lisp Code From the Buffer</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-4-1">
+<div class="outline-text-4" id="text-1-5-1">
 <p>
 To <i>compile</i> a <code>form</code> (basically anything between two parentheses), place the
 cursor anywhere in a form then in the menu navigate to <code>Sly -&gt; Compilation -&gt;
@@ -872,7 +1090,7 @@ other forms, too.
     
     <h3>Lisp Images</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-4-2">
+<div class="outline-text-4" id="text-1-5-2">
 <p>
 An important concept that has deep implications for Lisp development is the Lisp
 Image.
@@ -897,7 +1115,7 @@ how to do that in the chapter on deploying.
     
     <h3>Using the REPL</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-4-3">
+<div class="outline-text-4" id="text-1-5-3">
 <p>
 Since a REPL was opened when you opened a Common Lisp file, you <i>can</i> switch to
 it using the standard menu navigation for switching buffers. However, the entire
@@ -923,7 +1141,7 @@ the code, it will be loaded into the same image.
     
     <h3>Structural Editing</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-4-4">
+<div class="outline-text-4" id="text-1-5-4">
 <p>
 Editing Lisp code can be tricky at first.
 </p>
@@ -958,7 +1176,7 @@ structural editing later.
     
     <h3>The Lisp Debugger</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-4-5">
+<div class="outline-text-4" id="text-1-5-5">
 <p>
 We will take a closer look at the debugger and errors in the chapter on errors
 and conditions, but before you get to that section you'll probably cause the
@@ -1005,7 +1223,7 @@ available. This is one of Common Lisp's most powerful <b>built-in</b> features.
     
     <h2>SPEEDING UP W/KEYBINDINGS</h2>
   </hgroup>
-<div class="outline-text-3" id="text-1-5">
+<div class="outline-text-3" id="text-1-6">
 <p>
 If during the next chapter you find yourself limited by using the menu for doing
 things, notice that in the menu there are keybindings printed next to nearly
@@ -1020,7 +1238,7 @@ most frequently used commands (like <code>Eval Defun</code> or <code>Compile Def
     
     <h2>NEED HELP?</h2>
   </hgroup>
-<div class="outline-text-3" id="text-1-6">
+<div class="outline-text-3" id="text-1-7">
 <p>
 If you are confused after reading this chapter, ask me for help on X
 (<a href="https://x.com/almighty_lisp">@almighty<sub>lisp</sub></a>). Consider me your Emacs and Common Lisp tech support.

@@ -30,8 +30,9 @@
         <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#defining-conditions"><span class="book-navigation__section-link-text">Defining Conditions</span> <small class="book-navigation__section-link-number">9.2</small></a></li>
         <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#restarts"><span class="book-navigation__section-link-text">Restarts</span> <small class="book-navigation__section-link-number">9.3</small></a></li>
         <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#handling-conditions"><span class="book-navigation__section-link-text">Handling Conditions</span> <small class="book-navigation__section-link-number">9.4</small></a></li>
-        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#preserving-local-state"><span class="book-navigation__section-link-text">Preserving Local State</span> <small class="book-navigation__section-link-number">9.5</small></a></li>
-        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#useful-variables-functions"><span class="book-navigation__section-link-text">Useful Variables &amp; Functions</span> <small class="book-navigation__section-link-number">9.6</small></a></li>        </ul>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#preserving-your-stack"><span class="book-navigation__section-link-text">Preserving Your Stack</span> <small class="book-navigation__section-link-number">9.5</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#built-in-conditions"><span class="book-navigation__section-link-text">Built-in Conditions</span> <small class="book-navigation__section-link-number">9.6</small></a></li>
+        <li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#built-in-restarts"><span class="book-navigation__section-link-text">Built-in Restarts</span> <small class="book-navigation__section-link-number">9.7</small></a></li>        </ul>
       </nav>
       <div class="book-navigation__previous-and-next">
         <a href="/book/essentials/the-loop-macro" class="book-navigation__previous-section">&larr; 8. THE LOOP MACRO</a>
@@ -405,14 +406,14 @@ during the iteration, it will simply be replaced by "<b>*</b>".
 </div>
 
 </section>
-<section id="preserving-local-state">
+<section id="preserving-your-stack">
   <hgroup>
     
-    <h2>Preserving Local State</h2>
+    <h2>Preserving Your Stack</h2>
   </hgroup>
 <div class="outline-text-3" id="text-1-5">
 <p>
-Being able to signal a condition, and then choose how to response based on the
+Being able to signal a condition, and then choose how to respond based on the
 condition is very nice, but Lisp has one more trick up its sleeve.
 </p>
 
@@ -421,7 +422,7 @@ condition is very nice, but Lisp has one more trick up its sleeve.
 local state at the point where you decide to do something with a naughty-word
 condition. In the simple example above, it's difficult to understand what that
 looks like. To illustrate the problem with <code>handler-case</code>, we'll consider a
-different problem: working with a stream of data.
+different scenario: working with a stream of data.
 </p>
 
 <p>
@@ -464,27 +465,27 @@ Let's begin by parsing the file:
 </p>
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun parse-line (line)
-    "Parse a 'key=value' line into a cons pair."
-    (let ((pos (position #\= line)))
-      (when pos
-          (cons (subseq line 0 pos)
-                (subseq line (1+ pos))))))
+  "Parse a 'key=value' line into a cons pair."
+  (let ((pos (position #\= line)))
+    (when pos
+      (cons (subseq line 0 pos)
+            (subseq line (1+ pos))))))
 
-  (defun read-config (stream)
-    "Read config lines from a stream, collecting key=value pairs."
-    (loop :for line = (read-line stream nil nil)
-          :for line-number :from 1
-          :while line
-          :for parsed = (parse-line line)
-          :if parsed
-            :collect parsed
-          :else
-            :do (restart-case
-                    (error 'malformed-line
-                           :line line
-                           :line-number line-number)
-                  (skip-line ()
-                    :report "Skip this line and continue."))))
+(defun read-config (stream)
+  "Read config lines from a stream, collecting key=value pairs."
+  (loop :for line = (read-line stream nil nil)
+        :for line-number :from 1
+        :while line
+        :for parsed = (parse-line line)
+        :if parsed
+          :collect parsed
+        :else
+          :do (restart-case
+                  (error 'malformed-line
+                         :line line
+                         :line-number line-number)
+                (skip-line ()
+                  :report "Skip this line and continue."))))
 </code></pre>
 </div>
 
@@ -536,7 +537,7 @@ Restarts:
 <p>
 All is well: that is the broken line and its contents. If you choose to skip the
 line, it will continue parsing and give us the next broken line, and so on, and
-then finally the not-broken parts of the configuration.
+then finally the not-broken parts of the configuration:
 </p>
 
 <div class="code-block">
@@ -559,29 +560,33 @@ then finally the not-broken parts of the configuration.
 
 
 <p>
-You don't have access to the <code>skip-line</code> restart, since that's established in the
-<code>read-config</code> loop. You've broken out of the loop and can't get back in. The
+You don't have access to the <code>skip-line</code> restart, since that's established in
+the <code>read-config</code> loop. You've broken out of the loop and can't get back in. The
 stack has unwound.
 </p>
 
 <p>
-That's where <code>handler-bind</code> and <code>invoke-restart</code> come to the rescure. Unlike
+That's where <code>handler-bind</code> and <code>invoke-restart</code> come to the rescue. Unlike
 <code>handler-case</code>, <code>handler-bind</code> can catch that <code>malformed-line</code> condition and
 then invoke the <code>skip-line</code> restart.
 </p>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-bind (path)
-    (with-open-file (stream path)
-      (handler-bind
-          ((malformed-line
-             (lambda (c)
-               (format t "Skipping line ~d.~%" (malformed-line-number c))
-               (invoke-restart 'skip-line))))
-        (read-config stream))))
+  (with-open-file (stream path)
+    (handler-bind
+        ((malformed-line
+           (lambda (c)
+             (format t "Skipping line ~d.~%" (malformed-line-number c))
+             (invoke-restart 'skip-line))))
+      (read-config stream))))
 (load-config-bind #P"my.config")
 </code></pre>
-<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>((environment . production) (debug . false) (db . sqlite) (dbusername. admin))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>Skipping line 3.
+Skipping line 6.
+Skipping line 7.
+ =&gt; (("environment" . "production") ("debug" . "false") ("db" . "sqlite")
+ ("dbusername" . "admin"))</code></pre>
 </div>
 
 
@@ -615,35 +620,59 @@ Restarts:
 <p>
 Won't work. The stack has been unwound, so we no longer have access to the
 <code>skip-line</code> restart. And you need restarts to be able to return to the <code>loop</code>
-iteration. If you used a <code>skip-line</code> function in <code>handler-bind</code>, you would end
-the process in a different frame. <code>invoke-restart</code> is how you restart the
-process at the point where the condition was signaled.
-</p>
-
-<p>
-You can also
+iteration. If you call a normal function inside the <code>handler-bind</code>, the
+condition won't <i>actually</i> be handled. Instead, it will be "propagated" to the
+next outer call to <code>handler-bind</code> that also handles the same condition.
+<code>invoke-restart</code> is how you stop the propagation of the condition, handle the
+condition, and restart the process at the point where the condition was
+signaled.
 </p>
 </div>
 
 </section>
-<section id="useful-variables-functions">
+<section id="built-in-conditions">
   <hgroup>
     
-    <h2>Useful Variables &amp; Functions</h2>
+    <h2>Built-in Conditions</h2>
   </hgroup>
 <div class="outline-text-3" id="text-1-6">
 <p>
-If you want the program to stop just <i>before</i> the error ("break"), you can
-modify the <code>*break-on-signals*</code> variable.
+There are a number of built-in conditions that you can signal in your own code.
+Examples include <code>style-warning</code>, <code>type-error</code>, <code>arithmetic-error</code>, etc. You can
+find a complete list in <a href="https://cl-community-spec.github.io/pages/Condition-Types.html">the Hyperspec</a> (<a href="https://cl-community-spec.github.io/pages/Condition-Types.html">https://cl-community-spec.github.io/pages/Condition-Types.html</a>).
+</p>
+</div>
+
+</section>
+<section id="built-in-restarts">
+  <hgroup>
+    
+    <h2>Built-in Restarts</h2>
+  </hgroup>
+<div class="outline-text-3" id="text-1-7">
+<p>
+In addition to being able to invoke your own custom restarts, you can invoke any
+of the built-in restarts:
+</p>
+
+<ul class="org-ul">
+<li><code>continue</code></li>
+<li><code>store-value</code></li>
+<li><code>use-value</code></li>
+<li><code>muffle-warning</code></li>
+<li><code>abort</code></li>
+</ul>
+
+<p>
+While playing around with code in this book you've probably seen most of these
+restarts already. <code>muffle-warning</code> is useful for times when you have some <code>warn</code>
+call that is filling your REPL with noise that you want to suppress.
 </p>
 
 <p>
-The <code>*break-on-signals*</code> variable is set to <code>nil</code> by default, but when set to some
-condition or conditions, will break just before the condition is signaled. It's
-useful for getting a look at the state of the program just before a condition is
-signaled, especially when you don't know exactly where the error is coming from
-(in which case, you could use Sly stickers + breaking as I wrote about earlier
-in <a href="essentials.html#ID-f6a4fdc2-7295-4bfa-8551-f5cf4e242ee7">THE LISP IDE/STICKERS</a>).</p>
+For these built-in restarts, where are also <a href="https://cl-community-spec.github.io/pages/f_abort.html">corresponding functions</a>
+(<a href="https://cl-community-spec.github.io/pages/f_abort.html">https://cl-community-spec.github.io/pages/f_abort.html</a>) that you can call.
+</p>
 </div>
 
 </section>
