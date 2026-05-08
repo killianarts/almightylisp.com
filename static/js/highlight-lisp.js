@@ -260,6 +260,15 @@ var highlight_lisp = function() {
 		{regex: /(;.*)(\n|$)/gm, replace: '<span class="comment">$1</span>$2'},
 
 		// ---------------------------------------------------------------------
+		// definition names (defun my-fun, defmacro my-macro, etc.)
+		// must run before known-functions rule transforms the def* keywords
+		// ---------------------------------------------------------------------
+		{
+			regex: /(\((?:defun|defmacro|defmethod|defgeneric|defclass|defstruct|defparameter|defvar|defconstant|deftype|define-condition|define-compiler-macro|define-symbol-macro|define-setf-expander|define-modify-macro|define-method-combination)\s+)([\w][\w_:-]*)/g,
+			replace: '$1<span class="form-definition-name">$2</span>'
+		},
+
+		// ---------------------------------------------------------------------
 		// "special" (let/lambda)
 		// ---------------------------------------------------------------------
 		{

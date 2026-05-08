@@ -1,12 +1,13 @@
 .book {
+    --default-text-color: var(--color-ink-light);
     --body-text-spacing: var(--spacing-1);
     --link-color: var(--color-accent);
     --link-hover-color: var(--color-secondary);
     --code-color: var(--color-secondary);
-    --code-bg-color: var(--color-canvas-dark);
+    --code-bg-color: var(--color-canvas-light);
     --code-block-border-color: var(--color-secondary);
     --code-block-border-size: 5px;
-    --result-color: var(--color-canvas-light);
+    --result-color: var(--color-canvas-soft);
     --code-font: var(--font-berkeley-thin);
     --code-font-size: var(--font-size-base);
     --book-font: var(--font-serif);
@@ -25,6 +26,7 @@
     --outline-5-size: var(--font-size-xl);
     --outline-6-size: var(--font-size-lg);
     --chapter-number-font-size: var(--outline-1-size);
+    --chapter-number-color: var(--color-accent);
 
     --book-toc-font-size: var(--font-size-lg);
     --aside-width: 35ch;
@@ -33,6 +35,7 @@
     --book-left-padding: var(--spacing-2);
     --book-margin-left: var(--tray-size);
 
+    color: var(--default-text-color);
     font-family: var(--book-font);
     font-size: var(--book-font-size);
     container-type: inline-size;
@@ -60,6 +63,7 @@
         --outline-6-size: var(--font-size-base);
     }
 
+    
     .book-toc {
         font-family: var(--code-font);
     }
@@ -125,14 +129,9 @@
         font-size: var(--outline-6-size);
     }
 
-    hgroup > span:has(+ h1),
-    hgroup > span:has(+ h2),
-    hgroup > span:has(+ h3),
-    hgroup > span:has(+ h4),
-    hgroup > span:has(+ h5),
-    hgroup > span:has(+ h6) {
+    .chapter-number {
         padding-top: var(--spacing-1);
-        color: var(--color-accent-300);
+        color: var(--chapter-number-color);
         font-size: var(--chapter-number-font-size);
         font-family: var(--font-stack-slab-serif);
         font-style: oblique;
@@ -170,9 +169,7 @@
         max-width: 100ch;
         margin-block: calc(var(--block-space) * 2);
     }
-    pre {
-        padding: var(--spacing-xs);
-    }
+    
     code {
         font-family: var(--code-font);
         font-size: inherit;
@@ -181,7 +178,7 @@
         color: var(--code-color);
         background-color: var(--code-bg-color);
     }
-
+/*
     .code-block-source-pre ~ .result {
         border-top: 1px dotted var(--result-color);
         border-left: var(--code-block-border-size) solid var(--result-color);
@@ -220,6 +217,7 @@
         margin-block: 0;
         background-color: var(--code-bg-color);
     }
+ */
     h1 code,
     h2 code,
     h3 code,
@@ -297,8 +295,8 @@
     table td:first-child {
         background-color: var(--code-bg-color);
         position: sticky;
-        left: 0;                    /* sticks to the left edge */
-        z-index: 1;                 /* keeps it above other cells */
+        left: 0;
+        z-index: 1;
     }
 
     .book-aside {
@@ -315,7 +313,7 @@
         font-family: var(--font-berkeley-thin);
         text-align: left;
         font-size: var(--font-size-sm);
-        background-color: oklch(var(--tw-lch-blue-500) / 0.3);
+        background-color: var(--color-canvas-light);
         width: var(--aside-width);
         padding: var(--spacing-1);
         position: absolute;

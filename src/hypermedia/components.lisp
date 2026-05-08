@@ -39,7 +39,12 @@
          (title (str:concat (string-upcase title) " - " (string-upcase "almightylisp.com")))
          (meta :charset "utf-8")
          (meta :name "viewport" :content "width=device-width, initial-scale=1")
-         
+         (script (raw! "(() => {
+    const t = localStorage.getItem('theme');
+    if (t) document.documentElement.dataset.theme = t;
+    const sel = document.getElementById('theme-select');
+    if (sel && t) sel.value = t;
+  })();"))
          (link :href (shiso:static "css/almightylisp.css") :rel "stylesheet" :type "text/css")
          (link :rel "preconnect" :href "https://fonts.googleapis.com")
          (link :rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin t)
@@ -48,9 +53,11 @@
          (link :rel "icon" :type "image/png" :sizes "32x32" :href (shiso:static "assets/images/favicon/favicon-32x32.png"))
          (link :rel "icon" :type "image/png" :sizes "16x16" :href (shiso:static "assets/images/favicon/favicon-16x16.png"))
          (link :rel "manifest" :href (shiso:static "assets/images/favicon/site.webmanifest"))
+         (script :type "module" :src "https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.8/bundles/datastar.js")
+         (script :src "https://unpkg.com/hyperscript.org@0.9.91")
          (script :src (shiso:static "js/highlight-lisp.js"))
          (ac-meta-information :title title :description "almightylisp.com"))
-       (body
+       (body 
          children
          ;; syntax highlighting
          (script "HighlightLisp.highlight_auto();"))))))

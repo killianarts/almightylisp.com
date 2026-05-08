@@ -1,23 +1,24 @@
 .book-navigation {
-    --bg-color: var(--color-canvas-dark);
+    --bg-color: var(--color-canvas-light);
     --book-title-color: var(--color-ink-light);
     --chapter-name-color: var(--color-ink-light);
     --link-color: var(--color-ink-light);
     --link-color-hover: var(--color-secondary);
-    --link-bg-color-hover: var(--color-canvas-darker);
+    --link-bg-color-hover: var(--color-canvas-lighter);
     --link-gap: var(--inline-space);
     --link-font-family: var(--font-berkeley-uc);
-    --span-bg-color: var(--color-canvas-dark);
+    --span-bg-color: var(--color-canvas-light);
     --divider-color: var(--color-accent);
+    --lisp-logo-accent-color: var(--color-accent);
+    --lisp-logo-ink-color: var(--color-ink-light);
 
-    --logo-max-width: 150px;
     background-color: var(--bg-color);
     padding-inline: var(--inline-space);
     padding-block: var(--block-space);
     min-height: 100dvh;
     text-transform: uppercase;
+    position: relative;
     @media(max-width: 799px) {
-        position: relative;
         min-height: initial;
         display: grid;
         align-items: center;
@@ -28,17 +29,6 @@
             "bottom";
     }
     /* @media (min-width: 640px) {  } */
-    @media (max-width: 799px) {
-        position: relative;
-        min-height: initial;
-        display: grid;
-        align-items: center;
-        max-width: 100%;
-        grid-template-areas:
-            "top"
-            "middle"
-            "bottom";
-    }
     nav {
         margin-inline: auto;
         @media(max-width: 799px) {
@@ -56,7 +46,19 @@
     .book-navigation__book-title {
         --title-font-size: var(--font-size-5xl);
         --title-line-height: var(--font-size-4xl);
-        --logo-max-width: 200px;
+        --almighty-lisp-logo-base-width: 185px;
+        --almighty-lisp-logo-base-height: 127px;
+        --essentials-logo-base-width: 157px;
+        --essentials-logo-base-height: 57px;
+        --logo-width: var(--almighty-lisp-logo-base-width);
+        --logo-height: var(--almighty-lisp-logo-base-height);
+        --essentials-logo-width: var(--essentials-logo-base-width);
+        --essentials-logo-height: var(--essentials-logo-base-height);
+        --mobile-logo-width: calc(var(--logo-width) / 2);
+        --mobile-logo-height: calc(var(--logo-height) / 2);
+        --mobile-essentials-logo-width: calc(var(--essentials-logo-width) / 1);
+        --mobile-essentials-logo-height: calc(var(--essentials-logo-height) / 1);
+
         color: var(--book-title-color);
         font-family: var(--font-hero);
         font-size: var(--title-font-size);
@@ -73,7 +75,7 @@
             --title-font-size: var(--font-size-base);
             font-family: var(--font-heading);
             line-height: var(--font-size-base);
-            padding-bottom: 0;
+            padding-bottom: var(--block-space);
             display: flex;
             justify-content: center;
         }
@@ -81,17 +83,48 @@
             display: contents;
         }
         .almighty-lisp-logo-container {
-            max-width: var(--logo-max-width);
+            display: flex;
+            align-items: center;
+            width: var(--logo-width);
+            height: var(--logo-height);
             @media(max-width: 799px) {
-                --logo-max-width: 50px;
+                --logo-width: var(--mobile-logo-width);
+                --logo-height: var(--mobile-logo-height);
+            }
+        }
+        .almighty-lisp-logo {
+            width: var(--logo-width);
+            height: var(--logo-height);
+            @media(max-width: 799px) {
+                --logo-width: var(--mobile-logo-width);
+                --logo-height: var(--mobile-logo-height);
             }
         }
         .the-essentials-container {
-            max-width: calc(var(--logo-max-width) / 1.8);
+            display: flex;
+            align-items: center;
+            width: var(--essentials-logo-width);
+            height: var(--essentials-logo-height);
             @media(max-width: 799px) {
-                --logo-max-width: 170px;
+                --logo-width: var(--mobile-essentials-logo-width);
+                --logo-height: var(--mobile-essentials-logo-height);
             }
         }
+        .essentials-logo {
+            width: var(--essentials-logo-width);
+            height: var(--essentials-logo-height);
+            @media(max-width: 799px) {
+                --logo-width: var(--mobile-essentials-logo-width);
+                --logo-height: var(--mobile-essentials-logo-height);
+            }
+        }
+        .lisp-logo-accent-paths {
+            fill: var(--lisp-logo-accent-color);
+        }
+        .lisp-logo-ink-paths {
+            fill: var(--lisp-logo-ink-color);
+        }
+        
     }
     .book-navigation__chapter-name-heading {
         color: var(--chapter-name-color);
@@ -182,7 +215,7 @@
     .book-navigation__next-section {
         display: block;
         gap: var(--link-gap);
-        background-color: var(--color-canvas-dark);
+        background-color: var(--color-canvas-light);
         justify-content: space-between;
         align-items: center;
         padding-inline: var(--spacing-2xs);
@@ -200,6 +233,15 @@
         text-align: right;
         @media(max-width: 799px) {
             display: flex;
+        }
+    }
+    #theme-select-form {
+        position: absolute;
+        bottom: var(--block-space);
+        @media(max-width: 799px) {
+            position: relative;
+            bottom: auto;
+            text-align: center;
         }
     }
 }

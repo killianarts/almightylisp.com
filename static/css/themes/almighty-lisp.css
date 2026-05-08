@@ -1,0 +1,100 @@
+[data-theme="almighty-lisp"] {
+    --color-black: oklch(var(--tw-lch-black));
+    --color-white: oklch(var(--tw-lch-white));
+    --color-canvas-50: oklch(var(--tw-lch-blue-50));
+    --color-canvas-100: oklch(var(--tw-lch-blue-100));
+    --color-canvas-200: oklch(var(--tw-lch-blue-200));
+    --color-canvas-300: oklch(var(--tw-lch-blue-300));
+    --color-canvas-400: oklch(var(--tw-lch-blue-400));
+    --color-canvas-500: oklch(var(--tw-lch-blue-500));
+    --color-canvas-600: oklch(var(--tw-lch-blue-600));
+    --color-canvas-700: oklch(var(--tw-lch-blue-700));
+    --color-canvas-800: oklch(var(--tw-lch-blue-800));
+    --color-canvas-900: oklch(var(--tw-lch-blue-900));
+    --color-canvas-1000: oklch(var(--tw-lch-blue-1000));
+    --color-canvas-1100: oklch(var(--tw-lch-blue-1100));
+    --color-canvas-1200: oklch(var(--tw-lch-blue-1200));
+
+    --color-canvas-lighter: var(--color-canvas-600);
+    --color-canvas-light: var(--color-canvas-700);
+    --color-canvas: var(--color-canvas-800);
+    --color-canvas-dark: var(--color-canvas-900);
+    --color-canvas-darker: var(--color-canvas-1000);
+    --color-canvas-soft: var(--color-canvas-400);
+
+    --color-ink: var(--color-canvas-1000);
+    --color-ink-light: var(--color-canvas-50);
+    --color-ink-shadow: var(--color-canvas-darker);
+
+    --color-secondary-50: oklch(var(--tw-lch-cyan-50));
+    --color-secondary-100: oklch(var(--tw-lch-cyan-100));
+    --color-secondary-200: oklch(var(--tw-lch-cyan-200));
+    --color-secondary-300: oklch(var(--tw-lch-cyan-300));
+    --color-secondary-400: oklch(var(--tw-lch-cyan-400));
+    --color-secondary-500: oklch(var(--tw-lch-cyan-500));
+    --color-secondary-600: oklch(var(--tw-lch-cyan-600));
+    --color-secondary-700: oklch(var(--tw-lch-cyan-700));
+    --color-secondary-800: oklch(var(--tw-lch-cyan-800));
+    --color-secondary-900: oklch(var(--tw-lch-cyan-900));
+    --color-secondary-1000: oklch(var(--tw-lch-cyan-1000));
+
+    --color-secondary: var(--color-secondary-300);
+    --color-secondary-light: var(--color-secondary-50);
+    --color-secondary-dark: var(--color-secondary-900);
+    --color-secondary-darker: var(--color-secondary-1000);
+    --color-secondary-soft: var(--color-secondary-400);
+
+
+    --color-accent-50: oklch(var(--tw-lch-yellow-50));
+    --color-accent-100: oklch(var(--tw-lch-yellow-100));
+    --color-accent-200: oklch(var(--tw-lch-yellow-200));
+    --color-accent-300: oklch(var(--tw-lch-yellow-300));
+    --color-accent-400: oklch(var(--tw-lch-yellow-400));
+    --color-accent-500: oklch(var(--tw-lch-yellow-500));
+    --color-accent-600: oklch(var(--tw-lch-yellow-600));
+    --color-accent-700: oklch(var(--tw-lch-yellow-700));
+    --color-accent-800: oklch(var(--tw-lch-yellow-800));
+    --color-accent-900: oklch(var(--tw-lch-yellow-900));
+    --color-accent-1000: oklch(var(--tw-lch-yellow-1000));
+
+    --color-accent: var(--color-accent-300);
+    --color-accent-light: var(--color-accent-50);
+    --color-accent-dark: var(--color-accent-900);
+    --color-accent-soft: var(--color-accent-400);
+
+    --color-danger-50: oklch(var(--tw-lch-orange-50));
+    --color-danger-100: oklch(var(--tw-lch-orange-100));
+    --color-danger-200: oklch(var(--tw-lch-orange-200));
+    --color-danger-300: oklch(var(--tw-lch-orange-300));
+    --color-danger-400: oklch(var(--tw-lch-orange-400));
+    --color-danger-500: oklch(var(--tw-lch-orange-500));
+    --color-danger-600: oklch(var(--tw-lch-orange-600));
+    --color-danger-700: oklch(var(--tw-lch-orange-700));
+    --color-danger-800: oklch(var(--tw-lch-orange-800));
+    --color-danger-900: oklch(var(--tw-lch-orange-900));
+    --color-danger-1000: oklch(var(--tw-lch-orange-1000));
+
+    --color-danger-lighter: var(--color-danger-300);
+    --color-danger-light: var(--color-danger-400);
+    --color-danger: var(--color-danger-500);
+    --color-danger-dark: var(--color-danger-600);
+    --color-danger-darker: var(--color-danger-700);
+    --color-danger-soft: var(--color-accent-400);
+
+    --color-safe-50: oklch(var(--tw-lch-emerald-50));
+    --color-safe-100: oklch(var(--tw-lch-emerald-100));
+    --color-safe-200: oklch(var(--tw-lch-emerald-200));
+    --color-safe-300: oklch(var(--tw-lch-emerald-300));
+    --color-safe-400: oklch(var(--tw-lch-emerald-400));
+    --color-safe-500: oklch(var(--tw-lch-emerald-500));
+    --color-safe-600: oklch(var(--tw-lch-emerald-600));
+    --color-safe-700: oklch(var(--tw-lch-emerald-700));
+    --color-safe-800: oklch(var(--tw-lch-emerald-800));
+    --color-safe-900: oklch(var(--tw-lch-emerald-900));
+    --color-safe-1000: oklch(var(--tw-lch-emerald-1000));
+
+    --color-safe: var(--color-safe-300);
+    --color-safe-light: var(--color-safe-50);
+    --color-safe-dark: var(--color-safe-900);
+    --color-safe-soft: var(--color-accent-400);
+}

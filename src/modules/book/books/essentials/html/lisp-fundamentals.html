@@ -4,7 +4,12 @@
   <title>LISP FUNDAMENTALS - ALMIGHTYLISP.COM</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+<script>(() => {
+    const t = localStorage.getItem('theme');
+    if (t) document.documentElement.dataset.theme = t;
+    const sel = document.getElementById('theme-select');
+    if (sel && t) sel.value = t;
+  })();</script>  <link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa">
@@ -12,12 +17,12 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
   <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
-  <script src="/static/js/highlight-lisp.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hyperscript.org@0.9.91/dist/_hyperscript.min.js"></script>  <script src="/static/js/highlight-lisp.js"></script>
 </head>
 <body>
   <div class="sidebar-container">
     <div class="book-navigation">
-      <div class="book-navigation__book-title"><a href="."><div class="almighty-lisp-logo-container"><img src="/static/assets/images/almighty-lisp.png" alt="Almighty Lisp"></div><div class="the-essentials-container"><img src="/static/assets/images/the-essentials.png" alt="The Essentials"></div></div></a>
+      <div class="book-navigation__book-title"><a href="/book/essentials"><div class="almighty-lisp-logo-container"><svg class="almighty-lisp-logo" width="185" height="127" viewBox="0 0 185 127" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_1310_182)"><path class="lisp-logo-accent-paths" d="M42.6505 72.9308C43.01 72.8635 43.6305 72.8898 44.0162 72.8763C45.6508 72.8186 51.225 73.1157 49.1217 75.9803C47.3011 78.4598 45.3233 80.9101 43.4148 83.3475L32.0555 97.8768C30.5227 99.8426 28.3101 102.437 27.0062 104.471C21.6566 112.816 39.2013 111.657 43.1275 111.654L58.0747 111.654L84.9585 111.631C90.3662 111.633 95.8194 111.651 101.205 111.622C104.827 111.487 108.749 110.952 111.4 108.239C112.928 106.676 113.219 104.615 111.633 102.988C107.586 99.0378 101.829 100.316 96.597 99.7722C90.0309 99.09 77.42 96.7197 76.7781 88.3604C76.4047 83.4987 82.72 80.1298 86.6887 78.6668C94.2848 75.8669 102.572 75.7534 110.588 75.8888C112.61 75.9152 114.664 75.8188 116.691 75.781C118.908 75.7593 121.125 75.7514 123.342 75.7572C127.112 75.755 132.492 75.3313 135.585 78.0361C136.039 78.4461 136.318 79.0188 136.333 79.6235C136.377 81.4112 133.635 82.3123 132.167 82.4744C129.096 82.8135 125.827 82.6892 122.719 82.6868L106.034 82.683C102.747 82.6482 98.0722 82.8641 95.6027 85.3695C94.5446 86.4436 95.04 88.0183 96.2581 88.7786C99.9385 91.1496 104.503 90.3955 108.596 90.7107C115.757 91.262 123.946 92.8908 129.675 97.3989C135.277 101.808 137.227 109.114 132.469 114.904C126.898 121.684 117.758 124.266 109.356 125.205C107.177 125.45 105.117 125.416 102.948 125.443L92.2702 125.477L64.5565 125.652C54.3956 125.802 44.2338 125.872 34.0718 125.864C24.2182 125.91 12.1402 127.133 3.71989 121.138C-1.67632 117.282 -0.0948632 110.044 3.89003 105.869C12.846 96.4842 22.1358 87.3833 31.4234 78.3321C32.0523 77.7192 32.6252 77.0022 33.2501 76.3785C35.7587 73.875 39.2858 73.2846 42.6505 72.9308Z" fill="#FEE048"/><path class="lisp-logo-accent-paths" d="M84.8919 67.6304C89.9997 67.4938 95.7117 67.6192 100.859 67.6189L133.096 67.6257L150.395 67.5997C153.393 67.5907 158.347 67.4929 161.277 67.801C168.099 68.6479 175.749 70.0366 181.249 74.4255C183.46 76.189 185.175 79.4127 182.893 81.7988C179.831 85.0017 174.651 85.6828 170.442 86.0501C167.281 86.3262 162.889 85.6709 160.467 88.1038C159.112 89.4963 161.523 92.8469 162.218 94.2767C163.339 96.5804 164.723 98.8239 165.842 101.14C166.938 103.411 169.732 106.815 167.657 109.179C166.061 110.933 163.058 111.35 160.836 111.554C156.899 111.914 148.55 110.254 146.989 105.979C144.959 100.414 143.209 94.2557 141.269 88.6186C140.722 87.0294 141.152 85.4415 142.329 84.1949C146.857 79.9007 155.556 79.1523 161.334 78.8978C162.051 78.8886 162.769 78.8759 163.486 78.8593C164.561 78.8324 168.698 78.3111 168.363 76.6852C167.827 74.0813 162.832 73.1393 160.573 72.9901C156.376 72.7131 152.067 72.8812 147.841 72.8938L125.007 72.9178L97.934 72.9142L89.3273 72.9122C85.3404 72.9133 77.4561 72.7223 74.1887 75.1834C73.659 75.5814 73.2113 76.0781 72.8702 76.6461C72.0352 78.0239 70.4224 81.6823 69.6634 83.267L63.7349 95.5026C63.0057 97.0193 61.4825 100.466 60.4934 101.558C58.1787 104.113 53.4278 105.488 50.0747 105.696C47.3172 105.837 43.7489 105.886 41.4774 104.08C40.1563 103.03 40.4683 101.415 41.2283 100.155C41.9733 98.9206 42.8087 97.7862 43.5958 96.5802C45.9204 93.0748 48.2633 89.5816 50.6245 86.1006C52.1137 83.8374 53.6206 81.5859 55.1448 79.3462C55.6407 78.6099 57.2009 76.217 57.7688 75.646C63.2495 70.135 73.2896 68.5098 80.7355 67.7595C81.9047 67.6416 83.649 67.7029 84.8919 67.6304Z" fill="#FEE048"/></g><path class="lisp-logo-ink-paths" d="M14.84 62.4121L20.888 0.672108H29.036L35 62.4121H27.776L26.852 49.8121H22.988L22.064 62.4121H14.84ZM23.534 41.1601H26.39L25.004 17.0101V15.7081H24.836V17.0101L23.534 41.1601ZM37.5003 62.4121V0.672108H44.4723V54.0121H51.6963V62.4121H37.5003ZM55.3011 62.4121V0.672108H63.6591L66.2211 29.0641L66.3471 32.7601H66.5151L66.6411 29.0641L69.2031 0.672108H77.5611V62.4121H70.8831V31.1641H70.7571L70.7151 32.5921L68.3631 62.4121H64.5831L62.1471 32.5921L62.1051 31.1641H61.9791V62.4121H55.3011ZM80.8948 62.4121V0.672108H87.8668V62.4121H80.8948ZM98.0348 63.0841C95.9628 63.0841 94.4088 62.4401 93.3728 61.1521C92.3368 59.8361 91.6508 58.2121 91.3148 56.2801C90.9788 54.3481 90.8108 52.4441 90.8108 50.5681V12.5161C90.8108 10.6681 91.0628 8.77811 91.5668 6.84611C92.0988 4.91411 92.9668 3.29011 94.1708 1.97411C95.3748 0.658108 97.0268 0.000106812 99.1268 0.000106812C100.807 0.000106812 102.179 0.420106 103.243 1.26011C104.335 2.07211 105.189 3.12211 105.805 4.41011C106.421 5.69811 106.841 7.07011 107.065 8.5261C107.317 9.9541 107.443 11.2841 107.443 12.5161V22.8481H100.471V12.1801C100.471 11.4801 100.401 10.7521 100.261 9.99611C100.121 9.21211 99.7428 8.82011 99.1268 8.82011C98.5388 8.82011 98.1748 9.19811 98.0348 9.95411C97.9228 10.7101 97.8668 11.4521 97.8668 12.1801V51.6601C97.8668 52.5561 97.9508 53.3401 98.1188 54.0121C98.3148 54.6841 98.7208 55.0201 99.3368 55.0201C100.009 55.0201 100.443 54.6701 100.639 53.9701C100.863 53.2421 100.975 52.4721 100.975 51.6601V40.1521H99.4628V31.6681H107.443V62.4121H103.831L103.075 60.1441C102.711 61.0961 102.067 61.8241 101.143 62.3281C100.247 62.8321 99.2108 63.0841 98.0348 63.0841ZM110.836 62.4121V0.672108H117.808V26.2081H120.496V0.672108H127.468V62.4121H120.496V35.5321H117.808V62.4121H110.836ZM135.136 62.4121V9.99611H130.012V0.672108H147.232V9.99611H142.108V62.4121H135.136ZM155.599 62.4121V36.1201L148.669 0.672108H156.145L158.665 20.4121L158.875 23.1001H159.085L159.337 20.4121L161.773 0.672108H169.333L162.403 36.1201V62.4121H155.599Z" fill="white"/><defs><clipPath id="clip0_1310_182"><rect class="lisp-logo-ink-paths" width="184.11" height="58.695" fill="white" transform="translate(0 67.4121)"/></clipPath></defs></svg></div><div class="the-essentials-container"><svg class="essentials-logo" width="157" height="57" viewBox="0 0 157 57" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="lisp-logo-accent-paths" d="M1.92 56V20.72H13.776V26.048H7.104V35.552H11.904V40.736H7.104V50.672H13.776V56H1.92ZM23.8631 56.384C22.4391 56.384 21.2551 56.152 20.3111 55.688C19.3671 55.208 18.6231 54.52 18.0791 53.624C17.5351 52.728 17.1431 51.648 16.9031 50.384C16.6791 49.12 16.5671 47.696 16.5671 46.112L21.6551 45.632C21.6551 46.4 21.6791 47.144 21.7271 47.864C21.7911 48.568 21.8951 49.208 22.0391 49.784C22.1991 50.344 22.4231 50.792 22.7111 51.128C23.0151 51.464 23.3991 51.632 23.8631 51.632C24.6311 51.632 25.1751 51.28 25.4951 50.576C25.8151 49.856 25.9751 48.992 25.9751 47.984C25.9751 46.976 25.7111 45.928 25.1831 44.84C24.6551 43.752 24.0231 42.72 23.2871 41.744C22.0391 40.08 20.9431 38.536 19.9991 37.112C19.0711 35.688 18.3431 34.288 17.8151 32.912C17.3031 31.536 17.0471 30.096 17.0471 28.592C17.0471 27.408 17.1991 26.32 17.5031 25.328C17.8071 24.32 18.2471 23.448 18.8231 22.712C19.4151 21.96 20.1271 21.376 20.9591 20.96C21.7911 20.544 22.7431 20.336 23.8151 20.336C25.1431 20.336 26.2631 20.56 27.1751 21.008C28.1031 21.456 28.8471 22.096 29.4071 22.928C29.9831 23.76 30.3991 24.752 30.6551 25.904C30.9271 27.04 31.0631 28.304 31.0631 29.696L25.9751 30.176C25.9751 29.584 25.9431 28.992 25.8791 28.4C25.8311 27.792 25.7351 27.24 25.5911 26.744C25.4471 26.248 25.2391 25.848 24.9671 25.544C24.6951 25.24 24.3431 25.088 23.9111 25.088C23.2391 25.088 22.7751 25.376 22.5191 25.952C22.2631 26.512 22.1351 27.312 22.1351 28.352C22.1351 29.696 22.4951 30.992 23.2151 32.24C23.9351 33.488 24.9031 34.944 26.1191 36.608C27.5751 38.576 28.7591 40.384 29.6711 42.032C30.5991 43.68 31.0631 45.504 31.0631 47.504C31.0631 48.768 30.9271 49.944 30.6551 51.032C30.3831 52.104 29.9511 53.04 29.3591 53.84C28.7831 54.64 28.0391 55.264 27.1271 55.712C26.2311 56.16 25.1431 56.384 23.8631 56.384ZM40.0819 56.384C38.6579 56.384 37.4739 56.152 36.5299 55.688C35.5859 55.208 34.8419 54.52 34.2979 53.624C33.7539 52.728 33.3619 51.648 33.1219 50.384C32.8979 49.12 32.7859 47.696 32.7859 46.112L37.8739 45.632C37.8739 46.4 37.8979 47.144 37.9459 47.864C38.0099 48.568 38.1139 49.208 38.2579 49.784C38.4179 50.344 38.6419 50.792 38.9299 51.128C39.2339 51.464 39.6179 51.632 40.0819 51.632C40.8499 51.632 41.3939 51.28 41.7139 50.576C42.0339 49.856 42.1939 48.992 42.1939 47.984C42.1939 46.976 41.9299 45.928 41.4019 44.84C40.8739 43.752 40.2419 42.72 39.5059 41.744C38.2579 40.08 37.1619 38.536 36.2179 37.112C35.2899 35.688 34.5619 34.288 34.0339 32.912C33.5219 31.536 33.2659 30.096 33.2659 28.592C33.2659 27.408 33.4179 26.32 33.7219 25.328C34.0259 24.32 34.4659 23.448 35.0419 22.712C35.6339 21.96 36.3459 21.376 37.1779 20.96C38.0099 20.544 38.9619 20.336 40.0339 20.336C41.3619 20.336 42.4819 20.56 43.3939 21.008C44.3219 21.456 45.0659 22.096 45.6259 22.928C46.2019 23.76 46.6179 24.752 46.8739 25.904C47.1459 27.04 47.2819 28.304 47.2819 29.696L42.1939 30.176C42.1939 29.584 42.1619 28.992 42.0979 28.4C42.0499 27.792 41.9539 27.24 41.8099 26.744C41.6659 26.248 41.4579 25.848 41.1859 25.544C40.9139 25.24 40.5619 25.088 40.1299 25.088C39.4579 25.088 38.9939 25.376 38.7379 25.952C38.4819 26.512 38.3539 27.312 38.3539 28.352C38.3539 29.696 38.7139 30.992 39.4339 32.24C40.1539 33.488 41.1219 34.944 42.3379 36.608C43.7939 38.576 44.9779 40.384 45.8899 42.032C46.8179 43.68 47.2819 45.504 47.2819 47.504C47.2819 48.768 47.1459 49.944 46.8739 51.032C46.6019 52.104 46.1699 53.04 45.5779 53.84C45.0019 54.64 44.2579 55.264 43.3459 55.712C42.4499 56.16 41.3619 56.384 40.0819 56.384ZM50.0606 56V20.72H61.9166V26.048H55.2446V35.552H60.0446V40.736H55.2446V50.672H61.9166V56H50.0606ZM65.7638 56V20.72H70.6118L75.4118 39.104L75.8438 40.736H76.1318V20.72H80.8838V56H76.5157L71.2358 37.616L70.8038 35.984H70.5158V56H65.7638ZM88.1573 56V26.048H83.2613V20.72H98.2373V26.048H93.3413V56H88.1573ZM100.639 56V20.72H105.823V56H100.639ZM108.606 56L113.934 20.72H120.27L125.598 56H120.558L119.598 48.8H114.606L113.646 56H108.606ZM115.326 43.328H118.878L117.39 31.472L117.246 29.6H116.958L116.814 31.472L115.326 43.328ZM128.342 56V20.72H133.526V51.2H140.39V56H128.342ZM148.738 56.384C147.314 56.384 146.13 56.152 145.186 55.688C144.242 55.208 143.498 54.52 142.954 53.624C142.41 52.728 142.018 51.648 141.778 50.384C141.554 49.12 141.442 47.696 141.442 46.112L146.53 45.632C146.53 46.4 146.554 47.144 146.602 47.864C146.666 48.568 146.77 49.208 146.914 49.784C147.074 50.344 147.298 50.792 147.586 51.128C147.89 51.464 148.274 51.632 148.738 51.632C149.506 51.632 150.05 51.28 150.37 50.576C150.69 49.856 150.85 48.992 150.85 47.984C150.85 46.976 150.586 45.928 150.058 44.84C149.53 43.752 148.898 42.72 148.162 41.744C146.914 40.08 145.818 38.536 144.874 37.112C143.946 35.688 143.218 34.288 142.69 32.912C142.178 31.536 141.922 30.096 141.922 28.592C141.922 27.408 142.074 26.32 142.378 25.328C142.682 24.32 143.122 23.448 143.698 22.712C144.29 21.96 145.002 21.376 145.834 20.96C146.666 20.544 147.618 20.336 148.69 20.336C150.018 20.336 151.138 20.56 152.05 21.008C152.978 21.456 153.722 22.096 154.282 22.928C154.858 23.76 155.274 24.752 155.53 25.904C155.802 27.04 155.938 28.304 155.938 29.696L150.85 30.176C150.85 29.584 150.818 28.992 150.754 28.4C150.706 27.792 150.61 27.24 150.466 26.744C150.322 26.248 150.114 25.848 149.842 25.544C149.57 25.24 149.218 25.088 148.786 25.088C148.114 25.088 147.65 25.376 147.394 25.952C147.138 26.512 147.01 27.312 147.01 28.352C147.01 29.696 147.37 30.992 148.09 32.24C148.81 33.488 149.778 34.944 150.994 36.608C152.45 38.576 153.634 40.384 154.546 42.032C155.474 43.68 155.938 45.504 155.938 47.504C155.938 48.768 155.802 49.944 155.53 51.032C155.258 52.104 154.826 53.04 154.234 53.84C153.658 54.64 152.914 55.264 152.002 55.712C151.106 56.16 150.018 56.384 148.738 56.384Z" fill="#FDE047"/><path class="lisp-logo-accent-paths" d="M1.96 18V0.36H4.552V15.6H7.984V18H1.96ZM9.03813 18V0.36H11.6301V18H9.03813ZM16.6816 18.192C15.9696 18.192 15.3776 18.076 14.9056 17.844C14.4336 17.604 14.0616 17.26 13.7896 16.812C13.5176 16.364 13.3216 15.824 13.2016 15.192C13.0896 14.56 13.0336 13.848 13.0336 13.056L15.5776 12.816C15.5776 13.2 15.5896 13.572 15.6136 13.932C15.6456 14.284 15.6976 14.604 15.7696 14.892C15.8496 15.172 15.9616 15.396 16.1056 15.564C16.2576 15.732 16.4496 15.816 16.6816 15.816C17.0656 15.816 17.3376 15.64 17.4976 15.288C17.6576 14.928 17.7376 14.496 17.7376 13.992C17.7376 13.488 17.6056 12.964 17.3416 12.42C17.0776 11.876 16.7616 11.36 16.3936 10.872C15.7696 10.04 15.2216 9.268 14.7496 8.556C14.2856 7.844 13.9216 7.144 13.6576 6.456C13.4016 5.768 13.2736 5.048 13.2736 4.296C13.2736 3.704 13.3496 3.16 13.5016 2.664C13.6536 2.16 13.8736 1.724 14.1616 1.356C14.4576 0.98 14.8136 0.688 15.2296 0.48C15.6456 0.271999 16.1216 0.167999 16.6576 0.167999C17.3216 0.167999 17.8816 0.279999 18.3376 0.503999C18.8016 0.727999 19.1736 1.048 19.4536 1.464C19.7416 1.88 19.9496 2.376 20.0776 2.952C20.2136 3.52 20.2816 4.152 20.2816 4.848L17.7376 5.088C17.7376 4.792 17.7216 4.496 17.6896 4.2C17.6656 3.896 17.6176 3.62 17.5456 3.372C17.4736 3.124 17.3696 2.924 17.2336 2.772C17.0976 2.62 16.9216 2.544 16.7056 2.544C16.3696 2.544 16.1376 2.688 16.0096 2.976C15.8816 3.256 15.8176 3.656 15.8176 4.176C15.8176 4.848 15.9976 5.496 16.3576 6.12C16.7176 6.744 17.2016 7.472 17.8096 8.304C18.5376 9.288 19.1296 10.192 19.5856 11.016C20.0496 11.84 20.2816 12.752 20.2816 13.752C20.2816 14.384 20.2136 14.972 20.0776 15.516C19.9416 16.052 19.7256 16.52 19.4296 16.92C19.1416 17.32 18.7696 17.632 18.3136 17.856C17.8656 18.08 17.3216 18.192 16.6816 18.192ZM21.6709 18V0.36H24.2629C25.2469 0.36 26.0669 0.576 26.7229 1.008C27.3869 1.44 27.8829 2.052 28.2109 2.844C28.5389 3.636 28.7029 4.568 28.7029 5.64C28.7029 6.712 28.5309 7.636 28.1869 8.412C27.8429 9.188 27.3389 9.796 26.6749 10.236C26.0189 10.668 25.2149 10.904 24.2629 10.944V18H21.6709ZM24.2629 8.304C24.7189 8.304 25.0789 8.216 25.3429 8.04C25.6069 7.856 25.7949 7.568 25.9069 7.176C26.0269 6.784 26.0869 6.28 26.0869 5.664C26.0869 5.04 26.0269 4.532 25.9069 4.14C25.7949 3.748 25.6029 3.46 25.3309 3.276C25.0669 3.092 24.7109 3 24.2629 3V8.304ZM37.0036 18.192C35.9716 18.192 35.1196 17.86 34.4476 17.196C33.7836 16.524 33.4516 15.56 33.4516 14.304C33.4516 13.52 33.5556 12.82 33.7636 12.204C33.9796 11.58 34.2396 11.02 34.5436 10.524C34.8556 10.028 35.1556 9.584 35.4436 9.192C35.0276 8.328 34.7156 7.48 34.5076 6.648C34.2996 5.808 34.1956 4.928 34.1956 4.008C34.1956 2.912 34.4636 2 34.9996 1.272C35.5356 0.535999 36.3236 0.167999 37.3636 0.167999C38.3796 0.167999 39.1476 0.527999 39.6676 1.248C40.1876 1.968 40.4476 2.852 40.4476 3.9C40.4476 4.772 40.2156 5.64 39.7516 6.504C39.2876 7.36 38.7236 8.224 38.0596 9.096C38.4436 9.968 38.7716 10.66 39.0436 11.172C39.3156 11.676 39.5636 12.096 39.7876 12.432C39.9476 11.984 40.0716 11.512 40.1596 11.016C40.2556 10.512 40.3156 10.16 40.3396 9.96L42.4036 10.344C42.3476 11.024 42.2076 11.748 41.9836 12.516C41.7596 13.284 41.4996 13.96 41.2036 14.544C41.3636 14.72 41.5596 14.896 41.7916 15.072C42.0236 15.24 42.2276 15.36 42.4036 15.432V18.192C42.1796 18.192 41.9036 18.096 41.5756 17.904C41.2476 17.712 40.9316 17.488 40.6276 17.232C40.3316 16.976 40.1076 16.752 39.9556 16.56C39.5876 17.048 39.1836 17.444 38.7436 17.748C38.3036 18.044 37.7236 18.192 37.0036 18.192ZM37.1236 15.936C37.4516 15.936 37.7276 15.84 37.9516 15.648C38.1756 15.456 38.3876 15.216 38.5876 14.928C38.2676 14.408 37.9396 13.872 37.6036 13.32C37.2756 12.768 36.9236 12.152 36.5476 11.472C36.3716 11.768 36.2276 12.156 36.1156 12.636C36.0036 13.108 35.9476 13.532 35.9476 13.908C35.9476 14.42 36.0436 14.888 36.2356 15.312C36.4276 15.728 36.7236 15.936 37.1236 15.936ZM37.0996 6.888C37.3876 6.44 37.6556 5.952 37.9036 5.424C38.1516 4.896 38.2756 4.4 38.2756 3.936C38.2756 3.464 38.2116 3.064 38.0836 2.736C37.9556 2.4 37.7156 2.232 37.3636 2.232C37.0196 2.232 36.7796 2.404 36.6436 2.748C36.5076 3.092 36.4396 3.5 36.4396 3.972C36.4396 4.468 36.4996 4.96 36.6196 5.448C36.7476 5.936 36.9076 6.416 37.0996 6.888ZM47.6631 18V0.36H53.5911V3.024H50.2551V7.776H52.6551V10.368H50.2551V15.336H53.5911V18H47.6631ZM55.5147 18V0.36H58.8027L60.2187 9.504L60.3387 10.44H60.3867L60.5067 9.504L61.9227 0.36H65.2107V18H62.8107V6.168H62.6667L62.5707 6.912L61.0347 18H59.6907L58.1547 6.912L58.0587 6.168H57.9147V18H55.5147ZM66.5997 18L69.2637 0.36H72.4317L75.0957 18H72.5757L72.0957 14.4H69.5997L69.1197 18H66.5997ZM69.9597 11.664H71.7357L70.9917 5.736L70.9197 4.8H70.7757L70.7037 5.736L69.9597 11.664ZM79.8038 18.192C79.0678 18.192 78.4398 18.028 77.9198 17.7C77.4078 17.364 77.0158 16.908 76.7438 16.332C76.4798 15.756 76.3478 15.104 76.3478 14.376V3.984C76.3478 3.264 76.4838 2.616 76.7558 2.04C77.0358 1.464 77.4358 1.008 77.9558 0.671999C78.4758 0.335999 79.0918 0.167999 79.8038 0.167999C80.3398 0.167999 80.8198 0.267999 81.2438 0.467999C81.6678 0.667999 82.0278 0.943999 82.3238 1.296C82.6278 1.64 82.8598 2.044 83.0198 2.508C83.1798 2.964 83.2598 3.456 83.2598 3.984V6.408H80.8358V3.984C80.8358 3.616 80.7598 3.308 80.6078 3.06C80.4558 2.812 80.2038 2.688 79.8518 2.688C79.5318 2.688 79.2998 2.816 79.1558 3.072C79.0118 3.328 78.9398 3.632 78.9398 3.984V14.376C78.9398 14.728 79.0158 15.032 79.1678 15.288C79.3278 15.544 79.5558 15.672 79.8518 15.672C80.2118 15.672 80.4638 15.548 80.6078 15.3C80.7598 15.052 80.8358 14.744 80.8358 14.376V11.952H83.2598V14.376C83.2598 15.096 83.1198 15.744 82.8398 16.32C82.5598 16.896 82.1598 17.352 81.6398 17.688C81.1278 18.024 80.5158 18.192 79.8038 18.192ZM88.1894 18.192C87.4774 18.192 86.8854 18.076 86.4134 17.844C85.9414 17.604 85.5694 17.26 85.2974 16.812C85.0254 16.364 84.8294 15.824 84.7094 15.192C84.5974 14.56 84.5414 13.848 84.5414 13.056L87.0854 12.816C87.0854 13.2 87.0974 13.572 87.1214 13.932C87.1534 14.284 87.2054 14.604 87.2774 14.892C87.3574 15.172 87.4694 15.396 87.6134 15.564C87.7654 15.732 87.9574 15.816 88.1894 15.816C88.5734 15.816 88.8454 15.64 89.0054 15.288C89.1654 14.928 89.2454 14.496 89.2454 13.992C89.2454 13.488 89.1134 12.964 88.8494 12.42C88.5854 11.876 88.2694 11.36 87.9014 10.872C87.2774 10.04 86.7294 9.268 86.2574 8.556C85.7934 7.844 85.4294 7.144 85.1654 6.456C84.9094 5.768 84.7814 5.048 84.7814 4.296C84.7814 3.704 84.8574 3.16 85.0094 2.664C85.1614 2.16 85.3814 1.724 85.6694 1.356C85.9654 0.98 86.3214 0.688 86.7374 0.48C87.1534 0.271999 87.6294 0.167999 88.1654 0.167999C88.8294 0.167999 89.3894 0.279999 89.8454 0.503999C90.3094 0.727999 90.6814 1.048 90.9614 1.464C91.2494 1.88 91.4574 2.376 91.5854 2.952C91.7214 3.52 91.7894 4.152 91.7894 4.848L89.2454 5.088C89.2454 4.792 89.2294 4.496 89.1974 4.2C89.1734 3.896 89.1254 3.62 89.0534 3.372C88.9814 3.124 88.8774 2.924 88.7414 2.772C88.6054 2.62 88.4294 2.544 88.2134 2.544C87.8774 2.544 87.6454 2.688 87.5174 2.976C87.3894 3.256 87.3254 3.656 87.3254 4.176C87.3254 4.848 87.5054 5.496 87.8654 6.12C88.2254 6.744 88.7094 7.472 89.3174 8.304C90.0454 9.288 90.6374 10.192 91.0934 11.016C91.5574 11.84 91.7894 12.752 91.7894 13.752C91.7894 14.384 91.7214 14.972 91.5854 15.516C91.4494 16.052 91.2334 16.52 90.9374 16.92C90.6494 17.32 90.2774 17.632 89.8214 17.856C89.3734 18.08 88.8294 18.192 88.1894 18.192Z" fill="#FDE047"/><path class="lisp-logo-accent-paths" d="M146 0V8H104V18H96V0H146ZM157 18H106V10H148V0H157V18Z" fill="#FDE047"/></svg></div></div></a>
       <p class="book-navigation__chapter-name-heading"><span>3. LISP FUNDAMENTALS</span></p>
       <nav>
         <ul>
@@ -34,6 +39,28 @@
         <a href="/book/essentials/getting-started-w-doom-emacs-lisp" class="book-navigation__previous-section">&larr; 2. GETTING STARTED W/DOOM EMACS &amp; LISP</a>
         <a href="/book/essentials/emacs-fundamentals" class="book-navigation__next-section">4. EMACS FUNDAMENTALS &rarr;</a>
       </div>
+      <form id="theme-select-form">
+        <select id="theme-select" name="theme-select"
+                data-script="on change
+                     set $theme to my.value
+                     then set @data-theme of document.documentElement to $theme
+                     then set localStorage.theme to $theme
+                    end
+                    on load set $theme to localStorage.theme
+                     set @data-theme of document.documentElement to $theme
+                     if $theme
+                       set document.documentElement.dataset.theme to $theme
+                       set my.value to localStorage.theme">
+          <option value="almighty-lisp">almighty-lisp</option>
+          <option value="almighty-lisp-moon">almighty-lisp-moon</option>
+          <option value="almighty-titan">almighty-titan</option>
+          <option value="almighty-titan-moon">almighty-titan-moon</option>
+          <option value="almighty-gear">almighty-gear</option>
+          <option value="almighty-gear-moon">almighty-gear-moon</option>
+          <option value="almighty-macro">almighty-macro</option>
+          <option value="almighty-macro-moon">almighty-macro-moon</option>
+        </select>
+      </form>
     </div>
   </div>
 
@@ -75,8 +102,10 @@ features: all those parentheses, and prefix notation. This is a Common Lisp
 <code>s-expression</code>.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(+ 3 4)
 </code></pre>
+</div>
 
 <p>
 S-expressions are made of indivisible units called <code>atoms</code>&#x2013;such as the symbol
@@ -122,8 +151,10 @@ function that comes at the beginning of the parenthesis, and all numbers
 afterward evaluated using that operator, from left to right. In school, we learn
 math using <code>infix notation</code>, where the operators are placed between each number.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(+ (* 5 5 5) (/ 18 2) (- 20 3)) ; using infix notation: 5 * 5 * 5 + 18 / 2 + 20 - 3
 </code></pre>
+</div>
 </div>
 
 </section>
@@ -136,9 +167,11 @@ math using <code>infix notation</code>, where the operators are placed between e
 <p>
 Let's look at a slightly more complicated example of Common Lisp syntax:
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun cube (x)
   (* x x x))
 </code></pre>
+</div>
 <p>
 After the opening parenthesis comes <code>defun</code>, a built-in <code>special form</code>. Special
 forms have different evaluation rules compared to regular function calls.
@@ -192,7 +225,7 @@ the symbols, rather than evaluating and returning the values of the symbols.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">'my-num
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MY-NUM</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MY-NUM</code></pre>
 </div>
 
 <p>
@@ -215,8 +248,10 @@ There are several ways to define variables.
 You can use <code>setf</code> to reassign values to variables you've already introduced.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(setf *debug* nil)
 </code></pre>
+</div>
 
 <p>
 However, if this variable hasn't been introduced yet, you'll get an error.
@@ -230,7 +265,7 @@ Use <code>defvar</code> to introduce a global variable without a value.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *debug*)
 *debug*
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
 </div>
 
 
@@ -244,7 +279,7 @@ value, you can't simply redefine the <code>defvar</code> and recompile the form.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *debug* t)
 *debug*
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
 </div>
 
 <p>
@@ -259,7 +294,7 @@ You have to use <code>setf</code> to modify the value of a <code>defvar</code> v
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *no-changey* 'no)
 *no-changey*
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NO</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NO</code></pre>
 </div>
 
 
@@ -267,7 +302,7 @@ You have to use <code>setf</code> to modify the value of a <code>defvar</code> v
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(setf *no-changey* 'yes)
 *no-changey*
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>YES</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>YES</code></pre>
 </div>
 
 
@@ -280,7 +315,7 @@ be modified by recompiling the <code>defparameter</code> form.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *debug* nil)
 *debug*
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
 </div>
 
 
@@ -288,7 +323,7 @@ be modified by recompiling the <code>defparameter</code> form.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *debug* t)
 *debug*
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>T</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>T</code></pre>
 </div>
 
 
@@ -306,7 +341,7 @@ modified.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defconstant +pi+ 3.14)
 +pi+
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>3.14</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>3.14</code></pre>
 </div>
 
 
@@ -325,7 +360,7 @@ given the option to redefine the constant via a restart.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defconstant +pi+ 42)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The constant is being redefined (from 3.14 to 42)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The constant is being redefined (from 3.14 to 42)</code></pre>
 </div>
 
 
@@ -349,7 +384,7 @@ Use <code>let</code> to introduce or reassign a local variable.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((name 'micah))
   name)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MICAH</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MICAH</code></pre>
 </div>
 
 
@@ -377,7 +412,7 @@ You can also reassign a global variable temporarily.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *var* 'outside)
 *var*                   
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>OUTSIDE</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>OUTSIDE</code></pre>
 </div>
 
 
@@ -385,7 +420,7 @@ You can also reassign a global variable temporarily.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((*var* 'inside))  
   *var*)              
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>INSIDE</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>INSIDE</code></pre>
 </div>
 
 
@@ -396,7 +431,7 @@ And the value outside the let will remain.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">*var*
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>OUTSIDE</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>OUTSIDE</code></pre>
 </div>
 
 
@@ -428,7 +463,7 @@ Change the <code>let</code> to <code>let*</code> to make it work properly:
        (clean-data data))
   clean-data)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>DATA</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>DATA</code></pre>
 </div>
 </div>
 
@@ -499,7 +534,7 @@ symbols in manually. Some of the above functions will come in handy for those
 kinds of operations.
 </p>
 
-<div class="matters_of_style" id="org0abc2b4">
+<div class="matters_of_style" id="org29684a3">
 <p>
 Now that you know that <code>let</code> and <code>let*</code> are nearly the same, with <code>let*</code>
 providing more functionality that <code>let</code>, you are probably tempted to never use
@@ -529,9 +564,11 @@ what some insane Haskell-loving university teacher once told me.
 You can define functions with <code>defun</code>:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun sum (x y) 
   (+ x y))
 </code></pre>
+</div>
 
 <p>
 All functions defined with <code>defun</code> are global in scope. For example,
@@ -539,15 +576,18 @@ All functions defined with <code>defun</code> are global in scope. For example,
 will be available at the top level.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun categorize-food (food)
   (defun compile-food-ingredients (food) ...)
   ...)
 </code></pre>
+</div>
 
 <p>
 To define locally-scoped named functions, use <code>flet</code> or <code>labels</code>:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun square-then-double (x)
   (flet ((square (y)
            (* y y)))
@@ -560,6 +600,7 @@ To define locally-scoped named functions, use <code>flet</code> or <code>labels<
              (* 2 (square z))))
     (double-squareed x)))
 </code></pre>
+</div>
 
 <p>
 <code>flet</code> is like <code>let</code>, and <code>labels</code> is like <code>let*</code>. Importantly, this means if
@@ -582,8 +623,10 @@ There are several different kinds of parameters you can define. The most common
 will be <b>required</b> parameters. Parameters defined without any other options are required.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun my-fun (this-is-required))
 </code></pre>
+</div>
 
 <p>
 If you don't want a parameter to be required, you can use the <code>&amp;optional</code>
@@ -596,7 +639,7 @@ lambda list keyword to make it optional.
 
 (fun-with-optional 5)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The values passed: 5 and NIL.</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The values passed: 5 and NIL.</code></pre>
 </div>
 
 
@@ -611,7 +654,7 @@ default value.
 
 (fun-with-optional 5)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The values passed: 5 and 10.</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The values passed: 5 and 10.</code></pre>
 </div>
 
 
@@ -620,12 +663,14 @@ You can create a predicate that will return whether the value was supplied or
 the default is being used.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun fun-with-optional (a &amp;optional (b 10 b-supplied-p))
   (if b-supplied-p
       (format nil "The values passed: ~a and ~a (passed by user).~&amp;" a b)
       (format nil "The values passed: ~a and ~a (default).~&amp;" a b)))
 
 </code></pre>
+</div>
 
 <p>
 By convention the predicate is named <code>*-supplied-p</code>, with <code>*</code> being the name of
@@ -640,7 +685,7 @@ Using the default value of the optional argument:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(fun-with-optional 5) 
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The values passed: 5 and 10 (default).</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The values passed: 5 and 10 (default).</code></pre>
 </div>
 
 <p>
@@ -649,7 +694,7 @@ With a value passed to the optional argument position:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(fun-with-optional 5 10)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The values passed: 5 and 10 (passed by user).</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>The values passed: 5 and 10 (passed by user).</code></pre>
 </div>
 
 
@@ -658,28 +703,34 @@ All parameters following the <code>&amp;optional</code> lambda list keyword will
 This is true of all lambda list keywords.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun fun-with-lots-of-options (&amp;optional (a 1) (b 2) (c 3))
   (+ a b c))
 </code></pre>
+</div>
 
 <p>
 If you want an argument to be both <b>optional</b>, but also want the user to be able
 to set the argument in any position by name, then you can use the <code>&amp;key</code> keyword.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun fun-with-keys (&amp;key a b c)
   (+ a b c))
 
 (fun-with-keys :a 1 :b 2 :c 3)         
 </code></pre>
+</div>
 
 <p>
 As with <code>&amp;optional</code>, you can specify default values.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun fun-with-keys (&amp;key (a 1) (b 2) (c 3))
   (+ a b c))
 </code></pre>
+</div>
 
 <p>
 <code>*-supplied-p</code> predicates can also be specified.
@@ -694,7 +745,7 @@ As with <code>&amp;optional</code>, you can specify default values.
 
 (fun-with-keys :a 5 :c 7)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>5 (T) + 2 (NIL) + 7 (T) = 14</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>5 (T) + 2 (NIL) + 7 (T) = 14</code></pre>
 </div>
 
 
@@ -708,7 +759,7 @@ You can collect arbitrary arguments into a list with <code>&amp;rest</code>.
 
 (add 1 2 3 4 5)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>15</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>15</code></pre>
 </div>
 
 
@@ -748,7 +799,7 @@ result in an error. You don't need the <code>&amp;key</code> to have named argum
 
 (rest-args-as-plist :a 1 :b 2 :name 'micah)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(:A 1 :B 2 :NAME MICAH)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(:A 1 :B 2 :NAME MICAH)</code></pre>
 </div>
 
 
@@ -762,7 +813,7 @@ that you can have an arbitrary number of key-value pairs in your <code>&amp;rest
         :when (eql k :name)
           :append v))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MICAH</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MICAH</code></pre>
 </div>
 </div>
 
@@ -777,6 +828,7 @@ that you can have an arbitrary number of key-value pairs in your <code>&amp;rest
 In Common Lisp, the value returned by the last expression called in a form will
 be the return value.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *some-var*)
 (defun do-a-bunch-of-stuff ()
   (setf *some-var* "I assigned a value to *some-var*.")
@@ -786,6 +838,7 @@ be the return value.
     "I am the value that this function will return"))
 (do-a-bunch-of-stuff)
 </code></pre>
+</div>
 <p>
 There are cases, however, when you might want to do an early return, especially
 when looping. You can do that with <code>return</code>.
@@ -810,7 +863,7 @@ It's possible to return multiple values using the <code>values</code> function.
    (/ 100 25)))
 (return-a-bunch-of-stuff)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>9, 49, 4</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>9, 49, 4</code></pre>
 </div>
 </div>
 
@@ -829,7 +882,7 @@ multiple values. Instead, only the first value will be bound.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((val (return-a-bunch-of-stuff)))
   val)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>9</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>9</code></pre>
 </div>
 
 
@@ -841,7 +894,7 @@ If you need to bind multiple values, use <code>multiple-value-bind</code>.
     (return-a-bunch-of-stuff)
   (format t "~a * ~a * ~a = ~a" a b c (* a b c)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>9 * 49 * 4 = 1764 =&gt; NIL</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>9 * 49 * 4 = 1764 =&gt; NIL</code></pre>
 </div>
 </div>
 
@@ -861,7 +914,7 @@ destructuring. For that, there's <code>destructuring-bind</code>.
     (list 1 2 3)
   (format t "~a * ~a * ~a = ~a" a b c (* a b c)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>1 * 2 * 3 = 6 =&gt; NIL</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>1 * 2 * 3 = 6 =&gt; NIL</code></pre>
 </div>
 
 
@@ -880,7 +933,7 @@ This destructuring can be done on arbitrarily deep trees of cons cells.
     *deep-tree*
   the-value-bound-to-b)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>:SOME-VALUE</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>:SOME-VALUE</code></pre>
 </div>
 </div>
 
@@ -895,10 +948,12 @@ This destructuring can be done on arbitrarily deep trees of cons cells.
 When a variable is passed to a function, a new, local variable is introduce with
 the value of the variable passed to the function.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *some-num* 5)
 (defun add-5 (num) ; local variable num is introduced
   (setf num (+ num 5)))
 </code></pre>
+</div>
 
 <p>
 <code>num</code> is assigned the value of <b>some-num</b>
@@ -909,7 +964,7 @@ the value of the variable passed to the function.
 
 *some-num*
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>5, not 10</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>5, not 10</code></pre>
 </div>
 
 
@@ -926,10 +981,11 @@ on the global variable directly.
 
 some-num
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>10</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>10</code></pre>
 </div>
 
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *names* '(Micah Greg Takae Marcia Ena Mikasa))
 
 (defun add-name (name sequence)
@@ -937,6 +993,7 @@ some-num
 
 (add-name 'Guy *names*)
 </code></pre>
+</div>
 </div>
 
 </section>
@@ -958,15 +1015,19 @@ To pass a function as an argument, you have a few options.
 <p>
 You can use <code>function</code>:
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar (function square-then-double) '(1 2 3 4 5))
 </code></pre>
+</div>
 
 <p>
 Or, more commonly, use the reader macro <code>#'</code>:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'square-then-double '(1 2 3 4 5))
 </code></pre>
+</div>
 
 <p>
 Or you can use anonymous functions.
@@ -987,7 +1048,7 @@ You can use anonymous functions with <code>lambda</code>:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">((lambda (x) (* x x)) 5)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>25</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>25</code></pre>
 </div>
 
 
@@ -999,7 +1060,7 @@ Lambdas are useful when using functional programming functions like <code>mapcar
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar (lambda (x) (+ (* x x) (* x x))) '(1 2 3 4 5))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(2 8 18 32 50)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(2 8 18 32 50)</code></pre>
 </div>
 </div>
 
@@ -1020,23 +1081,29 @@ Lists are the most flexible and fundamental data structure in Common Lisp.
 The easiest way to make a list is with the <code>list</code> function:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(list 'this 'is 'a 'list)
 </code></pre>
+</div>
 
 <p>
 That list contains four symbols. The more common way to create the above list is
 to use <code>quote</code>:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(quote (this is a list))
 </code></pre>
+</div>
 
 <p>
 Or, using a reader macro:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">'(this is a list)
 </code></pre>
+</div>
 
 <p>
 If you are experienced in other languages like Python or JavaScript, you might
@@ -1049,8 +1116,10 @@ The more fundamental data structure that lists are built on top of are cons
 cells. Lisp's lists are <b>linked lists</b> of cons cells.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(cons 'this (cons 'is (cons 'a (cons 'linked (cons 'list nil)))))
 </code></pre>
+</div>
 
 <p>
 A cons cell has two parts or slots: a <code>car</code> and a <code>cdr</code>. The car contains some
@@ -1072,16 +1141,18 @@ very same cons cells.
                                 (cons 'x (cons 'y nil)))
                                nil))))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Y) (+ X Y))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Y) (+ X Y))</code></pre>
 </div>
 
 <p>
 The result is the literal representation of this code:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun sum (x y)
   (+ x y))
 </code></pre>
+</div>
 
 <p>
 Quoting the <code>sum</code> function definition will produce the same result
@@ -1090,7 +1161,7 @@ Quoting the <code>sum</code> function definition will produce the same result
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(quote (defun sum (x y)
          (+ x y)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Y) (+ X Y))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Y) (+ X Y))</code></pre>
 </div>
 
 <p>
@@ -1100,7 +1171,7 @@ Importantly, that's different from merely returning a string with the code:
 <pre class="code-block-source-pre"><code class="code-block-source lisp">"(defun sum (x y)
    (+ x y))"
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"(defun sum (x y)
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"(defun sum (x y)
    (+ x y))"</code></pre>
 </div>
 
@@ -1109,6 +1180,7 @@ How is it different? Because I can evaluate the quoted code, and I can evaluate
 the version manually created with <code>cons</code>:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(eval (quote (defun sum (x y)
                (+ x y))))
 
@@ -1119,6 +1191,7 @@ the version manually created with <code>cons</code>:
                                       (cons 'x (cons 'y nil)))
                                 nil)))))
 </code></pre>
+</div>
 
 <p>
 The line between "code" and "data" that is clearly drawn in other languages like
@@ -1144,7 +1217,7 @@ manipulating lists.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(length '(Gerald Sussman stole my wife and kicked my dog that skallywag))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>11</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>11</code></pre>
 </div>
 
 
@@ -1155,7 +1228,7 @@ manipulating lists.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(reverse '(1 2 3 4 5))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(5 4 3 2 1)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(5 4 3 2 1)</code></pre>
 </div>
 
 
@@ -1170,7 +1243,7 @@ list:
         (second my-list)
         (ninth my-list)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(COMMON LISP LANGUAGE)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(COMMON LISP LANGUAGE)</code></pre>
 </div>
 
 <p>
@@ -1182,7 +1255,7 @@ items that come after it:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(member 'general '(common lisp is a general purpose multi-paradigm programming language))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(GENERAL PURPOSE MULTI-PARADIGM PROGRAMMING LANGUAGE)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(GENERAL PURPOSE MULTI-PARADIGM PROGRAMMING LANGUAGE)</code></pre>
 </div>
 
 
@@ -1192,7 +1265,7 @@ items that come after it:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(nth 4 '(common lisp is a general purpose multi-paradigm programming language))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>GENERAL</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>GENERAL</code></pre>
 </div>
 
 
@@ -1202,7 +1275,7 @@ items that come after it:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(position 'general '(common lisp is a general purpose multi-paradigm programming language))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>4</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>4</code></pre>
 </div>
 
 
@@ -1212,7 +1285,7 @@ items that come after it:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(append '(this list is a list) '(a list))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(THIS LIST IS A LIST A LIST)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(THIS LIST IS A LIST A LIST)</code></pre>
 </div>
 </div>
 
@@ -1235,7 +1308,7 @@ Consider the linked list of cons cells above:
                                       (cons 'x (cons 'y nil)))
                                 nil))))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Y) (+ X Y))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Y) (+ X Y))</code></pre>
 </div>
 
 
@@ -1247,6 +1320,7 @@ common case) or another leaf. When working with lists as a tree, you can use
 <code>car</code> and <code>cdr</code> to access those two positions.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *my-tree* (cons 'defun (cons 'sum (cons (cons 'x
                                      (cons 'y nil))
                                (cons
@@ -1254,6 +1328,7 @@ common case) or another leaf. When working with lists as a tree, you can use
                                       (cons 'x (cons 'y nil)))
                                 nil)))))
 </code></pre>
+</div>
 
 <p>
 Now call <code>car</code> on the tree:
@@ -1262,14 +1337,14 @@ Now call <code>car</code> on the tree:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(car *my-tree*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>DEFUN</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>DEFUN</code></pre>
 </div>
 
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(cdr *my-tree*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(SUM (X Y) (+ X Y))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(SUM (X Y) (+ X Y))</code></pre>
 </div>
 
 <p>
@@ -1279,7 +1354,7 @@ Now call <code>car</code> on the tree:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(copy-tree *my-tree*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Y) (+ X Y))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Y) (+ X Y))</code></pre>
 </div>
 
 
@@ -1290,7 +1365,7 @@ Now call <code>car</code> on the tree:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(subst 'z 'y *my-tree*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Z) (+ X Z))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUM (X Z) (+ X Z))</code></pre>
 </div>
 
 <p>
@@ -1303,7 +1378,7 @@ Now call <code>car</code> on the tree:
           (y    . b))
         *my-tree*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUBTRACT (A B) (- A B))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DEFUN SUBTRACT (A B) (- A B))</code></pre>
 </div>
 </div>
 
@@ -1319,12 +1394,14 @@ Now call <code>car</code> on the tree:
 list, otherwise known as an alist or table. A table is a list with nested dotted
 lists&#x2013;lists that have a non-nil leaf in the cdr position.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *en-to-ja-table* '((one   . ichi)
                                  (two   . ni)
                                  (three . san)
                                  (four  . yon)
                                  (five  . go)))
 </code></pre>
+</div>
 <p>
 With tables, the car is a key and the cdr is a value. You can search a table by
 either key or value using <code>assoc</code> and <code>rassoc</code>.
@@ -1332,14 +1409,14 @@ either key or value using <code>assoc</code> and <code>rassoc</code>.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(assoc 'two *en-to-ja-table*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(TWO . NI)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(TWO . NI)</code></pre>
 </div>
 
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(rassoc 'ni *en-to-ja-table*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(TWO . NI)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(TWO . NI)</code></pre>
 </div>
 </div>
 
@@ -1361,7 +1438,7 @@ With <code>adjoin</code>, you can a single unique element into one list.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(adjoin 'three '(one two three))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(ONE TWO THREE)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(ONE TWO THREE)</code></pre>
 </div>
 
 
@@ -1373,15 +1450,17 @@ wasn't added.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(adjoin 'four '(one two three))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(ONE TWO THREE FOUR)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(ONE TWO THREE FOUR)</code></pre>
 </div>
 
 <p>
 Contents of two sets can be compared to form new sets:
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *pizza* '(salty sweet cheese sauce round carbs))
 (defparameter *cake* '(sweet chocolate brown carbs round))
 </code></pre>
+</div>
 
 <p>
 <code>intersection</code> returns a set of unique elements that are present in both
@@ -1390,7 +1469,7 @@ Contents of two sets can be compared to form new sets:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(intersection *pizza* *cake*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(CARBS ROUND SWEET)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(CARBS ROUND SWEET)</code></pre>
 </div>
 
 <p>
@@ -1399,7 +1478,7 @@ Contents of two sets can be compared to form new sets:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(union *cake* *pizza*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(SAUCE CHEESE SALTY SWEET CHOCOLATE BROWN CARBS ROUND)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(SAUCE CHEESE SALTY SWEET CHOCOLATE BROWN CARBS ROUND)</code></pre>
 </div>
 
 <p>
@@ -1409,7 +1488,7 @@ that are not present in <code>*pizza*</code>:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(set-difference *cake* *pizza*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(BROWN CHOCOLATE)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(BROWN CHOCOLATE)</code></pre>
 </div>
 
 <p>
@@ -1418,7 +1497,7 @@ Or vise versa:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(set-difference *pizza* *cake*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(SAUCE CHEESE SALTY)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(SAUCE CHEESE SALTY)</code></pre>
 </div>
 
 <p>
@@ -1428,7 +1507,7 @@ Or vise versa:
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *cheese-pizza* '(salty cheese sauce round carbs))
 (subsetp *cheese-pizza* *pizza*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>T</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>T</code></pre>
 </div>
 </div>
 
@@ -1462,6 +1541,7 @@ for <code>nil</code> or the empty list are <code>t</code>.
 Common Lisp has the typical comparison operators for math (with <code>\=</code> being
 non-typical in other languages):
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(= 1 1)
 (/= 1 1)
 (&gt; 199 180)
@@ -1469,6 +1549,7 @@ non-typical in other languages):
 (&lt; 7 19)
 (&lt;= 77 77)
 </code></pre>
+</div>
 </div>
 <section id="general-equality">
   <hgroup>
@@ -1488,6 +1569,7 @@ similar to <code>equal</code> or <code>equalp</code>.
 in memory?
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *deez-nums* '(1 2 3 4 5))
 (defparameter *your-nums* '(1 2 3 4 5))
 (defparameter *gods-nums* '(one two three four five))
@@ -1507,6 +1589,7 @@ in memory?
 (defparameter *greeting* "Hello, world!")
 (eq *greeting* *greeting*)                  ; T, same array of characters.
 </code></pre>
+</div>
 
 <p>
 <code>eql</code> is the same as <code>eq</code>, except that if the arguments are characters or
@@ -1517,16 +1600,19 @@ compared.
 <p>
 <code>equal</code> tests structural similarity.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(equal '(1 2 3) '(1 2 3))               ; T
 (equal '(1 3 2) '(1 2 3))               ; NIL
 (equal "hello" "hello")                 ; T
 (equal "HELLO" "hello")                 ; NIL
 (equal 1 1.0)                           ; NIL, different types
 </code></pre>
+</div>
 
 <p>
 <code>equalp</code> is further lenient:
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(equalp #\a #\A)                        ; T
 (equalp "hello" "HELLO")                ; T, good for case-insensitive testing
                                         ; of characters or strings
@@ -1534,14 +1620,17 @@ compared.
                                         ; number types
 (equalp '(1 2 3) '(1 3 2))              ; NIL
 </code></pre>
+</div>
 
 <p>
 Characters and strings have their own equality operators: <code>char-equal</code> and
 <code>string-equal</code>.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(char-equal #\a #\A)                    ; T, same as (equalp #\a #\A)
 (string-equal "hello" "HELLO")          ; T, same as (equalp "hello" "HELLO")
 </code></pre>
+</div>
 <p>
 Additionally, there are tests like <code>char-greaterp</code>, <code>string=</code>, <code>char&lt;</code>, etc.
 </p>
@@ -1569,18 +1658,22 @@ form returns the value returned by the last form inside it if all forms in it
 evaluate to <code>t</code>.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(and 't 5)          ; =&gt; 5
 (and 't 5 'hello)   ; =&gt; HELLO
 (and 'nil 5 'hello) ; =&gt; NIL
 </code></pre>
+</div>
 
 <p>
 <code>or</code> returns the value of the first form that evaluates to true. If no form
 passed to it returns a true value, it returns <code>nil</code>.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(or 5 't 'nil 'hello)                  ; =&gt; 5
 (or 'nil (&gt; 1 5) (eq "hello" "hello")) ; =&gt; NIL
 </code></pre>
+</div>
 
 <p>
 <code>or</code> will stop evaluating forms on the first form that evaluates to true.
@@ -1590,16 +1683,18 @@ passed to it returns a true value, it returns <code>nil</code>.
     (print "Evaluated, returns true.")
     (print "Not evaluated."))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>Evaluated, returns true.</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>Evaluated, returns true.</code></pre>
 </div>
 
 <p>
 <code>not</code> will return <code>t</code> if the inner form returns <code>nil</code>, and <code>nil</code> if that form
 returns <code>t</code>.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(not (= 1 1))  ; =&gt; NIL
 (not (oddp 2)) ; =&gt; T
 </code></pre>
+</div>
 </div>
 
 </section>
@@ -1616,14 +1711,17 @@ returns true, the next form is evaluated. If the test returns false, then the
 form after that is evaluated.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(if (&gt; 10 1)                   ; if
     '10-is-greater-than-1      ; then branch
     '10-is-not-greater-than-1) ; (optional) else branch
 </code></pre>
+</div>
 
 <p>
 If you don't need a second (else) branch, you can use <code>when</code> or <code>unless</code>:
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((num 0))
   (when (&lt;= 1 num 10)
     (format t "~&amp;FROM WHEN EXPRESSION: ~a is between 1 and 10" num)
@@ -1635,6 +1733,7 @@ If you don't need a second (else) branch, you can use <code>when</code> or <code
     (print num)
     (print (+ num num))))
 </code></pre>
+</div>
 
 <p>
 <code>(unless test ...)</code> is equivalent to <code>(when (not test) ...)</code>.
@@ -1650,9 +1749,11 @@ operations after the test with <code>when</code> and <code>unless</code>.
 parentheses can be tricky here.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(cond (test form-to-evaluate-if-test-returns-t)
       (test form-to-evaluate-if-test-returns-t))
 </code></pre>
+</div>
 
 <p>
 Here is a practical example:
@@ -1668,7 +1769,7 @@ Here is a practical example:
     ((&lt;= 1 mhm 29)   (format t "~&amp;Did this monster's grandma die or something?")         'console-monster)
     (t               (format t "~&amp;This is the catchall fallback expression.")            'fallback)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>CALL-MONSTERS-MOMMY</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>CALL-MONSTERS-MOMMY</code></pre>
 </div>
 
 <p>
@@ -1694,6 +1795,7 @@ errors when no match is found (rather than providing an fallback clause), use
 expression and continue the program, use <code>ccase</code> and <code>ctypecase</code>.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *env* :DEVELOPMENT)
 
 (defun check-environment ()
@@ -1709,6 +1811,7 @@ expression and continue the program, use <code>ccase</code> and <code>ctypecase<
 (let ((*env* :AWS))
   (check-environment))      ; =&gt; NIL
 </code></pre>
+</div>
 <p>
 <code>case</code> will return <code>nil</code> when none of the other cases match. You can set the
 fallback case using <code>t</code> or <code>otherwise</code>.
@@ -1724,7 +1827,7 @@ fallback case using <code>t</code> or <code>otherwise</code>.
 (let ((*env* :AWS))
   (check-environment))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>you gotta set your envto :DEVELOPMENT or :PRODUCTION</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>you gotta set your envto :DEVELOPMENT or :PRODUCTION</code></pre>
 </div>
 
 <p>
@@ -1740,7 +1843,7 @@ If you want to return an error if the argument falls through all the checks, use
 (let ((*env* :AWS))
   (check-environment))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>:AWS fell through ECASE expression.
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>:AWS fell through ECASE expression.
 Wanted one of (:DEVELOPMENT :PRODUCTION).
 [Condition of type SB-KERNEL:CASE-FAILURE]
 Restarts:
@@ -1761,7 +1864,7 @@ If you want a <i>continuable</i> error, use <code>ccase</code>.
 (let ((*env* :AWS))
   (check-environment))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>:AWS fell through CCASE expression.
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>:AWS fell through CCASE expression.
 Wanted one of (:DEVELOPMENT :PRODUCTION).
 [Condition of type SB-KERNEL:CASE-FAILURE]
 Restarts:
@@ -1788,7 +1891,7 @@ by the key expression.
     (function 'this-is-a-function)
     (otherwise 'i-dont-know-what-this-is)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>THIS-IS-A-NUMBER</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>THIS-IS-A-NUMBER</code></pre>
 </div>
 
 <p>
@@ -1823,14 +1926,16 @@ You can iterate by using a functional programming style mapping. You've seen it
 in action already:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'square-then-double '(1 2 3 4 5))
 </code></pre>
+</div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'first '((1 2 3 4 5) (one two three four five) (what is going on here) (once
  upon a time)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>((1 ONE WHAT ONCE))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>((1 ONE WHAT ONCE))</code></pre>
 </div>
 
 <p>
@@ -1842,7 +1947,7 @@ The most general mapping function is <code>map</code>.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">;;; Go through each character in the string and upper case it. Return a string.
 (map 'string #'char-upcase "hello")
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"HELLO"</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"HELLO"</code></pre>
 </div>
 
 <div class="code-block">
@@ -1850,7 +1955,7 @@ The most general mapping function is <code>map</code>.
 ;;; Finishes at the end of the shortest list.
 (map 'list #'* '(2 4 6 8) '(3 5 7 9 11 13 15) '(10 10 10))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(60 200 420)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(60 200 420)</code></pre>
 </div>
 </div>
 
@@ -1869,36 +1974,31 @@ successive items in the sequence with <code>reduce</code>.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(reduce #'+ '(2 2 2))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>6</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>6</code></pre>
 </div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(reduce #'* '(2 2 2))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>8</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>8</code></pre>
 </div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(reduce #'append '((2 2 2) (3 3 3) (4 4)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(2 2 2 3 3 3 4 4)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(2 2 2 3 3 3 4 4)</code></pre>
 </div>
 
 <p>
 If you define a function to use for reducing, it needs to take two arguments:
 </p>
 
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun sum (x y) (+ x y))
-</code></pre>
-
-<p>
-Call it with <code>reduce</code>:
-</p>
-
 <div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(reduce #'sum '(1 1 1 3 4 5 6 7))
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun sum (x y) (+ x y))
+
+(reduce #'sum '(1 1 1 3 4 5 6 7))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>28</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>28</code></pre>
 </div>
 </div>
 
@@ -1916,49 +2016,55 @@ You can filter the contents of a sequence with <code>remove-if-not</code>:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(remove-if-not #'oddp '(1 2 3 4 5 6 7 8 9 10))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 3 5 7 9)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 3 5 7 9)</code></pre>
 </div>
 
 <p>
 You can define your own predicate and pass it to <code>remove-if-not</code>:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *dangerous-animals* '(lion tiger bear snake shark))
 
 (defun safe-animal-p (animal)
   (not (member animal *dangerous-animals*)))
 </code></pre>
+</div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(remove-if-not #'safe-animal-p '(dog cat monkey lion hamster shark snake bear
  koala frog))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DOG CAT MONKEY HAMSTER KOALA FROG)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DOG CAT MONKEY HAMSTER KOALA FROG)</code></pre>
 </div>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun greater-than-50-p (num)
   (&gt; num 50))
 </code></pre>
+</div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(remove-if-not #'greater-than-50-p '(40 50 30 90 80 10 70 100 25 60 55 2))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(90 80 70 100 60 55)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(90 80 70 100 60 55)</code></pre>
 </div>
 
 <p>
 You can also use <code>remove-if</code>:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun dangerous-animal-p (animal)
   (member animal *dangerous-animals*))
 </code></pre>
+</div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(remove-if #'dangerous-animal-p '(dog cat monkey lion hamster shark snake bear
  koala frog))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DOG CAT MONKEY HAMSTER KOALA FROG)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(DOG CAT MONKEY HAMSTER KOALA FROG)</code></pre>
 </div>
 </div>
 
@@ -1969,114 +2075,163 @@ You can also use <code>remove-if</code>:
     <h3>Iterating by Doing</h3>
   </hgroup>
 <div class="outline-text-4" id="text-1-6-4">
-</div>
-<section id="-dotimes-">
-  <hgroup>
-    
-    <h4><code>dotimes</code></h4>
-  </hgroup>
-<div class="outline-text-5" id="text-1-6-4-1">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(dotimes (index-var n [result-form])
-  body)
-</code></pre>
 <p>
-<code>dotimes</code> is for doing something a set number of times. Simple enough. It should
-feel familiar if you've ever done this in JavaScript:
+There are several iteration forms in Common Lisp that involve "doing". Among
+them, the most popular are <code>dotimes</code> and <code>dolist</code>.
 </p>
 
-<pre class="code-block-source-pre"><code class="code-block-source c">for (let i = 0; i &lt; 10; i++) {
- ...}
-</code></pre>
 <p>
-or this in Python:
+<code>dotimes</code> is for doing something a set number of times. 
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source python">for i in range(5):
-    ...
-</code></pre>
+
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(dotimes (i 5)
   (if (= i 4)
       (print "I'M NOT CRAZY!!!")
       (print "I'm not crazy!")))
 </code></pre>
-
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(let* ((num-list '(99 98 97 96 95))
-       (times (length num-list)))
-  (dotimes (i times)
-    (let ((bottles-of-milk (nth i num-list)))
-      (format t "~&amp;~a of bottles of milk on the wall, ~a bottles of milk."
- bottles-of-milk bottles-of-milk))))
-</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"I'm not crazy!" 
+"I'm not crazy!" 
+"I'm not crazy!" 
+"I'm not crazy!" 
+"I'M NOT CRAZY!!!"  =&gt; NIL</code></pre>
 </div>
 
-</section>
-<section id="-dolist-">
-  <hgroup>
-    
-    <h4><code>dolist</code></h4>
-  </hgroup>
-<div class="outline-text-5" id="text-1-6-4-2">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(dolist (index-var list [result-form])
-  body)
-</code></pre>
+
 <p>
-<code>dolist</code> is similar. If you're doing simple stuff with lists, this is probably
+<code>dolist</code> will simply iterate through a list. If you're doing simple stuff with lists, this is probably
 what you want.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(dolist (i '(yet another beautiful short list))
   (format t "~&amp;~a" i))
 </code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>YET
+ANOTHER
+BEAUTIFUL
+SHORT
+LIST =&gt; NIL</code></pre>
+</div>
 
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun my-reverse (list)
-  (let ((reversed nil))
-    (dolist (i cat reversed)
-      (push (pop cat) reversed))))
+
+<p>
+<code>dotimes</code> and <code>dolist</code> also take an optional <code>result-form</code> argument. The
+<code>result-form</code> will be returned at the end of the iteration.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(dotimes (i 5 (format t "~%Finished."))
+  (print i))
 </code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>0 
+1 
+2 
+3 
+4 
+Finished. =&gt; NIL</code></pre>
+</div>
 
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun check-all-even (nums)
+
+<p>
+The most common use of the <code>result-form</code> is to return data that is
+collected/transformed during the iteration.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun my-reverse (list)
+  (let ((result nil))
+    (dolist (item list result)
+      (push item result))))
+
+(my-reverse '(this list will be returned in reverse order))
+</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(ORDER REVERSE IN RETURNED BE WILL LIST THIS)</code></pre>
+</div>
+
+<p>
+Another common use is to return <code>t</code> 
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun all-even-p (nums)
+  "Return T if all NUMS are even, NIL if any are odd."
   (dolist (i nums t)
     (format t "~&amp;Looking at ~a..." i)
     (when (oddp i)
-      (format t "~&amp;Ooops, this is odd!")
+      (format t "~&amp;Oops, this is odd!")
       (return nil))))
+
+(all-even-p '(1 2 3 4 5))
 </code></pre>
-<p>
-The [result-form] is in square brackets because it's optional. If you don't set
-it, then you need to return the result-form manually.
-</p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun my-reverse-manual-return (list)
-  (let ((reversed nil))
-    (dolist (i cat)                     ; reversed not set as result-form
-      (push (pop cat) reversed))
-    reversed))                          ; reversed manually called at the end of
-                                        ; the let block
-</code></pre>
-<p>
-Notice the use of <code>push</code> and <code>pop</code> here. They are both destructive functions
-that modify lists, either by adding or removing items. <code>push</code> puts items at the
-front of the list, returning the modified list. <code>pop</code> removes the first item and
-returns that item.
-</p>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>Looking at 1...
+Oops, this is odd! =&gt; NIL</code></pre>
 </div>
 
-</section>
-<section id="-do-">
-  <hgroup>
-    
-    <h4><code>do</code></h4>
-  </hgroup>
-<div class="outline-text-5" id="text-1-6-4-3">
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(all-even-p '(2 4 6))
+</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>Looking at 2...
+Looking at 4...
+Looking at 6... =&gt; T</code></pre>
+</div>
+
+
+<p>
+It's not strictly necessary to have a <code>result-form</code>. You can just manually
+return it.
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun my-reverse (list)
+  (let ((result nil))
+    (dolist (item list result)
+      (push item result))))
+
+(defun my-reverse-manual-return (list)
+  (let ((result nil))
+    (dolist (item list)                 ; result not set as result-form
+      (push item result))
+    result))                            ; reversed manually called at the end of
+                                        ; the let block
+</code></pre>
+</div>
+<p>
+Notice the use of <code>push</code> here. It is a destructive function that modify lists by
+adding items. <code>push</code> puts items at the front of the list, returning the modified
+list. Here, however
+</p>
+
+<p>
+The corresponding <code>pop</code> function removes the first item and returns that item.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((my-list '(1 2 3 4 5))
+      (result-list nil))
+  (dolist (item my-list (list my-list result-list))
+    (push (pop my-list) result-list)))
+</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(NIL (5 4 3 2 1))</code></pre>
+</div>
+
+
+<p>
+<code>do</code> is the most general and powerful of the <code>do</code> family. It is also a bit
+complicated and difficult to read/understand.
+</p>
+
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(do ((var1 init1 [update1])
      (var2 init2 [update2])
      ...)
     (test action-1... action-n) ; base case
  body)
 </code></pre>
-<p>
-<code>do</code> is the most general and powerful of the <code>do</code> family. It is also a bit
-complicated and difficult to read/understand.
-</p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun check-all-even-do (nums)
+</div>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun all-even-do-p (nums)
   (do ((n nums (cdr n)))
       ((null n) (return t))
     (format t "~&amp;Looking at ~a..." (first n))
@@ -2084,9 +2239,18 @@ complicated and difficult to read/understand.
       (format t "~&amp;~a is odd." (first n))
       (return nil))))
 </code></pre>
+</div>
 
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(check-all-even-do '(2 4 6 7 8 10))
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(all-even-do-p '(2 4 6 7 8 10))
 </code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>Looking at 2...
+Looking at 4...
+Looking at 6...
+Looking at 7...
+7 is odd. =&gt; NIL</code></pre>
+</div>
+
 
 <p>
 Unlike <code>dotimes</code> and <code>dolist</code>, which take care of incrementing the counter or
@@ -2101,15 +2265,19 @@ recursively because recursion also requires the programmer to specify the
 stepping function and base case.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun check-all-even-recursive (nums)
   (cond ((null nums) t)
         ((oddp (car nums)) (format t "~&amp;~a is odd!" (first nums)) nil)
         (t (format t "~&amp;~a is even." (car nums))
            (check-all-even-recursive (cdr nums)))))
 </code></pre>
+</div>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(check-all-even-recursive '(2 4 6 7 8 10))
 </code></pre>
+</div>
 <p>
 The step function is <code>(cdr nums)</code>. Using <code>cdr</code> to step through a list is called
 "cdring down" the list. The similarities between the recursive method and the
@@ -2132,8 +2300,6 @@ way to go.
 </div>
 
 </section>
-
-</section>
 <section id="iterating-by-looping">
   <hgroup>
     
@@ -2144,9 +2310,11 @@ way to go.
 The most popular iterating construct in Common Lisp is the <code>loop</code> macro:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for item :in '(one two three)
       :do (print item))
 </code></pre>
+</div>
 
 <p>
 <code>loop</code> is a macro that uses its own syntax. If you come from Python or
@@ -2158,7 +2326,7 @@ code.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(loop :for n :in '(1 2 3 4 5)
       :collect (* 2 (sqrt n)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(2.0 2.828427 3.4641016 4.0 4.472136)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(2.0 2.828427 3.4641016 4.0 4.472136)</code></pre>
 </div>
 
 <p>
@@ -2177,11 +2345,13 @@ The <code>loop</code> macro
 If you only need to test the sequence, <code>check-all-even</code> could be rewritten using
 <code>every</code>.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(every #'evenp '(2 4 6 8 10))
                                         ; =&gt; T
 (every #'evenp '(1 4 6 8 10))
                                         ; =&gt; NIL
 </code></pre>
+</div>
 <p>
 <code>every</code> runs a test on all items of a sequence and returns <code>t</code> if the test
 returns <code>t</code> for every item.
@@ -2191,29 +2361,35 @@ returns <code>t</code> for every item.
 Similarly, <code>some</code> tests all items of a sequence, but will return <code>t</code> as soon as
 the test returns <code>t</code> for an item.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(some #'oddp '(2 4 6 8))
                                         ; =&gt; NIL
 (some #'oddp '(1 4 6 8))
                                         ; =&gt; T
 </code></pre>
+</div>
 <p>
 <code>notevery</code> runs a test on all items of a sequence and returns <code>t</code> if the test
 returns <code>nil</code> for every item.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(notevery #'oddp '(1 3 5))
                                         ; =&gt; NIL
 (notevery #'oddp '(1 2 3 5))
                                         ; =&gt; T
 </code></pre>
+</div>
 <p>
 <code>notany</code> runs a test on all items of a sequence and returns <code>t</code> if the test
 returns <code>nil</code> for one item.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(notany #'oddp '(2 4 6))
                                         ; =&gt; T
 (notany #'oddp '(1 2 4 6))
                                         ; =&gt; NIL
 </code></pre>
+</div>
 </div>
 
 </section>
@@ -2225,15 +2401,17 @@ returns <code>nil</code> for one item.
 <div class="outline-text-4" id="text-1-6-7">
 <p>
 There are times when it's necessary to do an early return. We saw an example
-with <code>check-all-even</code>:
+with <code>all-even-p</code>:
 </p>
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun check-all-even (nums)
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun all-even-p (nums)
   (dolist (i nums t)
     (format t "~&amp;Looking at ~a..." i)
     (when (oddp i)
-      (format t "~&amp;Ooops, this is odd!")
+      (format t "~&amp;Oops, this is odd!")
       (return nil))))
 </code></pre>
+</div>
 <p>
 The result-form set for <code>dolist</code> is <code>t</code>, meaning that when we get to the end of
 the list we should return <code>t</code>.
@@ -2257,24 +2435,28 @@ early using <code>(return nil)</code>.
 <p>
 You can print information in the REPL using <code>print</code>.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(print "hello world")
 </code></pre>
+</div>
 <p>
 <code>print</code> both sends data to the REPL, but also returns the data as a value. That
 means you can place <code>print</code> over many different kinds of code, making if useful
 for simple debugging.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun factorial (x)
   (labels ((_factorial (n)
              (cond ((= n 0) 1)
                    (t (print (* n (_factorial (- n 1))))))))
     (_factorial x)))
 </code></pre>
+</div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(factorial 5)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>1 2 6 24 120 =&gt; 120</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>1 2 6 24 120 =&gt; 120</code></pre>
 </div>
 </div>
 <section id="using-sequence-operations-on-strings">
@@ -2295,26 +2477,26 @@ vectors, or strings. The first argument specifies the output type.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(concatenate 'list '(#\h #\e #\l #\l #\o #\space) '(#\w #\o #\r #\l #\d))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(###########)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(###########)</code></pre>
 </div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(concatenate 'vector '(#\h #\e #\l #\l #\o #\space) '(#\w #\o #\r #\l #\d))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"#(###########)"</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"#(###########)"</code></pre>
 </div>
 
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(concatenate 'string '(#\h #\e #\l #\l #\o #\space) '(#\w #\o #\r #\l #\d))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"hello world"</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"hello world"</code></pre>
 </div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(concatenate 'string "hello " "world")
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"hello world"</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"hello world"</code></pre>
 </div>
 
 <p>
@@ -2324,7 +2506,7 @@ vectors, or strings. The first argument specifies the output type.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(length "hello world")
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>11</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>11</code></pre>
 </div>
 
 <p>
@@ -2334,7 +2516,7 @@ vectors, or strings. The first argument specifies the output type.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(reverse "YOU WILL REWRITE THAT THING IN COMMON LISP IMMEDIATELY")
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"YLETAIDEMMI PSIL NOMMOC NI GNIHT TAHT ETIRWER LLIW UOY"</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"YLETAIDEMMI PSIL NOMMOC NI GNIHT TAHT ETIRWER LLIW UOY"</code></pre>
 </div>
 
 <p>
@@ -2345,7 +2527,7 @@ string.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(map 'string #'char-upcase "hello")
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"HELLO"</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"HELLO"</code></pre>
 </div>
 </div>
 
@@ -2367,7 +2549,7 @@ The previous <code>map</code> call can be simplified using <code>string-upcase</
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(string-upcase "almighty")
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"ALMIGHTY"</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"ALMIGHTY"</code></pre>
 </div>
 
 <p>
@@ -2379,10 +2561,12 @@ You can probably guess what <code>string-downcase</code> does.
 <code>string=</code> is case-sensitive, <code>string-equal</code> is case-insensitive.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(string= "almighty" "almighty")         ; =&gt; T
 (string= "almighty" "Almighty")         ; case-sensitive =&gt; NIL
 (string-equal "almighty" "ALMIGHTY")    ; case-insensitive =&gt; T
 </code></pre>
+</div>
 
 <p>
 There are other string comparison operators: <code>string&gt;</code>, <code>string/=</code>,
@@ -2407,11 +2591,13 @@ Use <code>with-open-file</code> to create a block where a streaming connection w
 file is active.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(with-open-file (stream #P"io-test.txt" :direction          :output
                                         :if-exists          :supersede
                                         :if-does-not-exist  :create)
   (format stream "~&amp;Put this in the test file.~&amp;This will be on a new line.~&amp;"))
 </code></pre>
+</div>
 
 <p>
 <code>with-open-file</code> is a macro providing a shortcut to using the lower-level
@@ -2429,12 +2615,14 @@ If you want to read a file, set <code>:direction</code> to <code>:input</code> a
 <code>read-line</code>, or <code>read-char</code>.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(with-open-file (stream #P"io-test.txt" :direction :input :if-exists :supersede
  :if-does-not-exist :create)
   (loop for line = (read-line stream nil nil)
         while line
         do (format t "~a~&amp;" line)))
 </code></pre>
+</div>
 </div>
 
 </section>
@@ -2465,8 +2653,10 @@ stream. If set to <code>t</code>, then it will send the input to <code>*standard
 is the output stream to the REPL.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(format t "~&amp;Almighty Lisp~%")
 </code></pre>
+</div>
 
 <p>
 However, as in the <code>with-open-file</code> examples, you can also use <code>format</code> to write
@@ -2493,7 +2683,7 @@ directives. I will explain any other directives as necessary.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(format t "~a" (aref "hello" 0))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>h =&gt; NIL NOTE: not #</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>h =&gt; NIL NOTE: not #</code></pre>
 </div>
 
 <p>
@@ -2506,17 +2696,19 @@ each argument, you need to supply another <code>Tilde a</code> or some other dir
 &amp;</code> will only output a newline if the output stream is not on a newline already.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *alist* '((:micah 'male '40 'married 'japan)
                         (:takae 'female '35 'married 'japan)
                         (:mom 'female '71 'married 'america)
                         (:papa 'male '74 'married 'america)))
 </code></pre>
+</div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(loop for row in *alist*
       do (format t "~&amp;~a: ~a~%" (first row) (rest row)))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MICAH: ('MALE '39 'MARRIED 'JAPAN)
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MICAH: ('MALE '39 'MARRIED 'JAPAN)
 TAKAE: ('FEMALE '34 'MARRIED 'JAPAN)
 MOM: ('FEMALE '70 'MARRIED 'AMERICA)
 PAPA: ('MALE '74 'MARRIED 'AMERICA)
@@ -2953,6 +3145,7 @@ or diagonally, they win.</li>
 The game is simple, so the data representation can be simple.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *board*)
 
 (defun reset-board ()
@@ -2964,6 +3157,7 @@ The game is simple, so the data representation can be simple.
 (defparameter *player-one* 1)
 (defparameter *player-two* 10)
 </code></pre>
+</div>
 
 <p>
 The board is a flat list of 0's representing empty spaces. <code>board</code> is a filler
@@ -2997,10 +3191,12 @@ Now that we have our data representations settled, we need a way to manipulate
 it.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun place-piece (board piece position)
   (setf (nth position board) piece)
   board)
 </code></pre>
+</div>
 
 <p>
 Using <code>setf</code> with <code>nth</code> here is similar to doing something like <code>var[n] =
@@ -3020,10 +3216,12 @@ We also need a way to map positions on the board to all possible winning
 positions&#x2013;Touretzky calls them triplets.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *triplets* '((1 2 3) (4 5 6) (7 8 9) 
                            (1 4 7) (2 5 8) (3 6 9) 
                            (1 5 9) (3 5 7)))       
 </code></pre>
+</div>
 
 <p>
 The first three triplets are horizontal winning positions, the second three are
@@ -3041,6 +3239,7 @@ vertical, and the last two are diagonal.
 <p>
 Next, we need a way to calculate the state of those triplets.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun sum-triplet (board triplet)
   (+ (nth (first triplet) board)
      (nth (second triplet) board)
@@ -3049,6 +3248,7 @@ Next, we need a way to calculate the state of those triplets.
 (defun compute-sums (board)
   (mapcar (lambda (triplet) (sum-triplet board triplet)) *triplets*))
 </code></pre>
+</div>
 <p>
 <code>mapcar</code> is one of the many built-in functions that takes a function as an argument.
 <code>mapcar</code> will apply the function to each item in the sequence and collect them
@@ -3068,7 +3268,7 @@ Let's test it out by placing some pieces manually.
 (place-piece *board* *player-two* 3)
 (place-piece *board* *player-one* 4)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(BOARD 1 10 10 1 1 0 1 0 10)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(BOARD 1 10 10 1 1 0 1 0 10)</code></pre>
 </div>
 
 <p>
@@ -3077,7 +3277,7 @@ Now let's test <code>compute-triplet</code>.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(compute-sums *board*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(21 2 11 3 11 20 12 12)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(21 2 11 3 11 20 12 12)</code></pre>
 </div>
 
 <p>
@@ -3086,6 +3286,7 @@ three spaces in a triplet. We have a winner, but our program doesn't know that
 yet. Let's add win and tie detection.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun winner-p (board)
   (let ((sums (compute-sums board)))
     (or (member (* 3 *player-one*) sums)
@@ -3094,6 +3295,7 @@ yet. Let's add win and tie detection.
 (defun tie-p (board)
   (not (member 0 board)))
 </code></pre>
+</div>
 
 <p>
 Test them on the current board:
@@ -3102,13 +3304,13 @@ Test them on the current board:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(winner-p *board*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(3 11 20 12 12)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(3 11 20 12 12)</code></pre>
 </div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(tie-p *board*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
 </div>
 <p>
 <code>member</code> is called a <code>semi-predicate</code>: it searches a sequence like <code>sums</code> for an
@@ -3135,6 +3337,7 @@ We need a way to show the board to players using <code>format</code>. Instead of
 do everything at once, we'll break it down into pieces, starting with converting
 player pieces from numbers to letters
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun convert-to-letter (piece)
   (ecase piece
     (0  " ")
@@ -3146,6 +3349,7 @@ player pieces from numbers to letters
       10
       1))
 </code></pre>
+</div>
 
 <p>
 Test <code>convert-to-letter</code>:
@@ -3154,24 +3358,27 @@ Test <code>convert-to-letter</code>:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(convert-to-letter 1)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>X</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>X</code></pre>
 </div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(convert-to-letter 10)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>O</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>O</code></pre>
 </div>
 <p>
 Now let's print a row from the board.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun print-row (x y z)
   (format t "~&amp; ~a | ~a | ~a ~%" (convert-to-letter x) (convert-to-letter y) (convert-to-letter
  z)))
 </code></pre>
+</div>
 <p>
 Now let's print the entire board.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun print-board (board)
   (format t "~&amp;")
   (print-row (nth 1 board) (nth 2 board) (nth 3 board))
@@ -3181,11 +3388,12 @@ Now let's print the entire board.
   (print-row (nth 7 board) (nth 8 board) (nth 9 board))
   (format t "~&amp;~%"))
 </code></pre>
+</div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(print-board *board*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>X | O | O 
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>X | O | O 
  X | X |   
  X |   | O 
 =&gt; NIL</code></pre>
@@ -3209,6 +3417,7 @@ the calls to <code>nth</code> here are more intuitive.
 Now we need to get player input. We need to ensure that our input is well-formed
 and that the move from the player is legal.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun read-legal-move (piece board)
   (let ((move (read)))
     (cond ((not (integerp move))                                                    
@@ -3225,6 +3434,7 @@ and that the move from the player is legal.
            (read-legal-move piece board))
           (t move))))
 </code></pre>
+</div>
 
 <p>
 The function <code>read</code> is how we request user input from the REPL. In the <code>cond</code>
@@ -3254,6 +3464,7 @@ return <code>move</code>.
 Now we can make a move.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun move (piece board)
   (format t "~&amp;It's ~a's turn.~%" (convert-to-letter piece))
   (print-board board)
@@ -3271,6 +3482,7 @@ Now we can make a move.
   (print "X goes first")
   (move *player-one* *board*))
 </code></pre>
+</div>
 
 <p>
 <code>let*</code> is how we bind locally-scoped variables. <code>let*</code>, unlike the regular
@@ -3306,11 +3518,13 @@ At minimum, the computer needs to do the following:
 That's easy to do:
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun choose-move (board)
   (or (make-three-in-a-row board)    
       (block-opponent-win board)    
       (take-random-position board)))
 </code></pre>
+</div>
 
 <p>
 <code>or</code> will evaluate its arguments in order. It will stop evaluation on the first
@@ -3326,11 +3540,13 @@ move available if any of the triplets sum to 20.
 First, let's make a test board.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *test-board* '(board
                              10 1 0
                              10 1 0
                              0 0 0))
 </code></pre>
+</div>
 
 <p>
 What we want to is to find a triplet that sums to 20.
@@ -3338,7 +3554,7 @@ What we want to is to find a triplet that sums to 20.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) ,*triplets*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 4 7)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 4 7)</code></pre>
 </div>
 <p>
 <code>find-if</code> takes a predicate function and returns the first value in a sequence
@@ -3355,7 +3571,7 @@ that is 0.
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(find-if (lambda (element) (= 0 (nth element *test-board*)))
          (find-if (lambda (triplet) (= 20 (sum-triplet *test-board* triplet))) *triplets*))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>7</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>7</code></pre>
 </div>
 
 <p>
@@ -3366,13 +3582,14 @@ Since we need to do the same thing to check if we need to block&#x2026;
          ;;; Notice (= 2 ...), not (= 20 ...)
          (find-if (lambda (triplet) (= 2 (sum-triplet *test-board* triplet))) *triplets*))
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>8</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>8</code></pre>
 </div>
 
 <p>
 &#x2026;we can make this one function.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">;;; NOTE: bug left purposefully for teaching purposes
 (defun win-or-block (board target-sum)
   (let ((target-triplet (find-if (lambda (triplet) (= target-sum (sum-triplet *test-board* triplet)))
@@ -3380,6 +3597,7 @@ Since we need to do the same thing to check if we need to block&#x2026;
     (when target-triplet
         (find-if (lambda (element) (= (nth element board) 0)) target-triplet))))
 </code></pre>
+</div>
 
 <p>
 Test it. Passing <code>2</code> checks if we need to block; passing <code>20</code> checks if we can win:
@@ -3388,13 +3606,13 @@ Test it. Passing <code>2</code> checks if we need to block; passing <code>20</co
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(win-or-block *test-board* 2)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>8</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>8</code></pre>
 </div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(win-or-block *test-board* 20)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>7</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>7</code></pre>
 </div>
 
 <aside class="book-aside">
@@ -3427,6 +3645,7 @@ Now that we have a function that can find spaces to either win or block a win,
 we can call it with the appropriate target-sum in our win and block strategies.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun make-three-in-a-row (board)
   (let ((move (win-or-block board (* 2 *player-two*))))
     (when move
@@ -3438,17 +3657,18 @@ we can call it with the appropriate target-sum in our win and block strategies.
         (list move (format nil "~&amp;Danger! Loss imminent! Moving to block at
  ~a.~%" move)))))
 </code></pre>
+</div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(make-three-in-a-row *test-board*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(7 "I see a winning move at 7. ")</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(7 "I see a winning move at 7. ")</code></pre>
 </div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(block-opponent-win *test-board*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(8 "Danger! Loss imminent! Moving to block at 8. ")</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(8 "Danger! Loss imminent! Moving to block at 8. ")</code></pre>
 </div>
 
 <p>
@@ -3473,6 +3693,7 @@ more precisely what we mean. If we don't need the optional "else" branch of the
 If the computer is going first, it should just take a random position.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun take-random-position (board)
   (let ((move (+ 1 (random 9))))
     (cond ((= 0 (nth move board))
@@ -3481,6 +3702,7 @@ If the computer is going first, it should just take a random position.
           (t
            (take-random-position board)))))
 </code></pre>
+</div>
 <p>
 <code>random</code> will choose a semi-random value <b>between</b> 0 and the argument passed.
 Unfortunately, there is no way to specify the beginning of the "range". Since we
@@ -3499,6 +3721,7 @@ Right now, <code>move</code> calls itself with the opponent player. We'll need a
 choose.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun human-move (board)
   (format t "~&amp;It's ~a's turn.~%" (convert-to-letter *player-one*))
   (print-board board)
@@ -3537,6 +3760,7 @@ choose.
       (human-move *board*)
       (computer-move *board*)))
 </code></pre>
+</div>
 
 <p>
 The <code>y-or-n-p</code> function takes user input like <code>read</code> does, but it only accepts
@@ -3569,6 +3793,7 @@ strategy: I see a winning move at"</code>. We expect it to simply pick a random 
 <b>While the game is still running</b>, update and compile the <code>win-or-block</code>
  function.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun win-or-block (board target-sum)
   (let ((target-triplet (find-if (lambda (triplet)
                                     ;;; NOTE: *test-board* -&gt; board
@@ -3577,6 +3802,7 @@ strategy: I see a winning move at"</code>. We expect it to simply pick a random 
     (when target-triplet
         (find-if (lambda (element) (= (nth element board) 0)) target-triplet))))
 </code></pre>
+</div>
 
 <p>
 After compiling, <i>continue the game</i>. Make your move. You should now see the
@@ -3628,7 +3854,7 @@ opponent doesn't react correctly: the <i>squeeze play</i> and a <i>two-on-one pl
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *squeeze* (list 'board 1 0 0 0 10 0 0 0 1))
 (print-board *squeeze*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>X |   |   
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>X |   |   
 OX =&gt; NIL</code></pre>
 </div>
 
@@ -3637,7 +3863,7 @@ OX =&gt; NIL</code></pre>
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *two-on-one* (list 'board 1 0 0 0 1 0 0 0 10))
 (print-board *two-on-one*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>X |   |   
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>X |   |   
 XO =&gt; NIL</code></pre>
 </div>
 
@@ -3674,9 +3900,11 @@ the computer needs to recognize some other characteristics of the board: corners
 and sides.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *corners* '(1 3 7 9))
 (defparameter *sides* '(1 2 3 4 6 7 8 9))
 </code></pre>
+</div>
 
 <p>
 Let's start by detecting a squeeze.
@@ -3687,29 +3915,32 @@ First, we need to search the board and cross-reference the triplets, looking for
 any triplet with values that reduce to 12
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun detect-squeeze (board)
   (find-if (lambda (triplet)
                (= 12 (sum-triplet board triplet)))
            *triplets*))
 </code></pre>
+</div>
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(detect-squeeze *squeeze*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
 </div>
 
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(detect-squeeze *two-on-one*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
 </div>
 
 
 <p>
 We need to know for sure this is a diagonal triplet, though.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun diagonal-p (triplet)
   (every (lambda (item)
              ;;; Every item is either a corner or the middle.
@@ -3723,6 +3954,7 @@ We need to know for sure this is a diagonal triplet, though.
                     (diagonal-p triplet)))
            *triplets*))
 </code></pre>
+</div>
 
 <p>
 Let's try again:
@@ -3731,14 +3963,14 @@ Let's try again:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(detect-squeeze *squeeze*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
 </div>
 
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(detect-squeeze *two-on-one*)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
 </div>
 
 
@@ -3756,6 +3988,7 @@ if every element of the triplet is either a corner or the middle space.
 We also need to know who is in the middle.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun human-in-middle-p (board)
   (= (nth 5 board) *player-one*))
 
@@ -3769,6 +4002,7 @@ We also need to know who is in the middle.
                     (not (human-in-middle-p board))))
            *triplets*))
 </code></pre>
+</div>
 
 <p>
 Now the two boards produce different results:
@@ -3777,14 +4011,14 @@ Now the two boards produce different results:
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(detect-squeeze *squeeze* 12)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 5 9)</code></pre>
 </div>
 
 
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(detect-squeeze *two-on-one* 12)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
 </div>
 
 <p>
@@ -3793,6 +4027,7 @@ player may have already blocked the squeeze or two-on-one, or the game may have
 otherwise progressed beyond the first diagonals.
 </p>
 
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun side-empty-p (board)
   (find-empty-position board *sides*))
 
@@ -3810,6 +4045,7 @@ otherwise progressed beyond the first diagonals.
     (when squeeze-p
         (find-empty-position board *sides*))))
 </code></pre>
+</div>
 <p>
 If we see a squeeze, we need to counter. To counter a squeeze, we need to take a
 side (not a corner). So we look for an empty position in one of the <code>*sides*</code>.
@@ -3821,7 +4057,7 @@ If we test <code>detect-squeeze</code>, we should get an empty space on one of t
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(detect-squeeze *squeeze* 12)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>2</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>2</code></pre>
 </div>
 <p>
 2 is the space between corner 1 and 3, so it's given an expected return value.
@@ -3830,6 +4066,7 @@ If we test <code>detect-squeeze</code>, we should get an empty space on one of t
 <p>
 <code>detect-two-on-one</code> is nearly identical to <code>detect-squeeze</code>:
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun detect-two-on-one (board target-sum)
   (let ((two-on-one-p
           (find-if (lambda (triplet)
@@ -3841,6 +4078,7 @@ If we test <code>detect-squeeze</code>, we should get an empty space on one of t
     (when two-on-one-p
       (find-empty-position board *corners*))))
 </code></pre>
+</div>
 
 <p>
 Test both detection functions against both boards:
@@ -3852,7 +4090,7 @@ Test both detection functions against both boards:
 (detect-two-on-one *two-on-one* 12)
 (detect-two-on-one *squeeze* 12)
 </code></pre>
-<pre class="result"><code class="code-block-result"><span class="code-block-result-label">Result</span>detect-squeeze on two-on-one: NIL
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>detect-squeeze on two-on-one: NIL
 detect-squeeze on squeeze: 2
 detect-two-on-one on two-on-one: 3
 detect-two-on-one on squeeze: NIL</code></pre>
@@ -3862,6 +4100,7 @@ detect-two-on-one on squeeze: NIL</code></pre>
 With that, we just need a couple of small wrappers to encapsulate our
 strategies.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun block-squeeze-play (board)
   (let ((move (detect-squeeze board (+ (* *player-one* 2) *player-two*))))
     (when move
@@ -3872,10 +4111,12 @@ strategies.
     (when move
       (list move "It's two-on-one! Taking corner space."))))
 </code></pre>
+</div>
 
 <p>
 Finally, we update <code>choose-move</code> by adding our two new strategies.
 </p>
+<div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun choose-move (board)
   (or (make-three-in-a-row board)
       (block-squeeze-play board)         ; Added
@@ -3883,6 +4124,7 @@ Finally, we update <code>choose-move</code> by adding our two new strategies.
       (block-opponent-win board)
       (take-random-position board)))
 </code></pre>
+</div>
 
 <p>
 Now you have a finished AI that will force a draw every game. Try playing it and
@@ -3908,6 +4150,6 @@ expected. However, with practice, you'll be stacking parens like an expert.</p>
     </article>
   </main>
   <button class="toc-viewer">TOC</button>
-  <script>HighlightLisp.highlight_auto();</script>
+  <script>HighlightLisp.highlight_auto() ;</script>
 </body>
 </html>

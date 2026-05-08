@@ -1,72 +1,131 @@
 /**
  * Syntax Highlighting
  */
-pre {
-    container-type: inline-size;
-    container-name: code-container;
-    overflow-x: auto;
-    white-space: pre;
-    background-color: var(--color-canvas-dark);
-}
-
-pre code.hl-highlighted {
+.code-block {
+    --code-block-bg-color: var(--color-canvas-dark);
+    --code-font: var(--font-berkeley);
+    --code-font--black: var(--font-berkeley-black);
     --code-font-size: var(--font-size-base);
-    font-family: var(--font-code);
-    font-size: var(--code-font-size);
-    white-space: pre;
-    line-height: initial;
-    margin: 0;
-    padding: 0;
-    background: none;
-    @container code-container (width <= 80ch) {
-        font-family: var(--font-berkeley-uc);
+    --code-block-border-color: var(--color-secondary);
+    --code-block-border-size: 5px;
+    --result-color: var(--color-canvas-soft);
+    pre {
+        padding: var(--spacing-xs);
     }
-    @container code-container (width <= 50ch) {
-        font-family: var(--font-berkeley-uc);
-        font-size: var(--font-size-sm);
+    
+    .result {
+        border-left: var(--code-block-border-size) solid var(--result-color);
     }
-}
 
-.code-block-source-pre {
-    code.hl-highlighted                         {color: var(--color-ink-light);}
-    code.hl-highlighted .function               {color: var(--color-ink-light);}
-    code.hl-highlighted .function.known         {color: var(--color-secondary);}
-    code.hl-highlighted .function.known.special {color: var(--color-secondary); font-weight: bold;}
-    code.hl-highlighted .keyword                {color: var(--color-accent);}
-    code.hl-highlighted .keyword.known          {color: var(--color-secondary);}
-    code.hl-highlighted .symbol                 {color: var(--color-ink-light);}
-    code.hl-highlighted .lambda-list            {color: var(--color-ink-light); font-family: var(--font-berkeley-black); @container code-container (width <= 70ch) { font-family: var(--font-berkeley-uc-black)}}
-    code.hl-highlighted .number                 {color: var(--color-ink-light);}
-    code.hl-highlighted .variable.known         {color: var(--color-ink-light);}
-    code.hl-highlighted .variable.global        {color: var(--color-ink-light);}
-    code.hl-highlighted .variable.constant      {color: var(--color-ink-light);}
-    code.hl-highlighted .nil                    {color: var(--color-ink-light);}
-    code.hl-highlighted .list                   {color: var(--color-ink-light);}
-    code.hl-highlighted .string,
-    code.hl-highlighted .string *               {color: var(--color-secondary2) !important;}
-    code.hl-highlighted .comment,
-    code.hl-highlighted .comment *,
-    code.hl-highlighted .comment .string,
-    code.hl-highlighted .comment .string *      {color: var(--color-canvas-soft) !important;}
-    code.hl-highlighted .string .comment        {color: var(--color-canvas-soft) !important;}
+    .error {
+        --result-color: var(--color-danger);
+    }
 
-    code.hl-highlighted .list.active {display: inline-block; background: var(--color-accent);}
-}
-/* Scrollbar */
-pre::-webkit-scrollbar {
-    height: auto;
-}
+    .code-block-source-pre {
+        border-left: var(--code-block-border-size) solid var(--code-block-border-color);
+        font-size: var(--code-font-size);
+    }
+    .code-block-result-pre {
+        border-top: 1px dotted var(--result-color);
+    }
+    .code-block-result {
+        padding: 0;
+        font-size: var(--code-font-size);
+        color: var(--color-ink-light);
+        font-family: var(--font-berkeley-uc-thin);
+        background: none;
+    }
 
-pre::-webkit-scrollbar-thumb {
-    border: 1px outset var(--color-accent);
-    background-color: var(--color-accent-400);
-}
+    code {
+        background: none;
+    }
+    .code-block-result-label {
+        display: block;
+        font-size: var(--code-font-size);
+        font-family: var(--font-heading);
+        line-height: initial;
+        color: var(--result-color);
+        &::after {
+            content: ": ";
+        }
+    }
 
-pre::-webkit-scrollbar-thumb:hover {
-    border: 1px outset var(--color-secondary);
-    background-color: var(--color-secondary);
-}
+    .code-block-result-value {
+        font-family: var(--code-font);
+        line-height: initial;
+        position: relative;
+        margin-block: 0;
+    }
+    pre {
+        container-type: inline-size;
+        container-name: code-container;
+        overflow-x: auto;
+        white-space: pre;
+        background-image: linear-gradient(from left var(--color-canvas) var(--color-canvas-dark));
+    }
 
-pre::-webkit-scrollbar-track {
-    background-color: var(--color-canvas-darker);
+    pre code.hl-highlighted {
+        font-family: var(--code-font);
+        font-size: var(--code-font-size);
+        white-space: pre;
+        line-height: initial;
+        margin: 0;
+        padding: 0;
+        background: none;
+        @container code-container (width <= 80ch) {
+            --code-font: var(--font-berkeley-uc);
+            --code-font--black: var(--font-berkeley-uc-black);
+        }
+        @container code-container (width <= 50ch) {
+            --code-font: var(--font-berkeley-uc);
+            --code-font-size: var(--font-size-sm);
+        }
+    }
+
+    .code-block-source-pre {
+        code.hl-highlighted                         {color: var(--color-ink-light);}
+        code.hl-highlighted .function               {color: var(--color-ink-light);}
+        code.hl-highlighted .function.known         {color: var(--color-secondary);}
+        code.hl-highlighted .function.known.special {color: var(--color-secondary); font-weight: bold;}
+        code.hl-highlighted .form-definition-name   {color: var(--color-accent); font-family: var(--code-font--black);}
+        code.hl-highlighted .keyword                {color: var(--color-accent);}
+        code.hl-highlighted .keyword.known          {color: var(--color-accent);}
+        code.hl-highlighted .symbol                 {color: var(--color-ink-light);}
+        code.hl-highlighted .lambda-list            {color: var(--color-ink-light); font-family: var(--code-font--black); @container code-container (width <= 70ch) { font-family: var(--font-berkeley-uc-black)}}
+        code.hl-highlighted .number                 {color: var(--color-ink-light);}
+        code.hl-highlighted .variable.known         {color: var(--color-ink-light);}
+        code.hl-highlighted .variable.global        {color: var(--color-ink-light);}
+        code.hl-highlighted .variable.constant      {color: var(--color-ink-light);}
+        code.hl-highlighted .nil                    {color: var(--color-ink-light);}
+        code.hl-highlighted .list                   {color: var(--color-ink-light);}
+        code.hl-highlighted .string,
+        code.hl-highlighted .string *               {color: var(--color-secondary) !important;}
+        code.hl-highlighted .comment,
+        code.hl-highlighted .comment *,
+        code.hl-highlighted .comment .string,
+        code.hl-highlighted .comment .string *      {color: var(--color-canvas-soft) !important;}
+        code.hl-highlighted .string .comment        {color: var(--color-canvas-soft) !important;}
+
+        code.hl-highlighted .list.active {display: inline-block; background: var(--color-accent);}
+    }
+    /* Scrollbar */
+    pre::-webkit-scrollbar {
+        height: auto;
+    }
+
+    pre::-webkit-scrollbar-thumb {
+        border: 1px outset var(--color-accent);
+        background-color: var(--color-accent);
+    }
+
+    pre::-webkit-scrollbar-thumb:hover {
+        border: 1px outset var(--color-secondary);
+        background-color: var(--color-secondary);
+    }
+
+    pre::-webkit-scrollbar-track {
+        background-color: var(--color-canvas-dark);
+    }
+
+   
 }
