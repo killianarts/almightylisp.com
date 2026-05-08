@@ -134,8 +134,8 @@ ocean of functions, classes, and parentheses. Become Almighty.")
                      (li "almighty-macro")
                      (li "almighty-macro-moon")
                      (li "Free updates of the above themes.")))
-                 (button :class "pricing-card-cta"
-                   "PURCHASE THEME PACK 1 IMMEDIATELY"))
+                 (a :href "https://almightylisp.gumroad.com/l/almighty-themes-pack-1" (button :class "pricing-card-cta"
+                                                                                        "PURCHASE THEME PACK 1 IMMEDIATELY")))
                (div :class "pricing-card disabled"
                  (hgroup :class "pricing-card-title"
                    (h3 "THEME PACK 2")
