@@ -21,6 +21,7 @@
     --color-canvas-dark: var(--color-canvas-500);
     --color-canvas-darker: var(--color-canvas-600);
     --color-canvas-soft: var(--color-canvas-800);
+    --color-canvas-alt: var(--color-canvas-dark);
 
 
 
@@ -99,4 +100,6 @@
     --color-ink: var(--color-canvas-200);
     --color-ink-light: var(--color-canvas-1000);
     --color-ink-shadow: var(--color-secondary);
+    --color-ink-alt: var(--color-ink-light);
+
 }

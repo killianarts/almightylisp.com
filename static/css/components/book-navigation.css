@@ -1,13 +1,14 @@
 .book-navigation {
-    --bg-color: var(--color-canvas-light);
+    --bg-color: var(--color-canvas-alt);
     --book-title-color: var(--color-ink-light);
     --chapter-name-color: var(--color-ink-light);
+    --next-previous-bg-color: var(--color-canvas-alt);
     --link-color: var(--color-ink-light);
     --link-color-hover: var(--color-secondary);
-    --link-bg-color-hover: var(--color-canvas-lighter);
+    --link-bg-color-hover: var(--color-canvas-light);
     --link-gap: var(--inline-space);
     --link-font-family: var(--font-berkeley-uc);
-    --span-bg-color: var(--color-canvas-light);
+    --span-bg-color: var(--color-canvas-alt);
     --divider-color: var(--color-accent);
     --lisp-logo-accent-color: var(--color-accent);
     --lisp-logo-ink-color: var(--color-ink-light);
@@ -215,7 +216,7 @@
     .book-navigation__next-section {
         display: block;
         gap: var(--link-gap);
-        background-color: var(--color-canvas-light);
+        background-color: var(--next-previous-bg-color);
         justify-content: space-between;
         align-items: center;
         padding-inline: var(--spacing-2xs);

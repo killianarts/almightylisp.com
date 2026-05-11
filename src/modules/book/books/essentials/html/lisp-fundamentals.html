@@ -97,7 +97,7 @@ the core concepts.
   </hgroup>
 <div class="outline-text-3" id="text-1-1">
 <p>
-Common Lisp's syntax and grammar are very simple. It has two distinctive
+Common Lisp's syntax and grammar is very simple. It has two distinctive
 features: all those parentheses, and prefix notation. This is a Common Lisp
 <code>s-expression</code>.
 </p>
@@ -114,16 +114,16 @@ S-expressions are made of indivisible units called <code>atoms</code>&#x2013;suc
 </p>
 
 <p>
-Atoms evaluate to themselves.
-</p>
-
-<p>
 The first atom in a list is evaluated as a function name. The rest of the
 arguments are evaluated before being passed to the function.
 </p>
 
 <p>
 Symbols, other than the first one in a list, are evaluated as variables.
+</p>
+
+<p>
+Some atoms, like numbers, keywords, or strings, evaluate to themselves.
 </p>
 
 <p>
@@ -176,7 +176,7 @@ Let's look at a slightly more complicated example of Common Lisp syntax:
 After the opening parenthesis comes <code>defun</code>, a built-in <code>special form</code>. Special
 forms have different evaluation rules compared to regular function calls.
 <code>defun</code> is used to define a function. The function above is given the name
-<code>cube</code>. After giving the function a name, we define it's <code>parameters</code>, the data
+<code>cube</code>. After giving the function a name, we define its <code>parameters</code>, the data
 it takes as <code>arguments</code> to run the operations inside the function. The function
 takes one argument: <code>x</code>.
 </p>
@@ -240,21 +240,8 @@ important later, especially when you learn macros.
   </hgroup>
 <div class="outline-text-4" id="text-1-2-1">
 <p>
-Common Lisp supports both global variables, but also lexically scope variables.
-There are several ways to define variables.
-</p>
-
-<p>
-You can use <code>setf</code> to reassign values to variables you've already introduced.
-</p>
-
-<div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(setf *debug* nil)
-</code></pre>
-</div>
-
-<p>
-However, if this variable hasn't been introduced yet, you'll get an error.
+Common Lisp supports both globally and lexically scoped variables. There are
+several ways to define variables.
 </p>
 
 <p>
@@ -262,7 +249,7 @@ Use <code>defvar</code> to introduce a global variable without a value.
 </p>
 
 <div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *debug*)
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *debug* nil)
 *debug*
 </code></pre>
 <pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NIL</code></pre>
@@ -291,18 +278,10 @@ You have to use <code>setf</code> to modify the value of a <code>defvar</code> v
 </p>
 
 <div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *no-changey* 'no)
-*no-changey*
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(setf *debug* t)
+*debug*
 </code></pre>
-<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>NO</code></pre>
-</div>
-
-
-<div class="code-block">
-<pre class="code-block-source-pre"><code class="code-block-source lisp">(setf *no-changey* 'yes)
-*no-changey*
-</code></pre>
-<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>YES</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>T</code></pre>
 </div>
 
 
@@ -534,7 +513,7 @@ symbols in manually. Some of the above functions will come in handy for those
 kinds of operations.
 </p>
 
-<div class="matters_of_style" id="org5b5b72e">
+<div class="matters_of_style" id="orga943bd6">
 <p>
 Now that you know that <code>let</code> and <code>let*</code> are nearly the same, with <code>let*</code>
 providing more functionality that <code>let</code>, you are probably tempted to never use
@@ -674,7 +653,7 @@ the default is being used.
 
 <p>
 By convention the predicate is named <code>*-supplied-p</code>, with <code>*</code> being the name of
-the parameter. It's value is <code>t</code> if the user supplied an argument in that
+the parameter. Its value is <code>t</code> if the user supplied an argument in that
 position, otherwise it defaults to <code>nil</code>.
 </p>
 
@@ -733,8 +712,11 @@ As with <code>&amp;optional</code>, you can specify default values.
 </div>
 
 <p>
-<code>*-supplied-p</code> predicates can also be specified.
+<code>*-supplied-p</code> parameters can also be specified. If specified, a <code>*-supplied-p</code>
+parameter will be either <code>t</code> or <code>nil</code> depending on if the user passed a value
+for the keyword.
 </p>
+
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun fun-with-keys (&amp;key (a 1 a-supplied-p) (b 2 b-supplied-p) (c 3 c-supplied-p))
   (format nil "~a (~a) + ~a (~a) + ~a (~a) = ~a~&amp;"
@@ -770,6 +752,7 @@ It is possible to mix the different kinds of parameters.
 <p>
 As a general rule, you don't want to mix <code>&amp;optional</code> and <code>&amp;key</code> parameters.
 </p>
+
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun do-not-mix (&amp;optional (a 1) (b 2) &amp;key (c 3))
   (+ a b c))
@@ -789,8 +772,8 @@ Use one or the other, but not both.
 
 <p>
 You can mix <code>&amp;optional</code> and <code>&amp;rest</code>, but mixing <code>&amp;key</code> and <code>&amp;rest</code> will also
-result in an error. You don't need the <code>&amp;key</code> to have named arguments in your
-<code>&amp;rest</code> args anyway.
+result in an error. If you want named arguments in your <code>&amp;rest</code> args, you can
+supply key-value pairs in the <code>&amp;rest</code> argument and manually parse them yourself.
 </p>
 
 <div class="code-block">
@@ -807,6 +790,7 @@ result in an error. You don't need the <code>&amp;key</code> to have named argum
 We'll see a bit later what's going on in <code>loop</code> below, but this is just to say
 that you can have an arbitrary number of key-value pairs in your <code>&amp;rest</code> argument.
 </p>
+
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((args (rest-args-as-plist :a 1 :b 2 :name 'micah)))
   (loop :for (k v) :on args :by #'cddr
@@ -945,9 +929,10 @@ This destructuring can be done on arbitrarily deep trees of cons cells.
   </hgroup>
 <div class="outline-text-4" id="text-1-3-6">
 <p>
-When a variable is passed to a function, a new, local variable is introduce with
+When a variable is passed to a function, a new, local variable is introduced with
 the value of the variable passed to the function.
 </p>
+
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *some-num* 5)
 (defun add-5 (num) ; local variable num is introduced
@@ -956,7 +941,7 @@ the value of the variable passed to the function.
 </div>
 
 <p>
-<code>num</code> is assigned the value of <b>some-num</b>
+<code>num</code> is assigned the value of <b><b>some-num</b></b>.
 </p>
 
 <div class="code-block">
@@ -979,7 +964,7 @@ on the global variable directly.
 
 (add-5)
 
-some-num
+*some-num*
 </code></pre>
 <pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>10</code></pre>
 </div>
@@ -1015,6 +1000,7 @@ To pass a function as an argument, you have a few options.
 <p>
 You can use <code>function</code>:
 </p>
+
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar (function square-then-double) '(1 2 3 4 5))
 </code></pre>
@@ -1030,8 +1016,22 @@ Or, more commonly, use the reader macro <code>#'</code>:
 </div>
 
 <p>
-Or you can use anonymous functions.
+The <code>funcall</code> and <code>apply</code> functions take a function name for their first,
+applying the function to the rest of the arguments.
 </p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(funcall #'+ 1 2 3)
+</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>6</code></pre>
+</div>
+
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(apply #'+ '(1 2 3))
+</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>6</code></pre>
+</div>
 </div>
 
 </section>
@@ -1432,7 +1432,7 @@ Lists can also be treated like sets&#x2013;an unordered sequence of unique eleme
 </p>
 
 <p>
-With <code>adjoin</code>, you can a single unique element into one list.
+With <code>adjoin</code>, you can add a single unique element.
 </p>
 
 <div class="code-block">
@@ -1492,7 +1492,7 @@ that are not present in <code>*pizza*</code>:
 </div>
 
 <p>
-Or vise versa:
+Or vice versa:
 </p>
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(set-difference *pizza* *cake*)
@@ -1564,6 +1564,21 @@ If you come from Python or JavaScript you'll usually expect functionality
 similar to <code>equal</code> or <code>equalp</code>.
 </p>
 
+<aside class="book-aside">
+
+<div class="book-aside-contents">
+
+<p>
+This section's contents are true for some, but not all, implementations of
+Common Lisp. For SBCL, the implementation we installed earlier, the contents are
+true. Some details are implementation-dependent, but you'll only need to worry
+about that later if you need robust cross-platform support.
+</p>
+
+
+</div>
+</aside>
+
 <p>
 <code>eq</code> will test equality of identity. Do these two objects share the same place
 in memory?
@@ -1626,11 +1641,13 @@ compared.
 Characters and strings have their own equality operators: <code>char-equal</code> and
 <code>string-equal</code>.
 </p>
+
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(char-equal #\a #\A)                    ; T, same as (equalp #\a #\A)
 (string-equal "hello" "HELLO")          ; T, same as (equalp "hello" "HELLO")
 </code></pre>
 </div>
+
 <p>
 Additionally, there are tests like <code>char-greaterp</code>, <code>string=</code>, <code>char&lt;</code>, etc.
 </p>
@@ -1655,7 +1672,7 @@ Common Lisp has the typical logical operators.
 <code>and</code> tests if more than two forms are true. All forms are evaluated
 left-to-right, and evaluation stops if any inner forms return <code>nil</code>. The <code>and</code>
 form returns the value returned by the last form inside it if all forms in it
-evaluate to <code>t</code>.
+evaluate to non-nil values.
 </p>
 
 <div class="code-block">
@@ -1721,6 +1738,7 @@ form after that is evaluated.
 <p>
 If you don't need a second (else) branch, you can use <code>when</code> or <code>unless</code>:
 </p>
+
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(let ((num 0))
   (when (&lt;= 1 num 10)
@@ -1789,7 +1807,7 @@ languages, you understand the basic idea.
 </p>
 
 <p>
-<code>case</code> and <code>typecase</code> do nothing if no match is found. If you want to trigger
+<code>case</code> and <code>typecase</code> return <code>nil</code> if no match is found. If you want to trigger
 errors when no match is found (rather than providing an fallback clause), use
 <code>ecase</code> and <code>etypecase</code>. If you want the option to provide a value for the key
 expression and continue the program, use <code>ccase</code> and <code>ctypecase</code>.
@@ -1935,7 +1953,7 @@ in action already:
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(mapcar #'first '((1 2 3 4 5) (one two three four five) (what is going on here) (once
  upon a time)))
 </code></pre>
-<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>((1 ONE WHAT ONCE))</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>(1 ONE WHAT ONCE)</code></pre>
 </div>
 
 <p>
@@ -2196,10 +2214,11 @@ return it.
                                         ; the let block
 </code></pre>
 </div>
+
 <p>
 Notice the use of <code>push</code> here. It is a destructive function that modify lists by
 adding items. <code>push</code> puts items at the front of the list, returning the modified
-list. Here, however
+list.
 </p>
 
 <p>
@@ -2330,7 +2349,7 @@ code.
 </div>
 
 <p>
-The <code>loop</code> macro 
+The <code>loop</code> macro will get a fuller treatment in a later chapter.
 </p>
 </div>
 
@@ -2441,7 +2460,7 @@ You can print information in the REPL using <code>print</code>.
 </div>
 <p>
 <code>print</code> both sends data to the REPL, but also returns the data as a value. That
-means you can place <code>print</code> over many different kinds of code, making if useful
+means you can place <code>print</code> over many different kinds of code, making it useful
 for simple debugging.
 </p>
 <div class="code-block">
@@ -2483,7 +2502,7 @@ vectors, or strings. The first argument specifies the output type.
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(concatenate 'vector '(#\h #\e #\l #\l #\o #\space) '(#\w #\o #\r #\l #\d))
 </code></pre>
-<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>"#(###########)"</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>#(###########)</code></pre>
 </div>
 
 
@@ -2700,7 +2719,7 @@ each argument, you need to supply another <code>Tilde a</code> or some other dir
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *alist* '((:micah 'male '40 'married 'japan)
                         (:takae 'female '35 'married 'japan)
                         (:mom 'female '71 'married 'america)
-                        (:papa 'male '74 'married 'america)))
+                        (:papa 'male '75 'married 'america)))
 </code></pre>
 </div>
 
@@ -2708,10 +2727,10 @@ each argument, you need to supply another <code>Tilde a</code> or some other dir
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(loop for row in *alist*
       do (format t "~&amp;~a: ~a~%" (first row) (rest row)))
 </code></pre>
-<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MICAH: ('MALE '39 'MARRIED 'JAPAN)
-TAKAE: ('FEMALE '34 'MARRIED 'JAPAN)
-MOM: ('FEMALE '70 'MARRIED 'AMERICA)
-PAPA: ('MALE '74 'MARRIED 'AMERICA)
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>MICAH: ('MALE '40 'MARRIED 'JAPAN)
+TAKAE: ('FEMALE '35 'MARRIED 'JAPAN)
+MOM: ('FEMALE '71 'MARRIED 'AMERICA)
+PAPA: ('MALE '75 'MARRIED 'AMERICA)
 =&gt; NIL</code></pre>
 </div>
 </div>
@@ -2962,7 +2981,7 @@ messes with org-mode formatting of this table so I wrote it out in the table.
 <td class="org-left">~T</td>
 <td class="org-left">Tabulate to column or relative.</td>
 <td class="org-left">colnum=0 (absolute col), colinc=1</td>
-<td class="org-left">Relative to current position? Wait, CLtL: colon for absolute from left margin in pretty print</td>
+<td class="org-left">Relative to current position</td>
 <td class="org-left">N/A</td>
 <td class="org-left">(format nil "~10Tfoo") =&gt; spaces to col 10 + "foo"; (format nil "~5,2T") =&gt; tab 5, inc 2</td>
 <td class="org-left">&#xa0;</td>
@@ -2975,7 +2994,7 @@ messes with org-mode formatting of this table so I wrote it out in the table.
 <td class="org-left">n=1 (args to skip)</td>
 <td class="org-left">Back up n args</td>
 <td class="org-left">Goto nth arg (1-based)</td>
-<td class="org-left">(format nil "~*~A" "x" "y") =&gt; "y" (skips x); (format nil "~3:*~A" a b c d) =&gt; "d" (goto 3rd back? Wait, : backs up)</td>
+<td class="org-left">(format nil "~*~A" "x" "y") =&gt; "y" (skips x); (format nil "~3:*~A" a b c d) =&gt; "d"</td>
 <td class="org-left">&#xa0;</td>
 <td class="org-left">&#xa0;</td>
 </tr>
@@ -3272,7 +3291,7 @@ Let's test it out by placing some pieces manually.
 </div>
 
 <p>
-Now let's test <code>compute-triplet</code>.
+Now let's test <code>compute-sums</code>.
 </p>
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(compute-sums *board*)

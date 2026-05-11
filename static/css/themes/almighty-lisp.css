@@ -21,10 +21,12 @@
     --color-canvas-dark: var(--color-canvas-900);
     --color-canvas-darker: var(--color-canvas-1000);
     --color-canvas-soft: var(--color-canvas-400);
+    --color-canvas-alt: var(--color-canvas-dark);
 
     --color-ink: var(--color-canvas-1000);
     --color-ink-light: var(--color-canvas-50);
     --color-ink-shadow: var(--color-canvas-darker);
+    --color-ink-alt: var(--color-canvas-light);
 
     --color-secondary-50: oklch(var(--tw-lch-cyan-50));
     --color-secondary-100: oklch(var(--tw-lch-cyan-100));
