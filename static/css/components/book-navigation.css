@@ -5,7 +5,7 @@
     --next-previous-bg-color: var(--color-canvas-alt);
     --link-color: var(--color-ink-light);
     --link-color-hover: var(--color-secondary);
-    --link-bg-color-hover: var(--color-canvas-light);
+    --link-bg-color-hover: var(--color-canvas-alt-highlight);
     --link-gap: var(--inline-space);
     --link-font-family: var(--font-berkeley-uc);
     --span-bg-color: var(--color-canvas-alt);

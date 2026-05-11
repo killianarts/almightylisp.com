@@ -313,9 +313,9 @@
         font-family: var(--font-berkeley-thin);
         text-align: left;
         font-size: var(--font-size-sm);
-        background-color: var(--color-canvas-light);
+        border: 1px dashed var(--color-accent);
         width: var(--aside-width);
-        padding: var(--spacing-1);
+        padding: var(--spacing-xs);
         position: absolute;
         right: calc(var(--book-right-padding) * -1);
         @container book-container (width <= 75ch) {

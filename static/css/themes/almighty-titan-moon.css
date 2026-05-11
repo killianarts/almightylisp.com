@@ -22,6 +22,7 @@
     --color-canvas-darker: var(--color-black);
     --color-canvas-soft: var(--color-canvas-500);
     --color-canvas-alt: var(--color-canvas-light);
+--color-canvas-alt-highlight: var(--color-canvas-lighter);
 
     --color-ink: var(--color-canvas-1000);
     --color-ink-light: var(--color-canvas-100);
