@@ -4,7 +4,7 @@
     --link-color: var(--color-accent);
     --link-hover-color: var(--color-secondary);
     --code-color: var(--color-secondary);
-    --code-bg-color: var(--color-canvas-light);
+    --code-bg-color: var(--color-canvas-alt);
     --code-block-border-color: var(--color-secondary);
     --code-block-border-size: 5px;
     --result-color: var(--color-canvas-soft);
