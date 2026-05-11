@@ -513,7 +513,7 @@ symbols in manually. Some of the above functions will come in handy for those
 kinds of operations.
 </p>
 
-<div class="matters_of_style" id="org1d0458a">
+<div class="matters_of_style" id="org57776e6">
 <p>
 Now that you know that <code>let</code> and <code>let*</code> are nearly the same, with <code>let*</code>
 providing more functionality that <code>let</code>, you are probably tempted to never use
@@ -575,9 +575,9 @@ To define locally-scoped named functions, use <code>flet</code> or <code>labels<
 (defun square-then-double-with-labels (x)
   (labels ((square (y)        
              (* y y))
-           (double-squareed (z)
+           (double-squared (z)
              (* 2 (square z))))
-    (double-squareed x)))
+    (double-squared x)))
 </code></pre>
 </div>
 
