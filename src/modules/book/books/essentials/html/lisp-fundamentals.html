@@ -513,7 +513,7 @@ symbols in manually. Some of the above functions will come in handy for those
 kinds of operations.
 </p>
 
-<div class="matters_of_style" id="orga943bd6">
+<div class="matters_of_style" id="orge35ff01">
 <p>
 Now that you know that <code>let</code> and <code>let*</code> are nearly the same, with <code>let*</code>
 providing more functionality that <code>let</code>, you are probably tempted to never use
@@ -1390,9 +1390,9 @@ Now call <code>car</code> on the tree:
   </hgroup>
 <div class="outline-text-4" id="text-1-4-3">
 <p>
-<code>sublis</code> takes a special type of list for its first argument: an association
-list, otherwise known as an alist or table. A table is a list with nested dotted
-lists&#x2013;lists that have a non-nil leaf in the cdr position.
+<code>sublis</code> takes a special type of list for its first argument: an <code>association
+list</code>, otherwise known as an <code>alist</code> or table. A table is a list with nested
+dotted lists&#x2013;lists that have a non-nil leaf in the cdr position.
 </p>
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source lisp">(defparameter *en-to-ja-table* '((one   . ichi)
@@ -1509,6 +1509,58 @@ Or vice versa:
 </code></pre>
 <pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>T</code></pre>
 </div>
+</div>
+
+</section>
+<section id="mutating-places">
+  <hgroup>
+    
+    <h3>Mutating Places</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-4-5">
+<p>
+In the section on variables, <code>setf</code> was used above to modify the value of a
+variable defined with <code>defvar</code>. While modifying variable values is a typical
+use, <code>setf</code> is used for modifying <i>places</i> in many other situations.
+</p>
+
+<p>
+For example, it can be used to modify the value of an item in an alist. Say we
+have an alist like this:
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defvar *some-alist* '((a 1) (b 2) (c 3)))
+(second (assoc 'c *some-alist*))
+</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>3</code></pre>
+</div>
+
+<p>
+We can modify the value associated with the <code>c</code> key using <code>setf</code>:
+</p>
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(setf (second (assoc 'c *some-alist*)) 7)
+</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>7</code></pre>
+</div>
+
+
+<p>
+Now let's check the value of <code>c</code> again.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(second (assoc 'c *some-alist*))
+</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>7</code></pre>
+</div>
+
+
+<p>
+In <a href="essentials.html#ID-66b10de4-0a51-40b9-a1ad-9409ee091aba">BEYOND LISTS</a>, we will see how to use <code>setf</code> to modify the values of items in
+other kinds of objects beyond lists.
+</p>
 </div>
 
 </section>
