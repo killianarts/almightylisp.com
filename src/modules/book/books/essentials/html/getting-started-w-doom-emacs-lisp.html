@@ -186,12 +186,38 @@ Test that it's installed and working.
 </div>
 
 </section>
+<section id="install-quicklisp">
+  <hgroup>
+    
+    <h3>Install Quicklisp</h3>
+  </hgroup>
+<div class="outline-text-4" id="text-1-1-3">
+<p>
+Quicklisp is the most popular package manager for Common Lisp. We need it or
+else we'll get errors when we open Lisp files in Emacs.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code>curl -O https://beta.quicklisp.org/quicklisp.lisp
+
+sbcl --load quicklisp.lisp
+
+(quicklisp-quickstart:install)
+
+(ql:add-to-init-file)
+
+(exit)
+</code></pre>
+</div>
+</div>
+
+</section>
 <section id="install-emacs">
   <hgroup>
     
     <h3>Install Emacs</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-1-3">
+<div class="outline-text-4" id="text-1-1-4">
 <p>
 Install dependencies:
 </p>
@@ -209,13 +235,16 @@ Install Emacs Plus
 brew install emacs-plus
 </code></pre>
 </div>
+
 <p>
 Test that Emacs is installed and working.
 </p>
+
 <div class="code-block">
 <pre class="code-block-source-pre"><code class="code-block-source shell">$ emacs
 </code></pre>
 </div>
+
 <p>
 Or open the Emacs.app file in your Application folder.
 </p>
@@ -231,7 +260,7 @@ After confirming that Emacs works, you can move on to installing Doom.
     
     <h3>Install Doom</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-1-4">
+<div class="outline-text-4" id="text-1-1-5">
 <p>
 <a href="https://github.com/doomemacs/doomemacs">Doom</a> is an Emacs distribution. It provides everything Emacs-related for
 integration with Common Lisp, and generally makes Emacs more ergonomic.
@@ -276,7 +305,7 @@ $ doom emacs
     
     <h3>Configure Doom for Common Lisp</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-1-5">
+<div class="outline-text-4" id="text-1-1-6">
 <p>
 Now that Doom is running, we need to set it up for Common Lisp development.
 We're going to edit our first file, so we'll need to learn a wee bit of survival
@@ -352,7 +381,7 @@ Close Emacs. In the terminal, run <code>doom sync</code>. Reopen <code>doom emac
     
     <h3>Remap Capslock to Control</h3>
   </hgroup>
-<div class="outline-text-4" id="text-1-1-6">
+<div class="outline-text-4" id="text-1-1-7">
 <p>
 Because the Control key is used so heavily in Emacs keybindings, most Emacs
 users will remap the Caps Lock key to Control. That improves comfort and
