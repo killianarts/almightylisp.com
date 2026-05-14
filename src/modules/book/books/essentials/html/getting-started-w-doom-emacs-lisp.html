@@ -201,11 +201,21 @@ else we'll get errors when we open Lisp files in Emacs.
 <pre class="code-block-source-pre"><code>curl -O https://beta.quicklisp.org/quicklisp.lisp
 
 sbcl --load quicklisp.lisp
+</code></pre>
+</div>
 
+<p>
+You will now be inside a SBCL REPL.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">;;; Install Quicklisp.
 (quicklisp-quickstart:install)
 
+;;; Add it to the ~/.sbclrc file.
 (ql:add-to-init-file)
 
+;;; Exit SBCL, return to command line.
 (exit)
 </code></pre>
 </div>
@@ -455,11 +465,12 @@ include the instructions for doing that here. Modify them to fit your distro.
 <section id="install-quicklisp">
   <hgroup>
     
-    <h3>Install quicklisp</h3>
+    <h3>Install Quicklisp</h3>
   </hgroup>
 <div class="outline-text-4" id="text-1-2-3">
 <p>
-Quicklisp is the most popular package manager for Common Lisp.
+Quicklisp is the most popular package manager for Common Lisp. We need it or
+else we'll get errors when we open Lisp files in Emacs.
 </p>
 
 <div class="code-block">
