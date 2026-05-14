@@ -331,9 +331,13 @@
         & p {
             margin-block: var(--spacing-1);
         }
-        & p:first-of-type,
+        & p:first-of-type {
+            margin-block: 0;
+            margin-bottom: var(--spacing-1);
+        }
         & p:last-of-type {
             margin-block: 0;
+            margin-top: var(--spacing-1);
         }
     }
     blockquote {
