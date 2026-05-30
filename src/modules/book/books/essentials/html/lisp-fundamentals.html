@@ -245,7 +245,7 @@ several ways to define variables.
 </p>
 
 <p>
-Use <code>defvar</code> to introduce a global variable without a value.
+Use <code>defvar</code> to introduce a global variable.
 </p>
 
 <div class="code-block">
@@ -257,9 +257,9 @@ Use <code>defvar</code> to introduce a global variable without a value.
 
 
 <p>
-To change the value of a <code>defvar</code> variable, you need to call <code>setf</code> on the
-variable. If you do decide that you want to add a value, or change the initial
-value, you can't simply redefine the <code>defvar</code> and recompile the form.
+To rebind a value to a <code>defvar</code> variable, you need to call <code>setf</code> on the
+variable. To change the initial value, you can't simply redefine the <code>defvar</code>
+and recompile the form.
 </p>
 
 <div class="code-block">
@@ -455,7 +455,7 @@ Change the <code>let</code> to <code>let*</code> to make it work properly:
 <div class="outline-text-4" id="text-1-2-3">
 <p>
 While variables are an important kind of symbol, they aren't the only kind of
-symbol. Function names, package names, class names, etc. are all symbols.
+symbol. Function names, class names, etc. are all symbols.
 Symbols themselves are a data structure and can hold more than one piece of
 information.
 </p>
@@ -513,10 +513,10 @@ symbols in manually. Some of the above functions will come in handy for those
 kinds of operations.
 </p>
 
-<div class="matters_of_style" id="org718020b">
+<div class="matters_of_style" id="org0045da9">
 <p>
 Now that you know that <code>let</code> and <code>let*</code> are nearly the same, with <code>let*</code>
-providing more functionality that <code>let</code>, you are probably tempted to never use
+providing more functionality than <code>let</code>, you are probably tempted to never use
 <code>let</code>. However, it is good style to <b>be specific</b>. If you don't need to refer to
 variables bound earlier in the <code>let</code> form, don't use <code>let*</code>. This prevents
 readers of your code from being confused.
@@ -771,8 +771,41 @@ Use one or the other, but not both.
 </p>
 
 <p>
-You can mix <code>&amp;optional</code> and <code>&amp;rest</code>, but mixing <code>&amp;key</code> and <code>&amp;rest</code> will also
-result in an error. If you want named arguments in your <code>&amp;rest</code> args, you can
+You can mix <code>&amp;optional</code> and <code>&amp;rest</code>. Mixing <code>&amp;key</code> and <code>&amp;rest</code> will
+result in an error if you put <code>&amp;key</code> before <code>&amp;rest</code>, but it's okay to put the
+<code>&amp;rest</code> before the <code>&amp;key</code>.
+</p>
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun key-before-rest (&amp;key my-key &amp;rest args)
+  (print my-key))
+(key-before-rest :my-key "&amp;key before &amp;rest, you'll have a bad time.")
+</code></pre>
+<pre class="code-block-result-pre result error"><code class="code-block-result"><span class="code-block-result-label">Result</span>Execution of a form compiled with errors.
+Form:
+  #'(SB-INT:NAMED-LAMBDA KEY-BEFORE-REST
+      (&amp;KEY MY-KEY &amp;REST ARGS)
+    (BLOCK KEY-BEFORE-REST (PRINT MY-KEY)))
+Compile-time error:
+  misplaced &amp;REST in lambda list:
+                               (&amp;KEY MY-KEY &amp;REST ARGS)
+   [Condition of type SB-INT:COMPILED-PROGRAM-ERROR]</code></pre>
+</div>
+
+
+<div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun rest-before-key (&amp;rest args &amp;key my-key)
+  (print my-key))
+
+(rest-before-key :my-key "&amp;rest before &amp;key, you're okay.")
+</code></pre>
+<pre class="code-block-result-pre result"><code class="code-block-result"><span class="code-block-result-label">Result</span>&amp;rest before &amp;key, you're okay.</code></pre>
+</div>
+
+
+
+<p>
+If you want named arguments in your <code>&amp;rest</code> args, you can
 supply key-value pairs in the <code>&amp;rest</code> argument and manually parse them yourself.
 </p>
 
@@ -1590,7 +1623,7 @@ for <code>nil</code> or the empty list are <code>t</code>.
 </p>
 
 <p>
-Common Lisp has the typical comparison operators for math (with <code>\=</code> being
+Common Lisp has the typical comparison operators for math (with <code>/=</code> being
 non-typical in other languages):
 </p>
 <div class="code-block">

@@ -29,5 +29,4 @@
                 :components ((:file "components")
                              (:file "package")))
                (:file "utils")
-               (:file "routes")
                (:file "main")))

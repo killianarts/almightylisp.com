@@ -44,3 +44,16 @@
   (shiso:stop))
 #+nil
 (stop-server)
+
+(defun main ()
+  (let ((host (get-env "HOST" "127.0.0.1"))
+        (port (get-env-int "PORT" 5000))
+        (debugp (envp "DEBUGP"))) 
+    (handler-case
+        (progn
+          (shiso:start almightylisp:*almightylisp-application*)
+          (sleep most-positive-fixnum))
+      (error (c)
+        (format *error-output* "Aborting. ~a ~&" c)
+        (force-output *error-output*)
+        (uiop:quit 1)))))
