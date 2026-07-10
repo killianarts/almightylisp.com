@@ -5,7 +5,6 @@ exec ros -Q -- $0 "$@"
 |#
 
 ;; Roswell script header (above) makes this executable
-
 (defpackage #:almightylisp-build
   (:use #:cl)
   (:export #:main))
@@ -19,30 +18,6 @@ exec ros -Q -- $0 "$@"
 
 (asdf:load-system "almightylisp")
 
-;; Environment variable utilities.
-(defun get-env-int (env default)
-  (let ((env (uiop:getenv env)))
-    (if env
-        (parse-integer env :junk-allowed t)
-        default)))
-
-(defun get-env (env default)
-  (or (uiop:getenv env) default))
-
-(defun envp (env)
-  (if (string-equal (uiop:getenvp env) "true")
-      t
-      nil))
-
-(defun main ()
-  (let ((host (get-env "HOST" "127.0.0.1"))
-        (port (get-env-int "PORT" 5000))
-        (debugp (envp "DEBUGP"))) 
-    (handler-case
-        (progn
-          (shiso:start almightylisp:*almightylisp-application*)
-          (sleep most-positive-fixnum))
-      (error (c)
-        (format *error-output* "Aborting. ~a ~&" c)
-        (force-output *error-output*)
-        (uiop:quit 1)))))
+(defun main (&rest argv)
+  (declare (ignore argv))
+  (almightylisp:main))

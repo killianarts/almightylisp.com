@@ -1,6 +1,7 @@
 (defpackage #:almightylisp
   (:use #:cl)
   (:export
+   #:main
    #:start-server
    #:stop-server
    #:*almightylisp-application*))
@@ -57,13 +58,16 @@
 (stop-server)
 
 (defun main ()
+  "Executable entry point. Connects the DB, then starts the server.
+Must call setup-database: the Lack DBI session store reuses
+mito.connection:*connection*, which is NIL until connect-toplevel runs."
   (let ((host (get-env "HOST" "127.0.0.1"))
         (port (get-env-int "PORT" 5000))
-        (debugp (envp "DEBUGP"))) 
+        (debugp (envp "DEBUGP")))
     (handler-case
         (progn
-          (shiso:start almightylisp:*almightylisp-application*)
-          (sleep most-positive-fixnum))
+          (start-server :host host :port port :debugp debugp)
+          (loop (sleep 60)))
       (error (c)
         (format *error-output* "Aborting. ~a ~&" c)
         (force-output *error-output*)
