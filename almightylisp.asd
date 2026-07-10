@@ -21,7 +21,7 @@
   :description "The almightylisp.com website"
   :license "MIT"
   :version "0.1"
-  :depends-on (:shiso :datastar-cl)
+  :depends-on (:shiso :datastar-cl :dbd-sqlite3)
   :pathname "src"
   :serial t
   :components ((:module "hypermedia"

@@ -6,4 +6,4 @@ tmp/
 *.fasl
 */.git
 *.pem
-db/
+
