@@ -227,7 +227,6 @@
     }
 
     .code {
-        background-color: var(--code-bg-color);
         color: var(--code-text-color);
         font-family: var(--code-font-family);
     }

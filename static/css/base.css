@@ -519,7 +519,7 @@
     --font-bodoni: "Bodoni 72 Smallcaps";
     --font-serif: var(--font-stack-transitional);
     --font-code: var(--font-berkeley);
-    --font-code-condensed: var(--font-berkeley-uc);
+    --font-code-condensed: var(--font-berkeley-uc-black);
     --font-link: var(--font-berkeley-uc);
 
 }
