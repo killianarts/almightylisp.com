@@ -35,6 +35,50 @@
  make history by mastering the essentials of these almighty tools with " (em "Almighty
  Lisp: Lisp & Emacs Essentials") ".")
                (a :class "cta" :href "book/essentials" "Learn Lisp & Emacs Immediately"))))
+         (section :class "whats-new"
+           (div :class "container"
+             (span :class "special-subheader" "JULY 2026 UPDATE")
+             (h1 :class "special-header" "WHAT'S " (em "NEW"))
+             (p "Big news, almighty bros: " (em "Almighty Lisp: Lisp & Emacs Essentials")
+               " has received a major update, the Almighty Lisp Theme Pack 1 is also getting updated, and a second " (em "Almighty Lisp") " theme pack is coming along for the ride."))
+           (div :class "container fullwidth"
+             (div :class "pricing-card-container"
+               (div :class "pricing-card"
+                 (hgroup :class "pricing-card-title"
+                   (h3 "THE BOOK, UPDATED"))
+                 (div :class "pricing-card-body"
+                   (p "Fresh since the last release:")
+                   (ul
+                     (li "A brand-new " (span :class "code" "Windows") " installation guide—Doom Emacs and Common Lisp on native Windows.")
+                     (li "An expanded Introduction to ease you onto the almighty path.")
+                     (li "Redesigned code and result blocks for cleaner, more readable examples.")
+                     (li "New chapter and section headings across every chapter.")
+                     (li "Clearer Quicklisp installation instructions for macOS and beyond.")
+                     (li "An expanded Errors & Conditions chapter.")
+                     (li "A major overhaul of the included accounting and money projects.")
+                     (li "Countless fixes throughout."))))
+               (div :class "pricing-card"
+                 (hgroup :class "pricing-card-title"
+                   (h3 "THEME PACK 1, UPDATED"))
+                 (div :class "pricing-card-body"
+                   (p "Various tweaks have been made to Theme Pack 1. The most significant are:")
+                   (ul
+                     (li "*-moon variants are now darker and generally warmer for more comfortable night-time coding.")
+                     (li "almighty-gear and gear-moon color tweaks.")
+                     (li "almighty-macro-moon is noticably more amber.")
+                     (li "almighty-titan's bg color is significantly darker for more greater eye comfort."))))
+               (div :class "pricing-card"
+                 (hgroup :class "pricing-card-title"
+                   (h3 "THEME PACK 2, RELEASED"))
+                 (div :class "pricing-card-body"
+                   (p "Eight more " (em "Almighty Lisp") " themes for Doom Emacs—four light, four dark:")
+                   (ul
+                     (li "almighty-ena / almighty-ena-moon")
+                     (li "almighty-mikasa / almighty-mikasa-moon")
+                     (li "almighty-lisp-x / almighty-lisp-x-moon")
+                     (li "almighty-saga / almighty-saga-moon"))
+                   (p "Try every theme live in the picker below, then read the whole book in your favorite."))))
+             (a :class "cta" :href "book/essentials" "Read The Updated Book Immediately")))
          (section
            (div :class "container"
              (h2 "Who This Book Is For")
@@ -111,7 +155,7 @@ ocean of functions, classes, and parentheses. Become Almighty.")
              (p "If reading the code in the " (em "Almighty Lisp: Lisp & Emacs Essentials") " book reminds you of the good ol' days...")
              (p "If you just gotta have more primary colors in your life...")
              (p "Then I have some good news:")
-             (p "I am pleased to announce the release of the first " (em "Almighty Lisp Doom Emacs") " theme pack. This pack includes eight themes, four light and four dark themes, including a theme with the main Almighty Lisp color palette as seen on this website.")))
+             (p "I am pleased to announce that a second " (em "Almighty Lisp Doom Emacs") " theme pack has arrived alongside the latest book update. That's " (em "sixteen") " themes across two packs—eight light and eight dark—including a theme with the main Almighty Lisp color palette as seen on this website.")))
          (section :class "tall"
            (div :class "container fullwidth"
              (h2 :class "pricing-header" "Pricing")
@@ -134,16 +178,28 @@ ocean of functions, classes, and parentheses. Become Almighty.")
                      (li "almighty-macro")
                      (li "almighty-macro-moon")
                      (li "Free updates of the above themes.")))
-                 (a :href "https://almightylisp.gumroad.com/l/almighty-themes-pack-1" (button :class "pricing-card-cta"
-                                                                                        "PURCHASE THEME PACK 1 IMMEDIATELY")))
-               (div :class "pricing-card disabled"
+                 (a :href "https://almightylisp.gumroad.com/l/almighty-themes-pack-1"
+                   (button :class "pricing-card-cta" "PURCHASE THEME PACK 1 IMMEDIATELY")))
+               (div :class "pricing-card"
                  (hgroup :class "pricing-card-title"
                    (h3 "THEME PACK 2")
-                   (p "$?"))
+                   (p "$10"))
                  (div :class "pricing-card-body"
-                   (p "This pack will include mid and dark themes similar to pack 1."))
-                 (a :href "" (button :class "pricing-card-cta"
-                               "UNDER DEVELOPMENT")))
+                   (p "Your purchase supports more Lisp propaganda.")
+                   (p "Requires " (a :href "https://github.com/doomemacs/themes?tab=readme-ov-file" "Doom Themes"))
+                   (p "Pack includes:")
+                   (ul
+                     (li "almighty-ena")
+                     (li "almighty-ena-moon")
+                     (li "almighty-mikasa")
+                     (li "almighty-mikasa-moon")
+                     (li "almighty-lisp-x")
+                     (li "almighty-lisp-x-moon")
+                     (li "almighty-saga")
+                     (li "almighty-saga-moon")
+                     (li "Free updates of the above themes.")))
+                 (a :href "https://almightylisp.gumroad.com/l/almighty-themes-pack-2"
+                   (button :class "pricing-card-cta" "PURCHASE THEME PACK 2 IMMEDIATELY")))
                (div :class "pricing-card disabled"
                  (hgroup :class "pricing-card-title"
                    (h3 "THEME PACK 3")
@@ -154,11 +210,11 @@ ocean of functions, classes, and parentheses. Become Almighty.")
                    "UNDER DEVELOPMENT")))))
          (section
            (div :class "container fullwidth"
-             (h2 "Theme Pack #1")
+             (h2 "Theme Packs #1 & #2")
              (div :class "theme-example-container"
                (div
                  (p "Click on any of the buttons below to select a theme and test it out. You can read " (em "Almighty Lisp: Lisp & Emacs Essentials") " using the theme.")
-                 (p "I have try to fine tune the colors to match Emacs as close as possible. Due to
+                 (p "I have tried to fine tune the colors to match Emacs as close as possible. Due to
 the differences in color rendering in Emacs and different web browsers, however,
 the colors on this site may not match exactly on Emacs.")
                  (fieldset :id "theme-select" :class "theme-select" :name "theme-select"
@@ -192,12 +248,30 @@ the colors on this site may not match exactly on Emacs.")
                    (label :class "theme-button"
                      (input :type "radio" :name "theme" :id "almighty-macro" :value "almighty-macro") "almighty-macro")
                    (label :class "theme-button"
-                     (input :type "radio" :name "theme" :id "almighty-macro-moon" :value "almighty-macro-moon") "almighty-macro-moon")))
+                     (input :type "radio" :name "theme" :id "almighty-macro-moon" :value "almighty-macro-moon") "almighty-macro-moon")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-ena" :value "almighty-ena") "almighty-ena")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-ena-moon" :value "almighty-ena-moon") "almighty-ena-moon")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-mikasa" :value "almighty-mikasa") "almighty-mikasa")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-mikasa-moon" :value "almighty-mikasa-moon") "almighty-mikasa-moon")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-lisp-x" :value "almighty-lisp-x") "almighty-lisp-x")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-lisp-x-moon" :value "almighty-lisp-x-moon") "almighty-lisp-x-moon")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-saga" :value "almighty-saga") "almighty-saga")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-saga-moon" :value "almighty-saga-moon") "almighty-saga-moon")))
                (div
-                 (div :class "code-block"
-                   (pre :class "code-block-source-pre"
-                     (code :class "code-block-source lisp"
-                       "(defclass flying ()
+                 (figure :class "almighty-block"
+                   (div :class "almighty-block__source-row"
+                     (div :class "almighty-block__cell"
+                       (pre :class "almighty-block__pre"
+                         (code :class "almighty-block__code hl-highlighted lisp"
+                           "(defclass flying ()
     ((max-altitude :initarg :max-altitude :initform 1000 :accessor max-altitude)))
 
 (defclass fire-breathing ()
@@ -225,13 +299,23 @@ the colors on this site may not match exactly on Emacs.")
 (defparameter *aragorn* (make-instance 'warrior :armor-rating 80))
 (defparameter *gandalf* (make-instance 'mage :max-altitude 200))
 (attack *smaug* *aragorn*)
-"))
-                   (pre :class "result"
-                     (code :class "code-block-result"
-                       (span :class "code-block-result-label" "Result")
-                       "The dragon dives and breathes fire on the warrior!
+"))))
+                   (div :class "almighty-block__row"
+                     (div :class "almighty-block__cell"
+                       (div :class "almighty-block__result-cell"
+                         (span :class "almighty-block__result-label"
+                           "Returns"
+                           (svg :class "almighty-block__cell-label-decoration-svg" :width "5" :height "8" :viewbox "0 0 5 8" :fill "none" :xmlns "http://www.w3.org/2000/svg"
+                             (rect :class "almighty-block__cell-label-decoration-rect" :width "2" :height "2")
+                             (rect :class "almighty-block__cell-label-decoration-rect" :y "3" :width "2" :height "2")
+                             (rect :class "almighty-block__cell-label-decoration-rect" :y "6" :width "2" :height "2")
+                             (rect :class "almighty-block__cell-label-decoration-rect" :x "3" :y "3" :width "2" :height "2")
+                             (rect :class "almighty-block__cell-label-decoration-rect" :x "3" :y "6" :width "2" :height "2")
+                             (rect :class "almighty-block__cell-label-decoration-rect" :x "3" :width "2" :height "2")))
+                         (pre :class "almighty-block__result-text"
+                           "The dragon dives and breathes fire on the warrior!
 Fire hits armor! 80% deflected.
-=> NIL"))))
+=> NIL"))))))
                (a :class "cta" :href "book/essentials" "Read The Book Using The Selected Theme Immediately"))))
          (section :class "about-author"
            (div :class "container"

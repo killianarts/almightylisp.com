@@ -2775,15 +2775,15 @@ Before we work on our queries, it'll help to know the motivation for getting the
   </hgroup>
 <div class="outline-text-5" id="text-1-2-16-2">
 <p>
-First, let's get our package set up in <code>examples/views.lisp</code>.
+First, let's get our package set up in <code>almighty-accounting/views.lisp</code>.
 </p>
-<pre><code class="lisp">(defpackage #:examples/views
+<pre><code class="lisp">(defpackage #:almighty-accounting/views
   (:use #:cl)
-  (:local-nicknames (#:db #:examples/db)
+  (:local-nicknames (#:db #:almighty-accounting/db)
                     (#:lt #:local-time)
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
-(in-package #:examples/views)
+(in-package #:almighty-accounting/views)
 </code></pre>
 <p>
 In here, we're going to create some simple reports. The first one is a general ledger. The most basic kind of accounting report is the general ledger. It simply contains all of the transactions made, detailing the two sides and accounts affected.
@@ -2816,9 +2816,9 @@ This function will
   </hgroup>
 <div class="outline-text-5" id="text-1-2-16-3">
 <p>
-Let's make <code>examples/db.lisp</code> and define the package:
+Let's make <code>almighty-accounting/db.lisp</code> and define the package:
 </p>
-<pre><code class="lisp">(defpackage #:examples/db
+<pre><code class="lisp">(defpackage #:almighty-accounting/db
   (:use #:cl)
   (:local-nicknames (#:lt #:local-time)
                     (#:m #:mito)
@@ -2826,7 +2826,7 @@ Let's make <code>examples/db.lisp</code> and define the package:
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
 
-(in-package #:examples/db)
+(in-package #:almighty-accounting/db)
 </code></pre>
 <p>
 This package will be in charge of helping us work with the database: establishing a connection, select queries, and other "business logic" queries.

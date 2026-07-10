@@ -75,3 +75,11 @@
         local("Bodoni 72 Smallcaps") format("truetype"),
         url("/static/assets/fonts/Bodoni 72 Smallcaps Book.ttf") format("truetype");
 }
+
+@font-face {
+    font-family: "Construct Mono";
+    font-display: swap;
+    src: 
+        local("Construct Mono") format("opentype"),
+        url("/static/assets/fonts/ConstructMono.otf") format("opentype");
+}

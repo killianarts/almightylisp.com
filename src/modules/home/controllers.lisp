@@ -68,7 +68,15 @@
                (option :value "almighty-gear"       "almighty-gear")
                (option :value "almighty-gear-moon"  "almighty-gear-moon")
                (option :value "almighty-macro"      "almighty-macro")
-               (option :value "almighty-macro-moon" "almighty-macro-moon"))))))))))
+               (option :value "almighty-macro-moon" "almighty-macro-moon")
+               (option :value "almighty-ena"             "almighty-ena")
+               (option :value "almighty-ena-moon"        "almighty-ena-moon")
+               (option :value "almighty-mikasa"          "almighty-mikasa")
+               (option :value "almighty-mikasa-moon"     "almighty-mikasa-moon")
+               (option :value "almighty-lisp-x"       "almighty-lisp-x")
+               (option :value "almighty-lisp-x-moon"  "almighty-lisp-x-moon")
+               (option :value "almighty-saga"            "almighty-saga")
+               (option :value "almighty-saga-moon"       "almighty-saga-moon"))))))))))
 
 ;; TODO Move this API into Shiso
 (defun query-param (key)

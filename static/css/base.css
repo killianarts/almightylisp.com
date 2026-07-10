@@ -91,7 +91,7 @@
     --tw-lch-orange-800: 0.47 0.157 37.304;
     --tw-lch-orange-900: 0.408 0.123 38.172;
     --tw-lch-orange-1000: 0.266 0.079 36.259;
-    --tw-lch-orange-1100: 0.160 0.079 36.259;
+    --tw-lch-orange-1100: 0.130 0.059 36.259;
     --tw-lch-orange-1200: 0.060 0.079 36.259;
     --tw-lch-amber-50: 0.987 0.022 95.277;
     --tw-lch-amber-100: 0.962 0.059 95.617;
@@ -314,12 +314,13 @@
     --color-canvas-darker: var(--color-canvas-1000);
     --color-canvas-soft: var(--color-canvas-400);
     --color-canvas-alt: var(--color-canvas-dark);
---color-canvas-alt-highlight: var(--color-canvas-lighter);
+    --color-canvas-alt-highlight: var(--color-canvas-light);
 
     --color-ink: var(--color-canvas-1000);
     --color-ink-light: var(--color-canvas-50);
     --color-ink-shadow: var(--color-canvas-darker);
     --color-ink-alt: var(--color-ink-light);
+    --color-ink-muted: var(--color-canvas-600);
 
     --color-secondary-50: oklch(var(--tw-lch-cyan-50));
     --color-secondary-100: oklch(var(--tw-lch-cyan-100));
@@ -509,31 +510,109 @@
     --font-stack-didone: Didot, "Bodoni MT", "Noto Serif Display", "URW Palladio L", P052, Sylfaen, serif;
     --font-stack-handwritten: "Segoe Print", "Bradley Hand", Chilanka, TSCu_Comic, casual, cursive;
     --font-instrument-serif: "Instrument Serif";
+    --font-construct-mono: "Construct Mono";
+    --font-league-gothic: "League Gothic";
+    --font-league-gothic-tall: "League Gothic Tall";
 
-    --font-heading: "League Gothic";
-    --font-hero: "League Gothic Tall";
+    --font-heading: var(--font-construct-mono);
+    --font-hero: var(--font-league-gothic-tall);
     --font-bodoni: "Bodoni 72 Smallcaps";
     --font-serif: var(--font-stack-transitional);
     --font-code: var(--font-berkeley);
     --font-code-condensed: var(--font-berkeley-uc);
-    --font-link: var(--font-berkeley);
+    --font-link: var(--font-berkeley-uc);
 
 }
 
 body {
-    /* background-image: url("../../static/assets/images/bg-dot-pattern-base.png"); */
     background-color: var(--color-canvas);
-    background-repeat: repeat;
     color: var(--color-ink-light);
     text-box: trim-both cap alphabetic;
     transition: all;
     transition-duration: 300ms;
+
+    /* Film-grain noise — tunable overlay drawn by body::before (currently off). */
+    --noise-color: var(--color-canvas-alt);  /* grain tint (any color / theme var) */
+    --noise-opacity: 0.20;   /* overall strength (0 = off) */
+    --noise-size: 160px;     /* tile size; smaller = finer, busier grain */
+    --noise-z: 9998;         /* just below the scanlines */
+    --noise-anim-duration: 0.1s;  /* full flicker cycle; lower = more frantic */
+
+    /* CRT scanlines — animated overlay drawn by body::after (see below). */
+    --scanline-color: color-mix(in srgb, var(--color-canvas-alt) 15%, transparent);
+    --scanline-thickness: 1px;   /* height of each dark line */
+    --scanline-gap: 2px;         /* transparent space between lines */
+    --scanline-opacity: 0.35;    /* overall strength of the effect */
+    --scanline-speed: 0.4s;      /* time to scroll one line cycle; lower = faster */
+    --scanline-z: 9999;          /* above content, below nothing */
+}
+
+/* Whole-viewport film-grain / static noise (currently OFF — flip to scanlines).
+   An inline SVG feTurbulence filter (data URI, no external asset) used as an
+   alpha *mask* over a solid color fill, so the grain takes whatever
+   --noise-color you give it. Uncomment the block below to bring it back. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: var(--noise-z, 9998);
+    pointer-events: none;
+    opacity: var(--noise-opacity, 0.06);
+    background-color: var(--noise-color, currentColor);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    -webkit-mask-size: var(--noise-size, 160px) var(--noise-size, 160px);
+    mask-size: var(--noise-size, 160px) var(--noise-size, 160px);
+    animation: noise-flicker var(--noise-anim-duration, 0.7s) steps(1) infinite;
+}
+
+@keyframes noise-flicker {
+    0%   { -webkit-mask-position:   0    0;   mask-position:   0    0;   }
+    10%  { -webkit-mask-position: -17px  9px; mask-position: -17px  9px; }
+    20%  { -webkit-mask-position:  31px -22px; mask-position:  31px -22px; }
+    30%  { -webkit-mask-position: -43px 13px; mask-position: -43px 13px; }
+    40%  { -webkit-mask-position:  27px 41px; mask-position:  27px 41px; }
+    50%  { -webkit-mask-position: -11px -37px; mask-position: -11px -37px; }
+    60%  { -webkit-mask-position:  49px 19px; mask-position:  49px 19px; }
+    70%  { -webkit-mask-position: -29px -13px; mask-position: -29px -13px; }
+    80%  { -webkit-mask-position:  13px 33px; mask-position:  13px 33px; }
+    90%  { -webkit-mask-position: -37px 27px; mask-position: -37px 27px; }
+    100% { -webkit-mask-position:   0    0;   mask-position:   0    0;   }
+}
+
+/* Whole-viewport CRT scanlines. Fixed + pointer-events:none so it overlays
+   every scroll position without intercepting clicks. The lines drift downward
+   by scrolling the gradient exactly one period, so the loop is seamless. */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: var(--scanline-z);
+    pointer-events: none;
+    opacity: var(--scanline-opacity);
+    background-image: repeating-linear-gradient(
+        to bottom,
+        var(--scanline-color) 0,
+        var(--scanline-color) var(--scanline-thickness),
+        transparent var(--scanline-thickness),
+        transparent calc(var(--scanline-thickness) + var(--scanline-gap))
+    );
+    animation: scanline-scroll var(--scanline-speed, 0.4s) linear infinite;
+}
+
+/* Move one full line period (thickness + gap) so start and end frames align. */
+@keyframes scanline-scroll {
+    from { background-position: 0 0; }
+    to   { background-position: 0 calc(var(--scanline-thickness) + var(--scanline-gap)); }
+}
+
+/* Honor reduced-motion: keep the lines, drop the scroll. */
+@media (prefers-reduced-motion: reduce) {
+    body::after { animation: none; }
 }
 
 a {
     font-family: var(--font-link);
-    transition: all;
-    transition-duration: 300ms;
 }
 
 

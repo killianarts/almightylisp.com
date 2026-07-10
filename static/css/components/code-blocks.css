@@ -4,7 +4,8 @@
 .code-block {
     --code-block-bg-color: var(--color-canvas-dark);
     --code-font: var(--font-berkeley);
-    --code-font--black: var(--font-berkeley-black);
+    --code-font-black: var(--font-berkeley-black);
+    --code-font-uc-black: var(--font-berkeley-uc-black);
     --code-font-size: var(--font-size-base);
     --code-block-border-color: var(--color-secondary);
     --code-block-border-size: 5px;
@@ -74,7 +75,7 @@
         background: none;
         @container code-container (width <= 80ch) {
             --code-font: var(--font-berkeley-uc);
-            --code-font--black: var(--font-berkeley-uc-black);
+            --code-font-black: var(--font-berkeley-uc-black);
         }
         @container code-container (width <= 50ch) {
             --code-font: var(--font-berkeley-uc);
@@ -87,11 +88,11 @@
         code.hl-highlighted .function               {color: var(--color-ink-light);}
         code.hl-highlighted .function.known         {color: var(--color-secondary);}
         code.hl-highlighted .function.known.special {color: var(--color-secondary); font-weight: bold;}
-        code.hl-highlighted .form-definition-name   {color: var(--color-accent); font-family: var(--code-font--black);}
+        code.hl-highlighted .form-definition-name   {color: var(--color-accent); font-family: var(--code-font-black);}
         code.hl-highlighted .keyword                {color: var(--color-accent);}
         code.hl-highlighted .keyword.known          {color: var(--color-accent);}
         code.hl-highlighted .symbol                 {color: var(--color-ink-light);}
-        code.hl-highlighted .lambda-list            {color: var(--color-ink-light); font-family: var(--code-font--black); @container code-container (width <= 70ch) { font-family: var(--font-berkeley-uc-black)}}
+        code.hl-highlighted .lambda-list            {color: var(--color-ink-light); font-family: var(--code-font-black); @container code-container (width <= 70ch) { font-family: var(--font-berkeley-uc-black)}}
         code.hl-highlighted .number                 {color: var(--color-ink-light);}
         code.hl-highlighted .variable.known         {color: var(--color-ink-light);}
         code.hl-highlighted .variable.global        {color: var(--color-ink-light);}

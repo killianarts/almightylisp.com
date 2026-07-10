@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head><title>MONEY LIBRARY - ALMIGHTYLISP.COM</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>(() => {
+    const t = localStorage.getItem('theme');
+    if (t) document.documentElement.dataset.theme = t;
+    const sel = document.getElementById('theme-select');
+    if (sel && t) sel.value = t;
+  })();</script><link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa"><link rel="apple-touch-icon" sizes="180x180" href="/static/assets/images/favicon/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png"><link rel="manifest" href="/static/assets/images/favicon/site.webmanifest"><script src="https://cdn.jsdelivr.net/npm/hyperscript.org@0.9.91/dist/_hyperscript.min.js"></script><script src="/static/js/highlight-lisp.js"></script></head><body><div class="sidebar-container"><div class="book-navigation"><div class="book-navigation__book-title"><a href="/book/essentials"><div class="almighty-lisp-logo-container"><svg class="almighty-lisp-logo" width="185" height="127" viewBox="0 0 185 127" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_1310_182)"><path class="lisp-logo-accent-paths" d="M42.6505 72.9308C43.01 72.8635 43.6305 72.8898 44.0162 72.8763C45.6508 72.8186 51.225 73.1157 49.1217 75.9803C47.3011 78.4598 45.3233 80.9101 43.4148 83.3475L32.0555 97.8768C30.5227 99.8426 28.3101 102.437 27.0062 104.471C21.6566 112.816 39.2013 111.657 43.1275 111.654L58.0747 111.654L84.9585 111.631C90.3662 111.633 95.8194 111.651 101.205 111.622C104.827 111.487 108.749 110.952 111.4 108.239C112.928 106.676 113.219 104.615 111.633 102.988C107.586 99.0378 101.829 100.316 96.597 99.7722C90.0309 99.09 77.42 96.7197 76.7781 88.3604C76.4047 83.4987 82.72 80.1298 86.6887 78.6668C94.2848 75.8669 102.572 75.7534 110.588 75.8888C112.61 75.9152 114.664 75.8188 116.691 75.781C118.908 75.7593 121.125 75.7514 123.342 75.7572C127.112 75.755 132.492 75.3313 135.585 78.0361C136.039 78.4461 136.318 79.0188 136.333 79.6235C136.377 81.4112 133.635 82.3123 132.167 82.4744C129.096 82.8135 125.827 82.6892 122.719 82.6868L106.034 82.683C102.747 82.6482 98.0722 82.8641 95.6027 85.3695C94.5446 86.4436 95.04 88.0183 96.2581 88.7786C99.9385 91.1496 104.503 90.3955 108.596 90.7107C115.757 91.262 123.946 92.8908 129.675 97.3989C135.277 101.808 137.227 109.114 132.469 114.904C126.898 121.684 117.758 124.266 109.356 125.205C107.177 125.45 105.117 125.416 102.948 125.443L92.2702 125.477L64.5565 125.652C54.3956 125.802 44.2338 125.872 34.0718 125.864C24.2182 125.91 12.1402 127.133 3.71989 121.138C-1.67632 117.282 -0.0948632 110.044 3.89003 105.869C12.846 96.4842 22.1358 87.3833 31.4234 78.3321C32.0523 77.7192 32.6252 77.0022 33.2501 76.3785C35.7587 73.875 39.2858 73.2846 42.6505 72.9308Z" fill="#FEE048"></path><path class="lisp-logo-accent-paths" d="M84.8919 67.6304C89.9997 67.4938 95.7117 67.6192 100.859 67.6189L133.096 67.6257L150.395 67.5997C153.393 67.5907 158.347 67.4929 161.277 67.801C168.099 68.6479 175.749 70.0366 181.249 74.4255C183.46 76.189 185.175 79.4127 182.893 81.7988C179.831 85.0017 174.651 85.6828 170.442 86.0501C167.281 86.3262 162.889 85.6709 160.467 88.1038C159.112 89.4963 161.523 92.8469 162.218 94.2767C163.339 96.5804 164.723 98.8239 165.842 101.14C166.938 103.411 169.732 106.815 167.657 109.179C166.061 110.933 163.058 111.35 160.836 111.554C156.899 111.914 148.55 110.254 146.989 105.979C144.959 100.414 143.209 94.2557 141.269 88.6186C140.722 87.0294 141.152 85.4415 142.329 84.1949C146.857 79.9007 155.556 79.1523 161.334 78.8978C162.051 78.8886 162.769 78.8759 163.486 78.8593C164.561 78.8324 168.698 78.3111 168.363 76.6852C167.827 74.0813 162.832 73.1393 160.573 72.9901C156.376 72.7131 152.067 72.8812 147.841 72.8938L125.007 72.9178L97.934 72.9142L89.3273 72.9122C85.3404 72.9133 77.4561 72.7223 74.1887 75.1834C73.659 75.5814 73.2113 76.0781 72.8702 76.6461C72.0352 78.0239 70.4224 81.6823 69.6634 83.267L63.7349 95.5026C63.0057 97.0193 61.4825 100.466 60.4934 101.558C58.1787 104.113 53.4278 105.488 50.0747 105.696C47.3172 105.837 43.7489 105.886 41.4774 104.08C40.1563 103.03 40.4683 101.415 41.2283 100.155C41.9733 98.9206 42.8087 97.7862 43.5958 96.5802C45.9204 93.0748 48.2633 89.5816 50.6245 86.1006C52.1137 83.8374 53.6206 81.5859 55.1448 79.3462C55.6407 78.6099 57.2009 76.217 57.7688 75.646C63.2495 70.135 73.2896 68.5098 80.7355 67.7595C81.9047 67.6416 83.649 67.7029 84.8919 67.6304Z" fill="#FEE048"></path></g><path class="lisp-logo-ink-paths" d="M14.84 62.4121L20.888 0.672108H29.036L35 62.4121H27.776L26.852 49.8121H22.988L22.064 62.4121H14.84ZM23.534 41.1601H26.39L25.004 17.0101V15.7081H24.836V17.0101L23.534 41.1601ZM37.5003 62.4121V0.672108H44.4723V54.0121H51.6963V62.4121H37.5003ZM55.3011 62.4121V0.672108H63.6591L66.2211 29.0641L66.3471 32.7601H66.5151L66.6411 29.0641L69.2031 0.672108H77.5611V62.4121H70.8831V31.1641H70.7571L70.7151 32.5921L68.3631 62.4121H64.5831L62.1471 32.5921L62.1051 31.1641H61.9791V62.4121H55.3011ZM80.8948 62.4121V0.672108H87.8668V62.4121H80.8948ZM98.0348 63.0841C95.9628 63.0841 94.4088 62.4401 93.3728 61.1521C92.3368 59.8361 91.6508 58.2121 91.3148 56.2801C90.9788 54.3481 90.8108 52.4441 90.8108 50.5681V12.5161C90.8108 10.6681 91.0628 8.77811 91.5668 6.84611C92.0988 4.91411 92.9668 3.29011 94.1708 1.97411C95.3748 0.658108 97.0268 0.000106812 99.1268 0.000106812C100.807 0.000106812 102.179 0.420106 103.243 1.26011C104.335 2.07211 105.189 3.12211 105.805 4.41011C106.421 5.69811 106.841 7.07011 107.065 8.5261C107.317 9.9541 107.443 11.2841 107.443 12.5161V22.8481H100.471V12.1801C100.471 11.4801 100.401 10.7521 100.261 9.99611C100.121 9.21211 99.7428 8.82011 99.1268 8.82011C98.5388 8.82011 98.1748 9.19811 98.0348 9.95411C97.9228 10.7101 97.8668 11.4521 97.8668 12.1801V51.6601C97.8668 52.5561 97.9508 53.3401 98.1188 54.0121C98.3148 54.6841 98.7208 55.0201 99.3368 55.0201C100.009 55.0201 100.443 54.6701 100.639 53.9701C100.863 53.2421 100.975 52.4721 100.975 51.6601V40.1521H99.4628V31.6681H107.443V62.4121H103.831L103.075 60.1441C102.711 61.0961 102.067 61.8241 101.143 62.3281C100.247 62.8321 99.2108 63.0841 98.0348 63.0841ZM110.836 62.4121V0.672108H117.808V26.2081H120.496V0.672108H127.468V62.4121H120.496V35.5321H117.808V62.4121H110.836ZM135.136 62.4121V9.99611H130.012V0.672108H147.232V9.99611H142.108V62.4121H135.136ZM155.599 62.4121V36.1201L148.669 0.672108H156.145L158.665 20.4121L158.875 23.1001H159.085L159.337 20.4121L161.773 0.672108H169.333L162.403 36.1201V62.4121H155.599Z" fill="white"></path><defs><clippath id="clip0_1310_182"><rect class="lisp-logo-ink-paths" width="184.11" height="58.695" fill="white" transform="translate(0 67.4121)"></rect></clippath></defs></svg></div><div class="the-essentials-container"><svg class="essentials-logo" width="157" height="57" viewBox="0 0 157 57" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="lisp-logo-accent-paths" d="M1.92 56V20.72H13.776V26.048H7.104V35.552H11.904V40.736H7.104V50.672H13.776V56H1.92ZM23.8631 56.384C22.4391 56.384 21.2551 56.152 20.3111 55.688C19.3671 55.208 18.6231 54.52 18.0791 53.624C17.5351 52.728 17.1431 51.648 16.9031 50.384C16.6791 49.12 16.5671 47.696 16.5671 46.112L21.6551 45.632C21.6551 46.4 21.6791 47.144 21.7271 47.864C21.7911 48.568 21.8951 49.208 22.0391 49.784C22.1991 50.344 22.4231 50.792 22.7111 51.128C23.0151 51.464 23.3991 51.632 23.8631 51.632C24.6311 51.632 25.1751 51.28 25.4951 50.576C25.8151 49.856 25.9751 48.992 25.9751 47.984C25.9751 46.976 25.7111 45.928 25.1831 44.84C24.6551 43.752 24.0231 42.72 23.2871 41.744C22.0391 40.08 20.9431 38.536 19.9991 37.112C19.0711 35.688 18.3431 34.288 17.8151 32.912C17.3031 31.536 17.0471 30.096 17.0471 28.592C17.0471 27.408 17.1991 26.32 17.5031 25.328C17.8071 24.32 18.2471 23.448 18.8231 22.712C19.4151 21.96 20.1271 21.376 20.9591 20.96C21.7911 20.544 22.7431 20.336 23.8151 20.336C25.1431 20.336 26.2631 20.56 27.1751 21.008C28.1031 21.456 28.8471 22.096 29.4071 22.928C29.9831 23.76 30.3991 24.752 30.6551 25.904C30.9271 27.04 31.0631 28.304 31.0631 29.696L25.9751 30.176C25.9751 29.584 25.9431 28.992 25.8791 28.4C25.8311 27.792 25.7351 27.24 25.5911 26.744C25.4471 26.248 25.2391 25.848 24.9671 25.544C24.6951 25.24 24.3431 25.088 23.9111 25.088C23.2391 25.088 22.7751 25.376 22.5191 25.952C22.2631 26.512 22.1351 27.312 22.1351 28.352C22.1351 29.696 22.4951 30.992 23.2151 32.24C23.9351 33.488 24.9031 34.944 26.1191 36.608C27.5751 38.576 28.7591 40.384 29.6711 42.032C30.5991 43.68 31.0631 45.504 31.0631 47.504C31.0631 48.768 30.9271 49.944 30.6551 51.032C30.3831 52.104 29.9511 53.04 29.3591 53.84C28.7831 54.64 28.0391 55.264 27.1271 55.712C26.2311 56.16 25.1431 56.384 23.8631 56.384ZM40.0819 56.384C38.6579 56.384 37.4739 56.152 36.5299 55.688C35.5859 55.208 34.8419 54.52 34.2979 53.624C33.7539 52.728 33.3619 51.648 33.1219 50.384C32.8979 49.12 32.7859 47.696 32.7859 46.112L37.8739 45.632C37.8739 46.4 37.8979 47.144 37.9459 47.864C38.0099 48.568 38.1139 49.208 38.2579 49.784C38.4179 50.344 38.6419 50.792 38.9299 51.128C39.2339 51.464 39.6179 51.632 40.0819 51.632C40.8499 51.632 41.3939 51.28 41.7139 50.576C42.0339 49.856 42.1939 48.992 42.1939 47.984C42.1939 46.976 41.9299 45.928 41.4019 44.84C40.8739 43.752 40.2419 42.72 39.5059 41.744C38.2579 40.08 37.1619 38.536 36.2179 37.112C35.2899 35.688 34.5619 34.288 34.0339 32.912C33.5219 31.536 33.2659 30.096 33.2659 28.592C33.2659 27.408 33.4179 26.32 33.7219 25.328C34.0259 24.32 34.4659 23.448 35.0419 22.712C35.6339 21.96 36.3459 21.376 37.1779 20.96C38.0099 20.544 38.9619 20.336 40.0339 20.336C41.3619 20.336 42.4819 20.56 43.3939 21.008C44.3219 21.456 45.0659 22.096 45.6259 22.928C46.2019 23.76 46.6179 24.752 46.8739 25.904C47.1459 27.04 47.2819 28.304 47.2819 29.696L42.1939 30.176C42.1939 29.584 42.1619 28.992 42.0979 28.4C42.0499 27.792 41.9539 27.24 41.8099 26.744C41.6659 26.248 41.4579 25.848 41.1859 25.544C40.9139 25.24 40.5619 25.088 40.1299 25.088C39.4579 25.088 38.9939 25.376 38.7379 25.952C38.4819 26.512 38.3539 27.312 38.3539 28.352C38.3539 29.696 38.7139 30.992 39.4339 32.24C40.1539 33.488 41.1219 34.944 42.3379 36.608C43.7939 38.576 44.9779 40.384 45.8899 42.032C46.8179 43.68 47.2819 45.504 47.2819 47.504C47.2819 48.768 47.1459 49.944 46.8739 51.032C46.6019 52.104 46.1699 53.04 45.5779 53.84C45.0019 54.64 44.2579 55.264 43.3459 55.712C42.4499 56.16 41.3619 56.384 40.0819 56.384ZM50.0606 56V20.72H61.9166V26.048H55.2446V35.552H60.0446V40.736H55.2446V50.672H61.9166V56H50.0606ZM65.7638 56V20.72H70.6118L75.4118 39.104L75.8438 40.736H76.1318V20.72H80.8838V56H76.5157L71.2358 37.616L70.8038 35.984H70.5158V56H65.7638ZM88.1573 56V26.048H83.2613V20.72H98.2373V26.048H93.3413V56H88.1573ZM100.639 56V20.72H105.823V56H100.639ZM108.606 56L113.934 20.72H120.27L125.598 56H120.558L119.598 48.8H114.606L113.646 56H108.606ZM115.326 43.328H118.878L117.39 31.472L117.246 29.6H116.958L116.814 31.472L115.326 43.328ZM128.342 56V20.72H133.526V51.2H140.39V56H128.342ZM148.738 56.384C147.314 56.384 146.13 56.152 145.186 55.688C144.242 55.208 143.498 54.52 142.954 53.624C142.41 52.728 142.018 51.648 141.778 50.384C141.554 49.12 141.442 47.696 141.442 46.112L146.53 45.632C146.53 46.4 146.554 47.144 146.602 47.864C146.666 48.568 146.77 49.208 146.914 49.784C147.074 50.344 147.298 50.792 147.586 51.128C147.89 51.464 148.274 51.632 148.738 51.632C149.506 51.632 150.05 51.28 150.37 50.576C150.69 49.856 150.85 48.992 150.85 47.984C150.85 46.976 150.586 45.928 150.058 44.84C149.53 43.752 148.898 42.72 148.162 41.744C146.914 40.08 145.818 38.536 144.874 37.112C143.946 35.688 143.218 34.288 142.69 32.912C142.178 31.536 141.922 30.096 141.922 28.592C141.922 27.408 142.074 26.32 142.378 25.328C142.682 24.32 143.122 23.448 143.698 22.712C144.29 21.96 145.002 21.376 145.834 20.96C146.666 20.544 147.618 20.336 148.69 20.336C150.018 20.336 151.138 20.56 152.05 21.008C152.978 21.456 153.722 22.096 154.282 22.928C154.858 23.76 155.274 24.752 155.53 25.904C155.802 27.04 155.938 28.304 155.938 29.696L150.85 30.176C150.85 29.584 150.818 28.992 150.754 28.4C150.706 27.792 150.61 27.24 150.466 26.744C150.322 26.248 150.114 25.848 149.842 25.544C149.57 25.24 149.218 25.088 148.786 25.088C148.114 25.088 147.65 25.376 147.394 25.952C147.138 26.512 147.01 27.312 147.01 28.352C147.01 29.696 147.37 30.992 148.09 32.24C148.81 33.488 149.778 34.944 150.994 36.608C152.45 38.576 153.634 40.384 154.546 42.032C155.474 43.68 155.938 45.504 155.938 47.504C155.938 48.768 155.802 49.944 155.53 51.032C155.258 52.104 154.826 53.04 154.234 53.84C153.658 54.64 152.914 55.264 152.002 55.712C151.106 56.16 150.018 56.384 148.738 56.384Z" fill="#FDE047"></path><path class="lisp-logo-accent-paths" d="M1.96 18V0.36H4.552V15.6H7.984V18H1.96ZM9.03813 18V0.36H11.6301V18H9.03813ZM16.6816 18.192C15.9696 18.192 15.3776 18.076 14.9056 17.844C14.4336 17.604 14.0616 17.26 13.7896 16.812C13.5176 16.364 13.3216 15.824 13.2016 15.192C13.0896 14.56 13.0336 13.848 13.0336 13.056L15.5776 12.816C15.5776 13.2 15.5896 13.572 15.6136 13.932C15.6456 14.284 15.6976 14.604 15.7696 14.892C15.8496 15.172 15.9616 15.396 16.1056 15.564C16.2576 15.732 16.4496 15.816 16.6816 15.816C17.0656 15.816 17.3376 15.64 17.4976 15.288C17.6576 14.928 17.7376 14.496 17.7376 13.992C17.7376 13.488 17.6056 12.964 17.3416 12.42C17.0776 11.876 16.7616 11.36 16.3936 10.872C15.7696 10.04 15.2216 9.268 14.7496 8.556C14.2856 7.844 13.9216 7.144 13.6576 6.456C13.4016 5.768 13.2736 5.048 13.2736 4.296C13.2736 3.704 13.3496 3.16 13.5016 2.664C13.6536 2.16 13.8736 1.724 14.1616 1.356C14.4576 0.98 14.8136 0.688 15.2296 0.48C15.6456 0.271999 16.1216 0.167999 16.6576 0.167999C17.3216 0.167999 17.8816 0.279999 18.3376 0.503999C18.8016 0.727999 19.1736 1.048 19.4536 1.464C19.7416 1.88 19.9496 2.376 20.0776 2.952C20.2136 3.52 20.2816 4.152 20.2816 4.848L17.7376 5.088C17.7376 4.792 17.7216 4.496 17.6896 4.2C17.6656 3.896 17.6176 3.62 17.5456 3.372C17.4736 3.124 17.3696 2.924 17.2336 2.772C17.0976 2.62 16.9216 2.544 16.7056 2.544C16.3696 2.544 16.1376 2.688 16.0096 2.976C15.8816 3.256 15.8176 3.656 15.8176 4.176C15.8176 4.848 15.9976 5.496 16.3576 6.12C16.7176 6.744 17.2016 7.472 17.8096 8.304C18.5376 9.288 19.1296 10.192 19.5856 11.016C20.0496 11.84 20.2816 12.752 20.2816 13.752C20.2816 14.384 20.2136 14.972 20.0776 15.516C19.9416 16.052 19.7256 16.52 19.4296 16.92C19.1416 17.32 18.7696 17.632 18.3136 17.856C17.8656 18.08 17.3216 18.192 16.6816 18.192ZM21.6709 18V0.36H24.2629C25.2469 0.36 26.0669 0.576 26.7229 1.008C27.3869 1.44 27.8829 2.052 28.2109 2.844C28.5389 3.636 28.7029 4.568 28.7029 5.64C28.7029 6.712 28.5309 7.636 28.1869 8.412C27.8429 9.188 27.3389 9.796 26.6749 10.236C26.0189 10.668 25.2149 10.904 24.2629 10.944V18H21.6709ZM24.2629 8.304C24.7189 8.304 25.0789 8.216 25.3429 8.04C25.6069 7.856 25.7949 7.568 25.9069 7.176C26.0269 6.784 26.0869 6.28 26.0869 5.664C26.0869 5.04 26.0269 4.532 25.9069 4.14C25.7949 3.748 25.6029 3.46 25.3309 3.276C25.0669 3.092 24.7109 3 24.2629 3V8.304ZM37.0036 18.192C35.9716 18.192 35.1196 17.86 34.4476 17.196C33.7836 16.524 33.4516 15.56 33.4516 14.304C33.4516 13.52 33.5556 12.82 33.7636 12.204C33.9796 11.58 34.2396 11.02 34.5436 10.524C34.8556 10.028 35.1556 9.584 35.4436 9.192C35.0276 8.328 34.7156 7.48 34.5076 6.648C34.2996 5.808 34.1956 4.928 34.1956 4.008C34.1956 2.912 34.4636 2 34.9996 1.272C35.5356 0.535999 36.3236 0.167999 37.3636 0.167999C38.3796 0.167999 39.1476 0.527999 39.6676 1.248C40.1876 1.968 40.4476 2.852 40.4476 3.9C40.4476 4.772 40.2156 5.64 39.7516 6.504C39.2876 7.36 38.7236 8.224 38.0596 9.096C38.4436 9.968 38.7716 10.66 39.0436 11.172C39.3156 11.676 39.5636 12.096 39.7876 12.432C39.9476 11.984 40.0716 11.512 40.1596 11.016C40.2556 10.512 40.3156 10.16 40.3396 9.96L42.4036 10.344C42.3476 11.024 42.2076 11.748 41.9836 12.516C41.7596 13.284 41.4996 13.96 41.2036 14.544C41.3636 14.72 41.5596 14.896 41.7916 15.072C42.0236 15.24 42.2276 15.36 42.4036 15.432V18.192C42.1796 18.192 41.9036 18.096 41.5756 17.904C41.2476 17.712 40.9316 17.488 40.6276 17.232C40.3316 16.976 40.1076 16.752 39.9556 16.56C39.5876 17.048 39.1836 17.444 38.7436 17.748C38.3036 18.044 37.7236 18.192 37.0036 18.192ZM37.1236 15.936C37.4516 15.936 37.7276 15.84 37.9516 15.648C38.1756 15.456 38.3876 15.216 38.5876 14.928C38.2676 14.408 37.9396 13.872 37.6036 13.32C37.2756 12.768 36.9236 12.152 36.5476 11.472C36.3716 11.768 36.2276 12.156 36.1156 12.636C36.0036 13.108 35.9476 13.532 35.9476 13.908C35.9476 14.42 36.0436 14.888 36.2356 15.312C36.4276 15.728 36.7236 15.936 37.1236 15.936ZM37.0996 6.888C37.3876 6.44 37.6556 5.952 37.9036 5.424C38.1516 4.896 38.2756 4.4 38.2756 3.936C38.2756 3.464 38.2116 3.064 38.0836 2.736C37.9556 2.4 37.7156 2.232 37.3636 2.232C37.0196 2.232 36.7796 2.404 36.6436 2.748C36.5076 3.092 36.4396 3.5 36.4396 3.972C36.4396 4.468 36.4996 4.96 36.6196 5.448C36.7476 5.936 36.9076 6.416 37.0996 6.888ZM47.6631 18V0.36H53.5911V3.024H50.2551V7.776H52.6551V10.368H50.2551V15.336H53.5911V18H47.6631ZM55.5147 18V0.36H58.8027L60.2187 9.504L60.3387 10.44H60.3867L60.5067 9.504L61.9227 0.36H65.2107V18H62.8107V6.168H62.6667L62.5707 6.912L61.0347 18H59.6907L58.1547 6.912L58.0587 6.168H57.9147V18H55.5147ZM66.5997 18L69.2637 0.36H72.4317L75.0957 18H72.5757L72.0957 14.4H69.5997L69.1197 18H66.5997ZM69.9597 11.664H71.7357L70.9917 5.736L70.9197 4.8H70.7757L70.7037 5.736L69.9597 11.664ZM79.8038 18.192C79.0678 18.192 78.4398 18.028 77.9198 17.7C77.4078 17.364 77.0158 16.908 76.7438 16.332C76.4798 15.756 76.3478 15.104 76.3478 14.376V3.984C76.3478 3.264 76.4838 2.616 76.7558 2.04C77.0358 1.464 77.4358 1.008 77.9558 0.671999C78.4758 0.335999 79.0918 0.167999 79.8038 0.167999C80.3398 0.167999 80.8198 0.267999 81.2438 0.467999C81.6678 0.667999 82.0278 0.943999 82.3238 1.296C82.6278 1.64 82.8598 2.044 83.0198 2.508C83.1798 2.964 83.2598 3.456 83.2598 3.984V6.408H80.8358V3.984C80.8358 3.616 80.7598 3.308 80.6078 3.06C80.4558 2.812 80.2038 2.688 79.8518 2.688C79.5318 2.688 79.2998 2.816 79.1558 3.072C79.0118 3.328 78.9398 3.632 78.9398 3.984V14.376C78.9398 14.728 79.0158 15.032 79.1678 15.288C79.3278 15.544 79.5558 15.672 79.8518 15.672C80.2118 15.672 80.4638 15.548 80.6078 15.3C80.7598 15.052 80.8358 14.744 80.8358 14.376V11.952H83.2598V14.376C83.2598 15.096 83.1198 15.744 82.8398 16.32C82.5598 16.896 82.1598 17.352 81.6398 17.688C81.1278 18.024 80.5158 18.192 79.8038 18.192ZM88.1894 18.192C87.4774 18.192 86.8854 18.076 86.4134 17.844C85.9414 17.604 85.5694 17.26 85.2974 16.812C85.0254 16.364 84.8294 15.824 84.7094 15.192C84.5974 14.56 84.5414 13.848 84.5414 13.056L87.0854 12.816C87.0854 13.2 87.0974 13.572 87.1214 13.932C87.1534 14.284 87.2054 14.604 87.2774 14.892C87.3574 15.172 87.4694 15.396 87.6134 15.564C87.7654 15.732 87.9574 15.816 88.1894 15.816C88.5734 15.816 88.8454 15.64 89.0054 15.288C89.1654 14.928 89.2454 14.496 89.2454 13.992C89.2454 13.488 89.1134 12.964 88.8494 12.42C88.5854 11.876 88.2694 11.36 87.9014 10.872C87.2774 10.04 86.7294 9.268 86.2574 8.556C85.7934 7.844 85.4294 7.144 85.1654 6.456C84.9094 5.768 84.7814 5.048 84.7814 4.296C84.7814 3.704 84.8574 3.16 85.0094 2.664C85.1614 2.16 85.3814 1.724 85.6694 1.356C85.9654 0.98 86.3214 0.688 86.7374 0.48C87.1534 0.271999 87.6294 0.167999 88.1654 0.167999C88.8294 0.167999 89.3894 0.279999 89.8454 0.503999C90.3094 0.727999 90.6814 1.048 90.9614 1.464C91.2494 1.88 91.4574 2.376 91.5854 2.952C91.7214 3.52 91.7894 4.152 91.7894 4.848L89.2454 5.088C89.2454 4.792 89.2294 4.496 89.1974 4.2C89.1734 3.896 89.1254 3.62 89.0534 3.372C88.9814 3.124 88.8774 2.924 88.7414 2.772C88.6054 2.62 88.4294 2.544 88.2134 2.544C87.8774 2.544 87.6454 2.688 87.5174 2.976C87.3894 3.256 87.3254 3.656 87.3254 4.176C87.3254 4.848 87.5054 5.496 87.8654 6.12C88.2254 6.744 88.7094 7.472 89.3174 8.304C90.0454 9.288 90.6374 10.192 91.0934 11.016C91.5574 11.84 91.7894 12.752 91.7894 13.752C91.7894 14.384 91.7214 14.972 91.5854 15.516C91.4494 16.052 91.2334 16.52 90.9374 16.92C90.6494 17.32 90.2774 17.632 89.8214 17.856C89.3734 18.08 88.8294 18.192 88.1894 18.192Z" fill="#FDE047"></path><path class="lisp-logo-accent-paths" d="M146 0V8H104V18H96V0H146ZM157 18H106V10H148V0H157V18Z" fill="#FDE047"></path></svg></div></a></div><p class="book-navigation__chapter-name-heading"><span>13. MONEY LIBRARY</span></p><nav><ul><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#project-setup"><span class="book-navigation__section-link-text">Project Setup</span> <small class="book-navigation__section-link-number">13.1</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#a-money-type"><span class="book-navigation__section-link-text">A Money Type</span> <small class="book-navigation__section-link-number">13.2</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#making-money"><span class="book-navigation__section-link-text">Making Money</span> <small class="book-navigation__section-link-number">13.3</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#improving-ergonomics"><span class="book-navigation__section-link-text">Improving Ergonomics</span> <small class="book-navigation__section-link-number">13.4</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#adding-money"><span class="book-navigation__section-link-text">Adding money</span> <small class="book-navigation__section-link-number">13.5</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#the-rest-of-the-math-functions"><span class="book-navigation__section-link-text">The rest of the math functions</span> <small class="book-navigation__section-link-number">13.6</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#splitting"><span class="book-navigation__section-link-text">Splitting</span> <small class="book-navigation__section-link-number">13.7</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#formatting-for-human-consumption"><span class="book-navigation__section-link-text">Formatting for Human Consumption</span> <small class="book-navigation__section-link-number">13.8</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#adding-currencies"><span class="book-navigation__section-link-text">Adding Currencies</span> <small class="book-navigation__section-link-number">13.9</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#final-package-definition"><span class="book-navigation__section-link-text">Final Package Definition</span> <small class="book-navigation__section-link-number">13.10</small></a></li></ul></nav><div class="book-navigation__previous-and-next"><a href="/book/essentials/the-ecosystem" class="book-navigation__previous-section">&larr; 12. THE ECOSYSTEM</a><a href="/book/essentials/accounting-library" class="book-navigation__next-section">14. ACCOUNTING LIBRARY &rarr;</a></div><form id="theme-select-form"><select id="theme-select" name="theme-select" data-script="on change set $theme to my.value then set @data-theme of document.documentElement to $theme then set localStorage.theme to $theme end on load set $theme to localStorage.theme set @data-theme of document.documentElement to $theme if $theme set document.documentElement.dataset.theme to $theme set my.value to localStorage.theme"><option value="almighty-lisp">almighty-lisp</option><option value="almighty-lisp-moon">almighty-lisp-moon</option><option value="almighty-titan">almighty-titan</option><option value="almighty-titan-moon">almighty-titan-moon</option><option value="almighty-gear">almighty-gear</option><option value="almighty-gear-moon">almighty-gear-moon</option><option value="almighty-macro">almighty-macro</option><option value="almighty-macro-moon">almighty-macro-moon</option><option value="almighty-ena">almighty-ena</option><option value="almighty-ena-moon">almighty-ena-moon</option><option value="almighty-mikasa">almighty-mikasa</option><option value="almighty-mikasa-moon">almighty-mikasa-moon</option><option value="almighty-saga">almighty-saga</option><option value="almighty-saga-moon">almighty-saga-moon</option><option value="almighty-lisp-x">almighty-lisp-x</option><option value="almighty-lisp-x-moon">almighty-lisp-x-moon</option></select></form></div></div><main class="sidebar-main"><article class="book"><section id="money-library"><div class="book-heading-container book-heading-container--1"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--1">13</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h1>MONEY LIBRARY</h1></div></hgroup></div><div class="outline-text-2" id="text-1">
+<p>
+Now that we have covered most of the essentials for Lisp development in Emacs,
+we'll develop a couple of projects to get a little more practice in. You'll be
+able to see how the pieces fit together, how to use features like the CLOS, how
+to get dependency libraries from the Common Lisp ecosystem, etc. Later we'll
+deploy one as a CLI app.
+</p>
+
+<p>
+For this project, we are going to build a simple library for dealing with money
+called <code>almighty-money</code>.
+</p>
+
+<p>
+In our library, money will be an integer with some extras. Money has a
+currency&#x2013;USD, JPY, etc.&#x2013;that both limits how mathematical operations can be
+conducted on it and how it is displayed. You can add 5 to 5, but you can't add 5
+USD into 5 JPY directly. USD is displayed with dollars on the left of a decimal,
+cents on the right: $10.52. 1000 USD is displayed with a comma after the 1:
+$1,000. This is true of every three digits&#x2013;counting from right to left on the
+dollars side. USD uses the $ sign, and it's placed at the beginning of the
+number.
+</p>
+
+<p>
+The math functions that will be implemented for this library are simple: <code>money+</code>,
+<code>money-</code>, <code>money*</code>, <code>money/</code>, <code>money=</code>, <code>money&gt;</code>, <code>money&lt;</code>, and <code>money-split</code>. <code>money-split</code> is
+used for splitting a <code>money</code> <code>amount</code> n ways, while also distributing any remainder
+in the most minor-unit of the currency from left-to-right among the splits.
+</p>
+
+<p>
+We won't be doing any currency conversion here; we just want a way to do simple
+math on numbers that are a little special.
+</p>
+
+<p>
+The library also includes support for US dollars and Japanese yen, demonstrating
+how to extend the library with support for more currencies via <code>print-object</code>,
+<code>format-money</code>, <code>make-money</code>, and helper functions like <code>usd</code> and <code>jpy</code>.
+</p>
+
+<p>
+This library includes some important features for maintaining mathematical
+precision and allows money <code>amount</code> values to be saved and read back from
+databases. <code>money</code> <code>amount</code> values include "guard digits" that are persisted until
+"settling" occurs. When an invoice needs to be created, when a transfer takes
+place, when a discount needs to be applied, etc. the actual "real" or
+"deguarded" <code>amount</code> is created.
+</p>
+
+<p>
+We will use Common Lisp's hash-tables and OOP facilities to make our library
+extensible: I don't know how to display whatever the currency is in El Salvador or
+Poland, but we'll make it easy for someone from there to add support for
+those currencies without modifying our code.
+</p>
+</div>
+<section id="project-setup"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.1</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>Project Setup</h2></div></hgroup></div><div class="outline-text-3" id="text-1-1">
+<p>
+This is going to be a simple project, requiring only one lisp file and a system
+file.
+</p>
+
+<p>
+Make a file named <code>almighty-money.asd</code> in a directory called <code>almighty-money</code>.
+Save that file and make another file in that same directory named
+<code>main.lisp</code>. Save that one, too. Those are the only files we'll need.
+Very small library.
+</p>
+
+<p>
+In <code>almighty-money.asd</code>, add this code:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defsystem "almighty-money"
+  :author "Micah Killian"
+  :version "0.0.1"
+  :description "A Library for Safely Handling Money"
+  :components ((:file "main")))
+</code></pre></div></div></figure>
+
+<p>
+The rest of the code for this project will go inside the <code>main.lisp</code> file.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:almighty-money
+  (:use #:cl))
+(in-package #:almighty-money)
+</code></pre></div></div></figure>
+</div>
+</section>
+<section id="a-money-type"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.2</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>A Money Type</h2></div></hgroup></div><div class="outline-text-3" id="text-1-2">
+<p>
+Let's say that we have two numbers, 5000 and 3000. We want to add those numbers,
+but there's a catch: we need to know that they are the same <i>type</i> of number. If
+we are putting $5,000 and ¥3,000 into our wallet, we want to keep them separate.
+7/11 in Japan doesn't want our dollars, and 7/11 in the US doesn't want our yen,
+so we can't mix them all willy nilly. We need to keep them separate and treat
+them as two entirely different <i>types</i> of money.
+</p>
+
+<p>
+In Common Lisp, to create a new type, we use <code>defclass</code>. So let's create a
+<code>money</code> type:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defclass money ()
+  ((amount :initarg :amount
+           :initform 0
+           :accessor amount
+           :type integer)
+   (currency-code :initarg :currency-code
+                  :initform (error "CURRENCY-CODE required.")
+                  :accessor currency-code
+                  :type string)
+   (minor-digits :initarg :minor-digits
+                 :initform 0
+                 :accessor minor-digits
+                 :type integer))
+  (:documentation "An abstract base class for currencies. Any
+ class that inherits from the `money' class must provide a default
+ `currency-code'
+
+`amount' is an integer. Ex. 1000000. This value reflects the smallest monetary
+unit for each currency. A `money' object with `amount' 5000 and `currency-code'
+\"USD\" means $50.00, or 5,000 cents.
+
+`amount' will internally include some extra `+guard-digits+' to maintain
+accuracy between math operations. `make-money' constructs `money' objects that
+are guarded. `make-money-raw' constructs `money' objects that are unguarded.
+`make-money-raw' is intended for use between math objects on `money' objects,
+and for constructing `money' objects from the guarded values saved in databases.
+
+`currency-code' is a string using the ISO 4217 format. Ex. \"USD\"
+
+`minor-digits' is an integer delimiting how many digits are to the right of the
+ decimal in a currency.
+
+Typically you want to make `money' objects either with `make-money',
+`make-money-raw', or a helper function for a currency."))
+</code></pre></div></div></figure>
+
+<p>
+Although the <code>:type</code> won't be reliably enforced because enforcement is
+implementation dependent, it's still useful as documentation.
+</p>
+
+<p>
+The <code>amount</code> slot is an integer, and it represents the smallest monetary unit for
+its currency. That means that 5000 USD is $50.00 and 5000 JPY is ¥5,000. Since
+we intend to save these values to a database, we won't be able to make use of Common
+Lisp's excellent rational number support.
+</p>
+
+<p>
+<code>currency-code</code>, as it says in the documentation, is a string that uses the ISO
+4217 format, as in "USD", "JPY", "EUR", etc.
+</p>
+
+<p>
+<code>minor-digits</code> refers to the number of digits to the right of the decimal, as in
+USD $3.50&#x2013;with 50 being the minor digits. Since <code>amount</code> holds an integer
+representing the amount using the smallest unit in the currency, $3.50 is
+represented at 350 in the amount slot. <code>minor-digits</code> is used for display
+purposes.
+</p>
+</div>
+</section>
+<section id="making-money"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.3</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>Making Money</h2></div></hgroup></div><div class="outline-text-3" id="text-1-3">
+<p>
+Now, let's try making some money:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(make-instance 'money :amount 4000 :currency-code "USD" :minor-digits 2)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">#&lt;MONEY {700B58CC93}&gt;
+</pre></div></div></div></figure>
+
+
+<p>
+We see one of the downsides of using OOP: the representation of the <code>money</code>
+object in the REPL is unhelpful. We will fix DX problems like that later. For
+now, let's define a <code>make-money</code> function to make the code a bit less verbose:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun make-money (amount &amp;optional (currency-code *default-currency*))
+  "Makes a `money' object of a certain registered currency, applying
+`guarded-amount' to the `amount'. Use this when making fresh `money' objects."
+  (unless (integerp amount)
+    (error 'type-error :datum amount :expected-type 'integer))
+  (unless (stringp currency-code)
+    (error 'type-error :datum currency-code :expected-type 'string))
+  (let* ((registered-currency (get-registered-currency currency-code)))
+    (make-instance registered-currency :amount (guarded-amount amount))))
+</code></pre></div></div></figure>
+
+<p>
+We enforce the type of the <code>amount</code> and <code>currency-code</code> slots here in the
+constructor.
+</p>
+
+<p>
+The default currency is a global variable because we would like users to be able
+to configure it to work easily with their currency. Additionally, we need a way
+for users to be able to register new currencies, and then look up registered currencies.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defparameter *default-currency* "USD")
+
+(defparameter *registered-currencies* (make-hash-table :test #'equalp))
+
+(defun register-currency (currency-code currency-class)
+  "Register a currency that inherits from `money'."
+  (setf (gethash currency-code *registered-currencies*) currency-class))
+
+(defun get-registered-currency (currency-code)
+  (multiple-value-bind (value foundp)
+      (gethash currency-code *registered-currencies*)
+    (unless foundp
+      (error "There is no registered currency with code ~a.~%" currency-code))
+    value))
+</code></pre></div></div></figure>
+
+<p>
+This is a simple way to make this library extensible. People making new
+currencies can just register their currency and our library will find it.
+</p>
+
+<p>
+The <code>guarded-amount</code> function applies the "guard digits" I mentioned in the introduction.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defconstant +guard-digits+ 4)
+
+(defun guarded-amount (amount)
+  "A `money' object `amount' with `+guard-digits+' added to increase precision."
+  (* amount (expt 10 +guard-digits+)))
+</code></pre></div></div></figure>
+
+<p>
+We'll see in a bit how the guard digits look in action when we build the math
+operations.
+</p>
+
+<p>
+Let's add USD as a type:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defclass us-dollar (money)
+  ((currency-code :initform "USD")
+   (minor-digits :initform 2)))
+
+(register-currency "USD" 'us-dollar)
+
+(defun usd (amount)
+  (make-money amount "USD"))
+
+(usd 5000)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">#&lt;US-DOLLAR {700BA1CC73}&gt;
+</pre></div></div></div></figure>
+
+
+<p>
+Again, the printed form of the object isn't very helpful, so let's fix that.
+</p>
+</div>
+</section>
+<section id="improving-ergonomics"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.4</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>Improving Ergonomics</h2></div></hgroup></div><div class="outline-text-3" id="text-1-4">
+<p>
+When we print a <code>money</code> object, it looks like <code>#&lt;US-DOLLAR {7006D80343}&gt;</code>, when what we
+really want is for it to look like <code>#&lt;US-DOLLAR 5000&gt;</code>.
+</p>
+
+<p>
+We do that with the <code>print-object</code> generic function. We can change how an object
+is printed by creating a method specialized on our <code>us-dollar</code> type.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun settled-usd-string (usd)
+  (let* ((cents (settled-amount usd))
+         (scale (expt 10 (minor-digits usd)))
+         (magnitude (abs cents))
+         (major (truncate magnitude scale))
+         (minor (mod magnitude scale)))
+    (format nil "~:[~;-~]$~d.~v,'0d" (minusp cents) major (minor-digits usd) minor)))
+
+(defmethod print-object ((this us-dollar) stream)
+  (print-unreadable-object (this stream :identity t)
+    (format stream "USD ~a ~a" (settled-usd-string this) (amount this))))
+
+(defmethod format-money (stream (this us-dollar))
+  (format stream "~a" (settled-usd-string this)))
+
+(usd 500)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">#&lt;USD $5.00 5000000 {70080B61A3}&gt;
+</pre></div></div></div></figure>
+
+
+<aside class="book-aside"><div class="book-aside-contents"><div class="book-aside-title">Beware Brackets and Braces</div><div class="book-aside-body"><p>
+<code>lispy-mode</code> binds <code>[</code> to <code>lispy-backward</code>. To type brackets in Lisp code, you
+need to type <code>}</code> (to type curly braces, you type <code>{</code> ). Also, be careful typing
+brackets or curly braces outside of strings in Lisp code. If you try to delete
+them with backspace, you often take a whole outer form with it, and if you type
+them at top-level and try to erase them with backspace, you'll get an error
+about Lisp nesting being exceeded.
+</p>
+</div></div></aside>
+
+<p>
+<code>settled-usd-string</code> breaks the <code>settled-amount</code> into "major" and "minor" parts. The
+format string is hardcore, so strap in for the explanation.
+</p>
+
+<p>
+First, there's <code>~:[~;-~]</code>. To understand it, first let's look at a simpler form,
+one without the colon before the left bracket.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(format nil "~[Dude~;Man~;Girl~]" 1)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">Man
+</pre></div></div></div></figure>
+
+
+<p>
+The <code>Tilde Left/Right Brackets</code> can contain an arbitrary number of possible return
+values separated by <code>Tilde semicolon</code>. <code>format</code> will take the argument passed to
+<code>Tilde Brackets</code>, an integer, and format the <code>nth</code> value in the brackets.
+</p>
+
+<p>
+With the colon, however, things are different. In that case, there can only be
+two possibilities or "sections". The first one is chosen if it's passed <code>nil</code>,
+otherwise the second is chosen.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(format nil "~:[Dude~;Man~]" nil)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">Dude
+</pre></div></div></div></figure>
+
+
+<p>
+So now it should be easy to understand what this outputs.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__buffer-cell"><div class="almighty-block__buffer-label"><span class="almighty-block__buffer-label-text">Buffer</span><svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></div><p class="almighty-block__buffer-text">lisp&#x2F;almighty&#x2F;money-library.lisp</p></div></div><div class="almighty-block__cell"><div class="almighty-block__package-cell"><div class="almighty-block__package-label"><span class="almighty-block__package-label-text">Package</span><svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></div><p class="almighty-block__package-text">almighty-money</p></div></div></div><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(format nil "~:[Positive~;Negative~]" (minusp 42))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">Positive
+</pre></div></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><a href="https://novaspec.org/cl/f_minusp"><div class="almighty-block__symbol-cell"><div class="almighty-block__symbol-label"><p class="almighty-block__symbol-text">minusp</p><svg class="almighty-block__link-indicator-icon-svg" width="6" height="6" viewbox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_1589_3763)"><path d="M1.87189 5.25195H1.87439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 5.25195H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 4.12555V4.12305" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.25002 3H3V5.25" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-miterlimit="10" stroke-linecap="square"></path><path d="M5 5H5.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.5 4.5H4.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4 4H4.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M3.5 3.5H3.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 3.00055V2.99805" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 0.751953H5.25061" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.12189 0.751953H4.12439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M2.99939 0.751953H3.00189" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M1.87439 0.751953H1.87689" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 0.750977H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path></g><defs><clippath id="clip0_1589_3763"><rect width="6" height="6" fill="white"></rect></clippath></defs></svg></div><p class="almighty-block__symbol-syntax">real &#x3D;&gt; generalized-boolean</p></div></a></div><div class="almighty-block__cell"><div class="almighty-block__note-cell"><div class="almighty-block__note-label"><span class="almighty-block__note-label-text">Notes</span><svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></div><p class="almighty-block__note-text">plusp is its positive twin.</p></div></div></div></figure>
+
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(format nil "~:[Positive~;Negative~]" (minusp -42))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">Negative
+</pre></div></div></div></figure>
+
+
+<p>
+So we use the value of <code>(minusp cents)</code>, which is the <code>settled-amount</code> before any
+other operations are done on it, to determine whether to put a <code>-</code> before the <code>$</code>,
+which in this case is actually formatted as-is.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(let* ((num -9876)
+       (magnitude (abs num)))
+  (format nil "~:[~;-~]$~d" (minusp num) magnitude))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">-$9876
+</pre></div></div></div></figure>
+
+
+<p>
+The <code>~d</code> directive is used to format a decimal. When it has the colon modifier, it
+will add commas after every three digits.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(let* ((num -9876)
+       (magnitude (abs num)))
+  (format nil "~:[~;-~]$~:d" (minusp num) magnitude))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">-$9,876
+</pre></div></div></div></figure>
+
+
+<p>
+In the case of <code>settled-usd-string</code>, the <code>Tilde D</code> consumes the <code>major</code> value.
+</p>
+
+<p>
+The big finale is that insane <code>~v,'0d</code>. It's actually just the <code>Tilde D</code> again, with
+some options added. Format directives can be modified by optional
+parameters&#x2013;separated by commas&#x2013;and by modifiers <code>COLON</code> or <code>AT-SIGN</code>. For
+<code>Tilde D</code>, we have four possible parameters:
+</p>
+
+<ol class="org-ol">
+<li>mincol</li>
+<li>padchar</li>
+<li>comma</li>
+<li>interval</li>
+</ol>
+
+<p>
+The <code>v</code> actually consumes the <code>(minor-digits usd)</code> value&#x2013;specifying the <code>mincol</code> or
+minimum column width of the <code>Tilde D</code> value. In this case, it is the equivalent of
+<code>~2,'0d</code>, since that is the number of <code>minor-digits</code> for <code>us-dollars</code>. If you write
+<code>~2,'0d</code>, then you can skip the <code>(minor-digits usd)</code>.
+</p>
+
+<p>
+Let's take a tour of the parameters and observe their effects:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(let ((small-num 7)
+      (big-num 987654321)
+      (padding 4))
+  (format t "~%~40a | ~d | ~d"                      "no modifications"                      small-num big-num)
+  (format t "~%~40a | ~4d | ~4d"                    "mincol of 4"                           small-num big-num)
+  (format t "~%~40a | ~4,'xd | ~4,'xd"              "mincol padding using character x"      small-num big-num)
+  (format t "~%~40a | ~v,'xd | ~v,'xd"              "mincol padding specified by argument"  padding small-num padding big-num)
+  (format t "~%~40a | ~v,'x:d | ~v,'x:d"            "colon added"                           padding small-num padding big-num)
+  (format t "~%~40a | ~v,'x,'x:d | ~v,'x,'x:d"      "commas replaced with x"                padding small-num padding big-num)
+  (format t "~%~40a | ~v,'x,'x,1:d | ~v,'x,'x,1:d"  "comma interval set to 1"               padding small-num padding big-num)
+  (format t "~%~40a | ~v,'x@d | ~v,'x,'x,1@d"       "colon replaced with at-sign"           padding small-num padding big-num)
+  (format t "~%~40a | ~v,'x@:d | ~v,'x,'x,1@:d"     "at-sign and colon combined"            padding small-num padding big-num))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">no modifications                         | 7 | 987654321
+mincol of 4                              |    7 | 987654321
+mincol padding using character x         | xxx7 | 987654321
+mincol padding specified by argument     | xxx7 | 987654321
+colon added                              | xxx7 | 987,654,321
+commas replaced with x                   | xxx7 | 987x654x321
+comma interval set to 1                  | xxx7 | 9x8x7x6x5x4x3x2x1
+colon replaced with at-sign              | xx+7 | +987654321
+at-sign and colon combined               | xx+7 | +9x8x7x6x5x4x3x2x1 &#x3D;&gt; NIL
+</pre></div></div></div></figure>
+
+
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(let ((num -9876))
+  (format nil "~2,'0d" num))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">-9876
+</pre></div></div></div></figure>
+
+
+<p>
+But what is the <code>,'0</code>? Comma separates the <code>mincol</code> and <code>padchar</code>&#x2013;the character to
+pad with <i>if the value consumed by <code>~d</code> isn't at least as long as <code>mincol</code>.</i>
+</p>
+
+<p>
+The <code>padchar</code> is, in this case, going to be the character <code>0</code>, which is quoted.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(let ((num -9876))
+  ; Bump MINCOL to 10
+  (format nil "~10,'0d" num))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">00000-9876
+</pre></div></div></div></figure>
+
+
+<p>
+Looks funky, but you get the idea.
+</p>
+
+<p>
+So back to <code>settled-usd-string</code>:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun settled-usd-string (usd)
+  (let* ((cents (settled-amount usd))
+         (scale (expt 10 (minor-digits usd)))
+         (magnitude (abs cents))
+         (major (truncate magnitude scale))
+         (minor (mod magnitude scale)))
+    (format nil "~:[~;-~]$~d.~v,'0d" (minusp cents) major (minor-digits usd) minor)))
+</code></pre></div></div></figure>
+
+<p>
+If <code>(usd 5995)</code> is <code>5995 cents</code> or <code>$59.95</code>, then:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__buffer-cell"><div class="almighty-block__buffer-label"><span class="almighty-block__buffer-label-text">Buffer</span><svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></div><p class="almighty-block__buffer-text">lisp&#x2F;almighty&#x2F;money-library.lisp</p></div></div><div class="almighty-block__cell"><div class="almighty-block__package-cell"><div class="almighty-block__package-label"><span class="almighty-block__package-label-text">Package</span><svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></div><p class="almighty-block__package-text">almighty-money</p></div></div></div><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(expt 10 2)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">100
+</pre></div></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><a href="https://novaspec.org/cl/f_exp"><div class="almighty-block__symbol-cell"><div class="almighty-block__symbol-label"><p class="almighty-block__symbol-text">expt</p><svg class="almighty-block__link-indicator-icon-svg" width="6" height="6" viewbox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_1589_3763)"><path d="M1.87189 5.25195H1.87439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 5.25195H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 4.12555V4.12305" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.25002 3H3V5.25" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-miterlimit="10" stroke-linecap="square"></path><path d="M5 5H5.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.5 4.5H4.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4 4H4.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M3.5 3.5H3.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 3.00055V2.99805" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 0.751953H5.25061" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.12189 0.751953H4.12439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M2.99939 0.751953H3.00189" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M1.87439 0.751953H1.87689" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 0.750977H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path></g><defs><clippath id="clip0_1589_3763"><rect width="6" height="6" fill="white"></rect></clippath></defs></svg></div><p class="almighty-block__symbol-syntax">base-number power-number &#x3D;&gt; result</p></div></a></div></div></figure>
+
+
+<figure class="almighty-block"><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__buffer-cell"><div class="almighty-block__buffer-label"><span class="almighty-block__buffer-label-text">Buffer</span><svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></div><p class="almighty-block__buffer-text">lisp&#x2F;almighty&#x2F;money-library.lisp</p></div></div><div class="almighty-block__cell"><div class="almighty-block__package-cell"><div class="almighty-block__package-label"><span class="almighty-block__package-label-text">Package</span><svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></div><p class="almighty-block__package-text">almighty-money</p></div></div></div><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(truncate 5995 (expt 10 2))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">59
+</pre></div></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><a href="https://novaspec.org/cl/f_floor"><div class="almighty-block__symbol-cell"><div class="almighty-block__symbol-label"><p class="almighty-block__symbol-text">truncate</p><svg class="almighty-block__link-indicator-icon-svg" width="6" height="6" viewbox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_1589_3763)"><path d="M1.87189 5.25195H1.87439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 5.25195H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 4.12555V4.12305" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.25002 3H3V5.25" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-miterlimit="10" stroke-linecap="square"></path><path d="M5 5H5.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.5 4.5H4.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4 4H4.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M3.5 3.5H3.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 3.00055V2.99805" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 0.751953H5.25061" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.12189 0.751953H4.12439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M2.99939 0.751953H3.00189" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M1.87439 0.751953H1.87689" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 0.750977H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path></g><defs><clippath id="clip0_1589_3763"><rect width="6" height="6" fill="white"></rect></clippath></defs></svg></div><p class="almighty-block__symbol-syntax">number [divisor] &#x3D;&gt; quotient, remainder</p></div></a></div></div></figure>
+
+
+<figure class="almighty-block"><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__buffer-cell"><div class="almighty-block__buffer-label"><span class="almighty-block__buffer-label-text">Buffer</span><svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></div><p class="almighty-block__buffer-text">lisp&#x2F;almighty&#x2F;money-library.lisp</p></div></div><div class="almighty-block__cell"><div class="almighty-block__package-cell"><div class="almighty-block__package-label"><span class="almighty-block__package-label-text">Package</span><svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></div><p class="almighty-block__package-text">almighty-money</p></div></div></div><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(mod 5995 100)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">95
+</pre></div></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><a href="https://novaspec.org/cl/f_mod"><div class="almighty-block__symbol-cell"><div class="almighty-block__symbol-label"><p class="almighty-block__symbol-text">mod</p><svg class="almighty-block__link-indicator-icon-svg" width="6" height="6" viewbox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_1589_3763)"><path d="M1.87189 5.25195H1.87439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 5.25195H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 4.12555V4.12305" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.25002 3H3V5.25" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-miterlimit="10" stroke-linecap="square"></path><path d="M5 5H5.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.5 4.5H4.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4 4H4.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M3.5 3.5H3.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 3.00055V2.99805" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 0.751953H5.25061" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.12189 0.751953H4.12439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M2.99939 0.751953H3.00189" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M1.87439 0.751953H1.87689" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 0.750977H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path></g><defs><clippath id="clip0_1589_3763"><rect width="6" height="6" fill="white"></rect></clippath></defs></svg></div><p class="almighty-block__symbol-syntax">number divisor &#x3D;&gt; modulus</p></div></a></div></div></figure>
+
+
+<p>
+We now have our dollars and cents. If we input raw as arguments to <code>format</code>:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(format nil "~:[~;-~]$~d.~v,'0d" nil 59 2 95)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">$59.95
+</pre></div></div></div></figure>
+
+
+<p>
+And if it's <code>(usd 5000)</code>:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(mod 5000 100)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">0
+</pre></div></div></div></figure>
+
+
+<p>
+We have only one zero, hence the need for the padding of n <code>minor-digits</code> with the
+character <code>0</code>.
+</p>
+</div>
+</section>
+<section id="adding-money"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.5</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>Adding money</h2></div></hgroup></div><div class="outline-text-3" id="text-1-5">
+<p>
+The core purpose of this library is this: ensure that only money of the same
+currency is combined or compared mathematically, and that money amounts stay
+precise between many math operations. The implementation of the <code>money+</code> function
+is going to be simple:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun moneyp (x)
+  (typep x 'money))
+
+(defun currencies-match-p (expected received)
+  (eql (class-of expected) (class-of received)))
+
+(defun money+ (&amp;rest moneys)
+  "A function for adding the `amount' values of currency-matching `money' objects."
+  (let ((expected-currency (first moneys)))
+    (unless (moneyp expected-currency)
+      (error 'type-error
+             :expected-type 'money
+             :datum expected-currency))
+    (let ((total (amount expected-currency)))
+      (dolist (current-currency (rest moneys))
+        (unless (moneyp current-currency)
+          (error 'type-error
+                 :expected-type 'money
+                 :datum current-currency))
+        (unless (currencies-match-p expected-currency current-currency)
+          (error 'mismatched-currencies
+                 :expected expected-currency
+                 :received current-currency))
+        (setf total (+ total (amount current-currency))))
+      (make-money-raw total (currency-code expected-currency)))))
+</code></pre></div></div></figure>
+
+<p>
+<code>money+</code> takes an arbitrary number of arguments. We check each argument with
+<code>dolist</code>: in the case where <code>current-currency</code> is of type <code>money</code> and the
+currencies of <code>expected-currency</code> and <code>current-currency</code> match, we add its
+<code>amount</code> to <code>total</code>.
+</p>
+
+<p>
+This function only takes <code>money</code> objects. We try to detect non-money objects early
+by checking if the first argument is <code>moneyp</code>, but we also need to check that
+all of the remaining arguments are also <code>moneyp</code> and that the current currency
+matches the first one. If the currencies of the expected and current currency
+don't match, then <code>money+</code> signals a <code>mismatched-currencies</code> condition.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(define-condition mismatched-currencies (error)
+  ((expected :initarg :expected :initform nil :reader expected)
+   (received :initarg :received :initform nil :reader received))
+  (:report (lambda (c stream)
+             (format stream "Mismatched currencies. Expected ~a, received ~a." (currency-code (expected c)) (currency-code (received c)))))
+  (:documentation "A condition signaled when two objects of type `money' are of different subtypes."))
+</code></pre></div></div></figure>
+
+<p>
+It's not strictly necessary to make a condition. We could just use a simple
+<code>error</code>:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(error "Mismatched currencies. Expected ~a, received ~a." expected-currency current-currency)
+</code></pre></div></div></figure>
+
+<p>
+Having a custom condition saves us the trouble of copying the same error in
+several later functions; convenient but no big deal.
+</p>
+
+<p>
+The real utility is allowing us (sometime later in a different library) or
+others (in their own application code) to act specifically on this condition.
+We aren't going to implement currency conversion functionality in this
+library, but we or others might want to be able to make a currency conversion
+when currencies are mismatched. Or maybe that would be a silly idea. I don't
+know, but I'm leaving that up to the next guy to decide. With a tiny bit of
+effort, I can provide myself and others that flexibility.
+</p>
+
+<p>
+At the end of the <code>money+</code> function, we use <code>make-money-raw</code>.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun make-money-raw (amount &amp;optional (currency-code *default-currency*))
+  "Makes a `money' object of a certain registered currency using the raw amount
+passed. Use this when running math operations between `money' objects or amounts
+  (as persisted in a database, for example) that still contain `+guard-digits+'."
+  (unless (integerp amount)
+    (error 'type-error :datum amount :expected-type 'integer))
+  (unless (stringp currency-code)
+    (error 'type-error :datum currency-code :expected-type 'string))
+  (let ((registered-currency (get-registered-currency currency-code)))
+    (make-instance registered-currency :amount amount))) ; Raw `amount'.
+</code></pre></div></div></figure>
+
+<p>
+We use it because we are taking <i>guarded amounts</i> (<code>money</code> objects that presumably
+have been made with <code>make-money</code> or a helper function like <code>usd</code>), doing math
+operations on those guarded amounts, and then generating new <code>money</code> objects from
+those <i>pre-guarded</i> amounts. If we used <code>make-money</code> here instead, we would add
+another 4 digits to the amount.
+</p>
+</div>
+</section>
+<section id="the-rest-of-the-math-functions"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.6</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>The rest of the math functions</h2></div></hgroup></div><div class="outline-text-3" id="text-1-6">
+<p>
+<code>money-</code> is only going to look a little different:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun money- (&amp;rest moneys)
+  "A function for subtracting the `amount' values of currency-matching `money' objects. If
+passed one `money' object, will negate the `amount'."
+  (let ((expected-currency (first moneys)))
+    (unless (moneyp expected-currency)
+      (error 'type-error :expected-type 'money :datum expected-currency))
+    (let ((total (amount expected-currency)))
+      (cond ((= (length moneys) 1)
+             (make-money-raw (- (amount expected-currency)) (currency-code expected-currency)))
+            (t
+             (dolist (current-currency (rest moneys))
+               (unless (moneyp current-currency)
+                 (error 'type-error
+                        :datum current-currency
+                        :expected-type 'money))
+               (unless (currencies-match-p expected-currency current-currency)
+                 (error 'mismatched-currencies :expected expected-currency
+                                               :received current-currency))
+               (setf total (- total (amount current-currency))))
+             (make-money-raw total (currency-code expected-currency)))))))
+</code></pre></div></div></figure>
+
+<p>
+The only difference here is that we check if there is more than one argument
+passed to <code>money-</code>. If you pass only one argument, then it will negate the
+total.
+</p>
+
+<p>
+<code>money*</code> and <code>money/</code> are nearly identical to each other:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun money* (money &amp;rest multipliers)
+  "A function for multiplying the `amount' of `money' by the `multipliers'."
+  (unless (moneyp money)
+    (error 'type-error 
+           :expected-type 'money 
+           :datum money))
+  (make-money-raw (round (apply #'* (amount money) multipliers)) 
+                  (currency-code money)))
+
+(defun money/ (money divisor)
+  "A function for dividing the `amount' of `money' by the `divisor' integer."
+  (unless (moneyp money)
+    (error 'type-error 
+           :expected-type 'money 
+           :datum money))
+  (make-money-raw (round (amount money) divisor) 
+                  (currency-code money)))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><a href="https://novaspec.org/cl/f_floor"><div class="almighty-block__symbol-cell"><div class="almighty-block__symbol-label"><p class="almighty-block__symbol-text">round</p><svg class="almighty-block__link-indicator-icon-svg" width="6" height="6" viewbox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_1589_3763)"><path d="M1.87189 5.25195H1.87439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 5.25195H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 4.12555V4.12305" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.25002 3H3V5.25" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-miterlimit="10" stroke-linecap="square"></path><path d="M5 5H5.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.5 4.5H4.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4 4H4.0025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M3.5 3.5H3.5025" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 3.00055V2.99805" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 1.87848V1.87598" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M5.24811 0.751953H5.25061" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M4.12189 0.751953H4.12439" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M2.99939 0.751953H3.00189" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M1.87439 0.751953H1.87689" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path><path d="M0.748108 0.750977H0.750608" class="almighty-block__link-indicator-icon-path" stroke-width="0.7" stroke-linecap="square"></path></g><defs><clippath id="clip0_1589_3763"><rect width="6" height="6" fill="white"></rect></clippath></defs></svg></div><p class="almighty-block__symbol-syntax">number [divisor] &#x3D;&gt; quotient, remainder</p></div></a></div></div></figure>
+
+<p>
+Here, we actually allow any type to be passed as an argument as <code>multipliers</code> or
+<code>divisor</code>. It feels a bit odd to multiply currencies into each other, but it does
+make sense to say "double the amount of money" or "apply a 25% discount".
+</p>
+
+<p>
+The important thing to note here is the use of <code>round</code>. If we didn't use <code>round</code>,
+then <code>(money/ (usd 100) 3)</code> would result in an amount of <code>33333.34</code> (guarded). But
+we have the guard, so we can toss the remainder. <code>round</code> also has the additional
+advantage of being a "banker's round": When amounts are in the middle, like <code>2.5</code>
+or <code>3.5</code>, they will round to the nearest <i>even number</i>. That means <code>2.5</code> rounds to <code>2</code>,
+but <code>3.5</code> rounds to <code>4</code>. This sort of rounding is used with accounting because, over
+many transactions, it leads to more or less even distribution of money. And in
+any case, the guard digits will likely prevent the rounding from having a
+meaningful impact on the settled amount.
+</p>
+
+<p>
+Finally, we'll add three more simple math comparison functions:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun comparable-check (money1 money2)
+  (cond
+    ((not (moneyp money1))
+     (error 'type-error :expected-type 'money :datum money1))
+    ((not (moneyp money2))
+     (error 'type-error :expected-type 'money :datum money2))
+    ((not (currencies-match-p money1 money2))
+     (error 'mismatched-currencies :expected money1
+                                   :received money2))))
+(defun money= (money1 money2)
+  "A function to check if the `amount' values of two `money' objects are `='."
+  (comparable-check money1 money2)
+  (= (amount money1) (amount money2)))
+
+(defun money&gt; (money1 money2)
+  "A function that checks if the `amount' of one `money' object is greater than that of
+the other."
+  (comparable-check money1 money2)
+  (&gt; (amount money1) (amount money2)))
+
+(defun money&lt; (money1 money2)
+  "A function that checks if the `amount' of one `money' object is less than that of
+the other."
+  (comparable-check money1 money2)
+  (&lt; (amount money1) (amount money2)))
+</code></pre></div></div></figure>
+
+<p>
+I'm purposefully limiting these functions to only two arguments because I
+can't imagine myself trying to check more than two using any of these
+functions. If you can think of a scenario where checking the equality of 3 or
+more <code>money</code> objects would be useful, let me know.
+</p>
+</div>
+</section>
+<section id="splitting"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.7</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>Splitting</h2></div></hgroup></div><div class="outline-text-3" id="text-1-7">
+<p>
+There are times when you might need to split a certain amount of money into
+smaller, "whole" amounts. For instance, if you need to refund the remaining
+value of a subscription, you might need to know how much each day/month of the
+subscription costs to make the refund. You may need to split the profit from a
+transaction between several parties: yourself, a service provider, an affiliate,
+etc.
+</p>
+
+<p>
+These operations are more complicated, so we will make use of <code>loop</code>.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun money-split (money allocations)
+   "A function for dividing the `amount' of `money' by the percentages of
+`allocations'. `allocations' must be a list of integers that sum to 100.
+
+Ex. (money-split (usd 1000) (list 70 20 10)) =&gt; (#&lt;USD $7.00 7000000
+{7008AC05C3}&gt; #&lt;USD $2.00 2000000 {7008AC0663}&gt; #&lt;USD $1.00 1000000
+{7008AC0703}&gt;)"
+  (unless (moneyp money)
+    (error 'type-error :datum money :expected-type 'money))
+  (let ((divisor (reduce #'+ allocations)))
+    (unless (= 100 divisor)
+      (error "The sum of all ALLOCATIONS must be 100."))
+    (loop :with total := (amount money)
+          :with currency-code := (currency-code money)
+          :for percentage :in allocations
+          :for split := (round (* total percentage) divisor)
+          :collect (make-money-raw split currency-code))))
+
+(defun money-split-evenly (money ways)
+  "A function for dividing the `amount' of `money' n positive `ways'. Returns a list of
+splits, with the remainder (if any) divided as an integer evenly between splits,
+  from left-to-right.
+
+Ex. (money-split-evenly (usd 1000) 3) =&gt; (#&lt;USD $3.34 3340000 {70083B04C3}&gt;
+#&lt;USD $3.33 3330000 {70083B0563}&gt; #&lt;USD $3.33 3330000 {70083B0603}&gt;)"
+  (unless (moneyp money)
+    (error 'type-error :datum money :expected-type 'money))
+  (unless (and (integerp ways)
+               (plusp ways))
+    (error "WAYS must be a positive integer."))
+  (loop :with total := (settled-amount money)
+        :with currency-code := (currency-code money)
+        :with split := (floor (/ total ways))
+        :repeat ways
+        :collect split :into splits
+        :do (setf total (- total split))
+        :finally (return (loop :for s :in splits
+                               :if (&gt;= total 1)
+                                 :collect (make-money
+                                           (1+ s)
+                                           (currency-code money))
+                                   :into allocated
+                                   :and
+                                     :do (setf total (1- total))
+                               :else
+                                 :collect (make-money
+                                           s
+                                           (currency-code money))
+                                   :into allocated
+                               :end
+                               :finally (return allocated)))))
+</code></pre></div></div></figure>
+
+<p>
+<code>money-split</code>'s <code>loop</code> first begins by using <code>:with</code> expressions to bind variables
+that won't be recalculated on every iteration. We could include them in an
+enclosing <code>let</code> form if you wanted, but it's cleaner here. Then very simply we
+apply the percentages to the <code>total</code> and collect the splits as <code>money</code> objects. By
+enforcing the rule that <code>allocations</code> must sum to 100 we make the <code>loop</code> form
+simple.
+</p>
+
+<p>
+For <code>allocations</code>, we accept integers rather than floats so that we can deal with
+large numbers.
+</p>
+
+<p>
+<code>money-split-even</code> is different in one important way: because we generate <i>even</i>
+splits, it's possible that we actually won't have splits that sum to the
+original amount. Let's say we used a simpler version:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun money-split-evenly-broken (money ways)
+  "A function for dividing the `amount' of `money' n positive `ways'. Returns a list of
+splits, with the remainder (if any) divided as an integer evenly between splits,
+  from left-to-right.
+
+Ex. (money-split-evenly (usd 1000) 3) =&gt; (#&lt;USD $3.34 3340000 {70083B04C3}&gt;
+#&lt;USD $3.33 3330000 {70083B0563}&gt; #&lt;USD $3.33 3330000 {70083B0603}&gt;)"
+  (unless (moneyp money)
+    (error 'type-error :datum money :expected-type 'money))
+  (unless (and (integerp ways)
+               (plusp ways))
+    (error "WAYS must be a positive integer."))
+  (loop :with total := (settled-amount money)
+        :with currency-code := (currency-code money)
+        :with split := (floor (/ total ways))
+        :repeat ways
+        :collect (make-money split (currency-code money)) :into splits
+        :do (setf total (- total split))
+        :finally (return (values splits total))))
+
+(money-split-evenly-broken (usd 1000) 3)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">(#&lt;USD $3.33 3330000 {70076A6A33}&gt; #&lt;USD $3.33 3330000 {70076A6AD3}&gt;
+ #&lt;USD $3.33 3330000 {70076A6B73}&gt;)
+1
+</pre></div></div></div></figure>
+
+
+<p>
+As you can see, there is a remainder of 1. If we split $10 evenly between three
+people, we end up with three people having $3.33, but one cent is left over. We
+need a way to divide any remaining money between the <code>splits</code>, so we need a nested
+<code>loop</code> as in <code>money-split-evenly</code>.
+</p>
+
+<p>
+In both functions, we begin the loop by first "settling" the amount.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun settled-amount (money)
+  (round (amount money) (expt 10 +guard-digits+)))
+</code></pre></div></div></figure>
+
+<p>
+Remove the guard and then round. We settle the amount because now we need to
+figure out the final distribution of real, physical money, rather than imaginary
+"millicents" or "centiyens". Next, we decide what a base "split" of the money
+looks like: either a set percentage as in <code>money-split</code>, or a calculated
+percentage as in <code>money-split-evenly</code>. For <code>money-split</code>, the rest is just making a
+new <code>money</code> object with the split values. For <code>money-split-evenly</code>, we subtract the
+split from the <code>total</code>, and then evenly divide any remainder between the splits.
+</p>
+</div>
+</section>
+<section id="formatting-for-human-consumption"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.8</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>Formatting for Human Consumption</h2></div></hgroup></div><div class="outline-text-3" id="text-1-8">
+<p>
+One last important job for our library will be displaying the money amount as
+normal people expect money amounts to be displayed. That means that <code>#&lt;USD
+5000&gt;</code> needs to be formatted as $50.00 and <code>#&lt;JPY 5000&gt;</code> needs to be formatted
+as <code>¥5,000</code>. We want one function to be able to format any currency properly. We
+could have one function with a big <code>cond</code> do that:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun format-money (stream money-obj)
+  (cond ((usdp money-obj) (format-usd money-obj))
+        ((jpyp money-obj) (format-jpy money-obj))
+        ((gbpp money-obj) (format-gbp money-obj))
+        ...))
+</code></pre></div></div></figure>
+
+<p>
+But that has the one downside that it requires updating this one function any
+time we want to add support for a currency to the library. It's not a huge
+burden, it's true, and some people may even prefer it. However, Common Lisp has
+an OOP solution to make our code more extensible: generic functions.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defgeneric format-money (stream currency)
+  (:documentation "A generic function that takes a currency object and formats
+ it in for human consumption."))
+</code></pre></div></div></figure>
+
+<p>
+For USD, it's simple because we already wrote the <code>settled-usd-string</code> function.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defmethod format-money (stream (this us-dollar))
+  (format stream "~a" (settled-usd-string this)))
+</code></pre></div></div></figure>
+
+<p>
+And if we add currencies, all we do is add a method for <code>format-money</code> that uses
+that currency.
+</p>
+</div>
+</section>
+<section id="adding-currencies"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.9</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>Adding Currencies</h2></div></hgroup></div><div class="outline-text-3" id="text-1-9">
+<p>
+The library is "complete", in the sense that it does everything we want it to
+do. One catch: it only works with USD.
+</p>
+
+<p>
+How do we add support for more currencies?
+</p>
+
+<p>
+It's fairly simple. We'll do it with Japanese Yen:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defclass japanese-yen (money)
+  ((currency-code :initform "JPY")
+   (minor-digits :initform 0)))
+
+(register-currency "JPY" 'japanese-yen)
+
+(defun settled-jpy-string (jpy)
+  (let ((settled-amount (settled-amount jpy)))
+    (format nil "~:[~;-~]¥~:d" (minusp settled-amount) settled-amount)))
+
+(defmethod format-money (stream (this japanese-yen))
+  (format stream "~a" (settled-jpy-string this)))
+
+(defmethod print-object ((this japanese-yen) stream)
+  (print-unreadable-object (this stream)
+    (format stream "JPY ~a ~a" (settled-jpy-string this) (amount this))))
+
+(defun jpy (amount)
+  (unless (integerp amount)
+    (error 'type-error :datum amount :expected-type 'integer))
+  (make-money amount "JPY"))
+</code></pre></div></div></figure>
+
+<p>
+We inherit and extend the <code>money</code> class with the <code>japanese-yen</code> class, assigning
+default values to <code>currency-code</code> and <code>minor-digits</code>.
+</p>
+
+<p>
+We register the new currency so that <code>make-money</code> will work properly if called
+like this: <code>(make-money 5000 "JPY")</code>. It's likely that people will only use
+<code>jpy</code>, but who knows?
+</p>
+
+<p>
+We write a <code>settled-jpy-string</code> helper for pretty-printing. Formatting Japanese yen is even easier
+than USD: The lowest and <i>only</i> monetary unit is the yen, so no need for a
+decimal or the yen equivalent of "cents".
+</p>
+
+<p>
+We specialize the <code>format-money</code> and <code>print-object</code> generic functions with
+methods for the new <code>japanese-yen</code> type. 
+</p>
+
+<p>
+Then we make a helper-function to make Japanese Yen.
+</p>
+
+<p>
+Neither we nor future developers will need to modify any existing code; we use
+OOP modularity and extensibility that would make every senior Java developer
+proud.
+</p>
+
+<p>
+And thus, our library is complete and ready to be upgraded with support for
+other currencies in the future.
+</p>
+</div>
+</section>
+<section id="final-package-definition"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">13.10</span><span class="book-subheading__chapter-name">MONEY LIBRARY</span></div><div class="book-heading"><h2>Final Package Definition</h2></div></hgroup></div><div class="outline-text-3" id="text-1-10">
+<p>
+Now that we're finished, make sure you have all of the necessary symbols
+exported so that they're easily accessible to outside of the package.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:almighty-money
+  (:use #:cl)
+  (:export
+   #:*default-currency*
+   #:*registered-currencies*
+   #:register-currency
+   #:get-registered-currency
+   #:money
+   #:amount
+   #:currency-code
+   #:make-money
+   #:moneyp
+   #:currencies-match-p
+   #:mismatched-currencies
+   #:money+
+   #:money-
+   #:money*
+   #:money/
+   #:money-split
+   #:money=
+   #:money&gt;
+   #:money&lt;
+   #:format-money
+   #:usd
+   #:jpy
+   #:make-money-raw
+   #:settled-amount
+   #:minor-digits
+   #:money-split-evenly))
+</code></pre></div></div></figure>
+</div>
+</section>
+</section>
+<div class="book-navigation__next-chapter"><a href="/book/essentials/accounting-library">Next: 14. ACCOUNTING LIBRARY &rarr;</a></div></article></main><button class="toc-viewer">TOC</button><script>HighlightLisp.highlight_auto() ;</script></body></html>

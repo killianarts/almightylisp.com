@@ -15946,18 +15946,18 @@ Usage Example:
                                                                       (p :class "almighty-book-paragraph"
                                                                         "First, let's get our package set up in"
                                                                         (code
-                                                                          "examples/views.lisp")
+                                                                          "almighty-accounting/views.lisp")
                                                                         ".")
                                                                       (figure :class "almighty-code-block"
                                                                         (pre
                                                                           (code :class "almighty-src almighty-src-lisp"
-                                                                            "(defpackage #:examples/views
+                                                                            "(defpackage #:almighty-accounting/views
   (:use #:cl)
-  (:local-nicknames (#:db #:examples/db)
+  (:local-nicknames (#:db #:almighty-accounting/db)
                     (#:lt #:local-time)
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
-(in-package #:examples/views)")))
+(in-package #:almighty-accounting/views)")))
                                                                       (p :class "almighty-book-paragraph"
                                                                         "In here, we're going to create some simple reports. The first one is a general ledger. The most basic kind of accounting report is the general ledger. It simply contains all of the transactions made, detailing the two sides and accounts affected.")
                                                                       (figure :class "almighty-code-block"
@@ -15985,12 +15985,12 @@ Usage Example:
                                                                       (p :class "almighty-book-paragraph"
                                                                         "Let's make"
                                                                         (code
-                                                                          "examples/db.lisp")
+                                                                          "almighty-accounting/db.lisp")
                                                                         "and define the package:")
                                                                       (figure :class "almighty-code-block"
                                                                         (pre
                                                                           (code :class "almighty-src almighty-src-lisp"
-                                                                            "(defpackage #:examples/db
+                                                                            "(defpackage #:almighty-accounting/db
   (:use #:cl)
   (:local-nicknames (#:lt #:local-time)
                     (#:m #:mito)
@@ -15998,7 +15998,7 @@ Usage Example:
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
 
-(in-package #:examples/db)")))
+(in-package #:almighty-accounting/db)")))
                                                                       (p :class "almighty-book-paragraph"
                                                                         "This package will be in charge of helping us work with the database: establishing a connection, select queries, and other \"business logic\" queries.")
                                                                       (figure :class "almighty-code-block"

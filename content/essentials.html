@@ -6329,14 +6329,14 @@ Flags:
                     <span id="cb434-10"><a href="#cb434-10" aria-hidden="true" tabindex="-1"></a>                             (:file <span class="st">&quot;views&quot;</span>)))))</span></code></pre></div>
                 <p>Before we work on our queries, it'll help to know the motivation for getting the data by looking at our views.</p></li>
             <li><p>Views</p>
-                <p>First, let's get our package set up in <code class="verbatim">examples/views.lisp</code>.</p>
-                <div class="sourceCode" id="cb435" data-org-language="lisp"><pre class="sourceCode lisp"><code class="sourceCode lisp"><span id="cb435-1"><a href="#cb435-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defpackage</span><span class="fu"> </span>#:examples/views</span>
+                <p>First, let's get our package set up in <code class="verbatim">almighty-accounting/views.lisp</code>.</p>
+                <div class="sourceCode" id="cb435" data-org-language="lisp"><pre class="sourceCode lisp"><code class="sourceCode lisp"><span id="cb435-1"><a href="#cb435-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defpackage</span><span class="fu"> </span>#:almighty-accounting/views</span>
                     <span id="cb435-2"><a href="#cb435-2" aria-hidden="true" tabindex="-1"></a>  (<span class="bu">:use</span> #:cl)</span>
-                    <span id="cb435-3"><a href="#cb435-3" aria-hidden="true" tabindex="-1"></a>  (:local-nicknames (#:db #:examples/db)</span>
+                    <span id="cb435-3"><a href="#cb435-3" aria-hidden="true" tabindex="-1"></a>  (:local-nicknames (#:db #:almighty-accounting/db)</span>
                     <span id="cb435-4"><a href="#cb435-4" aria-hidden="true" tabindex="-1"></a>                    (#:lt #:local-time)</span>
                     <span id="cb435-5"><a href="#cb435-5" aria-hidden="true" tabindex="-1"></a>                    (#:ak #:almighty-kaikei)</span>
                     <span id="cb435-6"><a href="#cb435-6" aria-hidden="true" tabindex="-1"></a>                    (#:am #:almighty-money)))</span>
-                    <span id="cb435-7"><a href="#cb435-7" aria-hidden="true" tabindex="-1"></a>(<span class="kw">in-package</span> #:examples/views)</span></code></pre></div>
+                    <span id="cb435-7"><a href="#cb435-7" aria-hidden="true" tabindex="-1"></a>(<span class="kw">in-package</span> #:almighty-accounting/views)</span></code></pre></div>
                 <p>In here, we're going to create some simple reports. The first one is a general ledger. The most basic kind of accounting report is the general ledger. It simply contains all of the transactions made, detailing the two sides and accounts affected.</p>
                 <div class="sourceCode" id="cb436" data-org-language="lisp"><pre class="sourceCode lisp"><code class="sourceCode lisp"><span id="cb436-1"><a href="#cb436-1" aria-hidden="true" tabindex="-1"></a><span class="co">;; * ░ VIEWS ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span></span>
                     <span id="cb436-2"><a href="#cb436-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -6354,8 +6354,8 @@ Flags:
                     <span id="cb436-14"><a href="#cb436-14" aria-hidden="true" tabindex="-1"></a>          :finally (<span class="kw">format</span> <span class="kw">t</span> <span class="st">&quot;~%&quot;</span>))))</span></code></pre></div>
                 <p>This function will</p></li>
             <li><p>Queries</p>
-                <p>Let's make <code class="verbatim">examples/db.lisp</code> and define the package:</p>
-                <div class="sourceCode" id="cb437" data-org-language="lisp"><pre class="sourceCode lisp"><code class="sourceCode lisp"><span id="cb437-1"><a href="#cb437-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defpackage</span><span class="fu"> </span>#:examples/db</span>
+                <p>Let's make <code class="verbatim">almighty-accounting/db.lisp</code> and define the package:</p>
+                <div class="sourceCode" id="cb437" data-org-language="lisp"><pre class="sourceCode lisp"><code class="sourceCode lisp"><span id="cb437-1"><a href="#cb437-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defpackage</span><span class="fu"> </span>#:almighty-accounting/db</span>
                     <span id="cb437-2"><a href="#cb437-2" aria-hidden="true" tabindex="-1"></a>  (<span class="bu">:use</span> #:cl)</span>
                     <span id="cb437-3"><a href="#cb437-3" aria-hidden="true" tabindex="-1"></a>  (:local-nicknames (#:lt #:local-time)</span>
                     <span id="cb437-4"><a href="#cb437-4" aria-hidden="true" tabindex="-1"></a>                    (#:m #:mito)</span>
@@ -6363,7 +6363,7 @@ Flags:
                     <span id="cb437-6"><a href="#cb437-6" aria-hidden="true" tabindex="-1"></a>                    (#:ak #:almighty-kaikei)</span>
                     <span id="cb437-7"><a href="#cb437-7" aria-hidden="true" tabindex="-1"></a>                    (#:am #:almighty-money)))</span>
                     <span id="cb437-8"><a href="#cb437-8" aria-hidden="true" tabindex="-1"></a></span>
-                    <span id="cb437-9"><a href="#cb437-9" aria-hidden="true" tabindex="-1"></a>(<span class="kw">in-package</span> #:examples/db)</span></code></pre></div>
+                    <span id="cb437-9"><a href="#cb437-9" aria-hidden="true" tabindex="-1"></a>(<span class="kw">in-package</span> #:almighty-accounting/db)</span></code></pre></div>
                 <p>This package will be in charge of helping us work with the database: establishing a connection, select queries, and other "business logic" queries.</p>
                 <div class="sourceCode" id="cb438" data-org-language="lisp"><pre class="sourceCode lisp"><code class="sourceCode lisp"><span id="cb438-1"><a href="#cb438-1" aria-hidden="true" tabindex="-1"></a><span class="co">;; * ░ UTILS ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span></span>
                     <span id="cb438-2"><a href="#cb438-2" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defmacro</span><span class="fu"> with-universals </span>(bindings &amp;body body)</span>

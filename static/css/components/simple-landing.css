@@ -13,7 +13,7 @@
     --list-margin-bottom: var(--spacing-1);
     --list-margin-left: var(--spacing-3);
 
-    --hero-font-family: var(--font-heading);
+    --hero-font-family: var(--font-league-gothic);
     --hero-text-align: center;
     --hero-header-size: clamp(2rem, 10vw, var(--font-size-7xl));
     --hero-header-line-height: clamp(2rem, 10vw, var(--font-size-6xl));
@@ -102,6 +102,17 @@
         @media (max-width: 799px) {
             width: 100cqi;
         }
+    }
+    .special-subheader {
+        display: block;
+        text-align: center;
+        color: var(--color-accent);
+        font-family: var(--font-heading);
+        font-size: var(--font-size-xl);
+        text-transform: uppercase;
+        text-align: var(--hero-text-align);
+        text-wrap: balance;
+
     }
     .special-header {
         font-family: var(--hero-font-family);
@@ -238,6 +249,9 @@
         }
     }
     .theme-button {
+        --font: var(--font-berkeley-uc);
+        font-family: var(--font);
+        text-transform: uppercase;
         padding: var(--inline-space) var(--block-space);
         background-color: var(--color-canvas-light);
         color: var(--color-ink-light);
@@ -333,6 +347,8 @@
             color: var(--title-color);
         }
         .pricing-card-cta {
+            --clip: 10px;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--clip)), calc(100% - var(--clip)) 100%, 0 100%);
             background-color: var(--cta-bg-color);
             color: var(--cta-text-color);
             padding: var(--cta-padding);

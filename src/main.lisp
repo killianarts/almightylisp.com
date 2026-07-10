@@ -26,13 +26,24 @@
    ("/book" book)
    ("/article" article)
    ("/author" author)
+   ;; ("/palette" palette)
    ("" home)))
 
 (defun setup-database ()
   (ensure-directories-exist #P"db/")
-  (mito:connect-toplevel :sqlite3 :database-name "db/almightylisp.db")
+  (mito:connect-toplevel :sqlite3 :database-name "db/almightylisp2.db")
+  (shiso:ensure-session-table :table-name "shiso_session")
   (dolist (model-name (shiso/models:all-models))
-    (mito:ensure-table-exists (shiso/models:model-class model-name))))
+    (mito:ensure-table-exists (shiso/models:model-class model-name)))
+
+  ;; If you are using Lack's DBI-backed session store (e.g. via shiso/auth/session
+  ;; or directly with (:session :store (lack/session/store/dbi:make-dbi-store ...))
+  ;; with table-name "shiso_session"), make sure the table exists:
+  ;; (shiso:ensure-session-table :table-name "shiso_session")
+  ;;
+  ;; Call it here after the mito connection so the session table is created
+  ;; alongside your models. The lack dbi store itself does not create the table.
+  )
 
 (defun start-server (&key (host (get-env "HOST" "127.0.0.1")) (port (get-env-int "PORT" 5000)) (debugp (envp "DEBUGP")))
   (setup-database)

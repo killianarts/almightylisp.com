@@ -9635,15 +9635,15 @@ Evaluation took:
 </article>
 <article class="almighty-section">
 <h4 id="views" class="almighty-section-title">Views</h4>
-<p class="almighty-book-paragraph">First, let's get our package set up in<code>examples/views.lisp</code>.</p>
+<p class="almighty-book-paragraph">First, let's get our package set up in<code>almighty-accounting/views.lisp</code>.</p>
 <figure class="almighty-code-block">
-<pre><code class="almighty-src almighty-src-lisp">(defpackage #:examples/views
+<pre><code class="almighty-src almighty-src-lisp">(defpackage #:almighty-accounting/views
   (:use #:cl)
-  (:local-nicknames (#:db #:examples/db)
+  (:local-nicknames (#:db #:almighty-accounting/db)
                     (#:lt #:local-time)
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
-(in-package #:examples/views)
+(in-package #:almighty-accounting/views)
 </code></pre>
 </figure>
 <p class="almighty-book-paragraph">In here, we're going to create some simple reports. The first one is a general ledger. The most basic kind of accounting report is the general ledger. It simply contains all of the transactions made, detailing the two sides and accounts affected.</p>
@@ -9669,9 +9669,9 @@ Evaluation took:
 </article>
 <article class="almighty-section">
 <h4 id="queries" class="almighty-section-title">Queries</h4>
-<p class="almighty-book-paragraph">Let's make<code>examples/db.lisp</code> and define the package:</p>
+<p class="almighty-book-paragraph">Let's make<code>almighty-accounting/db.lisp</code> and define the package:</p>
 <figure class="almighty-code-block">
-<pre><code class="almighty-src almighty-src-lisp">(defpackage #:examples/db
+<pre><code class="almighty-src almighty-src-lisp">(defpackage #:almighty-accounting/db
   (:use #:cl)
   (:local-nicknames (#:lt #:local-time)
                     (#:m #:mito)
@@ -9679,7 +9679,7 @@ Evaluation took:
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
 
-(in-package #:examples/db)
+(in-package #:almighty-accounting/db)
 </code></pre>
 </figure>
 <p class="almighty-book-paragraph">This package will be in charge of helping us work with the database: establishing a connection, select queries, and other "business logic" queries.</p>

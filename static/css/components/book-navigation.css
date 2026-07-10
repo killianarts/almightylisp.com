@@ -2,16 +2,18 @@
     --bg-color: var(--color-canvas-alt);
     --book-title-color: var(--color-ink-light);
     --chapter-name-color: var(--color-ink-light);
+    --section-number-font: var(--font-construct-mono);
     --next-previous-bg-color: var(--color-canvas-alt);
     --link-color: var(--color-ink-light);
     --link-color-hover: var(--color-secondary);
     --link-bg-color-hover: var(--color-canvas-alt-highlight);
     --link-gap: var(--inline-space);
-    --link-font-family: var(--font-berkeley-uc);
+    --link-font-family: var(--font-berkeley-uc-thin);
     --span-bg-color: var(--color-canvas-alt);
     --divider-color: var(--color-accent);
     --lisp-logo-accent-color: var(--color-accent);
     --lisp-logo-ink-color: var(--color-ink-light);
+
 
     background-color: var(--bg-color);
     padding-inline: var(--inline-space);
@@ -178,16 +180,15 @@
     }
     .book-navigation__section-link-number {
         font-size: 0.8ch;
+        font-family: var(--section-number-font);
+        text-box: trim-both cap alphabetic;
         order: 2;
         color: var(--color-canvas-soft);
     }
 
     .book-navigation__section-link-text {
+        text-box: trim-both cap alphabetic;
         text-decoration: underline;
-        text-decoration-style: dotted;
-        text-decoration-color: var(--color-canvas-soft);
-        transition: all;
-        transition-duration: 300ms;
         text-wrap: balance;
         &:hover {
             text-decoration-color: var(--link-color-hover);

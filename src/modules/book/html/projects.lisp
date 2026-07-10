@@ -2458,15 +2458,15 @@ data by looking at our views.")))
  (h4 "Views"))
  (div :class "outline-text-5" :id "text-1-2-16-2"
  (p "First, let's get our package set up in "
- (code "examples/views.lisp") ".")
+ (code "almighty-accounting/views.lisp") ".")
  (pre :class "code-block-source-pre"
- (code :class "code-block-source lisp" "(defpackage #:examples/views
+ (code :class "code-block-source lisp" "(defpackage #:almighty-accounting/views
   (:use #:cl)
-  (:local-nicknames (#:db #:examples/db)
+  (:local-nicknames (#:db #:almighty-accounting/db)
                     (#:lt #:local-time)
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
-(in-package #:examples/views)"))
+(in-package #:almighty-accounting/views)"))
  (p "In here, we're going to create some simple reports. The first one is a general
 ledger. The most basic kind of accounting report is the general ledger. It
 simply contains all of the transactions made, detailing the two sides and
@@ -2495,9 +2495,9 @@ accounts affected.")
  (h4 "Queries"))
  (div :class "outline-text-5" :id "text-1-2-16-3"
  (p "Let's make "
- (code "examples/db.lisp") " and define the package:")
+ (code "almighty-accounting/db.lisp") " and define the package:")
  (pre :class "code-block-source-pre"
- (code :class "code-block-source lisp" "(defpackage #:examples/db
+ (code :class "code-block-source lisp" "(defpackage #:almighty-accounting/db
   (:use #:cl)
   (:local-nicknames (#:lt #:local-time)
                     (#:m #:mito)
@@ -2505,7 +2505,7 @@ accounts affected.")
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
 
-(in-package #:examples/db)"))
+(in-package #:almighty-accounting/db)"))
  (p "This package will be in charge of helping us work with the database:
 establishing a connection, select queries, and other \"business logic\" queries.")
  (pre :class "code-block-source-pre"

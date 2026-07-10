@@ -10908,15 +10908,15 @@ Usage Example:
                 (h4 "Views"))
               (div :class "outline-text-5" :id "text-org34f97d2"
                 (p "First, let's get our package set up in "
-                  (code "examples/views.lisp") ".")
+                  (code "almighty-accounting/views.lisp") ".")
                 (pre
-                  (code :class "lisp" "(defpackage #:examples/views
+                  (code :class "lisp" "(defpackage #:almighty-accounting/views
   (:use #:cl)
-  (:local-nicknames (#:db #:examples/db)
+  (:local-nicknames (#:db #:almighty-accounting/db)
                     (#:lt #:local-time)
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
-(in-package #:examples/views)"))
+(in-package #:almighty-accounting/views)"))
                 (p "In here, we're going to create some simple reports. The first one is a general ledger. The most basic kind of accounting report is the general ledger. It simply contains all of the transactions made, detailing the two sides and accounts affected.")
                 (pre
                   (code :class "lisp" ";; * ░ VIEWS ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -10940,9 +10940,9 @@ Usage Example:
                 (h4 "Queries"))
               (div :class "outline-text-5" :id "text-org717e67e"
                 (p "Let's make "
-                  (code "examples/db.lisp") " and define the package:")
+                  (code "almighty-accounting/db.lisp") " and define the package:")
                 (pre
-                  (code :class "lisp" "(defpackage #:examples/db
+                  (code :class "lisp" "(defpackage #:almighty-accounting/db
   (:use #:cl)
   (:local-nicknames (#:lt #:local-time)
                     (#:m #:mito)
@@ -10950,7 +10950,7 @@ Usage Example:
                     (#:ak #:almighty-kaikei)
                     (#:am #:almighty-money)))
 
-(in-package #:examples/db)"))
+(in-package #:almighty-accounting/db)"))
                 (p "This package will be in charge of helping us work with the database: establishing a connection, select queries, and other \"business logic\" queries.")
                 (pre
                   (code :class "lisp" ";; * ░ UTILS ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
