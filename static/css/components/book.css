@@ -136,16 +136,11 @@
         font-size: var(--outline-6-size);
     }
     .book-heading-container {
-        /* padding-block: var(--block-space); */
+        padding-bottom: var(--block-space);
         --dash: 10px;   /* dash length */
         --gap: 5px;     /* gap length */
         --thickness: 1rem;
         --dash-color: color-mix(in srgb, var(--color-canvas-alt) 25%, transparent);
-        /* background: repeating-linear-gradient( */
-        /*     90deg, */
-        /*     var(--dash-color) 0 var(--dash), */
-        /*     transparent var(--dash) calc(var(--dash) + var(--gap)) */
-        /* ) */;
     }
     .book-heading-container:has(.heading-number--1) {
         width: calc(100dvw);
@@ -298,10 +293,21 @@
         margin-left: calc(var(--inline-space) * 2);
     }
     li {
+        list-style-position: inside;
         line-height: 1.5;
+        --size: var(--font-size-lg);
+        font-size: var(--size);
+        @container book-container (width <= 80ch) {
+            --size: var(--font-size-lg);
+        }
+        @container book-container (width <= 50ch) {
+            --size: var(--font-size-sm);
+        }
     }
     li::marker {
+
         color: var(--color-accent);
+        font-family: var(--font-construct-mono);
     }
     .table-container {
         overflow-x: auto;

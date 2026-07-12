@@ -28,8 +28,8 @@
     --emphasis-color: var(--color-secondary);
 
     --cta-font-size: var(--font-size-2xl);
-    --cta-font-family: var(--font-code-condensed);
-    --link-font-family: var(--font-code);
+    --cta-font-family: var(--font-link);
+    --link-font-family: var(--font-link);
     --link-color: var(--color-accent);
     --link-hover-color: var(--color-secondary);
     --link-hover-shadow-color: var(--color-canvas-dark);

@@ -196,8 +196,7 @@
 .almighty-block__cell:has(.almighty-block__result-cell--error) {
     --color: var(--color-danger);
     --opacity: 20%;
-    --line-width: 7
-                  px;
+    --line-width: 7px;
     --line-gap: 3px; 
     background-image: repeating-linear-gradient(
         -45deg,
