@@ -290,7 +290,7 @@ p.almighty-block__symbol-text {
     filter: drop-shadow(var(--drop-shadow));
     padding: var(--inline-space);
     padding-left: calc(var(--cell-padding) + 3px);
-    padding-bottom: calc(var(--inline-space) - 3px)
+    padding-top: calc(var(--inline-space) - 3px)
 }
 
 .almighty-block__pre .almighty-block__code.hl-highlighted {
