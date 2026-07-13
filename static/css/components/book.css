@@ -143,7 +143,7 @@
         --dash-color: color-mix(in srgb, var(--color-canvas-alt) 25%, transparent);
     }
     .book-heading-container:has(.heading-number--1) {
-        width: calc(100dvw);
+        width: calc(100dvw - var(--book-left-padding) var(--book-right-padding));
         background: none;
     }
     .book-heading-group {
