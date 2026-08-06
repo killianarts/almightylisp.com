@@ -22,7 +22,7 @@
     --color-canvas-1200: oklch(0.06 0 0);
 
     --color-canvas-lighter: var(--color-canvas-600);
-    --color-canvas-light: var(--color-canvas-700);
+    --color-canvas-light: var(--color-canvas-300);
     --color-canvas: var(--color-white);
     --color-canvas-dark: var(--color-canvas-200);
     --color-canvas-darker: var(--color-canvas-1000);
@@ -68,7 +68,7 @@
     --color-accent-900: var(--color-canvas-800);
     --color-accent-1000: var(--color-canvas-1000);
 
-    --color-accent: var(--color-ink);
+    --color-accent: var(--color-accent-700);
     --color-accent-light: var(--color-accent-50);
     --color-accent-dark: var(--color-accent-900);
     --color-accent-soft: var(--color-accent-400);

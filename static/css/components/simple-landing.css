@@ -270,6 +270,10 @@
         }
     }
 
+    html[data-theme:"almighty-mono"] .theme-button {
+        background-color: red;
+    }
+
     .purchase-themes {
         display: grid;
         grid-template-columns: 1fr 2fr;
