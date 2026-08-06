@@ -532,14 +532,14 @@ body {
     transition-duration: 300ms;
 
     /* Film-grain noise — tunable overlay drawn by body::before (currently off). */
-    --noise-color: var(--color-canvas-alt);  /* grain tint (any color / theme var) */
+    --noise-color: var(--color-canvas-darker);  /* grain tint (any color / theme var) */
     --noise-opacity: 0.20;   /* overall strength (0 = off) */
     --noise-size: 160px;     /* tile size; smaller = finer, busier grain */
     --noise-z: 9998;         /* just below the scanlines */
     --noise-anim-duration: 0.1s;  /* full flicker cycle; lower = more frantic */
 
     /* CRT scanlines — animated overlay drawn by body::after (see below). */
-    --scanline-color: color-mix(in srgb, var(--color-canvas-alt) 15%, transparent);
+    --scanline-color: color-mix(in srgb, var(--color-canvas-darker) 15%, transparent);
     --scanline-thickness: 1px;   /* height of each dark line */
     --scanline-gap: 2px;         /* transparent space between lines */
     --scanline-opacity: 0.35;    /* overall strength of the effect */

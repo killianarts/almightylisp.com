@@ -37,8 +37,13 @@
                (a :class "cta" :href "book/essentials" "Learn Lisp & Emacs Immediately"))))
          (section :class "whats-new"
            (div :class "container"
-             (span :class "special-subheader" "JULY 2026 UPDATE")
              (h1 :class "special-header" "WHAT'S " (em "NEW"))
+             (span :class "special-subheader" "AUGUST 2026 UPDATE")
+             (p "The ebook (PDF) version of " (em "Almighty Lisp: Lisp & Emacs Essentials")
+               " has been published and is available for purchase for $5.")
+             (a :class "cta" :href "https://almightylisp.gumroad.com/l/almighty-lisp-lisp-and-emacs-essentials-ebook" "Purchase Ebook"))
+           (div :class "container"
+             (span :class "special-subheader" "JULY 2026 UPDATE")
              (p "Big news, almighty bros: " (em "Almighty Lisp: Lisp & Emacs Essentials")
                " has received a major update, the Almighty Lisp Theme Pack 1 is also getting updated, and a second " (em "Almighty Lisp") " theme pack is coming along for the ride."))
            (div :class "container fullwidth"
@@ -264,7 +269,11 @@ the colors on this site may not match exactly on Emacs.")
                    (label :class "theme-button"
                      (input :type "radio" :name "theme" :id "almighty-saga" :value "almighty-saga") "almighty-saga")
                    (label :class "theme-button"
-                     (input :type "radio" :name "theme" :id "almighty-saga-moon" :value "almighty-saga-moon") "almighty-saga-moon")))
+                     (input :type "radio" :name "theme" :id "almighty-saga-moon" :value "almighty-saga-moon") "almighty-saga-moon")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-mono" :value "almighty-mono") "almighty-mono")
+                   (label :class "theme-button"
+                     (input :type "radio" :name "theme" :id "almighty-mono-moon" :value "almighty-mono-moon") "almighty-mono-moon")))
                (div
                  (figure :class "almighty-block"
                    (div :class "almighty-block__source-row"

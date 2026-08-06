@@ -76,7 +76,9 @@
                (option :value "almighty-lisp-x"       "almighty-lisp-x")
                (option :value "almighty-lisp-x-moon"  "almighty-lisp-x-moon")
                (option :value "almighty-saga"            "almighty-saga")
-               (option :value "almighty-saga-moon"       "almighty-saga-moon"))))))))))
+               (option :value "almighty-saga-moon"       "almighty-saga-moon")
+               (option :value "almighty-mono"            "almighty-mono")
+               (option :value "almighty-mono-moon"       "almighty-mono-moon"))))))))))
 
 ;; TODO Move this API into Shiso
 (defun query-param (key)

@@ -27,7 +27,6 @@
    ("/book" book)
    ("/article" article)
    ("/author" author)
-   ;; ("/palette" palette)
    ("" home)))
 
 (defun setup-database ()

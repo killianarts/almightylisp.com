@@ -1,0 +1,107 @@
+/* almighty-mono-moon — pure black & white, deeper night (like other *-moon).
+   Same zero-chroma ramp as almighty-mono; page canvas sits on 1200. */
+
+[data-theme="almighty-mono-moon"] {
+    --color-black: oklch(var(--tw-lch-black));
+    --color-white: oklch(var(--tw-lch-white));
+
+    --color-canvas-50: oklch(0.985 0 0);
+    --color-canvas-100: oklch(0.97 0 0);
+    --color-canvas-200: oklch(0.922 0 0);
+    --color-canvas-300: oklch(0.87 0 0);
+    --color-canvas-400: oklch(0.705 0 0);
+    --color-canvas-500: oklch(0.552 0 0);
+    --color-canvas-600: oklch(0.442 0 0);
+    --color-canvas-700: oklch(0.37 0 0);
+    --color-canvas-800: oklch(0.274 0 0);
+    --color-canvas-900: oklch(0.21 0 0);
+    --color-canvas-1000: oklch(0.141 0 0);
+    --color-canvas-1100: oklch(0.10 0 0);
+    --color-canvas-1200: oklch(0.06 0 0);
+
+    --color-canvas-lighter: var(--color-canvas-800);
+    --color-canvas-light: var(--color-canvas-1000);
+    --color-canvas: var(--color-canvas-1200);
+    --color-canvas-dark: oklch(0.04 0 0);
+    --color-canvas-darker: oklch(0.02 0 0);
+    --color-canvas-soft: var(--color-canvas-600);
+    --color-canvas-alt: var(--color-canvas-dark);
+    --color-canvas-alt-highlight: var(--color-canvas-light);
+
+    --color-ink: var(--color-canvas-1000);
+    --color-ink-light: var(--color-canvas-100);
+    --color-ink-shadow: var(--color-canvas-darker);
+    --color-ink-alt: var(--color-canvas-400);
+    --color-ink-muted: var(--color-canvas-500);
+
+    --color-secondary-50: var(--color-canvas-50);
+    --color-secondary-100: var(--color-canvas-100);
+    --color-secondary-200: var(--color-canvas-200);
+    --color-secondary-300: var(--color-canvas-300);
+    --color-secondary-400: var(--color-canvas-400);
+    --color-secondary-500: var(--color-canvas-500);
+    --color-secondary-600: var(--color-canvas-600);
+    --color-secondary-700: var(--color-canvas-700);
+    --color-secondary-800: var(--color-canvas-800);
+    --color-secondary-900: var(--color-canvas-900);
+    --color-secondary-1000: var(--color-canvas-1000);
+
+    --color-secondary: var(--color-secondary-400);
+    --color-secondary-light: var(--color-secondary-50);
+    --color-secondary-dark: var(--color-secondary-900);
+    --color-secondary-darker: var(--color-secondary-1000);
+    --color-secondary-soft: var(--color-secondary-500);
+
+    --color-accent-50: var(--color-canvas-50);
+    --color-accent-100: var(--color-canvas-100);
+    --color-accent-200: var(--color-canvas-200);
+    --color-accent-300: var(--color-canvas-200);
+    --color-accent-400: var(--color-canvas-300);
+    --color-accent-500: var(--color-canvas-400);
+    --color-accent-600: var(--color-canvas-500);
+    --color-accent-700: var(--color-canvas-600);
+    --color-accent-800: var(--color-canvas-700);
+    --color-accent-900: var(--color-canvas-800);
+    --color-accent-1000: var(--color-canvas-1000);
+
+    --color-accent: var(--color-accent-300);
+    --color-accent-light: var(--color-accent-50);
+    --color-accent-dark: var(--color-accent-900);
+    --color-accent-soft: var(--color-accent-400);
+
+    --color-danger-50: var(--color-canvas-50);
+    --color-danger-100: var(--color-canvas-100);
+    --color-danger-200: var(--color-canvas-200);
+    --color-danger-300: var(--color-canvas-300);
+    --color-danger-400: var(--color-canvas-400);
+    --color-danger-500: var(--color-canvas-500);
+    --color-danger-600: var(--color-canvas-600);
+    --color-danger-700: var(--color-canvas-700);
+    --color-danger-800: var(--color-canvas-800);
+    --color-danger-900: var(--color-canvas-900);
+    --color-danger-1000: var(--color-canvas-1000);
+
+    --color-danger-lighter: var(--color-danger-300);
+    --color-danger-light: var(--color-danger-400);
+    --color-danger: var(--color-danger-500);
+    --color-danger-dark: var(--color-danger-600);
+    --color-danger-darker: var(--color-danger-700);
+    --color-danger-soft: var(--color-accent-400);
+
+    --color-safe-50: var(--color-canvas-50);
+    --color-safe-100: var(--color-canvas-100);
+    --color-safe-200: var(--color-canvas-200);
+    --color-safe-300: var(--color-canvas-300);
+    --color-safe-400: var(--color-canvas-400);
+    --color-safe-500: var(--color-canvas-500);
+    --color-safe-600: var(--color-canvas-600);
+    --color-safe-700: var(--color-canvas-700);
+    --color-safe-800: var(--color-canvas-800);
+    --color-safe-900: var(--color-canvas-900);
+    --color-safe-1000: var(--color-canvas-1000);
+
+    --color-safe: var(--color-safe-400);
+    --color-safe-light: var(--color-safe-50);
+    --color-safe-dark: var(--color-safe-900);
+    --color-safe-soft: var(--color-accent-400);
+}

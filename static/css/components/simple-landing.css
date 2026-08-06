@@ -145,6 +145,7 @@
     
     .container {
         margin-inline: auto;
+        margin-block: var(--spacing-5);
         max-width: var(--max-width);
         padding-inline: var(--spacing-1);
         @media (min-width: 639px) {
