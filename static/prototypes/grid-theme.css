@@ -1,0 +1,419 @@
+/* ==========================================================================
+   ALMIGHTY LISP — shared theme for the grid prototypes.
+   An online magazine, drawn as a technical sheet. Greyscale only; colour
+   comes later. Each page links this file and keeps its own layout inline.
+
+   Every rule in the layout is a 1px gap in a CSS grid laid over a black
+   underlay, so hairlines can never double up, drift half a pixel, or
+   disagree about who owns the border.
+
+   Eight faces, split by what the words are for:
+     Bitcount Grid Single — the nameplate. A face drawn on a grid of square
+                       elements, so the page's thesis is stated by the type.
+     Science Gothic  — the lead headline, and nothing else. Width 58, wt 900.
+     Rockwell        — titles: headlines below the lead, the tagline,
+                       section headings.
+     Avenir Next Cd. — preview text (deks, summaries), and anything a person
+                       clicks or scans: buttons, links, bylines.
+     Avenir Next     — body text: the article itself and its notes.
+     Bodoni 72 SmCa. — field names and section labels. Real small caps, so
+                       none of them needs faking with text-transform.
+     Construct Mono  — measurements: dates, reading times, counts.
+     Berkeley Mono   — code, and only code.
+
+   Avenir Next, Avenir Next Condensed and Rockwell are macOS system faces,
+   not webfonts; on a machine without them the stacks below fall back rather
+   than break.
+   ========================================================================== */
+
+:root{
+  --paper:  #ffffff;
+  --sheet:  #f0f0ef;   /* recessed cells */
+  --ink:    #000000;
+  --mid:    #6b6b6b;
+  --faint:  #c9c9c9;
+  --dark-rule:#333333; /* hairlines inside reversed panels */
+  --dark-mid: #b4b4b4;
+
+  --plate: "Bitcount Grid Single", "Berkeley Mono Black", ui-monospace, monospace;
+  --disp:  "Science Gothic", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --text:  Rockwell, "Rockwell Nova", "Bodoni 72", Georgia, serif;
+  --oper:  "Avenir Next Condensed", "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
+  --body:  "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --caps:  "Bodoni 72 Smallcaps", "Bodoni 72", Didot, Georgia, serif;
+  --draft: "Construct Mono", ui-monospace, monospace;
+  --code:  "Berkeley Mono", ui-monospace, Menlo, monospace;
+
+  --rule: 1px;                       /* the lattice gap */
+  --pad:  clamp(1rem, 2.2vw, 2rem);
+  --tag:  0.6875rem;                 /* 11px floor, stencil */
+  --cap:  0.8125rem;                 /* Bodoni small caps need the extra 2px */
+}
+
+*,*::before,*::after{ box-sizing:border-box }
+html{ -webkit-text-size-adjust:100% }
+body{
+  margin:0;
+  background:var(--sheet);
+  color:var(--ink);
+  font-family:var(--text);
+  font-size:1rem;
+  line-height:1.5;
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,p{ margin:0 }
+p{ text-wrap:pretty }
+.hed,.brief h2,.recent__title{ text-wrap:balance }
+ul,ol{ margin:0; padding:0; list-style:none }
+a{ color:inherit; text-decoration:none }
+/* Code is set in Berkeley Mono with its ligatures off: in a Lisp listing,
+   >= has to read as the two characters you type, not as a maths symbol. */
+code,kbd,pre,samp{ font-family:var(--code); font-variant-ligatures:none;
+  font-feature-settings:"liga" 0, "calt" 0, "dlig" 0 }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px }
+
+/* ── the sheet ─────────────────────────────────────────────────────────────
+   One black rectangle. Grid gaps expose it as rules; cells paint over it.   */
+.sheet{
+  width:min(1600px, 100%);
+  margin-inline:auto;
+  background:var(--ink);
+  border:var(--rule) solid var(--ink);
+  display:grid;
+  gap:var(--rule);
+}
+/* Grid items default to min-width:auto, which would let a long nameplate or
+   headline push the whole sheet wider than the screen. Every level of the
+   lattice opts out. */
+.sheet > *{ min-width:0 }
+
+/* Sections stack their bands through the same lattice, so the rules between
+   them are the same 1px gap as everything else. */
+.sheet > header,
+.sheet > section{
+  display:grid;
+  gap:var(--rule);
+  background:var(--ink);
+}
+
+/* Every horizontal band is a 12-column lattice. */
+.band{
+  display:grid;
+  grid-template-columns:repeat(12, 1fr);
+  gap:var(--rule);
+  background:var(--ink);
+  min-width:0;
+}
+.cell{
+  background:var(--paper);
+  padding:var(--pad);
+  min-width:0;
+}
+
+/* ── grid furniture ────────────────────────────────────────────────────────
+   Drawing devices built from gradients, so they scale to any cell and cost
+   nothing to load. They paint in currentColor, so the same class works on
+   white paper and inside a reversed panel.                                  */
+
+/* A decoration layer that fills its cell and never takes a click. */
+.deco{ position:absolute; inset:0; pointer-events:none }
+
+/* Pixel grid — the nameplate's graph paper continued on the same 28px module,
+   so both halves of the plate band are ruled by one grid. */
+.pixels{
+  background-image:
+    linear-gradient(to right, currentColor var(--rule), transparent var(--rule)),
+    linear-gradient(to bottom, currentColor var(--rule), transparent var(--rule));
+  background-size:28px 28px;
+}
+/* Dither — a 1-bit checkerboard dissolving across the cell, the way a screen
+   with no greys fades a tone. Masked rather than faded, so the squares stay
+   squares right down to the last one. */
+.dither{
+  background-image:repeating-conic-gradient(currentColor 0 25%, transparent 0 50%);
+  background-size:8px 8px;
+  -webkit-mask-image:linear-gradient(225deg, #000 8%, transparent 70%);
+  mask-image:linear-gradient(225deg, #000 8%, transparent 70%);
+}
+
+/* Registration marks — a diagonal pair of corner brackets. */
+.marks{ position:relative }
+.marks::before,.marks::after{
+  content:""; position:absolute; width:14px; height:14px; pointer-events:none;
+}
+.marks::before{ top:10px; right:10px;
+  border-top:2px solid currentColor; border-right:2px solid currentColor }
+.marks::after{ bottom:10px; left:10px;
+  border-bottom:2px solid currentColor; border-left:2px solid currentColor }
+
+/* ── shared vocabulary ─────────────────────────────────────────────────── */
+
+/* Title block: the strip that identifies a cell. Name in Bodoni small caps,
+   reading time in the draughtsman's stencil — an online reader's folio. */
+.titleblock{
+  display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
+  font-family:var(--caps); font-size:var(--cap); letter-spacing:.1em;
+  line-height:1;
+  padding-bottom:.75rem; margin-bottom:1.25rem;
+  border-bottom:var(--rule) solid var(--faint);
+}
+.titleblock .no{
+  font-family:var(--draft); font-size:var(--tag); letter-spacing:.14em;
+  color:var(--mid);
+}
+
+.btn{
+  display:inline-block;
+  font-family:var(--oper); font-size:1rem; font-weight:600;
+  letter-spacing:.09em; text-transform:uppercase; line-height:1;
+  background:var(--ink); color:var(--paper);
+  border:var(--rule) solid var(--ink);
+  padding:1.0625rem 1.75rem;
+}
+.btn:hover,.btn:focus-visible{ background:var(--paper); color:var(--ink) }
+
+/* Plastic pill: a gel button from the Aqua years, in graphite. The only
+   rounded, shaded object on a flat sheet, so it is unmistakably the thing to
+   press. Built in layers, back to front:
+     body     — a dark vertical gradient, lit at the top and bottom edges
+     caustic  — light pooling inside the bottom of the gel
+     rim      — a hairline highlight around the inside of the border
+     gloss    — ::before, the reflection across the top half
+   The gloss sits under the label (z-index -1 inside an isolated button). */
+.btn--plastic{
+  position:relative; isolation:isolate;
+  border:1px solid #000; border-radius:999px;
+  padding:1.0625rem 2.375rem 1rem;
+  color:#fff;
+  text-shadow:0 -1px 0 rgba(0,0,0,.7);
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 100%, rgba(255,255,255,.34), rgba(255,255,255,0) 70%),
+    linear-gradient(to bottom, #5c5c5c 0%, #2a2a2a 48%, #0b0b0b 52%, #151515 78%, #333 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.28),
+    inset 0 0 0 1px rgba(255,255,255,.07),
+    inset 0 -1px 2px rgba(255,255,255,.22),
+    0 1px 1px rgba(0,0,0,.35),
+    0 3px 6px rgba(0,0,0,.28);
+}
+.btn--plastic::before{
+  content:""; position:absolute; z-index:-1; pointer-events:none;
+  top:2px; left:7%; right:7%; height:47%;
+  border-radius:999px 999px 45% 45% / 999px 999px 35% 35%;
+  background:linear-gradient(to bottom, rgba(255,255,255,.78), rgba(255,255,255,.12));
+}
+/* Hover: the gel lights from inside, the way it did under the pointer. */
+.btn--plastic:hover{
+  color:#fff;
+  background:
+    radial-gradient(ellipse 80% 65% at 50% 100%, rgba(255,255,255,.6), rgba(255,255,255,0) 72%),
+    linear-gradient(to bottom, #767676 0%, #3e3e3e 48%, #1c1c1c 52%, #2a2a2a 78%, #4c4c4c 100%);
+}
+/* Pressed: the gel sinks, the reflection dims and the light moves inside. */
+.btn--plastic:active{
+  transform:translateY(1px);
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 100%, rgba(255,255,255,.2), rgba(255,255,255,0) 70%),
+    linear-gradient(to bottom, #1a1a1a 0%, #262626 48%, #060606 52%, #111 78%, #2a2a2a 100%);
+  box-shadow:
+    inset 0 2px 5px rgba(0,0,0,.7),
+    inset 0 -1px 2px rgba(255,255,255,.14),
+    0 1px 0 rgba(255,255,255,.4);
+}
+.btn--plastic:active::before{ opacity:.45 }
+.btn--plastic:focus-visible{ color:#fff; outline:2px solid var(--ink); outline-offset:3px }
+
+/* Voxel: a button theme of its own. No pill and no gel: the words are the
+   button, drawn as isometric pixel art by voxel-label.py and standing up off
+   the paper, so the raised letters are what says "press". Every pixel of a
+   3x5 font is a cube with a near-white top, a bright front and a grey
+   side, and every letter has a black cartoon outline.
+   Under the pointer the letters lift a layer; pressed, they sink to one.
+   The words are also in a visually hidden span, so the link has a name. */
+/* No side padding, so the letters line up with the text column's edge. */
+.voxel-btn{ display:inline-block; padding:.5rem 0; line-height:0 }
+.voxel-btn .voxel{ display:block; height:auto; max-width:100% }
+.voxel__lift,.voxel__held{ display:none }
+.voxel-btn:hover .voxel__rest{ display:none }
+.voxel-btn:hover .voxel__lift{ display:inline }
+.voxel-btn:active .voxel__rest,
+.voxel-btn:active .voxel__lift{ display:none }
+.voxel-btn:active .voxel__held{ display:inline }
+.voxel-btn:focus-visible{ outline:2px solid var(--ink); outline-offset:4px }
+
+/* Text for assistive technology only. */
+.sr-only{
+  position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0;
+  overflow:hidden; clip-path:inset(50%); white-space:nowrap;
+}
+.byline{ font-family:var(--oper); font-size:.9375rem; color:var(--mid);
+          letter-spacing:.01em; line-height:1.4 }
+.byline b{ color:var(--ink); font-weight:600 }
+
+/* ── masthead ──────────────────────────────────────────────────────────── */
+
+/* The strip breaks at columns 4 and 8 and the plate band at 9. Pages keep
+   their own rules on those lines, which is what makes each one read as a
+   single drawing. */
+.strip .cell{
+  grid-column:span 4;
+  padding-block:.75rem;
+  font-family:var(--draft); font-size:var(--tag); letter-spacing:.14em;
+  text-transform:uppercase; line-height:1.4;
+}
+.strip .cell:last-child{ text-align:right }
+
+.plate__name{
+  grid-column:1 / 9;
+  display:flex; flex-direction:column; justify-content:space-between;
+  align-items:flex-start; gap:2rem;
+  padding-block:clamp(1.25rem, 3vw, 2.75rem);
+  /* graph paper — the nameplate's own grid, continued behind it */
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(to right, var(--sheet) var(--rule), transparent var(--rule)),
+    linear-gradient(to bottom, var(--sheet) var(--rule), transparent var(--rule));
+  background-size:28px 28px;
+}
+/* What the magazine is, said once, at a size a first-time visitor reads
+   before the nameplate. It takes the graph paper the plate band had spare. */
+.plate__tag{
+  font-size:clamp(1.0625rem, 1.3vw, 1.3125rem); line-height:1.4;
+  max-width:30ch;
+}
+.nameplate{
+  font-family:var(--plate);
+  /* ELSH 50 squares the elements off into solid pixels — at 0 they are round
+     and the nameplate goes soft, at 100 they hollow out into noise. ELXP 0
+     stops them spreading; weight 700, since 900 closes the counters. */
+  font-variation-settings:'CRSV' 0, 'ELSH' 50, 'ELXP' 0, 'slnt' 0;
+  font-weight:700;
+  font-size:clamp(2rem, 7.6vw, 7.5rem);
+  line-height:.9;
+  letter-spacing:-.01em;
+  white-space:nowrap;
+}
+/* ── the book flag ─────────────────────────────────────────────────────────
+   A magazine puts its biggest story on the cover, beside the flag. This is
+   that: the book, reversed, holding the quarter of the plate band the ident
+   lines used to fill. The whole cell is the link, so the target is the panel
+   and not a word inside it.                                                  */
+.flag{
+  grid-column:9 / 13;
+  background:var(--ink); color:var(--paper);
+  position:relative; overflow:hidden;
+  display:flex; flex-direction:column; gap:.625rem;
+}
+.flag .pixels{ color:#1e1e1e }
+/* Bled into the corner rather than inset, so it reads as the panel running
+   out of signal. Overrides .deco's full-bleed inset. */
+.flag__dither{
+  inset:0 0 auto auto; width:58%; height:62%; color:#4a4a4a;
+}
+/* Everything above the furniture needs its own stacking context. */
+.flag > :not(.deco){ position:relative }
+.flag__field{ font-family:var(--caps); font-size:var(--cap); letter-spacing:.1em;
+  color:var(--dark-mid); line-height:1.2 }
+/* The book's own logo — the title lockup from the-essentials.svg, dropped in
+   as markup so it needs no file path and no image request. Its paths are set
+   to currentColor, so it is one ink like everything else on the sheet and it
+   inverts with the panel. The full cover logo carries ALMIGHTY LISP as well,
+   and the nameplate is already saying that a few inches to the left. */
+.flag__logo{
+  display:block; height:auto;
+  width:min(100%, clamp(11rem, 17vw, 15rem));
+  margin-block:.5rem .25rem;
+  overflow:visible;
+}
+.flag__line{ font-family:var(--oper); font-weight:500; font-size:1.0625rem;
+  line-height:1.35; color:var(--dark-mid); max-width:26ch; text-wrap:balance }
+.flag__foot{
+  margin-top:auto; display:flex; justify-content:space-between; align-items:baseline;
+  gap:1rem; padding-top:.875rem;
+  border-top:var(--rule) solid var(--dark-rule);
+  font-family:var(--draft); font-size:var(--tag); letter-spacing:.14em;
+  color:var(--dark-mid);
+}
+.flag__go{ font-family:var(--oper); font-size:1rem; font-weight:600;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--paper) }
+/* Reverses on interaction, the way the button does. */
+.flag:hover,.flag:focus-visible{ background:var(--paper); color:var(--ink) }
+.flag:hover .pixels,.flag:focus-visible .pixels{ color:var(--sheet) }
+.flag:hover .flag__dither,.flag:focus-visible .flag__dither{ color:var(--faint) }
+.flag:hover .flag__field,.flag:hover .flag__line,.flag:hover .flag__foot,
+.flag:focus-visible .flag__field,.flag:focus-visible .flag__line,
+.flag:focus-visible .flag__foot{ color:var(--mid) }
+.flag:hover .flag__foot,.flag:focus-visible .flag__foot{ border-top-color:var(--faint) }
+.flag:hover .flag__go,.flag:focus-visible .flag__go{ color:var(--ink) }
+
+/* ── shared components ─────────────────────────────────────────────────── */
+
+/* Science Gothic: narrow, heavy, and with the contrast axis held at zero so
+   the strokes stay a single weight at display sizes. Each page sets the size. */
+.hed{
+  font-family:var(--disp);
+  font-variation-settings:'wdth' 58, 'wght' 900, 'CTRS' 0, 'slnt' 0;
+  line-height:.84;
+  letter-spacing:-.015em;
+  text-transform:uppercase;
+}
+
+/* Preview text is set condensed, a size up from body text: it has to be
+   read at a glance, and the narrow face keeps the lines short. */
+.dek{
+  font-family:var(--oper); font-weight:500;
+  font-size:clamp(1.1875rem, 1.4vw, 1.5rem);
+  line-height:1.36;
+  max-width:44ch;
+  margin-top:clamp(1.25rem, 2.2vw, 1.75rem);
+}
+
+/* A reversed cell: the sheet's one way of spending contrast in greyscale. */
+.reversed{ background:var(--ink); color:var(--paper) }
+.reversed .titleblock{ border-bottom-color:#4a4a4a }
+.reversed .titleblock .no{ color:#8f8f8f }
+/* The sheet's focus ring is ink, which vanishes on a black panel. */
+.reversed :focus-visible{ outline-color:var(--paper) }
+
+/* Briefs: a titleblock, a headline, two lines and a byline. Pages place them. */
+.brief{ grid-column:span 4 }
+.brief h2{
+  font-family:var(--text);
+  font-weight:700;
+  font-size:clamp(1.3125rem, 1.75vw, 1.625rem);
+  line-height:1.14;
+  letter-spacing:-.005em;
+}
+.brief p{ font-family:var(--oper); font-weight:500; font-size:1.0625rem; line-height:1.4; color:#3a3a3a;
+  margin-top:.875rem; max-width:44ch }
+.brief .byline{ margin-top:1.25rem }
+.brief h2 a:hover{ text-decoration:underline; text-decoration-thickness:1px;
+  text-underline-offset:4px }
+
+/* ── narrow ────────────────────────────────────────────────────────────── */
+/* Narrow layouts change spans only — never the 12-column template — so a
+   cell can't spill into implicit columns and push the sheet off-screen. */
+@media (max-width:1000px){
+  .strip .cell{ grid-column:span 6 }
+  .strip .cell:nth-child(2){ display:none }
+  .plate__name{ grid-column:1 / 13 }
+  .flag{ grid-column:1 / 13 }
+  .brief{ grid-column:1 / 13 }
+  .nameplate{ font-size:clamp(2rem, 13vw, 6rem) }
+}
+@media (max-width:620px){
+  :root{ --pad:1.125rem }
+  /* Cells are full width again, so the descriptor has room to come back. */
+  .strip .cell{ grid-column:span 12 }
+  .strip .cell:nth-child(2){ display:block }
+  /* The corner marks shrink with the padding, or they land on the text. */
+  .marks::before,.marks::after{ width:9px; height:9px }
+  .marks::before{ top:5px; right:5px }
+  .marks::after{ bottom:5px; left:5px }
+  /* Pulled back into the corner the logo leaves free. */
+  .flag__dither{ width:46%; height:50% }
+  /* Below this width the nameplate breaks to two lines rather than shrink
+     past the point where the character cells still read as a grid. */
+  .nameplate{ white-space:normal; font-size:clamp(2.25rem, 13vw, 4rem) }
+}

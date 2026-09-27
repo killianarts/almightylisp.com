@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en" data-theme="almighty-lisp">
+<head>
+<meta charset="utf-8">
+<!-- Livery before first paint. Reads the site key as fallback, but WRITES only
+     a namespaced key so prototypes never contaminate the site's vocabulary. -->
+<script>try{var t=localStorage.getItem('tcp-theme')||localStorage.getItem('theme');
+if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Almighty Lisp — Print Edition. County Highway typography over the TIME layout; the editorial counterpart to the Flight Manual prototype.">
+<title>Almighty Lisp — Print Edition · Landing Prototype</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<link rel="stylesheet" href="/static/css/almightylisp.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   Almighty Lisp — PRINT EDITION (variant of time-county.html)
+   Same TIME.com skeleton; typography pulled to the County Highway pole:
+     nameplate/heds → Instrument Serif, mixed case, italic accents
+     dense heds     → League Gothic (the condensed news machinery)
+     slugs/folios   → Construct Mono
+     meta/data      → Berkeley Mono
+   Color: live almightylisp.com theme tokens. Muted inks are DERIVED from
+   --color-ink-light via color-mix, so every livery stays readable.
+   ========================================================================== */
+.tcp{
+  --paper:   var(--color-canvas);
+  --paper-2: var(--color-canvas-dark);
+  --ink:     var(--color-ink-light);
+  --ink-mut: color-mix(in oklch, var(--color-ink-light) 80%, var(--color-canvas));
+  --ink-fnt: color-mix(in oklch, var(--color-ink-light) 70%, var(--color-canvas));
+  --accent:  var(--color-accent);
+  --second:  var(--color-secondary);
+  --rule:    color-mix(in oklch, var(--color-ink-light) 24%, transparent);
+  --rule-2:  color-mix(in oklch, var(--color-ink-light) 55%, transparent);
+
+  --serif: "Instrument Serif", Charter, Georgia, "Times New Roman", serif;
+  --gothic:"League Gothic", "Arial Narrow", sans-serif;
+  --slugf: "Construct Mono", ui-monospace, monospace;
+  --meta:  "Berkeley Mono", ui-monospace, Menlo, monospace;
+
+  --fs-label:.72rem;            /* 11.5px floor — nothing smaller */
+  --gutter: clamp(1rem,2.5vw,2.5rem);
+  --sp-m: clamp(1.5rem,2vw,2.25rem);
+  --sp-l: clamp(2.5rem,4vw,4rem);
+  --max: 88rem;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body.tcp{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-size:1.0625rem;line-height:1.5;
+  text-rendering:optimizeLegibility;overflow-x:clip;
+}
+body.tcp::before,body.tcp::after{display:none!important;content:none!important}
+a{color:inherit;text-decoration:none}
+a:hover{color:var(--accent)}
+ul,ol{list-style:none;margin:0;padding:0}
+h1,h2,h3,h4,p,blockquote,figure,cite{margin:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.shell{width:min(var(--max),100%);margin-inline:auto;padding-inline:var(--gutter)}
+kbd{font-family:var(--meta);font-size:.85em;padding:.05em .35em;
+  border:1px solid var(--rule-2);color:var(--accent)}
+
+/* print vocabulary ------------------------------------------------- */
+.slug{font-family:var(--slugf);font-size:var(--fs-label);font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;line-height:1.2;
+  color:var(--accent);margin-bottom:.45em}
+.byline{font-family:var(--meta);font-size:var(--fs-label);letter-spacing:.05em;
+  text-transform:uppercase;color:var(--ink-fnt);line-height:1.4}
+.byline b{color:var(--ink);font-weight:400}
+.dek{font-family:var(--serif);font-style:italic;font-size:clamp(1.08rem,1rem + .4vw,1.35rem);
+  line-height:1.35;color:var(--ink-mut);max-width:44ch;margin-bottom:.8em}
+.dek--tight{font-size:1.02rem;max-width:38ch}
+.ornament{text-align:center;color:var(--accent);font-size:1.15rem;
+  letter-spacing:.6em;padding-block:.9rem}
+.read-more{font-family:var(--slugf);font-size:var(--fs-label);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent);
+  border-bottom:1px solid color-mix(in oklch,var(--accent) 50%,transparent)}
+.read-more:hover{color:var(--second);border-color:var(--second)}
+
+/* serif display heds (mixed case — the County Highway voice) */
+.hed{font-family:var(--serif);font-weight:400;line-height:1.02;color:var(--ink)}
+.hed em{font-style:italic;color:var(--accent)}
+.hed--lead{font-size:clamp(2.7rem,1.6rem + 4.6vw,5.6rem);letter-spacing:-.01em;
+  max-width:16ch;margin-bottom:.3em}
+.hed--side{font-size:clamp(1.5rem,1.2rem + 1.1vw,2.1rem);margin-bottom:.35em}
+.hed--feature{font-size:clamp(2rem,1.4rem + 2.4vw,3.6rem);max-width:20ch;margin-bottom:.35em}
+.hed--dept{font-size:clamp(1.8rem,1.3rem + 1.7vw,2.9rem);max-width:18ch;margin-bottom:.35em}
+/* dense gothic heds (the TIME machinery, kept for lists) */
+.ghed{font-family:var(--gothic);font-weight:400;text-transform:uppercase;
+  letter-spacing:.015em;line-height:1;color:var(--ink)}
+.ghed--list{font-size:clamp(1.2rem,1rem + .7vw,1.55rem);margin-bottom:.3em;line-height:1.04}
+.ghed--sm{font-size:clamp(1.05rem,.95rem + .4vw,1.28rem);line-height:1.06;margin-bottom:.3em}
+.lede{font-size:clamp(1rem,.94rem + .3vw,1.18rem);line-height:1.5;max-width:50ch;margin:1em 0 1.15em}
+.lede::first-letter{font-family:var(--gothic);float:left;font-size:3.4em;line-height:.78;
+  padding:.06em .12em 0 0;color:var(--accent)}
+
+/* section heads: double rule, gothic label, CM folio */
+.section-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;
+  gap:.5rem 1.5rem;margin-bottom:var(--sp-m);padding-bottom:.5rem;
+  border-bottom:3px double var(--rule-2)}
+.section-head h2{font-family:var(--gothic);text-transform:uppercase;font-weight:400;
+  font-size:clamp(1.9rem,1.4rem + 1.6vw,2.8rem);line-height:1;letter-spacing:.02em}
+.section-head .folio{font-family:var(--slugf);font-size:var(--fs-label);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-fnt)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--slugf);font-size:var(--fs-label);font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;padding:.7em 1.3em;border:1px solid var(--ink);
+  color:var(--ink);background:transparent;white-space:nowrap;cursor:pointer;
+  transition:background .15s,color .15s,border-color .15s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn--solid{background:var(--accent);border-color:var(--accent);color:var(--color-canvas-dark)}
+.btn--solid:hover{background:var(--second);border-color:var(--second);color:var(--color-canvas-dark)}
+
+/* ── MASTHEAD — County Highway nameplate ─────────────────── */
+.topbar{border-bottom:1px solid var(--rule)}
+.topbar .shell{display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  flex-wrap:wrap;padding-block:.5rem;font-family:var(--meta);font-size:var(--fs-label);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-fnt)}
+.topbar .theme-ctl{display:flex;align-items:center;gap:.45rem}
+.topbar select{font-family:var(--meta);font-size:var(--fs-label);background:var(--paper-2);
+  color:var(--ink);border:1px solid var(--rule-2);padding:.3rem .4rem;max-width:11rem}
+
+.masthead{text-align:center;padding-top:clamp(18px,3vw,34px)}
+.nameplate{font-family:var(--serif);font-size:clamp(3rem,11vw,7.6rem);line-height:.92;
+  letter-spacing:-.01em;color:var(--ink)}
+.nameplate em{font-style:italic;color:var(--accent)}
+.nameplate .lam{font-family:var(--gothic);color:var(--accent);font-size:.85em;
+  vertical-align:-.03em;padding-inline:.08em}
+.motto{font-family:var(--serif);font-style:italic;color:var(--ink-mut);
+  font-size:1.05rem;margin-top:.35rem}
+.dateline{margin-top:.9rem;border-top:3px double var(--rule-2);border-bottom:3px double var(--rule-2)}
+.dateline .shell{display:flex;justify-content:space-between;align-items:center;gap:.5rem 1.5rem;
+  flex-wrap:wrap;padding-block:.45rem;font-family:var(--slugf);font-size:var(--fs-label);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mut)}
+.dateline b{color:var(--accent);font-weight:400}
+/* nav wraps everywhere — no hamburger, no hidden nav */
+.sectnav{border-bottom:1px solid var(--rule)}
+.sectnav .shell{display:flex;flex-wrap:wrap;justify-content:center;
+  font-family:var(--gothic);text-transform:uppercase;font-size:1.05rem;letter-spacing:.04em}
+.sectnav a{padding:.5rem .95rem;color:var(--ink)}
+.sectnav a+a{border-left:1px solid var(--rule)}
+.sectnav a:hover{color:var(--accent)}
+
+/* ── HERO: lead + side + rail (TIME skeleton intact) ─────── */
+.hero{display:grid;padding-block:var(--sp-l);border-bottom:3px double var(--rule-2)}
+@media(min-width:64em){
+  .hero{grid-template-columns:minmax(0,1.45fr) minmax(0,.9fr) minmax(13rem,.58fr)}
+  .hero__lead{padding-right:var(--sp-m);border-right:1px solid var(--rule)}
+  .hero__side{padding-inline:var(--sp-m);border-right:1px solid var(--rule)}
+  .hero__rail{padding-left:var(--sp-m)}
+}
+.story--side{padding-block:1rem}
+.story--side+.story--side{border-top:1px solid var(--rule)}
+.cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:.85rem 1.4rem}
+
+.rail-head{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;
+  margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:2px solid var(--ink)}
+.rail-head .slug{margin-bottom:0;color:var(--second)}
+.rail-head .folio{font-family:var(--meta);font-size:var(--fs-label);color:var(--ink-fnt);
+  text-transform:uppercase;letter-spacing:.1em}
+.rail-list li{padding-block:.8rem;border-bottom:1px solid var(--rule)}
+.rail-list .rail-sec{display:block;font-family:var(--slugf);font-size:var(--fs-label);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.3em}
+.rail-list a{font-family:var(--gothic);font-size:1.18rem;text-transform:uppercase;
+  line-height:1.02;display:block}
+
+/* ── NEWSLETTER → THE POST BAG ───────────────────────────── */
+.postbag{background:var(--paper-2);border-bottom:3px double var(--rule-2);
+  padding-block:var(--sp-l)}
+.postbag__row{display:grid;gap:var(--sp-m)}
+@media(min-width:56em){.postbag__row{grid-template-columns:1.2fr 1fr .9fr;align-items:start}}
+.postbag h2{font-family:var(--serif);font-size:clamp(1.8rem,1.4rem + 1.4vw,2.6rem);
+  line-height:1.05;margin-bottom:.3em}
+.postbag h2 em{font-style:italic;color:var(--accent)}
+.postbag__form{display:grid;gap:.65rem;max-width:28rem}
+.postbag__input{width:100%;font-family:var(--meta);font-size:.9rem;padding:.7rem .85rem;
+  border:1px solid var(--rule-2);background:var(--paper);color:var(--ink)}
+.postbag__input::placeholder{color:var(--ink-fnt)}
+.postbag__fine{font-family:var(--meta);font-size:var(--fs-label);color:var(--ink-fnt);line-height:1.45}
+.postbag__picks{display:grid;gap:.6rem;font-family:var(--slugf);font-size:var(--fs-label);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mut)}
+.postbag__picks .n{font-family:var(--serif);font-style:italic;text-transform:none;
+  letter-spacing:0;font-size:1.15rem;color:var(--accent);margin-right:.5rem}
+
+/* ── FEATURE — ornament well instead of photo ────────────── */
+.feature{display:grid;gap:var(--sp-m);padding-block:var(--sp-l);
+  border-bottom:1px solid var(--rule-2)}
+@media(min-width:64em){
+  .feature{grid-template-columns:minmax(10rem,.7fr) minmax(0,1.3fr) minmax(0,.9fr)}
+}
+.feature__well{display:flex;flex-direction:column;justify-content:space-between;
+  align-items:center;text-align:center;min-height:12rem;padding:1.2rem;
+  border:1px solid var(--rule-2);outline:1px solid var(--rule);outline-offset:4px;
+  background:var(--paper-2)}
+.feature__num{font-family:var(--serif);font-style:italic;
+  font-size:clamp(4.5rem,3rem + 6vw,8rem);line-height:.9;color:var(--accent)}
+.feature__well .fleuron{color:var(--ink-mut);font-size:1.5rem}
+.feature__well .well-cap{font-family:var(--slugf);font-size:var(--fs-label);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-fnt)}
+.feature__list{border-top:2px solid var(--ink)}
+.feature__list li{padding-block:1rem;border-bottom:1px solid var(--rule)}
+.feature__list a{display:block}
+
+/* ── BACK ISSUES (covers → book plates) ──────────────────── */
+.covers{padding-block:var(--sp-l);border-bottom:1px solid var(--rule-2);background:var(--paper-2)}
+.covers__track{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(11rem,1fr);
+  gap:.9rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory}
+.cover{scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;
+  min-height:14rem;padding:1.1rem;border:1px solid var(--rule-2);background:var(--paper);
+  text-align:center;transition:border-color .15s,box-shadow .15s}
+.cover:hover{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);color:inherit}
+.cover__vol{font-family:var(--slugf);font-size:var(--fs-label);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-fnt)}
+.cover .fleuron{color:var(--accent);font-size:1.2rem}
+.cover__title{font-family:var(--serif);font-size:clamp(1.8rem,1.4rem + 1.2vw,2.4rem);
+  line-height:.95;color:var(--ink)}
+.cover__title em{font-style:italic;color:var(--accent)}
+.cover__dek{font-family:var(--serif);font-style:italic;font-size:.92rem;color:var(--ink-mut)}
+
+/* ── PEOPLE ──────────────────────────────────────────────── */
+.people{padding-block:var(--sp-l);border-bottom:1px solid var(--rule-2)}
+.people__grid{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+@media(min-width:40em){.people__grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:64em){.people__grid{grid-template-columns:repeat(4,1fr)}}
+.people__grid li{background:var(--paper);padding:var(--sp-m) 1rem;min-height:11rem;
+  display:flex;flex-direction:column;text-align:center;align-items:center}
+.people__initial{font-family:var(--serif);font-style:italic;font-size:3.6rem;line-height:.9;
+  color:var(--accent);margin-bottom:.4rem}
+.people__grid h3{font-family:var(--gothic);text-transform:uppercase;font-weight:400;
+  font-size:1.6rem;line-height:1;margin-bottom:.3rem}
+.people__grid .dek--tight{margin-inline:auto}
+
+/* ── IDEAS (numbered briefs) ─────────────────────────────── */
+.ideas{padding-block:var(--sp-l);border-bottom:1px solid var(--rule-2)}
+.ideas__list{counter-reset:idea;max-width:52rem}
+.ideas__list li{counter-increment:idea;display:grid;grid-template-columns:3.25rem 1fr;
+  gap:.5rem 1.25rem;padding-block:1.1rem;border-bottom:1px solid var(--rule);align-items:start}
+.ideas__list li::before{content:counter(idea,upper-roman) ".";
+  font-family:var(--serif);font-style:italic;font-size:1.6rem;line-height:1;color:var(--accent)}
+.ideas__list h3{font-family:var(--serif);font-size:clamp(1.3rem,1.1rem + .8vw,1.8rem);line-height:1.1}
+.ideas__list .byline{grid-column:2;margin-top:-.2rem}
+
+/* ── DEPARTMENTS ─────────────────────────────────────────── */
+.dept{padding-block:var(--sp-l);border-bottom:1px solid var(--rule-2)}
+.dept__tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.dept__tags a{font-family:var(--slugf);font-size:var(--fs-label);letter-spacing:.1em;
+  text-transform:uppercase;padding:.35em .75em;border:1px solid var(--rule);color:var(--ink-mut)}
+.dept__tags a:hover{border-color:var(--accent);color:var(--accent)}
+.dept__grid{display:grid;gap:var(--sp-m)}
+@media(min-width:56em){
+  .dept__grid{grid-template-columns:1.45fr 1fr 1fr}
+  .story--dept-lead{grid-row:1/span 2;border-right:1px solid var(--rule);padding-right:var(--sp-m)}
+}
+.dept__more{margin-top:var(--sp-m);padding-top:1rem;border-top:1px solid var(--rule)}
+
+/* ── REVIEWED (the book) ─────────────────────────────────── */
+.dept--book{background:var(--paper-2)}
+.book-grid{display:grid;gap:var(--sp-m)}
+@media(min-width:56em){.book-grid{grid-template-columns:1.4fr 1fr;gap:var(--sp-l)}}
+.book-points{margin:1.2rem 0 1.4rem;display:grid;gap:.55rem;font-size:1.02rem;max-width:44ch}
+.book-points li{padding-left:1.2rem;position:relative}
+.book-points li::before{content:"❧";position:absolute;left:0;color:var(--accent);font-size:.95em}
+.book-rail{border-top:2px solid var(--ink)}
+.book-rail .story{padding-block:1.1rem;border-bottom:1px solid var(--rule)}
+
+/* ── PULL QUOTE ──────────────────────────────────────────── */
+.pull{padding-block:clamp(3.5rem,6vw,6rem);border-bottom:3px double var(--rule-2);text-align:center}
+.pull blockquote{font-family:var(--serif);font-size:clamp(1.9rem,1.2rem + 3vw,3.8rem);
+  font-style:italic;line-height:1.08;max-width:26ch;margin-inline:auto;margin-bottom:1.1rem}
+.pull blockquote em{color:var(--accent)}
+.pull cite{display:block;font-style:normal}
+
+/* ── FOOTER / COLOPHON ───────────────────────────────────── */
+.footer{background:var(--paper-2);padding-block:var(--sp-l) var(--sp-m);
+  border-top:3px double var(--rule-2)}
+.footer__grid{display:grid;gap:var(--sp-m);padding-bottom:var(--sp-m);
+  border-bottom:1px solid var(--rule)}
+@media(min-width:48em){.footer__grid{grid-template-columns:1.3fr .7fr 1.1fr 1.1fr}}
+.footer .brandline{font-family:var(--serif);font-size:1.5rem}
+.footer .brandline em{font-style:italic;color:var(--accent)}
+.footer__links,.footer__type{display:grid;gap:.45rem;font-family:var(--meta);
+  font-size:var(--fs-label);letter-spacing:.04em}
+.footer__type li{color:var(--ink-fnt)}
+.footer__type span{color:var(--ink)}
+.footer__note{font-family:var(--meta);font-size:var(--fs-label);line-height:1.5;
+  color:var(--ink-fnt);max-width:38ch}
+.footer__bar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem 1rem;
+  padding-top:1rem;font-family:var(--slugf);font-size:var(--fs-label);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-fnt)}
+
+@media(max-width:63.99em){
+  .hero{gap:var(--sp-m)}
+  .hero__lead{padding-bottom:var(--sp-m);border-bottom:1px solid var(--rule)}
+  .hero__side{padding-bottom:1rem;border-bottom:1px solid var(--rule)}
+  .hed--lead{max-width:none}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+</style>
+</head>
+<body class="tcp">
+
+<!-- utility bar: theme control up top, no dead hamburger anywhere -->
+<div class="topbar"><div class="shell">
+  <span>Print Edition · Companion to the <a href="time-county.html" style="border-bottom:1px solid var(--rule-2)">Flight Manual</a> prototype</span>
+  <label class="theme-ctl">
+    <span>Ink &amp; paper</span>
+    <select id="theme-select" aria-label="Site theme">
+      <option value="almighty-lisp">almighty-lisp</option>
+      <option value="almighty-lisp-moon">almighty-lisp-moon</option>
+      <option value="almighty-titan">almighty-titan</option>
+      <option value="almighty-titan-moon">almighty-titan-moon</option>
+      <option value="almighty-gear">almighty-gear</option>
+      <option value="almighty-gear-moon">almighty-gear-moon</option>
+      <option value="almighty-macro">almighty-macro</option>
+      <option value="almighty-macro-moon">almighty-macro-moon</option>
+      <option value="almighty-ena">almighty-ena</option>
+      <option value="almighty-ena-moon">almighty-ena-moon</option>
+      <option value="almighty-mikasa">almighty-mikasa</option>
+      <option value="almighty-mikasa-moon">almighty-mikasa-moon</option>
+      <option value="almighty-lisp-x">almighty-lisp-x</option>
+      <option value="almighty-lisp-x-moon">almighty-lisp-x-moon</option>
+      <option value="almighty-saga">almighty-saga</option>
+      <option value="almighty-saga-moon">almighty-saga-moon</option>
+    </select>
+  </label>
+</div></div>
+
+<!-- MASTHEAD: County Highway nameplate -->
+<header class="masthead">
+  <div class="shell">
+    <h1 class="nameplate">The Almighty <em>Lisp</em></h1>
+    <p class="motto">“All the forms fit to eval.”</p>
+  </div>
+  <div class="dateline"><div class="shell">
+    <span>Vol. <b>I</b> · No. <b>3</b></span>
+    <span>A periodical for professional Common Lisp programmers</span>
+    <span>Price: <b>Free</b> · Set fresh each visit</span>
+  </div></div>
+  <nav class="sectnav" aria-label="Sections"><div class="shell">
+    <a href="#lead">Mission</a>
+    <a href="#lisp">Lisp</a>
+    <a href="#emacs">Emacs</a>
+    <a href="#ideas">Briefs</a>
+    <a href="#people">Crew</a>
+    <a href="#book">The Manual</a>
+  </div></nav>
+</header>
+
+<main>
+  <!-- HERO: TIME lead + secondary + rail, in the serif voice -->
+  <section class="hero shell" id="lead" aria-label="Top stories">
+    <article class="hero__lead">
+      <p class="slug">Cover · Language</p>
+      <h2 class="hed hed--lead">The Image Is <em>Still Running</em></h2>
+      <p class="dek">How Common Lisp’s long-lived world outlasted restart-culture tooling —
+        and why professionals walk back into the REPL with Doom Emacs as the flight deck.</p>
+      <p class="byline">By <b>Micah Killian</b> · Essentials · 18 min</p>
+      <p class="lede">Compile a definition into a world that does not die when you save.
+        Redefine it while the process still runs. Restarts are the debugger’s checklist —
+        not an apology dialog. Other books teach the language and strand you with the
+        editor. This manual refuses the split.</p>
+      <div class="cta-row">
+        <a class="btn btn--solid" href="/book/essentials">Open the cover story</a>
+        <a class="read-more" href="/book/essentials">Full briefing →</a>
+      </div>
+    </article>
+
+    <div class="hero__side">
+      <article class="story--side">
+        <p class="slug">Profile · Editor</p>
+        <h2 class="hed hed--side">Over the Emacs Wall, Without a Second Apprenticeship</h2>
+        <p class="dek dek--tight">Survival Mode first. Keybindings when they earn their keep.
+          Stickers and restarts once the image is warm.</p>
+        <p class="byline">By <b>The Desk</b></p>
+      </article>
+      <article class="story--side">
+        <p class="slug">Jeremiad · Tooling</p>
+        <h2 class="hed hed--side">The Industry Is <em>Too Restarted</em></h2>
+        <p class="dek dek--tight">Reflections on an uncool half-century of killing the
+          process to fix a bug.</p>
+        <p class="byline">By <b>A Tired Image</b></p>
+      </article>
+    </div>
+
+    <aside class="hero__rail" aria-label="More top stories">
+      <div class="rail-head"><p class="slug">The Queue</p><span class="folio">Set Live</span></div>
+      <ul class="rail-list">
+        <li><span class="rail-sec">Lisp</span><a href="#lisp">CLOS for people who already ship objects</a></li>
+        <li><span class="rail-sec">Emacs</span><a href="#emacs">A Doom install that doesn’t strand you</a></li>
+        <li><span class="rail-sec">Manual</span><a href="#book">Money that refuses floats</a></li>
+        <li><span class="rail-sec">Deploy</span><a href="#ideas">Binaries, web paths, the last mile</a></li>
+        <li><span class="rail-sec">Ideas</span><a href="#ideas">Macros, when they earn their keep</a></li>
+      </ul>
+    </aside>
+  </section>
+
+  <!-- NEWSLETTER → THE POST BAG -->
+  <section class="postbag" id="subscribe" aria-label="Newsletter">
+    <div class="shell postbag__row">
+      <div>
+        <p class="slug">The Post Bag · Newsletters</p>
+        <h2>Letters for the <em>professional image</em></h2>
+        <p class="dek dek--tight">Issue notes, Emacs craft, one good form. No growth-hacking.
+          No “just following up.” Written for people who keep a REPL warm.</p>
+      </div>
+      <form class="postbag__form" action="#" method="post" onsubmit="return false;">
+        <label class="sr-only" for="email">Email</label>
+        <input id="email" class="postbag__input" type="email" name="email"
+               placeholder="you@domain.lisp" autocomplete="email">
+        <button class="btn btn--solid" type="submit">Post my letter</button>
+        <p class="postbag__fine">Occasional mail. Zero list-selling. Unsubscribe anytime.</p>
+      </form>
+      <ul class="postbag__picks" aria-label="Newsletter channels">
+        <li><span class="n">i.</span> The Image Brief</li>
+        <li><span class="n">ii.</span> Chord of the Week</li>
+        <li><span class="n">iii.</span> Condition Notes</li>
+        <li><span class="n">iv.</span> Theme Watch</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FEATURE: ornament well instead of photo -->
+  <section class="feature shell" aria-label="Featured">
+    <div class="feature__well" aria-hidden="true">
+      <span class="well-cap">Feature</span>
+      <span class="feature__num">№1</span>
+      <span class="fleuron">❦</span>
+      <span class="well-cap">Curriculum</span>
+    </div>
+    <div>
+      <p class="slug">Curriculum · Dual track</p>
+      <h2 class="hed hed--feature">The Dual Curriculum Narrows the Gap Between
+        <em>Language and Editor</em></h2>
+      <p class="dek">Which half is narrowing it — and why professionals still bounce off
+        Emacs alone after years of shipping elsewhere.</p>
+      <p class="byline">The Essentials Desk · <a class="read-more" href="/book/essentials">Read more →</a></p>
+    </div>
+    <ul class="feature__list">
+      <li><span class="slug">Focus</span><a class="ghed ghed--list" href="#emacs">13 Survival-Mode habits that stick</a></li>
+      <li><span class="slug">Ops</span><a class="ghed ghed--list" href="#ideas">How one restart saved an entire session</a></li>
+      <li><span class="slug">Specimen</span><a class="ghed ghed--list" href="#lisp">Breaking down a mid-game recompile</a></li>
+    </ul>
+  </section>
+
+  <!-- BACK ISSUES -->
+  <section class="covers" aria-label="Latest issues">
+    <div class="shell">
+      <div class="section-head">
+        <h2>Back Issues</h2>
+        <a class="read-more" href="#book">Get the manual →</a>
+      </div>
+      <div class="covers__track">
+        <a class="cover" href="#book"><span class="cover__vol">Vol. I</span><span class="fleuron">⁂</span><span class="cover__title"><em>Essentials</em></span><span class="cover__dek">Language · Editor · Image</span></a>
+        <a class="cover" href="#emacs"><span class="cover__vol">Vol. I</span><span class="fleuron">⁂</span><span class="cover__title">Doom</span><span class="cover__dek">Wall · Chord · Buffer</span></a>
+        <a class="cover" href="#lisp"><span class="cover__vol">Vol. I</span><span class="fleuron">⁂</span><span class="cover__title">CLOS</span><span class="cover__dek">Objects that stay warm</span></a>
+        <a class="cover" href="#ideas"><span class="cover__vol">Vol. I</span><span class="fleuron">⁂</span><span class="cover__title">Money</span><span class="cover__dek">No floats · Honest books</span></a>
+        <a class="cover" href="#ideas"><span class="cover__vol">Vol. I</span><span class="fleuron">⁂</span><span class="cover__title">Ship</span><span class="cover__dek">Binary · Deploy · Live</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CREW -->
+  <section class="people shell" id="people" aria-label="People">
+    <div class="section-head">
+      <h2>Names on the Plate</h2>
+      <span class="folio">Orbit · Influence · Reference</span>
+    </div>
+    <ul class="people__grid">
+      <li><span class="people__initial">S</span><h3>Steele</h3><p class="dek dek--tight">The language still answers to the HyperSpec.</p></li>
+      <li><span class="people__initial">N</span><h3>Norvig</h3><p class="dek dek--tight">PAIP as the long curriculum, still.</p></li>
+      <li><span class="people__initial">S</span><h3>Seibel</h3><p class="dek dek--tight">Practical Common Lisp as the on-ramp.</p></li>
+      <li><span class="people__initial">S</span><h3>Stallman</h3><p class="dek dek--tight">The editor that outlived every fashion.</p></li>
+    </ul>
+  </section>
+
+  <!-- BRIEFS -->
+  <section class="ideas shell" id="ideas" aria-label="Ideas">
+    <div class="section-head">
+      <h2>Ideas</h2>
+      <a class="read-more" href="#lead">Read more →</a>
+    </div>
+    <ol class="ideas__list">
+      <li><h3><a href="#">The Tech Bro-ification of the REPL</a></h3><p class="byline">By <b>Careful Package</b></p></li>
+      <li><h3><a href="#">How Restart Culture Degrades the Focus Climate</a></h3><p class="byline">By <b>S. Kernel</b> &amp; <b>A. Frame</b></p></li>
+      <li><h3><a href="#">The Case for Local Software</a></h3><p class="byline">By <b>D. Image</b></p></li>
+      <li><h3><a href="#">Attacks on the HyperSpec Are Attacks on Shared History</a></h3><p class="byline">By <b>M. Spec</b></p></li>
+    </ol>
+  </section>
+
+  <!-- LISP DEPARTMENT -->
+  <section class="dept shell" id="lisp" aria-label="Lisp">
+    <div class="section-head">
+      <h2>Lisp</h2>
+      <ul class="dept__tags">
+        <li><a href="/book/essentials/lisp-fundamentals">Fundamentals</a></li>
+        <li><a href="/book/essentials">CLOS</a></li>
+        <li><a href="/book/essentials/macros">Macros</a></li>
+      </ul>
+    </div>
+    <div class="dept__grid">
+      <article class="story--dept-lead">
+        <p class="slug">Language</p>
+        <h3 class="hed hed--dept">The Long Habit of <em>Continuing</em></h3>
+        <p class="dek">Long-lived processes, careful packages, and the discipline of
+          continuing instead of rebooting — applied to systems that must stay up.</p>
+        <p class="byline">By <b>The Lisp Desk</b></p>
+      </article>
+      <article>
+        <p class="slug">Safety</p>
+        <h3 class="ghed ghed--list">The Latest Condition Rankings Are In. Nobody Gets an A</h3>
+        <p class="byline">By <b>H. Booth</b></p>
+      </article>
+      <article>
+        <p class="slug">Access</p>
+        <h3 class="ghed ghed--list">Powerful Models, Restricted Floats</h3>
+        <p class="byline">The Money Chapter</p>
+      </article>
+      <article>
+        <p class="slug">Body</p>
+        <h3 class="ghed ghed--sm">The Unexpected Way the Debugger Helped Me Appreciate My Code</h3>
+        <p class="byline">By <b>R. Restart</b></p>
+      </article>
+      <article>
+        <p class="slug">Governance</p>
+        <h3 class="ghed ghed--sm">How to Govern Macros in a World in Rupture</h3>
+        <p class="byline">By <b>A. Package</b></p>
+      </article>
+      <article>
+        <p class="slug">Policy</p>
+        <h3 class="ghed ghed--sm">Labs Woo Capitals; We Woo the REPL</h3>
+        <p class="byline">The Ops Desk</p>
+      </article>
+    </div>
+    <p class="dept__more"><a class="read-more" href="/book/essentials/lisp-fundamentals">More Lisp stories →</a></p>
+  </section>
+
+  <!-- EMACS DEPARTMENT -->
+  <section class="dept shell" id="emacs" aria-label="Emacs">
+    <div class="section-head">
+      <h2>Emacs</h2>
+      <ul class="dept__tags">
+        <li><a href="/book/essentials/getting-started-w-doom-emacs-lisp">Doom</a></li>
+        <li><a href="/book/essentials/the-lisp-ide">Sly</a></li>
+        <li><a href="/book/essentials/structured-editing">Chords</a></li>
+      </ul>
+    </div>
+    <div class="dept__grid">
+      <article class="story--dept-lead">
+        <p class="slug">Editor · Flight deck</p>
+        <h3 class="hed hed--dept">From Menu Tourist to <em>Chord Native</em></h3>
+        <p class="dek">Buffers, frames, and the slow conversion — without pretending
+          the wall isn’t real.</p>
+        <p class="byline">By <b>V. Chord</b></p>
+      </article>
+      <article>
+        <p class="slug">History</p>
+        <h3 class="ghed ghed--list">‘Taking the Waters’ Was a Getaway — C-x C-c Is Not</h3>
+        <p class="byline">The Wall Desk</p>
+      </article>
+      <article>
+        <p class="slug">Outbreak</p>
+        <h3 class="ghed ghed--list">What to Know About the Keybinding Outbreak Tied to Fresh Configs</h3>
+        <p class="byline">Config Ops</p>
+      </article>
+      <article>
+        <p class="slug">Sleep</p>
+        <h3 class="ghed ghed--sm">Will an Evening Config Ruin Your Sleep?</h3>
+        <p class="byline">The Night Shift</p>
+      </article>
+      <article>
+        <p class="slug">Psychology</p>
+        <h3 class="ghed ghed--sm">Why We View the Past as a Better Init Than the Present</h3>
+        <p class="byline">By <b>M. Heid</b></p>
+      </article>
+      <article>
+        <p class="slug">Habit</p>
+        <h3 class="ghed ghed--sm">13 Summer Buffer Tips Experienced Users Swear By</h3>
+        <p class="byline">The Deck Crew</p>
+      </article>
+    </div>
+    <p class="dept__more"><a class="read-more" href="/book/essentials/getting-started-w-doom-emacs-lisp">More Emacs stories →</a></p>
+  </section>
+
+  <!-- REVIEWED: THE MANUAL -->
+  <section class="dept dept--book shell" id="book" aria-label="The Book">
+    <div class="section-head">
+      <h2>Reviewed · The Manual</h2>
+      <a class="btn btn--solid" href="/book/essentials">Read free online</a>
+    </div>
+    <div class="book-grid">
+      <article>
+        <p class="slug">Almighty Lisp · Essentials</p>
+        <h3 class="hed hed--dept">One Manual. Two Systems. <em>Zero Fluff.</em></h3>
+        <p class="dek">Written for experienced, Lisp-curious professionals. Fundamentals,
+          lists, CLOS, conditions, macros, packages, a money library, double-entry
+          accounting, and deploy — beside Doom Emacs craft.</p>
+        <ul class="book-points">
+          <li>Menus first, then <kbd>C-c C-c</kbd> when it earns its keep</li>
+          <li>Fix a bug mid-mission without restarting the image</li>
+          <li>Projects you can ship, not toy demos only</li>
+        </ul>
+        <a class="btn btn--solid" href="/book/essentials">Learn Lisp &amp; Emacs immediately</a>
+      </article>
+      <div class="book-rail">
+        <article class="story">
+          <p class="slug">Chapter · Money</p>
+          <h3 class="ghed ghed--list">A library that refuses floating-point lies</h3>
+          <p class="byline">Essentials · Projects</p>
+        </article>
+        <article class="story">
+          <p class="slug">Chapter · Accounting</p>
+          <h3 class="ghed ghed--list">Double-entry with Mito, not vibes</h3>
+          <p class="byline">Essentials · Projects</p>
+        </article>
+        <article class="story">
+          <p class="slug">Chapter · Deploy</p>
+          <h3 class="ghed ghed--list">Binaries and a web path that leave the REPL</h3>
+          <p class="byline">Essentials · Ship</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PULL -->
+  <section class="pull" aria-label="Pull quote">
+    <div class="shell">
+      <p class="ornament" aria-hidden="true">⁂</p>
+      <blockquote>“Common Lisp is optimized for ultimate <em>adaptability</em> —
+        a generalist’s secret weapon.”</blockquote>
+      <cite class="byline">Essentials · The Almighty Philosophy</cite>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="shell footer__grid">
+    <div>
+      <p class="brandline">The Almighty <em>Lisp</em></p>
+      <p class="dek dek--tight">Professional periodical for Common Lisp and Emacs craft.
+        Adaptability over fashion. Image over restart.</p>
+    </div>
+    <div>
+      <p class="slug">Sections</p>
+      <ul class="footer__links">
+        <li><a href="#lisp">Lisp</a></li>
+        <li><a href="#emacs">Emacs</a></li>
+        <li><a href="#ideas">Briefs</a></li>
+        <li><a href="#people">Crew</a></li>
+        <li><a href="#book">The Manual</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="slug">Type stack</p>
+      <ul class="footer__type">
+        <li><span style="font-family:var(--serif);font-style:italic">Instrument Serif</span> — nameplate / heds / deks</li>
+        <li><span style="font-family:var(--gothic);text-transform:uppercase">League Gothic</span> — dense heds / sections</li>
+        <li><span style="font-family:var(--slugf)">Construct Mono</span> — slugs / folios</li>
+        <li><span style="font-family:var(--meta)">Berkeley Mono</span> — bylines / meta</li>
+      </ul>
+    </div>
+    <div>
+      <p class="slug">Prototype notes</p>
+      <p class="footer__note">Variant of the Flight Manual prototype: same TIME.com
+        skeleton, typography pulled to the County Highway pole. Muted inks derived
+        from ink tokens — readable in all sixteen liveries. Nothing under 11px.
+        No dead controls.</p>
+    </div>
+  </div>
+  <div class="shell footer__bar">
+    <span>© 2026 almightylisp.com</span>
+    <span>Ink · <span id="footer-theme">almighty-lisp</span></span>
+    <span>Prototype · not production chrome</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const sel = document.getElementById('theme-select');
+  const foot = document.getElementById('footer-theme');
+  const current = document.documentElement.dataset.theme || 'almighty-lisp';
+  sel.value = current;
+  foot.textContent = current;
+  sel.addEventListener('change', (e) => {
+    const v = e.target.value;
+    document.documentElement.dataset.theme = v;
+    try { localStorage.setItem('tcp-theme', v); } catch (err) {}
+    foot.textContent = v;
+  });
+})();
+</script>
+</body>
+</html>

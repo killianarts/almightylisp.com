@@ -1,0 +1,21 @@
+#+TITLE: Shipping a Lisp program as a single binary
+#+SUBTITLE: Save the image, or dump an executable, once the program is loaded. The binary is that image plus a way to start it. It is not a pile of source the user has to compile.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-08
+#+TYPE: How-to
+#+TOPIC: Tooling
+#+RELATED: the-image-is-still-running
+
+* The image is the deliverable
+
+You develop inside an image, and you can ship one too. Load the program, set the function that should run at start, and save an executable. The person who runs it does not need your source tree, Quicklisp, or a compiler.
+
+What they run is the image you saved: your code already compiled, your top-level state already built, the entry function waiting.
+
+#+BEGIN_NOTE A split worth keeping
+The development image and the shipped image do not have to be the same session. Build the executable from a fresh Lisp that has loaded only what the program needs. The REPL you have been working in all afternoon has experiments in it.
+#+END_NOTE
+
+* What still is not inside the file
+
+Foreign libraries, files you open by pathname, and anything you download at runtime stay outside the binary. The executable is the Lisp image. It is not a container. Say those dependencies next to the binary, the way you would name a shared library another program needs.

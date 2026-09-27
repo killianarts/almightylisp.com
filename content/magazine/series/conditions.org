@@ -1,0 +1,11 @@
+#+CODE: CND
+#+TITLE: The condition system, bottom up
+#+SUMMARY: Signals, handlers and restarts, one layer at a time, until the debugger is just another program you wrote.
+#+FEATURED: t
+
+1. An error that waits for you to decide
+2. Handlers that don't unwind
+3. Restarts are just functions
+4. Your own debugger hook
+5. Defining your own conditions
+6. Don't catch, handle

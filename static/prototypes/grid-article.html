@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="When Common Lisp's LOOP macro makes iteration clearer, when it makes it worse, and what to use instead. Every example tested on SBCL 2.6.3.">
+<title>To LOOP or not to LOOP | Almighty Lisp</title>
+
+<link rel="stylesheet" href="/static/css/fonts.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:CRSV,ELSH,ELXP,slnt,wght@0,0..100,0..100,0,400..900&family=Science+Gothic:CTRS,slnt,wdth,wght@0..85,0,50..200,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="grid-theme.css">
+
+<style>
+/* Article page. The theme — tokens, lattice, masthead, flag, briefs — is in
+   grid-theme.css; this block lays out one article.
+
+   The article is a standards document more than a column of text. Each
+   section is its own band: number and heading on the left, prose in the
+   middle, notes in the margin. The rule at column 4 continues the strip's;
+   the rule at column 9 runs from the plate band through every section, so
+   the notes sit under the book flag and the contents panel. */
+
+.sheet > main,
+main > article{ display:grid; gap:var(--rule); background:var(--ink); min-width:0 }
+
+/* ── compact masthead ──────────────────────────────────────────────────────
+   Inside an article the nameplate steps back so the headline can lead. */
+.plate--compact .plate__name{ justify-content:flex-end;
+  padding-block:clamp(1rem, 2vw, 1.5rem) }
+.plate--compact .nameplate{ font-size:clamp(1.75rem, 4.4vw, 4.25rem) }
+.nameplate a:hover{ text-decoration:underline; text-decoration-thickness:2px;
+  text-underline-offset:.12em }
+.plate--compact .flag__logo{ width:clamp(8.5rem, 10.5vw, 10.5rem); margin-block:0 .5rem }
+
+/* ── article head ──────────────────────────────────────────────────────── */
+.art-lede{ grid-column:1 / 9; display:flex; flex-direction:column }
+.art-title{
+  font-size:clamp(3rem, 8.4vw, 8rem);
+  margin-block:clamp(1.25rem, 2.6vw, 2.25rem) 0;
+}
+.art-lede .dek{ max-width:40ch }
+.art-by{ margin-top:auto; padding-top:clamp(1.75rem, 3vw, 2.75rem) }
+
+/* Contents and facts: the reversed panel, under the flag like the home
+   page's recent list, so the black column carries through. */
+.art-facts{ grid-column:9 / 13; display:flex; flex-direction:column; position:relative }
+.toc a{
+  display:flex; gap:.875rem; align-items:baseline;
+  padding-block:.6875rem; border-bottom:var(--rule) solid var(--dark-rule);
+  font-weight:700; font-size:1rem; line-height:1.3;
+}
+.toc .no{ flex:none; width:1.25rem; font-family:var(--draft); font-size:var(--tag);
+  letter-spacing:.14em; color:#8f8f8f }
+.toc a:hover{ text-decoration:underline; text-decoration-thickness:1px;
+  text-underline-offset:3px }
+.facts{ margin:auto 0 0; padding-top:2rem }
+.facts div{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
+  padding-block:.625rem; border-top:var(--rule) solid var(--dark-rule) }
+.facts dt{ font-family:var(--caps); font-size:var(--cap); letter-spacing:.1em;
+  color:var(--dark-mid) }
+.facts dd{ margin:0; font-family:var(--draft); font-size:var(--tag); letter-spacing:.14em }
+
+/* ── sections ──────────────────────────────────────────────────────────── */
+.clause__head{ grid-column:1 / 4 }
+/* The number and heading ride down the margin while their section scrolls. */
+.clause__pin{ position:sticky; top:var(--pad) }
+.clause__no{
+  font-family:var(--plate); font-weight:700;
+  font-variation-settings:'CRSV' 0, 'ELSH' 50, 'ELXP' 0, 'slnt' 0;
+  font-size:clamp(2.5rem, 4.4vw, 4.25rem); line-height:.8;
+}
+.clause__head h2{
+  font-weight:700; font-size:clamp(1.1875rem, 1.45vw, 1.4375rem);
+  line-height:1.2; margin-top:1rem; text-wrap:balance;
+}
+.clause__body{ grid-column:4 / 9 }
+.clause__body > * + *{ margin-top:1.375rem }
+/* Body text is Avenir Next: plain, open, and out of the way of the code. */
+.clause__body p{
+  font-family:var(--body);
+  font-size:clamp(1.0625rem, 1.1vw, 1.1875rem);
+  line-height:1.6;
+  max-width:66ch;
+}
+code,kbd{ font-size:.84em }
+p code,td code,.note p code{ background:var(--sheet); padding:.06em .18em }
+kbd{ border:var(--rule) solid var(--ink); padding:.02em .35em; white-space:nowrap }
+
+/* Code: framed like a cell, with the buffer and package on a title bar and
+   the result underneath — the same three parts the book uses. */
+.code{ margin-inline:0; border:var(--rule) solid var(--ink); min-width:0 }
+.code__bar{
+  display:flex; flex-wrap:wrap; gap:.25rem 1.75rem;
+  padding:.5625rem .875rem; background:var(--sheet);
+  border-bottom:var(--rule) solid var(--ink); line-height:1.2;
+}
+.code__bar span{ font-family:var(--caps); font-size:var(--cap); letter-spacing:.1em;
+  color:var(--mid) }
+.code__bar b{ font-family:var(--draft); font-size:var(--tag); font-weight:400;
+  letter-spacing:.1em; color:var(--ink); margin-left:.625rem }
+.code pre{ margin:0; padding:1rem .875rem; overflow-x:auto;
+  font-size:.875rem; line-height:1.6 }
+.code pre code{ font-size:inherit }
+.code__ret{
+  display:flex; gap:1.25rem; align-items:baseline;
+  padding:.75rem .875rem; background:var(--sheet);
+  border-top:var(--rule) solid var(--ink);
+}
+.code__ret > span{ flex:none; font-family:var(--caps); font-size:var(--cap);
+  letter-spacing:.1em; color:var(--mid) }
+.code__ret pre{ padding:0 }
+/* The line under discussion, reversed like a selection in the editor. */
+.hl{ background:var(--ink); color:var(--paper); padding:.1em .3em; margin-inline:-.3em;
+  -webkit-box-decoration-break:clone; box-decoration-break:clone }
+
+/* The decision table. The two rows where LOOP wins are reversed. */
+.rule{ width:100%; border-collapse:collapse; border:var(--rule) solid var(--ink) }
+.rule th{
+  text-align:left; font-family:var(--caps); font-weight:400; font-size:var(--cap);
+  letter-spacing:.1em; color:var(--mid); background:var(--sheet);
+  padding:.625rem .875rem; border-bottom:var(--rule) solid var(--ink);
+}
+.rule td{ padding:.75rem .875rem; vertical-align:top; line-height:1.45; font-family:var(--body);
+  border-top:var(--rule) solid var(--faint) }
+.rule td:first-child{ width:58%; border-right:var(--rule) solid var(--faint) }
+.rule .pick td{ background:var(--ink); color:var(--paper); border-color:var(--dark-rule) }
+.rule .pick code{ background:#262626 }
+
+/* Margin notes. Short, and each one earns its label. */
+.clause__notes{ grid-column:9 / 13 }
+.note + .note{ margin-top:1.25rem; padding-top:1.25rem;
+  border-top:var(--rule) solid var(--faint) }
+.note__k{ font-family:var(--caps); font-size:var(--cap); letter-spacing:.1em;
+  color:var(--mid); line-height:1.2 }
+/* :not() so the label keeps its small caps; a plain `.note p` outranks it. */
+.note p:not(.note__k){ font-family:var(--body); font-size:.9375rem; line-height:1.55;
+  color:#3a3a3a; margin-top:.5rem }
+.note__sig{ display:block; margin-top:.5rem; font-size:.8125rem; line-height:1.55 }
+.note a{ color:var(--ink); text-decoration:underline; text-decoration-thickness:1px;
+  text-underline-offset:3px }
+
+/* ── keep reading ──────────────────────────────────────────────────────── */
+.more__head{
+  grid-column:1 / 13; padding-block:.875rem;
+  font-family:var(--caps); font-weight:400; font-size:var(--cap); letter-spacing:.1em;
+  line-height:1.2;
+}
+
+/* ── narrow ────────────────────────────────────────────────────────────── */
+/* Below 1280px five columns can't hold a line of code, so the notes drop
+   under the prose and the body takes the full width beside the heading. */
+@media (max-width:1280px){
+  .clause__head{ grid-row:span 2 }
+  .clause__body,.clause__notes{ grid-column:4 / 13 }
+  .clause__notes{ display:grid; grid-template-columns:repeat(auto-fit, minmax(15rem, 1fr));
+    gap:1.5rem 2.5rem; align-items:start }
+  .note + .note{ margin-top:0; padding-top:0; border-top:0 }
+}
+@media (max-width:1000px){
+  .art-lede,.art-facts{ grid-column:1 / 13 }
+  .clause__head,.clause__body,.clause__notes{ grid-column:1 / 13 }
+  .clause__head{ grid-row:auto; padding-block:1rem }
+  .clause__pin{ position:static; display:flex; align-items:baseline; gap:1rem }
+  .clause__no{ font-size:2rem }
+  .clause__head h2{ margin-top:0 }
+}
+@media (max-width:620px){
+  .code pre{ font-size:.8125rem }
+  .rule td:first-child{ width:52% }
+}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <!-- ══ MASTHEAD ═══════════════════════════════════════════════════════ -->
+  <header>
+    <div class="band strip">
+      <div class="cell">almightylisp.com</div>
+      <div class="cell"><time datetime="2026-09-23">Wednesday 23 September 2026</time></div>
+      <div class="cell">Free to read, no account needed</div>
+    </div>
+
+    <div class="band plate plate--compact">
+      <div class="cell plate__name">
+        <p class="nameplate"><a href="grid-masthead-hero.html">ALMIGHTY LISP</a></p>
+      </div>
+      <a class="cell flag" href="/book/essentials">
+        <span class="deco pixels" aria-hidden="true"></span>
+        <span class="deco dither flag__dither" aria-hidden="true"></span>
+        <svg class="flag__logo" role="img" aria-label="Lisp &amp; Emacs Essentials" viewBox="0 0 157 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.92 56V20.72H13.776V26.048H7.104V35.552H11.904V40.736H7.104V50.672H13.776V56H1.92ZM23.8631 56.384C22.4391 56.384 21.2551 56.152 20.3111 55.688C19.3671 55.208 18.6231 54.52 18.0791 53.624C17.5351 52.728 17.1431 51.648 16.9031 50.384C16.6791 49.12 16.5671 47.696 16.5671 46.112L21.6551 45.632C21.6551 46.4 21.6791 47.144 21.7271 47.864C21.7911 48.568 21.8951 49.208 22.0391 49.784C22.1991 50.344 22.4231 50.792 22.7111 51.128C23.0151 51.464 23.3991 51.632 23.8631 51.632C24.6311 51.632 25.1751 51.28 25.4951 50.576C25.8151 49.856 25.9751 48.992 25.9751 47.984C25.9751 46.976 25.7111 45.928 25.1831 44.84C24.6551 43.752 24.0231 42.72 23.2871 41.744C22.0391 40.08 20.9431 38.536 19.9991 37.112C19.0711 35.688 18.3431 34.288 17.8151 32.912C17.3031 31.536 17.0471 30.096 17.0471 28.592C17.0471 27.408 17.1991 26.32 17.5031 25.328C17.8071 24.32 18.2471 23.448 18.8231 22.712C19.4151 21.96 20.1271 21.376 20.9591 20.96C21.7911 20.544 22.7431 20.336 23.8151 20.336C25.1431 20.336 26.2631 20.56 27.1751 21.008C28.1031 21.456 28.8471 22.096 29.4071 22.928C29.9831 23.76 30.3991 24.752 30.6551 25.904C30.9271 27.04 31.0631 28.304 31.0631 29.696L25.9751 30.176C25.9751 29.584 25.9431 28.992 25.8791 28.4C25.8311 27.792 25.7351 27.24 25.5911 26.744C25.4471 26.248 25.2391 25.848 24.9671 25.544C24.6951 25.24 24.3431 25.088 23.9111 25.088C23.2391 25.088 22.7751 25.376 22.5191 25.952C22.2631 26.512 22.1351 27.312 22.1351 28.352C22.1351 29.696 22.4951 30.992 23.2151 32.24C23.9351 33.488 24.9031 34.944 26.1191 36.608C27.5751 38.576 28.7591 40.384 29.6711 42.032C30.5991 43.68 31.0631 45.504 31.0631 47.504C31.0631 48.768 30.9271 49.944 30.6551 51.032C30.3831 52.104 29.9511 53.04 29.3591 53.84C28.7831 54.64 28.0391 55.264 27.1271 55.712C26.2311 56.16 25.1431 56.384 23.8631 56.384ZM40.0819 56.384C38.6579 56.384 37.4739 56.152 36.5299 55.688C35.5859 55.208 34.8419 54.52 34.2979 53.624C33.7539 52.728 33.3619 51.648 33.1219 50.384C32.8979 49.12 32.7859 47.696 32.7859 46.112L37.8739 45.632C37.8739 46.4 37.8979 47.144 37.9459 47.864C38.0099 48.568 38.1139 49.208 38.2579 49.784C38.4179 50.344 38.6419 50.792 38.9299 51.128C39.2339 51.464 39.6179 51.632 40.0819 51.632C40.8499 51.632 41.3939 51.28 41.7139 50.576C42.0339 49.856 42.1939 48.992 42.1939 47.984C42.1939 46.976 41.9299 45.928 41.4019 44.84C40.8739 43.752 40.2419 42.72 39.5059 41.744C38.2579 40.08 37.1619 38.536 36.2179 37.112C35.2899 35.688 34.5619 34.288 34.0339 32.912C33.5219 31.536 33.2659 30.096 33.2659 28.592C33.2659 27.408 33.4179 26.32 33.7219 25.328C34.0259 24.32 34.4659 23.448 35.0419 22.712C35.6339 21.96 36.3459 21.376 37.1779 20.96C38.0099 20.544 38.9619 20.336 40.0339 20.336C41.3619 20.336 42.4819 20.56 43.3939 21.008C44.3219 21.456 45.0659 22.096 45.6259 22.928C46.2019 23.76 46.6179 24.752 46.8739 25.904C47.1459 27.04 47.2819 28.304 47.2819 29.696L42.1939 30.176C42.1939 29.584 42.1619 28.992 42.0979 28.4C42.0499 27.792 41.9539 27.24 41.8099 26.744C41.6659 26.248 41.4579 25.848 41.1859 25.544C40.9139 25.24 40.5619 25.088 40.1299 25.088C39.4579 25.088 38.9939 25.376 38.7379 25.952C38.4819 26.512 38.3539 27.312 38.3539 28.352C38.3539 29.696 38.7139 30.992 39.4339 32.24C40.1539 33.488 41.1219 34.944 42.3379 36.608C43.7939 38.576 44.9779 40.384 45.8899 42.032C46.8179 43.68 47.2819 45.504 47.2819 47.504C47.2819 48.768 47.1459 49.944 46.8739 51.032C46.6019 52.104 46.1699 53.04 45.5779 53.84C45.0019 54.64 44.2579 55.264 43.3459 55.712C42.4499 56.16 41.3619 56.384 40.0819 56.384ZM50.0606 56V20.72H61.9166V26.048H55.2446V35.552H60.0446V40.736H55.2446V50.672H61.9166V56H50.0606ZM65.7638 56V20.72H70.6118L75.4118 39.104L75.8438 40.736H76.1318V20.72H80.8838V56H76.5157L71.2358 37.616L70.8038 35.984H70.5158V56H65.7638ZM88.1573 56V26.048H83.2613V20.72H98.2373V26.048H93.3413V56H88.1573ZM100.639 56V20.72H105.823V56H100.639ZM108.606 56L113.934 20.72H120.27L125.598 56H120.558L119.598 48.8H114.606L113.646 56H108.606ZM115.326 43.328H118.878L117.39 31.472L117.246 29.6H116.958L116.814 31.472L115.326 43.328ZM128.342 56V20.72H133.526V51.2H140.39V56H128.342ZM148.738 56.384C147.314 56.384 146.13 56.152 145.186 55.688C144.242 55.208 143.498 54.52 142.954 53.624C142.41 52.728 142.018 51.648 141.778 50.384C141.554 49.12 141.442 47.696 141.442 46.112L146.53 45.632C146.53 46.4 146.554 47.144 146.602 47.864C146.666 48.568 146.77 49.208 146.914 49.784C147.074 50.344 147.298 50.792 147.586 51.128C147.89 51.464 148.274 51.632 148.738 51.632C149.506 51.632 150.05 51.28 150.37 50.576C150.69 49.856 150.85 48.992 150.85 47.984C150.85 46.976 150.586 45.928 150.058 44.84C149.53 43.752 148.898 42.72 148.162 41.744C146.914 40.08 145.818 38.536 144.874 37.112C143.946 35.688 143.218 34.288 142.69 32.912C142.178 31.536 141.922 30.096 141.922 28.592C141.922 27.408 142.074 26.32 142.378 25.328C142.682 24.32 143.122 23.448 143.698 22.712C144.29 21.96 145.002 21.376 145.834 20.96C146.666 20.544 147.618 20.336 148.69 20.336C150.018 20.336 151.138 20.56 152.05 21.008C152.978 21.456 153.722 22.096 154.282 22.928C154.858 23.76 155.274 24.752 155.53 25.904C155.802 27.04 155.938 28.304 155.938 29.696L150.85 30.176C150.85 29.584 150.818 28.992 150.754 28.4C150.706 27.792 150.61 27.24 150.466 26.744C150.322 26.248 150.114 25.848 149.842 25.544C149.57 25.24 149.218 25.088 148.786 25.088C148.114 25.088 147.65 25.376 147.394 25.952C147.138 26.512 147.01 27.312 147.01 28.352C147.01 29.696 147.37 30.992 148.09 32.24C148.81 33.488 149.778 34.944 150.994 36.608C152.45 38.576 153.634 40.384 154.546 42.032C155.474 43.68 155.938 45.504 155.938 47.504C155.938 48.768 155.802 49.944 155.53 51.032C155.258 52.104 154.826 53.04 154.234 53.84C153.658 54.64 152.914 55.264 152.002 55.712C151.106 56.16 150.018 56.384 148.738 56.384Z" fill="currentColor"/>
+        <path d="M1.96 18V0.36H4.552V15.6H7.984V18H1.96ZM9.03813 18V0.36H11.6301V18H9.03813ZM16.6816 18.192C15.9696 18.192 15.3776 18.076 14.9056 17.844C14.4336 17.604 14.0616 17.26 13.7896 16.812C13.5176 16.364 13.3216 15.824 13.2016 15.192C13.0896 14.56 13.0336 13.848 13.0336 13.056L15.5776 12.816C15.5776 13.2 15.5896 13.572 15.6136 13.932C15.6456 14.284 15.6976 14.604 15.7696 14.892C15.8496 15.172 15.9616 15.396 16.1056 15.564C16.2576 15.732 16.4496 15.816 16.6816 15.816C17.0656 15.816 17.3376 15.64 17.4976 15.288C17.6576 14.928 17.7376 14.496 17.7376 13.992C17.7376 13.488 17.6056 12.964 17.3416 12.42C17.0776 11.876 16.7616 11.36 16.3936 10.872C15.7696 10.04 15.2216 9.268 14.7496 8.556C14.2856 7.844 13.9216 7.144 13.6576 6.456C13.4016 5.768 13.2736 5.048 13.2736 4.296C13.2736 3.704 13.3496 3.16 13.5016 2.664C13.6536 2.16 13.8736 1.724 14.1616 1.356C14.4576 0.98 14.8136 0.688 15.2296 0.48C15.6456 0.271999 16.1216 0.167999 16.6576 0.167999C17.3216 0.167999 17.8816 0.279999 18.3376 0.503999C18.8016 0.727999 19.1736 1.048 19.4536 1.464C19.7416 1.88 19.9496 2.376 20.0776 2.952C20.2136 3.52 20.2816 4.152 20.2816 4.848L17.7376 5.088C17.7376 4.792 17.7216 4.496 17.6896 4.2C17.6656 3.896 17.6176 3.62 17.5456 3.372C17.4736 3.124 17.3696 2.924 17.2336 2.772C17.0976 2.62 16.9216 2.544 16.7056 2.544C16.3696 2.544 16.1376 2.688 16.0096 2.976C15.8816 3.256 15.8176 3.656 15.8176 4.176C15.8176 4.848 15.9976 5.496 16.3576 6.12C16.7176 6.744 17.2016 7.472 17.8096 8.304C18.5376 9.288 19.1296 10.192 19.5856 11.016C20.0496 11.84 20.2816 12.752 20.2816 13.752C20.2816 14.384 20.2136 14.972 20.0776 15.516C19.9416 16.052 19.7256 16.52 19.4296 16.92C19.1416 17.32 18.7696 17.632 18.3136 17.856C17.8656 18.08 17.3216 18.192 16.6816 18.192ZM21.6709 18V0.36H24.2629C25.2469 0.36 26.0669 0.576 26.7229 1.008C27.3869 1.44 27.8829 2.052 28.2109 2.844C28.5389 3.636 28.7029 4.568 28.7029 5.64C28.7029 6.712 28.5309 7.636 28.1869 8.412C27.8429 9.188 27.3389 9.796 26.6749 10.236C26.0189 10.668 25.2149 10.904 24.2629 10.944V18H21.6709ZM24.2629 8.304C24.7189 8.304 25.0789 8.216 25.3429 8.04C25.6069 7.856 25.7949 7.568 25.9069 7.176C26.0269 6.784 26.0869 6.28 26.0869 5.664C26.0869 5.04 26.0269 4.532 25.9069 4.14C25.7949 3.748 25.6029 3.46 25.3309 3.276C25.0669 3.092 24.7109 3 24.2629 3V8.304ZM37.0036 18.192C35.9716 18.192 35.1196 17.86 34.4476 17.196C33.7836 16.524 33.4516 15.56 33.4516 14.304C33.4516 13.52 33.5556 12.82 33.7636 12.204C33.9796 11.58 34.2396 11.02 34.5436 10.524C34.8556 10.028 35.1556 9.584 35.4436 9.192C35.0276 8.328 34.7156 7.48 34.5076 6.648C34.2996 5.808 34.1956 4.928 34.1956 4.008C34.1956 2.912 34.4636 2 34.9996 1.272C35.5356 0.535999 36.3236 0.167999 37.3636 0.167999C38.3796 0.167999 39.1476 0.527999 39.6676 1.248C40.1876 1.968 40.4476 2.852 40.4476 3.9C40.4476 4.772 40.2156 5.64 39.7516 6.504C39.2876 7.36 38.7236 8.224 38.0596 9.096C38.4436 9.968 38.7716 10.66 39.0436 11.172C39.3156 11.676 39.5636 12.096 39.7876 12.432C39.9476 11.984 40.0716 11.512 40.1596 11.016C40.2556 10.512 40.3156 10.16 40.3396 9.96L42.4036 10.344C42.3476 11.024 42.2076 11.748 41.9836 12.516C41.7596 13.284 41.4996 13.96 41.2036 14.544C41.3636 14.72 41.5596 14.896 41.7916 15.072C42.0236 15.24 42.2276 15.36 42.4036 15.432V18.192C42.1796 18.192 41.9036 18.096 41.5756 17.904C41.2476 17.712 40.9316 17.488 40.6276 17.232C40.3316 16.976 40.1076 16.752 39.9556 16.56C39.5876 17.048 39.1836 17.444 38.7436 17.748C38.3036 18.044 37.7236 18.192 37.0036 18.192ZM37.1236 15.936C37.4516 15.936 37.7276 15.84 37.9516 15.648C38.1756 15.456 38.3876 15.216 38.5876 14.928C38.2676 14.408 37.9396 13.872 37.6036 13.32C37.2756 12.768 36.9236 12.152 36.5476 11.472C36.3716 11.768 36.2276 12.156 36.1156 12.636C36.0036 13.108 35.9476 13.532 35.9476 13.908C35.9476 14.42 36.0436 14.888 36.2356 15.312C36.4276 15.728 36.7236 15.936 37.1236 15.936ZM37.0996 6.888C37.3876 6.44 37.6556 5.952 37.9036 5.424C38.1516 4.896 38.2756 4.4 38.2756 3.936C38.2756 3.464 38.2116 3.064 38.0836 2.736C37.9556 2.4 37.7156 2.232 37.3636 2.232C37.0196 2.232 36.7796 2.404 36.6436 2.748C36.5076 3.092 36.4396 3.5 36.4396 3.972C36.4396 4.468 36.4996 4.96 36.6196 5.448C36.7476 5.936 36.9076 6.416 37.0996 6.888ZM47.6631 18V0.36H53.5911V3.024H50.2551V7.776H52.6551V10.368H50.2551V15.336H53.5911V18H47.6631ZM55.5147 18V0.36H58.8027L60.2187 9.504L60.3387 10.44H60.3867L60.5067 9.504L61.9227 0.36H65.2107V18H62.8107V6.168H62.6667L62.5707 6.912L61.0347 18H59.6907L58.1547 6.912L58.0587 6.168H57.9147V18H55.5147ZM66.5997 18L69.2637 0.36H72.4317L75.0957 18H72.5757L72.0957 14.4H69.5997L69.1197 18H66.5997ZM69.9597 11.664H71.7357L70.9917 5.736L70.9197 4.8H70.7757L70.7037 5.736L69.9597 11.664ZM79.8038 18.192C79.0678 18.192 78.4398 18.028 77.9198 17.7C77.4078 17.364 77.0158 16.908 76.7438 16.332C76.4798 15.756 76.3478 15.104 76.3478 14.376V3.984C76.3478 3.264 76.4838 2.616 76.7558 2.04C77.0358 1.464 77.4358 1.008 77.9558 0.671999C78.4758 0.335999 79.0918 0.167999 79.8038 0.167999C80.3398 0.167999 80.8198 0.267999 81.2438 0.467999C81.6678 0.667999 82.0278 0.943999 82.3238 1.296C82.6278 1.64 82.8598 2.044 83.0198 2.508C83.1798 2.964 83.2598 3.456 83.2598 3.984V6.408H80.8358V3.984C80.8358 3.616 80.7598 3.308 80.6078 3.06C80.4558 2.812 80.2038 2.688 79.8518 2.688C79.5318 2.688 79.2998 2.816 79.1558 3.072C79.0118 3.328 78.9398 3.632 78.9398 3.984V14.376C78.9398 14.728 79.0158 15.032 79.1678 15.288C79.3278 15.544 79.5558 15.672 79.8518 15.672C80.2118 15.672 80.4638 15.548 80.6078 15.3C80.7598 15.052 80.8358 14.744 80.8358 14.376V11.952H83.2598V14.376C83.2598 15.096 83.1198 15.744 82.8398 16.32C82.5598 16.896 82.1598 17.352 81.6398 17.688C81.1278 18.024 80.5158 18.192 79.8038 18.192ZM88.1894 18.192C87.4774 18.192 86.8854 18.076 86.4134 17.844C85.9414 17.604 85.5694 17.26 85.2974 16.812C85.0254 16.364 84.8294 15.824 84.7094 15.192C84.5974 14.56 84.5414 13.848 84.5414 13.056L87.0854 12.816C87.0854 13.2 87.0974 13.572 87.1214 13.932C87.1534 14.284 87.2054 14.604 87.2774 14.892C87.3574 15.172 87.4694 15.396 87.6134 15.564C87.7654 15.732 87.9574 15.816 88.1894 15.816C88.5734 15.816 88.8454 15.64 89.0054 15.288C89.1654 14.928 89.2454 14.496 89.2454 13.992C89.2454 13.488 89.1134 12.964 88.8494 12.42C88.5854 11.876 88.2694 11.36 87.9014 10.872C87.2774 10.04 86.7294 9.268 86.2574 8.556C85.7934 7.844 85.4294 7.144 85.1654 6.456C84.9094 5.768 84.7814 5.048 84.7814 4.296C84.7814 3.704 84.8574 3.16 85.0094 2.664C85.1614 2.16 85.3814 1.724 85.6694 1.356C85.9654 0.98 86.3214 0.688 86.7374 0.48C87.1534 0.271999 87.6294 0.167999 88.1654 0.167999C88.8294 0.167999 89.3894 0.279999 89.8454 0.503999C90.3094 0.727999 90.6814 1.048 90.9614 1.464C91.2494 1.88 91.4574 2.376 91.5854 2.952C91.7214 3.52 91.7894 4.152 91.7894 4.848L89.2454 5.088C89.2454 4.792 89.2294 4.496 89.1974 4.2C89.1734 3.896 89.1254 3.62 89.0534 3.372C88.9814 3.124 88.8774 2.924 88.7414 2.772C88.6054 2.62 88.4294 2.544 88.2134 2.544C87.8774 2.544 87.6454 2.688 87.5174 2.976C87.3894 3.256 87.3254 3.656 87.3254 4.176C87.3254 4.848 87.5054 5.496 87.8654 6.12C88.2254 6.744 88.7094 7.472 89.3174 8.304C90.0454 9.288 90.6374 10.192 91.0934 11.016C91.5574 11.84 91.7894 12.752 91.7894 13.752C91.7894 14.384 91.7214 14.972 91.5854 15.516C91.4494 16.052 91.2334 16.52 90.9374 16.92C90.6494 17.32 90.2774 17.632 89.8214 17.856C89.3734 18.08 88.8294 18.192 88.1894 18.192Z" fill="currentColor"/>
+        <path d="M146 0V8H104V18H96V0H146ZM157 18H106V10H148V0H157V18Z" fill="currentColor"/>
+        </svg>
+        <span class="flag__foot">
+          <span>16 CHAPTERS, COMPLETE</span>
+          <span class="flag__go">Start reading</span>
+        </span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ══ ARTICLE ════════════════════════════════════════════════════════ -->
+  <main>
+  <article>
+
+    <header class="band art-head">
+      <div class="cell art-lede">
+        <div class="titleblock"><span>Lisp</span><span class="no">6 MIN</span></div>
+        <h1 class="hed art-title">To LOOP or not to LOOP</h1>
+        <p class="dek"><code>loop</code> is a small language with its own grammar, built
+          into Common Lisp. Some programmers write every iteration with it and some
+          refuse to. The better question is which loops it makes clearer, and which it
+          makes worse.</p>
+        <div class="art-by">
+          <p class="byline">By <b>Micah Killian</b><br>
+            <time datetime="2026-09-21">21 September 2026</time></p>
+        </div>
+      </div>
+
+      <nav class="cell art-facts reversed marks" aria-labelledby="toc-head">
+        <div class="titleblock"><span id="toc-head">Contents</span><span class="no">5 SECTIONS</span></div>
+        <ol class="toc">
+        <li><a href="#language"><span class="no">1</span>A language inside the language</a></li>
+        <li><a href="#earns"><span class="no">2</span>Where it earns its place</a></li>
+        <li><a href="#bites"><span class="no">3</span>Where it bites</a></li>
+        <li><a href="#alternatives"><span class="no">4</span>The alternatives</a></li>
+        <li><a href="#rule"><span class="no">5</span>A rule you can use</a></li>
+        </ol>
+        <dl class="facts">
+          <div><dt>Published</dt><dd>21 SEP 2026</dd></div>
+          <div><dt>Tested on</dt><dd>SBCL 2.6.3</dd></div>
+          <div><dt>Also uses</dt><dd>ITERATE</dd></div>
+        </dl>
+      </nav>
+    </header>
+
+    <section class="band clause" id="language" aria-labelledby="language-h">
+      <div class="cell clause__head">
+        <div class="clause__pin">
+          <p class="clause__no" aria-hidden="true">1</p>
+          <h2 id="language-h">A language inside the language</h2>
+        </div>
+      </div>
+      <div class="cell clause__body">
+<p>Almost every form in Common Lisp is a list you can read from the inside out.
+<code>loop</code> isn't. Its arguments are a run of clauses that read almost like English,
+<code>:for x :in list :collect x</code>, and the macro parses them with a grammar of its own,
+set out in section 6.1 of the standard.</p>
+<p>None of that costs anything when the program runs. Expand a <code>loop</code> and you get
+ordinary Lisp: a <code>block</code>, a <code>let</code> for the variables, and a <code>tagbody</code> that
+jumps back to the top with <code>go</code>. The cost is paid by whoever reads the code, and
+whether it's worth paying depends on the loop.</p>
+      </div>
+      <aside class="cell clause__notes" aria-label="Notes on A language inside the language">
+<div class="note"><p class="note__k">Syntax</p>
+<code class="note__sig">loop [name-clause] {variable-clause}* {main-clause}* =&gt; result*</code></div>
+<div class="note"><p class="note__k">Try it</p>
+<p>Put the cursor on any <code>loop</code> form and press <kbd>C-c C-m</kbd> in Sly to see
+it expanded one step.</p></div>
+<div class="note"><p class="note__k">Keywords or symbols</p>
+<p><code>loop</code> matches clause names by their spelling, so <code>:for</code> and <code>for</code> mean
+the same thing. This magazine writes them as keywords so they stand apart from your
+variables.</p></div>
+      </aside>
+    </section>
+
+    <section class="band clause" id="earns" aria-labelledby="earns-h">
+      <div class="cell clause__head">
+        <div class="clause__pin">
+          <p class="clause__no" aria-hidden="true">2</p>
+          <h2 id="earns-h">Where it earns its place</h2>
+        </div>
+      </div>
+      <div class="cell clause__body">
+<p>Here is a small job. From a list of students and their scores, get the names of
+everyone who scored 90 or more, and the class average.</p>
+<figure class="code"><div class="code__bar"><span>Buffer<b>grades.lisp</b></span><span>Package<b>cl-user</b></span></div><pre><code>(defparameter *scores*
+  '(("Ada" . 94) ("Grace" . 88)
+    ("Alan" . 97) ("Barbara" . 72)))
+
+(loop :for (name . score) :in *scores*
+      :when (&gt;= score 90)
+        :collect name :into honours
+      :sum score :into total
+      :count t :into students
+      :finally (return (values honours (/ total students))))</code></pre><div class="code__ret"><span>Returns</span><pre>("Ada" "Alan")
+351/4</pre></div></figure>
+<p>That's one pass over the list, three running results and a destructured entry,
+all in one form. Without <code>loop</code>, the same work needs three variables that you
+declare and update yourself:</p>
+<figure class="code"><pre><code>(let ((honours '()) (total 0) (students 0))
+  (dolist (entry *scores*)
+    (destructuring-bind (name . score) entry
+      (when (&gt;= score 90) (push name honours))
+      (incf total score)
+      (incf students)))
+  (values (nreverse honours) (/ total students)))</code></pre><div class="code__ret"><span>Returns</span><pre>("Ada" "Alan")
+351/4</pre></div></figure>
+<p>That version isn't wrong, but its intent is buried in bookkeeping: the <code>push</code>
+needs an <code>nreverse</code> at the end, and the counter is kept by hand. Several results
+gathered in one pass is the job <code>loop</code> was made for.</p>
+      </div>
+      <aside class="cell clause__notes" aria-label="Notes on Where it earns its place">
+<div class="note"><p class="note__k">Why 351/4</p>
+<p>Dividing integers in Common Lisp gives an exact ratio, not a truncated integer or a
+rounded float. Wrap the division in <code>float</code> to get 87.75.</p></div>
+<div class="note"><p class="note__k">Syntax</p>
+<code class="note__sig">destructuring-bind lambda-list expression declaration* form* =&gt; result*</code></div>
+      </aside>
+    </section>
+
+    <section class="band clause" id="bites" aria-labelledby="bites-h">
+      <div class="cell clause__head">
+        <div class="clause__pin">
+          <p class="clause__no" aria-hidden="true">3</p>
+          <h2 id="bites-h">Where it bites</h2>
+        </div>
+      </div>
+      <div class="cell clause__body">
+<p>Now change the job: total the scores of the honours students only. The obvious
+edit is to indent a <code>:sum</code> under the <code>:when</code>.</p>
+<figure class="code"><pre><code>(loop :for (name . score) :in *scores*
+      :when (&gt;= score 90)
+        :collect name :into honours
+        <span class="hl">:sum score :into honours-total</span>
+      :finally (return (values honours honours-total)))</code></pre><div class="code__ret"><span>Returns</span><pre>("Ada" "Alan")
+351</pre></div></figure>
+<p>The answer should be 191. It's 351, the total for the whole class. A <code>:when</code>
+controls exactly one clause. The indentation is only a suggestion, and <code>loop</code>
+ignores it. To make the <code>:sum</code> conditional as well, you have to chain it with
+<code>:and</code>:</p>
+<figure class="code"><pre><code>(loop :for (name . score) :in *scores*
+      :when (&gt;= score 90)
+        :collect name :into honours
+        <span class="hl">:and :sum score :into honours-total</span>
+      :finally (return (values honours honours-total)))</code></pre><div class="code__ret"><span>Returns</span><pre>("Ada" "Alan")
+191</pre></div></figure>
+<p>Nothing warned about the first version. It compiled, ran and returned a believable
+number. That's the real cost of <code>loop</code>: its structure lives in keywords, not
+parentheses, so neither the compiler nor your editor can see it. Structured editing
+moves whole forms, and a clause isn't a form.</p>
+<p>The second trap involves closures. Each function below should remember a
+different <code>x</code>:</p>
+<figure class="code"><pre><code>(mapcar #'funcall
+        (loop :for x :in '(1 2 3)
+              :collect (lambda () x)))</code></pre><div class="code__ret"><span>Returns</span><pre>(3 3 3)</pre></div></figure>
+<p>On SBCL, <code>loop</code> updates a single variable on every pass instead of binding a
+new one, so all three closures share it and see its last value. The same code
+written with <code>dolist</code> returns <code>(1 2 3)</code> on SBCL, and a <code>mapcar</code> always
+does, because each call to the function gets its own binding. To capture the
+variable inside <code>loop</code>, rebind it: <code>(let ((x x)) (lambda () x))</code>.</p>
+      </div>
+      <aside class="cell clause__notes" aria-label="Notes on Where it bites">
+<div class="note"><p class="note__k">Syntax</p>
+<code class="note__sig">:when form clause {:and clause}* [:else clause {:and clause}*] [:end]</code></div>
+<div class="note"><p class="note__k">The standard</p>
+<p>Whether <code>dolist</code> makes a new binding on each pass is left to the
+implementation. Portable code shouldn't count on either behaviour, in <code>dolist</code>
+or in <code>loop</code>.</p></div>
+<div class="note"><p class="note__k">In the book</p>
+<p><a href="/book/essentials/structured-editing">Chapter 6, Structured Editing</a>,
+covers the editor commands that move whole forms.</p></div>
+      </aside>
+    </section>
+
+    <section class="band clause" id="alternatives" aria-labelledby="alternatives-h">
+      <div class="cell clause__head">
+        <div class="clause__pin">
+          <p class="clause__no" aria-hidden="true">4</p>
+          <h2 id="alternatives-h">The alternatives</h2>
+        </div>
+      </div>
+      <div class="cell clause__body">
+<p>When <code>loop</code> is the wrong tool, it's usually because a simpler one says the same
+thing in fewer words. For one transformation, one filter or one total, the sequence
+functions read better, because their names state the intent:</p>
+<figure class="code"><pre><code>(mapcar #'car *scores*)
+;; =&gt; ("Ada" "Grace" "Alan" "Barbara")
+
+(reduce #'+ *scores* :key #'cdr)
+;; =&gt; 351
+
+(every (lambda (entry) (&gt;= (cdr entry) 70)) *scores*)
+;; =&gt; T, everyone passed</code></pre></figure>
+<p>For side effects with no result, <code>dolist</code> and <code>dotimes</code> are shorter and say
+so. And if you want everything <code>loop</code> does with Lisp's own syntax, there's ITERATE,
+a library on Quicklisp. Each clause is a form in parentheses, so a <code>when</code> has a
+body you can see:</p>
+<figure class="code"><div class="code__bar"><span>Buffer<b>grades.lisp</b></span><span>Package<b>grades</b></span></div><pre><code>(iter (for (name . score) in *scores*)
+      (when (&gt;= score 90)
+        (collect name into honours)
+        (sum score into honours-total))
+      (finally (return (values honours honours-total))))</code></pre><div class="code__ret"><span>Returns</span><pre>("Ada" "Alan")
+191</pre></div></figure>
+<p>The trap from the last section can't happen here. Both clauses are inside the
+<code>when</code> because the parentheses put them there, and your editor can move, wrap or
+delete each one as a unit. The price is a dependency, and one more library every
+reader of your code has to know.</p>
+      </div>
+      <aside class="cell clause__notes" aria-label="Notes on The alternatives">
+<div class="note"><p class="note__k">Syntax</p>
+<code class="note__sig">reduce function sequence &amp;key key from-end start end initial-value =&gt; result</code></div>
+<div class="note"><p class="note__k">Getting ITERATE</p>
+<p>Load it with <code>(ql:quickload "iterate")</code>, then define your package with
+<code>(:use :cl :iterate)</code>, as the <code>grades</code> package here does.</p></div>
+      </aside>
+    </section>
+
+    <section class="band clause" id="rule" aria-labelledby="rule-h">
+      <div class="cell clause__head">
+        <div class="clause__pin">
+          <p class="clause__no" aria-hidden="true">5</p>
+          <h2 id="rule-h">A rule you can use</h2>
+        </div>
+      </div>
+      <div class="cell clause__body">
+<p>Ask what the loop produces, then pick the smallest tool that says it.</p>
+<table class="rule">
+  <thead><tr><th scope="col">If the loop</th><th scope="col">Use</th></tr></thead>
+  <tbody>
+    <tr><td>changes every element</td><td><code>mapcar</code>, <code>map</code></td></tr>
+    <tr><td>keeps some elements</td><td><code>remove-if-not</code></td></tr>
+    <tr><td>boils everything down to one value</td><td><code>reduce</code>, <code>count-if</code>, <code>every</code>, <code>some</code></td></tr>
+    <tr><td>only has side effects</td><td><code>dolist</code>, <code>dotimes</code></td></tr>
+    <tr class="pick"><td>gathers several results in one pass, or walks two sequences in step</td><td><code>loop</code></td></tr>
+    <tr class="pick"><td>needs a condition around several clauses</td><td><code>loop</code> with <code>:and</code>, or ITERATE</td></tr>
+  </tbody>
+</table>
+<p>The last two rows are where <code>loop</code> is worth its grammar. Everywhere else it's
+a longer way of saying something Common Lisp already has a word for.</p>
+      </div>
+      <aside class="cell clause__notes" aria-label="Notes on A rule you can use">
+<div class="note"><p class="note__k">In the book</p>
+<p><a href="/book/essentials/the-loop-macro">Chapter 8, The LOOP Macro</a>, goes through
+every clause with an example, and ends with when to use something else.</p></div>
+<div class="note"><p class="note__k">Tested on</p>
+<p>Every example on this page was run on SBCL 2.6.3, with ITERATE from Quicklisp. The
+results shown are the ones it printed.</p></div>
+      </aside>
+    </section>
+
+  </article>
+
+  <!-- ══ KEEP READING ═══════════════════════════════════════════════════ -->
+  <section class="band more" aria-labelledby="more-head">
+    <h2 class="cell more__head" id="more-head">Keep reading</h2>
+
+    <article class="cell brief">
+      <div class="titleblock"><span>The book</span><span class="no">CHAPTER 8</span></div>
+      <h2><a href="/book/essentials/the-loop-macro">The LOOP Macro</a></h2>
+      <p>Every clause from <code>:for</code> to <code>:named</code>, each with an example
+        and the built-in function it can replace.</p>
+      <p class="byline">In <b>Lisp &amp; Emacs Essentials</b></p>
+    </article>
+
+    <article class="cell brief">
+      <div class="titleblock"><span>Lisp</span><span class="no">9 MIN</span></div>
+      <h2><a href="#lisp">An error that waits for you to decide</a></h2>
+      <p>When a Common Lisp program signals an error, the stack is still there.
+        Follow one bug from the signal to the restart you choose.</p>
+      <p class="byline">By <b>Micah Killian</b>, 22 September</p>
+    </article>
+
+    <article class="cell brief">
+      <div class="titleblock"><span>Lisp</span><span class="no">7 MIN</span></div>
+      <h2><a href="#lisp">Handling money without floating point</a></h2>
+      <p>Floats can't hold most decimal fractions exactly. Store amounts as integer
+        cents or ratios and every total adds up.</p>
+      <p class="byline">By <b>Micah Killian</b>, 11 September</p>
+    </article>
+  </section>
+  </main>
+
+</div>
+
+</body>
+</html>

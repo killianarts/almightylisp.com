@@ -1,0 +1,31 @@
+#+TITLE: Working title
+#+SUBTITLE: What you reviewed, and the verdict in a sentence.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: Review
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# Review: A clear verdict on one specific thing: a library, tool, book or implementation.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* What it is
+# The thing, who makes it, what it's for, and what you tested it on.
+Write this section.
+
+* What's good
+# The strengths, with examples.
+Write this section.
+
+* What isn't
+# The weaknesses, fairly, with examples.
+Write this section.
+
+* The verdict
+# Who should use it, who shouldn't, and what to use instead.
+Write this section.

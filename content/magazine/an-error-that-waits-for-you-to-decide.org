@@ -1,0 +1,25 @@
+#+TITLE: An error that waits\\for you to decide
+#+SUBTITLE: When a Common Lisp program signals an error, the stack is still there. Follow one bug from the signal to the restart you choose.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-22
+#+TYPE: Tutorial
+#+TOPIC: Lisp
+#+SERIES: CND
+#+PART: 1
+#+RELATED: the-image-is-still-running to-loop-or-not-to-loop
+
+* The signal is not the end
+
+A signal in Common Lisp does not mean the process is over. =error= enters the debugger with the stack that was running, and the debugger lists restarts: named ways back into the program that the code, or the implementation, prepared in advance.
+
+The useful question is which restart puts the program back on the path you wanted, not how fast you can kill the image and start another one.
+
+#+BEGIN_NOTE In the book
+[[/book/essentials/errors-conditions][Errors and Conditions]] walks through conditions, handlers, and restarts with the same stack still alive.
+#+END_NOTE
+
+* Pick a restart, then continue
+
+A handler can print a warning and invoke a restart that supplies a replacement value. The function that signalled returns that value to its caller, and the caller keeps going. The bug is still worth fixing. The process does not have to die for you to see the next line run.
+
+Compile the fixed function into the same image, then run the call again. The restart you chose was a way through the bad case. The new definition is how the bad case stops happening.

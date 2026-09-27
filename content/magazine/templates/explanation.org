@@ -1,0 +1,35 @@
+#+TITLE: Working title
+#+SUBTITLE: The question this answers, in plain words.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: Explanation
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# Explanation: Build understanding of an idea: how it works, or why it is the way it is. Stay neutral about what to do with it.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* The question
+# What's puzzling, and why it matters. Start from something the reader has seen.
+Write this section.
+
+* The model
+# The idea that explains it. One clear picture, built up in steps.
+Write this section.
+
+* Testing the model
+# Examples that show the model working, including a surprising one.
+Write this section.
+
+* Where it breaks down
+# The edge cases and exceptions.
+Write this section.
+
+* A rule you can use
+# What the reader can now predict or decide. A table often works here.
+Write this section.

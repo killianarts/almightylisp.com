@@ -1,0 +1,28 @@
+#+TITLE: Handling money without floating point
+#+SUBTITLE: Floats can't hold most decimal fractions exactly. Store amounts as integer cents or ratios and every total adds up.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-11
+#+TYPE: How-to
+#+TOPIC: Lisp
+#+RELATED: to-loop-or-not-to-loop
+
+* A tenth is not a tenth in binary
+
+=0.1= has no finite binary expansion. Add it to itself enough times and the total is not the decimal you wrote down. Money does that addition all day. The float will eventually disagree with the books.
+
+Common Lisp has integers and ratios. Either one can hold a currency amount exactly. A ratio keeps the fraction you actually meant. Integer cents keep the smallest unit the currency allows and make the arithmetic look like ordinary addition.
+
+#+BEGIN_SRC lisp :buffer money.lisp :package cl-user
+(+ 1/10 1/10 1/10)
+#+END_SRC
+
+#+RESULTS:
+3/10
+
+#+BEGIN_NOTE Why not a float at the edge
+Read a decimal from a human, parse it into a ratio or into cents, and only then store it. Printing is the moment you choose how many places to show. The stored number never went through binary rounding.
+#+END_NOTE
+
+* Cents when the currency has a smallest unit
+
+US dollars split into cents, so an amount can be an integer number of cents. A price of $1.30 is =130=. Sums are integer sums. The only division you do on purpose is the one that turns cents back into a display, and you decide there what to do with a remainder.

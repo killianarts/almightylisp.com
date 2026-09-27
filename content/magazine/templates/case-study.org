@@ -1,0 +1,31 @@
+#+TITLE: Working title
+#+SUBTITLE: The project, and the one decision that shaped it most.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: Case study
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# Case study: How a real project was built: the problem, the constraints, the decisions and what they cost.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* The project
+# What it does, who it's for, and why it's worth reading about.
+Write this section.
+
+* Constraints
+# What you had to work within: time, people, performance, existing code.
+Write this section.
+
+* Decisions
+# The choices that mattered, the alternatives, and what each one cost. One subsection each if needed.
+Write this section.
+
+* What we'd change
+# With hindsight, what you'd do differently.
+Write this section.

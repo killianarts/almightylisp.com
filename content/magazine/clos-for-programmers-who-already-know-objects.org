@@ -1,0 +1,21 @@
+#+TITLE: CLOS for programmers who already know objects
+#+SUBTITLE: Classes, generic functions, and methods, described for someone who already writes objects in another language and wants the Lisp version without the tour of every option.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-17
+#+TYPE: Explanation
+#+TOPIC: Lisp
+#+RELATED: to-loop-or-not-to-loop handling-money-without-floating-point
+
+* Methods live on the function
+
+In CLOS the function is generic and the methods are the implementations, chosen by the classes of the arguments. You do not look up a method by starting at the object and walking its class. You call the function, and the function finds the method.
+
+That is why a new class can add behaviour to a function that already exists, including functions you did not write, as long as you are allowed to define a method on them.
+
+#+BEGIN_NOTE Syntax
+=defmethod name (arg class)* form*= defines one method. The generic function is created for you the first time.
+#+END_NOTE
+
+* Multiple arguments, one method
+
+A method can specialise on more than the first parameter. Drawing a shape onto a medium is a method of both the shape and the medium, not a method the shape owns and the medium merely receives. If you have only ever specialised on =this=, that is the part worth trying first.

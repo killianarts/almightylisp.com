@@ -1,0 +1,14 @@
+#+title: Common Lisp Web Framework Showdown
+
+* Background
+For more than a decade, building web applications in a corporate setting has
+typically meant building a bifurcated application: a backend API built in any
+language and a frontend JavaScript framework that consumes that APIs. The upside
+is that you get access to the JS framework ecosystems out there no matter what
+backend language you use, and JS has a monopoly on the browser, so you can build
+anything your heart desires in JS if you want.
+
+The downsides are many: complexity in state management, security vulnerabilities
+as a result of said state management complexity, and 
+
+

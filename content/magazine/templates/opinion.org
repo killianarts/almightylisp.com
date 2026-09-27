@@ -1,0 +1,31 @@
+#+TITLE: Working title
+#+SUBTITLE: One or two sentences: the position, and why the reader should care.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: Opinion
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# Opinion: Argue one position. Claim first, then the case, then the best objection, then what to do.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* The claim
+# State the position plainly in the first paragraph. A reader who stops here should know what you think.
+Write this section.
+
+* The case
+# Your evidence: code, measurements, experience. Show, don't assert.
+Write this section.
+
+* The best objection
+# The strongest argument against you, put fairly, and your answer to it.
+Write this section.
+
+* What to do instead
+# What the reader should change on Monday.
+Write this section.

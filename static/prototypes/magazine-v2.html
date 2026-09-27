@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CL-USER — The Common Lisp Field Journal (Prototype)</title>
+<link rel="stylesheet" href="/static/css/fonts.css">
+<style>
+/* ============================================================
+   CL-USER — a magazine you don't read, you evaluate.
+   Signature: a live REPL cover + a two-color I/O system
+   (amber = input, phosphor-green = output) carried through
+   every section, which is itself framed as an evaluated form.
+   Brand faces: Berkeley Mono / League Gothic / Charter.
+   ============================================================ */
+:root{
+  --void:      oklch(0.275 0.115 266);
+  --void-2:    oklch(0.325 0.130 266);
+  --void-3:    oklch(0.220 0.095 266);   /* REPL well */
+  --amber:     oklch(0.905 0.162 98);    /* INPUT  */
+  --amber-dim: oklch(0.905 0.162 98 / .55);
+  --green:     oklch(0.885 0.185 150);   /* OUTPUT */
+  --green-dim: oklch(0.885 0.185 150 / .5);
+  --cyan:      oklch(0.865 0.127 207);
+  --warn:      oklch(0.72 0.19 27);
+  --text:      oklch(0.955 0.018 254);
+  --muted:     oklch(0.715 0.050 252);
+  --faint:     oklch(0.60 0.055 258);
+  --edge:      color-mix(in oklch, var(--text) 16%, transparent);
+  --edge-2:    color-mix(in oklch, var(--text) 34%, transparent);
+  --paper:     oklch(0.955 0.022 96);
+  --paper-ink: oklch(0.285 0.055 266);
+
+  --display: "League Gothic Tall","League Gothic","Bebas Neue","Arial Narrow",sans-serif;
+  --title:   "Berkeley Mono Black","Berkeley Mono",ui-monospace,monospace;
+  --mono:    "Berkeley Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --cond:    "Berkeley Mono UltraCondensed","Berkeley Mono",ui-monospace,monospace;
+  --serif:   Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+
+  --wrap: 1180px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--void);color:var(--text);
+  font-family:var(--serif);font-size:18px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  background-image:
+    radial-gradient(140% 90% at 50% -10%, color-mix(in oklch,var(--void-2) 70%,transparent), transparent 55%);
+}
+body::after{ /* faint phosphor scanlines */
+  content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:.045;
+  background-image:repeating-linear-gradient(to bottom, var(--text) 0 1px, transparent 1px 3px);
+}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:clamp(16px,4vw,40px)}
+.band{padding-block:clamp(40px,7vw,84px)}
+
+/* Lisp comment device (editorial metadata) */
+.comment{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+  color:var(--faint);text-transform:none}
+.comment::before{content:";; ";color:var(--green-dim)}
+
+/* section prompt device: every section is a form we evaluate */
+.prompt{font-family:var(--mono);font-size:clamp(.85rem,1.6vw,1.05rem);
+  letter-spacing:.02em;display:flex;align-items:baseline;gap:.6em;margin-bottom:.4rem}
+.prompt .caret{color:var(--amber);font-weight:700}
+.prompt .call{color:var(--amber)}
+.prompt .call b{color:var(--text);font-weight:400}
+.retline{font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;
+  color:var(--green);margin-bottom:1.6rem}
+.retline::before{content:"; => ";color:var(--green-dim)}
+
+/* ── UTILITY BAR ─────────────────────────────────────────── */
+.util{border-bottom:1px solid var(--edge);background:color-mix(in oklch,var(--void-2) 55%,transparent)}
+.util .wrap{display:flex;justify-content:space-between;gap:1rem;padding-block:.55rem;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--faint)}
+.util .r{color:var(--muted)}
+.util a:hover{color:var(--amber)}
+
+/* ── MASTHEAD ────────────────────────────────────────────── */
+.masthead .wrap{padding-block:clamp(26px,5vw,54px) clamp(20px,3vw,30px)}
+.nameplate{font-family:var(--title);font-weight:900;line-height:.9;
+  font-size:clamp(3.1rem,15vw,10.5rem);letter-spacing:-.02em;margin:0;
+  display:flex;align-items:baseline;gap:.06em}
+.nameplate .caret{color:var(--amber)}
+.nameplate .cursor{color:var(--amber);animation:blink 1.15s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.mast-sub{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+  flex-wrap:wrap;margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--edge)}
+.mast-sub .journal{font-family:var(--mono);text-transform:uppercase;
+  letter-spacing:.26em;font-size:.8rem;color:var(--muted)}
+.mast-sub .thesis{font-family:var(--serif);font-style:italic;font-size:1.15rem;
+  color:var(--text);max-width:34ch}
+.mast-sub .thesis b{font-style:normal;color:var(--amber)}
+
+/* ── HERO: LIVE REPL (the signature) ─────────────────────── */
+.repl-band .wrap{padding-block:clamp(20px,3vw,32px) clamp(44px,7vw,80px)}
+.repl-lead{font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;
+  color:var(--faint);margin-bottom:.9rem}
+.repl-lead::before{content:";; ";color:var(--green-dim)}
+.repl{
+  background:var(--void-3);border:1px solid var(--edge-2);
+  box-shadow:0 0 0 1px color-mix(in oklch,var(--void) 60%,transparent),
+             16px 16px 0 color-mix(in oklch,#000 40%,transparent);
+}
+.repl-top{display:flex;align-items:center;justify-content:space-between;
+  padding:.55rem .95rem;border-bottom:1px solid var(--edge);
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--faint)}
+.repl-top .lamp{display:flex;gap:.45rem}
+.repl-top .lamp i{width:.62rem;height:.62rem;border-radius:50%;background:var(--edge-2);display:block}
+.repl-top .lamp i:first-child{background:var(--amber)}
+.repl-top .lamp i:nth-child(2){background:var(--green)}
+.repl-scroll{max-height:min(52vh,460px);overflow-y:auto;padding:1.05rem 1.15rem .4rem}
+.repl-scroll::-webkit-scrollbar{width:9px}
+.repl-scroll::-webkit-scrollbar-thumb{background:var(--edge-2)}
+.log{font-family:var(--mono);font-size:clamp(.8rem,1.5vw,.94rem);line-height:1.75;
+  white-space:pre-wrap;word-break:break-word;margin:0}
+.log .in{color:var(--text)}
+.log .in .pr{color:var(--amber);font-weight:700}
+.log .out{color:var(--green)}
+.log .cmt{color:var(--faint)}
+.log .err{color:var(--warn)}
+.repl-input{display:flex;align-items:center;gap:.55em;padding:.7rem 1.15rem 1.05rem;
+  font-family:var(--mono);font-size:clamp(.8rem,1.5vw,.94rem)}
+.repl-input .pr{color:var(--amber);font-weight:700;flex:none}
+.repl-input input{flex:1;background:transparent;border:0;color:var(--text);
+  font:inherit;caret-color:var(--amber);padding:0}
+.repl-input input::placeholder{color:var(--faint)}
+.repl-input input:focus{outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.chip{font-family:var(--mono);font-size:.74rem;letter-spacing:.03em;color:var(--amber);
+  border:1px solid var(--amber-dim);padding:.32rem .7rem;cursor:pointer;
+  background:transparent;transition:background .14s,color .14s}
+.chip:hover{background:var(--amber);color:var(--void)}
+.chip .k{color:var(--muted)}
+.chip:hover .k{color:var(--void)}
+
+/* ── FEATURES (the return value of `(features)`) ─────────── */
+.features{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--edge);
+  border-left:1px solid var(--edge)}
+.feat{border-right:1px solid var(--edge);border-bottom:1px solid var(--edge);
+  padding:1.5rem 1.4rem;display:flex;flex-direction:column;gap:.7rem;
+  transition:background .18s}
+.feat:hover{background:color-mix(in oklch,var(--void-2) 45%,transparent)}
+.feat .tag{font-family:var(--mono);font-size:.74rem;letter-spacing:.04em;
+  color:var(--amber);display:flex;justify-content:space-between;gap:1rem}
+.feat .tag .ch{color:var(--faint)}
+.feat h3{font-family:var(--display);font-weight:400;text-transform:uppercase;
+  font-size:clamp(1.55rem,2.3vw,2rem);line-height:.96;margin:.1rem 0 0;max-width:15ch}
+.feat h3 a{transition:color .15s}
+.feat:hover h3 a{color:var(--text)}
+.feat p{margin:0;font-size:.96rem;color:var(--muted);max-width:40ch}
+.feat .go{margin-top:auto;font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;
+  color:var(--cyan);padding-top:.5rem}
+.feat:hover .go{color:var(--green)}
+
+/* ── MANIFESTO (inverted paper band) ─────────────────────── */
+.paper{background:var(--paper);color:var(--paper-ink)}
+.paper .comment{color:color-mix(in oklch,var(--paper-ink) 55%,transparent)}
+.paper .comment::before{color:oklch(0.6 0.16 150)}
+.paper .wrap{text-align:center;padding-block:clamp(52px,9vw,104px)}
+.paper blockquote{margin:1.3rem auto 0;max-width:20ch;font-family:var(--display);
+  font-weight:400;text-transform:uppercase;font-size:clamp(2.7rem,8vw,6rem);
+  line-height:.9;letter-spacing:.004em}
+.paper blockquote em{font-style:normal;color:oklch(0.62 0.16 150)}
+.paper .who{margin-top:1.6rem;font-family:var(--mono);font-size:.72rem;
+  letter-spacing:.18em;text-transform:uppercase;color:color-mix(in oklch,var(--paper-ink) 60%,transparent)}
+
+/* ── CONTENTS + THEMES (return of `(contents)`) ──────────── */
+.two{display:grid;grid-template-columns:1.45fr 1fr;gap:clamp(26px,5vw,56px)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:baseline;
+  padding:.8rem 0;border-bottom:1px solid var(--edge)}
+.toc .kw{font-family:var(--mono);color:var(--amber);font-size:.8rem}
+.toc .ti{font-family:var(--display);text-transform:uppercase;font-size:1.5rem;line-height:1}
+.toc .ti small{display:block;font-family:var(--serif);font-style:italic;text-transform:none;
+  font-size:.82rem;letter-spacing:0;color:var(--muted);margin-top:.12rem}
+.toc .pg{font-family:var(--mono);color:var(--faint);font-size:.76rem}
+.themes{border:1px solid var(--edge-2);background:var(--void-3);padding:1.6rem;
+  display:flex;flex-direction:column;gap:1rem}
+.themes h3{font-family:var(--display);text-transform:uppercase;font-weight:400;
+  font-size:2.3rem;line-height:.9;margin:0;color:var(--amber)}
+.themes p{margin:0;font-size:.94rem;color:var(--muted)}
+.sw{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+.sw i{aspect-ratio:1;display:block;border:1px solid var(--edge)}
+.btn{align-self:flex-start;margin-top:.4rem;font-family:var(--cond);text-transform:uppercase;
+  letter-spacing:.06em;font-size:1.05rem;background:var(--amber);color:var(--void);
+  padding:.62rem 1.25rem;font-weight:700;transition:background .15s,transform .1s}
+.btn:hover{background:var(--green);transform:translateY(-2px)}
+
+/* ── BOOK (return of `(essentials)`) ─────────────────────── */
+.book .two{grid-template-columns:.78fr 1.22fr;align-items:center}
+.cover{aspect-ratio:3/4;border:1px solid var(--edge-2);padding:1.5rem;
+  display:flex;flex-direction:column;justify-content:space-between;
+  background:linear-gradient(155deg,var(--void-2),var(--void-3));
+  box-shadow:16px 16px 0 color-mix(in oklch,#000 40%,transparent)}
+.cover .a{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+.cover .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.2rem,4.6vw,3.3rem);
+  line-height:.85;color:var(--text)}
+.cover .t em{color:var(--amber);font-style:normal}
+.book-copy h2{font-family:var(--display);text-transform:uppercase;font-weight:400;
+  font-size:clamp(2.3rem,5vw,3.8rem);line-height:.9;margin:.3rem 0 1rem}
+.book-copy p{color:var(--muted);max-width:52ch;margin:0 0 1rem}
+.book-copy p .code{font-family:var(--mono);color:var(--amber);font-size:.9em}
+.book-copy .drop::first-letter{font-family:var(--display);float:left;font-size:4.2rem;
+  line-height:.72;padding:.1rem .38rem 0 0;color:var(--amber)}
+.readmore{font-family:var(--cond);font-size:1.1rem;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--amber);border-bottom:2px solid var(--amber);padding-bottom:.14rem;
+  display:inline-flex;gap:.5em;transition:gap .15s,color .15s,border-color .15s}
+.readmore:hover{gap:.9em;color:var(--green);border-color:var(--green)}
+
+/* ── COLOPHON ────────────────────────────────────────────── */
+.colophon{border-top:1px solid var(--edge);background:var(--void-3)}
+.colophon .wrap{display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;
+  padding-block:2.2rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--faint)}
+.colophon b{color:var(--muted);font-weight:400}
+.colophon .mark{font-family:var(--title);font-size:1.4rem;color:var(--amber)}
+
+@media(max-width:900px){
+  .features{grid-template-columns:1fr 1fr}
+  .two,.book .two{grid-template-columns:1fr}
+  .cover{max-width:320px}
+}
+@media(max-width:560px){
+  .features{grid-template-columns:1fr}
+  .util .wrap{flex-direction:column;gap:.25rem}
+  .mast-sub{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+  .nameplate .cursor{animation:none}
+  *{scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<div class="util"><div class="wrap">
+  <span>;; Issue 1 &nbsp;·&nbsp; Summer 2026 &nbsp;·&nbsp; free, evaluated fresh</span>
+  <span class="r"><a href="/">almightylisp.com</a></span>
+</div></div>
+
+<header class="masthead"><div class="wrap">
+  <h1 class="nameplate"><span>CL-USER</span><span class="caret">&gt;</span><span class="cursor">_</span></h1>
+  <div class="mast-sub">
+    <span class="journal">The Common Lisp Field Journal</span>
+    <p class="thesis">A magazine you don't read. You <b>evaluate</b> it.</p>
+  </div>
+</div></header>
+
+<!-- SIGNATURE: LIVE REPL COVER -->
+<section class="repl-band"><div class="wrap">
+  <p class="repl-lead">the listener is live — type a form, press return. try (help)</p>
+  <div class="repl">
+    <div class="repl-top">
+      <span class="lamp"><i></i><i></i><i></i></span>
+      <span>*standard-output* — sbcl 2.4</span>
+    </div>
+    <div class="repl-scroll" id="scroll">
+      <pre class="log" id="log" aria-live="polite"></pre>
+    </div>
+    <form class="repl-input" id="form" autocomplete="off">
+      <label for="expr" style="position:absolute;left:-9999px">Lisp expression</label>
+      <span class="pr">CL-USER&gt;</span>
+      <input id="expr" name="expr" spellcheck="false" placeholder="(list :read :eval :print)">
+    </form>
+  </div>
+  <div class="chips" id="chips">
+    <button class="chip" data-x="(+ 1 2 3)">(+ 1 2 3)</button>
+    <button class="chip" data-x="(reverse (list :emacs :lisp))">(reverse <span class="k">…</span>)</button>
+    <button class="chip" data-x="(features)">(features)</button>
+    <button class="chip" data-x="(contents)">(contents)</button>
+    <button class="chip" data-x="(essentials)">(essentials)</button>
+    <button class="chip" data-x="(help)">(help)</button>
+  </div>
+</div></section>
+
+<!-- (features) -->
+<section class="band" id="features"><div class="wrap">
+  <div class="prompt"><span class="caret">CL-USER&gt;</span><span class="call">(features)</span></div>
+  <p class="retline">six forms worth reading this issue</p>
+  <div class="features">
+    <article class="feat">
+      <span class="tag">:macros <span class="ch">ch.10</span></span>
+      <h3><a href="#">Bending the Language to Your Will</a></h3>
+      <p>Code that writes code — backquote, splicing, hygiene, and knowing when not to reach for one.</p>
+      <span class="go">read &rarr;</span>
+    </article>
+    <article class="feat">
+      <span class="tag">:clos <span class="ch">ch.8</span></span>
+      <h3><a href="#">CLOS &amp; the Almighty Dragon</a></h3>
+      <p>Multiple dispatch and <code>call-next-method</code> — the most powerful OOP you've never used.</p>
+      <span class="go">read &rarr;</span>
+    </article>
+    <article class="feat">
+      <span class="tag">:emacs <span class="ch">ch.4</span></span>
+      <h3><a href="#">Survival Emacs, No Keys Required</a></h3>
+      <p>Start in the menus. Earn your keybindings one <code>C-x</code> at a time. No memorizing.</p>
+      <span class="go">read &rarr;</span>
+    </article>
+    <article class="feat">
+      <span class="tag">:conditions <span class="ch">ch.9</span></span>
+      <h3><a href="#">Errors as a Conversation</a></h3>
+      <p>Restarts turn a crash into a dialogue. Signal, handle, recover — keep the image alive.</p>
+      <span class="go">read &rarr;</span>
+    </article>
+    <article class="feat">
+      <span class="tag">:iteration <span class="ch">ch.12</span></span>
+      <h3><a href="#">Learning to Love LOOP</a></h3>
+      <p>The macro the purists warned you about is also the friendliest iteration DSL anywhere.</p>
+      <span class="go">read &rarr;</span>
+    </article>
+    <article class="feat">
+      <span class="tag">:deploying <span class="ch">ch.14</span></span>
+      <h3><a href="#">Ship a Standalone Binary</a></h3>
+      <p>From a live image to a single executable you hand to anyone. Nothing to install.</p>
+      <span class="go">read &rarr;</span>
+    </article>
+  </div>
+</div></section>
+
+<!-- manifesto -->
+<section class="paper"><div class="wrap">
+  <span class="comment">the almighty philosophy</span>
+  <blockquote>An almighty language that <em>summons</em> its users to become almighty.</blockquote>
+  <p class="who">The macros are waiting &nbsp;·&nbsp; the REPL is loaded &nbsp;·&nbsp; become almighty</p>
+</div></section>
+
+<!-- (contents) -->
+<section class="band" id="contents"><div class="wrap">
+  <div class="prompt"><span class="caret">CL-USER&gt;</span><span class="call">(contents)</span></div>
+  <p class="retline">an alist of chapters, keyed by subject</p>
+  <div class="two">
+    <ol class="toc">
+      <li><span class="kw">:intro</span><span class="ti">Introduction<small>Why I wrote this &amp; is AI almighty?</small></span><span class="pg">p.1</span></li>
+      <li><span class="kw">:fund</span><span class="ti">Lisp Fundamentals<small>Symbols, functions, lists, control flow, I/O</small></span><span class="pg">p.34</span></li>
+      <li><span class="kw">:ide</span><span class="ti">The Lisp IDE<small>Living inside the SLY REPL</small></span><span class="pg">p.118</span></li>
+      <li><span class="kw">:edit</span><span class="ti">Structured Editing<small>Slurp, barf, never lose a paren</small></span><span class="pg">p.140</span></li>
+      <li><span class="kw">:macros</span><span class="ti">Macros<small>Compilation before evaluation</small></span><span class="pg">p.236</span></li>
+      <li><span class="kw">:ship</span><span class="ti">Deploying<small>Executables &amp; the ecosystem</small></span><span class="pg">p.320</span></li>
+    </ol>
+    <aside class="themes" id="themes">
+      <span class="comment">now shipping</span>
+      <h3>Almighty Themes</h3>
+      <p>Sixteen Doom Emacs themes across two packs — eight light, eight dark — tuned to the palette you're reading right now.</p>
+      <div class="sw">
+        <i style="background:oklch(0.905 0.162 98)"></i>
+        <i style="background:oklch(0.865 0.127 207)"></i>
+        <i style="background:oklch(0.885 0.185 150)"></i>
+        <i style="background:oklch(0.7 0.2 25)"></i>
+        <i style="background:oklch(0.8 0.13 330)"></i>
+        <i style="background:oklch(0.488 0.243 264)"></i>
+        <i style="background:oklch(0.325 0.13 266)"></i>
+        <i style="background:oklch(0.955 0.022 96)"></i>
+      </div>
+      <a class="btn" href="/">Browse the Packs</a>
+    </aside>
+  </div>
+</div></section>
+
+<!-- (essentials) -->
+<section class="band book" id="essentials"><div class="wrap">
+  <div class="prompt"><span class="caret">CL-USER&gt;</span><span class="call">(essentials)</span></div>
+  <p class="retline">#&lt;BOOK "Lisp &amp; Emacs Essentials" — available now&gt;</p>
+  <div class="two">
+    <div class="cover">
+      <span class="a">Almighty Lisp · No.1</span>
+      <span class="t">Lisp &amp; Emacs <em>Essentials</em></span>
+      <span class="a">The Online Book</span>
+    </div>
+    <div class="book-copy">
+      <h2>Learn the Language<br>&amp; the Editor</h2>
+      <p class="drop">Other books teach Common Lisp but leave you stranded at the Emacs wall. This one pulls you up and over it — the language and its editor in a single volume, so proficiency with both compounds instead of competing.</p>
+      <p>You'll be barfing and slurping while you <span class="code">C-c C-c</span> macros in no time.</p>
+      <a class="readmore" href="/book/essentials">Read the book <span>&rarr;</span></a>
+    </div>
+  </div>
+</div></section>
+
+<footer class="colophon"><div class="wrap">
+  <span>;; set in <b>Berkeley Mono</b>, <b>League Gothic</b> &amp; <b>Charter</b></span>
+  <span class="mark">)</span>
+  <span>;; &copy; 2026 Almighty Lisp — evaluated in Saga, JP</span>
+</div></footer>
+
+<script>
+/* ── a small but honest Common Lisp reader / eval / printer ──
+   supports: integers, strings, keywords, symbols (upcased),
+   quote, and a set of builtins. no eval() of host JS. */
+(function(){
+  const Sym = n => ({t:'sym',n:n.toUpperCase()});
+  const Kw  = n => ({t:'kw', n:n.toUpperCase()});
+  const Str = v => ({t:'str',v});
+  const NIL = [];  // empty list prints as NIL
+  const isSym=(x,n)=>x&&x.t==='sym'&&x.n===n;
+
+  // ---- reader ----
+  function tokenize(s){
+    const out=[]; let i=0;
+    while(i<s.length){
+      const c=s[i];
+      if(/\s/.test(c)){i++;continue;}
+      if(c==='('||c===')'||c==="'"){out.push(c);i++;continue;}
+      if(c==='"'){ let j=i+1,v='';
+        while(j<s.length&&s[j]!=='"'){ if(s[j]==='\\'){v+=s[j+1];j+=2;} else {v+=s[j++];} }
+        out.push({str:v}); i=j+1; continue; }
+      let j=i;
+      while(j<s.length&&!/[\s()']/.test(s[j])) j++;
+      out.push(s.slice(i,j)); i=j;
+    }
+    return out;
+  }
+  function parse(tokens){
+    let p=0;
+    function atom(tok){
+      if(typeof tok==='object') return Str(tok.str);
+      if(/^[+-]?\d+$/.test(tok)) return parseInt(tok,10);
+      if(/^[+-]?\d*\.\d+$/.test(tok)) return parseFloat(tok);
+      if(tok[0]===':') return Kw(tok.slice(1));
+      return Sym(tok);
+    }
+    function read(){
+      const tok=tokens[p++];
+      if(tok===undefined) throw{lisp:'end of file during read'};
+      if(tok==='('){ const l=[]; while(tokens[p]!==')'){ if(p>=tokens.length) throw{lisp:'unbalanced (' }; l.push(read()); } p++; return l; }
+      if(tok===')') throw{lisp:'unexpected )'};
+      if(tok==="'"){ return [Sym('quote'), read()]; }
+      return atom(tok);
+    }
+    const forms=[]; while(p<tokens.length) forms.push(read());
+    return forms;
+  }
+
+  // ---- printer ----
+  function pr(x){
+    if(x===NIL||Array.isArray(x)&&x.length===0) return 'NIL';
+    if(x===true) return 'T';
+    if(typeof x==='number') return String(x);
+    if(Array.isArray(x)) return '('+x.map(pr).join(' ')+')';
+    if(x.t==='str') return '"'+x.v+'"';
+    if(x.t==='kw')  return ':'+x.n;
+    if(x.t==='sym') return x.n;
+    return String(x);
+  }
+
+  // ---- eval ----
+  const scrollTo = id => { const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); };
+  const num = x => { if(typeof x!=='number') throw{lisp:pr(x)+' is not a NUMBER'}; return x; };
+  const asList = x => { if(!Array.isArray(x)) throw{lisp:pr(x)+' is not a LIST'}; return x; };
+
+  const builtins = {
+    '+':a=>a.reduce((s,x)=>s+num(x),0),
+    '-':a=>a.length?(a.length===1?-num(a[0]):a.map(num).reduce((s,x,i)=>i?s-x:x)):0,
+    '*':a=>a.reduce((s,x)=>s*num(x),1),
+    '/':a=>a.map(num).reduce((s,x,i)=>i?s/x:x),
+    '1+':a=>num(a[0])+1, '1-':a=>num(a[0])-1,
+    'list':a=>a,
+    'cons':a=>[a[0]].concat(Array.isArray(a[1])?a[1]:[a[1]]),
+    'car':a=>{const l=asList(a[0]);return l.length?l[0]:NIL;},
+    'first':a=>builtins.car(a),
+    'cdr':a=>{const l=asList(a[0]);return l.slice(1);},
+    'rest':a=>builtins.cdr(a),
+    'length':a=>asList(a[0]).length,
+    'reverse':a=>asList(a[0]).slice().reverse(),
+    'append':a=>a.reduce((s,x)=>s.concat(asList(x)),[]),
+    'null':a=>(Array.isArray(a[0])&&a[0].length===0)?true:NIL,
+    'not':a=>builtins.null(a),
+    'atom':a=>Array.isArray(a[0])&&a[0].length?NIL:true,
+    'eq':a=>pr(a[0])===pr(a[1])?true:NIL,
+    // magazine forms — side effects + honest return values
+    'features':()=>{scrollTo('features');return [Kw('macros'),Kw('clos'),Kw('emacs'),Kw('conditions'),Kw('iteration'),Kw('deploying')];},
+    'contents':()=>{scrollTo('contents');return Sym('see-below');},
+    'themes':()=>{scrollTo('themes');return 16;},
+    'essentials':()=>{scrollTo('essentials');return Str('Lisp & Emacs Essentials');},
+    'book':()=>builtins.essentials(),
+    'help':()=>{ HELP=true; return Sym('t'); }
+  };
+  let HELP=false;
+
+  function evl(f){
+    if(typeof f==='number') return f;
+    if(Array.isArray(f)){
+      if(f.length===0) return NIL;
+      const op=f[0];
+      if(isSym(op,'QUOTE')) return f[1];
+      if(!op||op.t!=='sym') throw{lisp:pr(op)+' is not a function name'};
+      const fn=builtins[op.n.toLowerCase()];
+      if(!fn) throw{lisp:'The function '+op.n+' is undefined'};
+      const args=f.slice(1).map(evl);
+      return fn(args);
+    }
+    if(f.t==='sym'){
+      if(f.n==='NIL') return NIL;
+      if(f.n==='T')   return true;
+      throw{lisp:'The variable '+f.n+' is unbound'};
+    }
+    return f; // str, kw self-evaluate
+  }
+
+  // ---- terminal I/O ----
+  const log=document.getElementById('log');
+  const scroll=document.getElementById('scroll');
+  const input=document.getElementById('expr');
+  const hist=[]; let hi=0;
+
+  function line(cls,txt){ const s=document.createElement('span'); s.className=cls; s.textContent=txt+'\n'; log.appendChild(s); }
+  function echo(src){ const s=document.createElement('span'); s.className='in';
+    s.innerHTML='<span class="pr">CL-USER&gt;</span> '+src.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'\n'; log.appendChild(s); }
+  const settle=()=>{ scroll.scrollTop=scroll.scrollHeight; };
+
+  const HELP_LINES=[
+    'Available forms:',
+    '  arithmetic   (+ 1 2 3)  (- 10 4)  (* 6 7)  (1+ 41)',
+    '  lists        (list :a :b)  (cons 1 (list 2 3))  (reverse (list 1 2 3))',
+    '                (car ...) (cdr ...) (append ...) (length ...)',
+    '  this issue   (features) (contents) (themes) (essentials)',
+    '  symbols upcase, keywords self-evaluate — just like the real thing.'
+  ];
+
+  function run(src){
+    echo(src);
+    try{
+      const forms=parse(tokenize(src));
+      if(forms.length===0){ settle(); return; }
+      let val;
+      for(const f of forms) val=evl(f);
+      if(HELP){ HELP=false; HELP_LINES.forEach(l=>line('cmt',l)); line('out',pr(val)); }
+      else line('out',pr(val));
+    }catch(e){
+      line('err','; Error: '+(e&&e.lisp?e.lisp:'unreadable form')+'.');
+    }
+    settle();
+  }
+
+  document.getElementById('form').addEventListener('submit',e=>{
+    e.preventDefault(); const v=input.value.trim(); if(!v) return;
+    hist.push(v); hi=hist.length; run(v); input.value='';
+  });
+  input.addEventListener('keydown',e=>{
+    if(e.key==='ArrowUp'){ if(hi>0){hi--;input.value=hist[hi];e.preventDefault();} }
+    else if(e.key==='ArrowDown'){ if(hi<hist.length-1){hi++;input.value=hist[hi];} else {hi=hist.length;input.value='';} }
+  });
+  document.getElementById('chips').addEventListener('click',e=>{
+    const b=e.target.closest('.chip'); if(!b) return;
+    input.value=b.dataset.x; input.focus();
+  });
+
+  // ---- boot sequence (respects reduced motion) ----
+  const banner=[
+    ['cmt','; Almighty Lisp — READ · EVAL · PRINT · LOOP'],
+    ['cmt','; the whole magazine is a live image. nothing here is static.'],
+  ];
+  const seed=['(+ 1 2 3)','(list :read :eval :print)'];
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function boot(){
+    banner.forEach(([c,t])=>line(c,t));
+    line('cmt','');
+    seed.forEach(run);
+    settle();
+  }
+  if(reduced){ boot(); }
+  else{
+    let d=250;
+    banner.forEach(([c,t])=>{ setTimeout(()=>{line(c,t);settle();},d); d+=260; });
+    d+=150; setTimeout(()=>{line('cmt','');settle();},d); d+=180;
+    seed.forEach(s=>{ setTimeout(()=>run(s),d); d+=520; });
+  }
+})();
+</script>
+</body>
+</html>

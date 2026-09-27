@@ -1,0 +1,27 @@
+#+TITLE: Working title
+#+SUBTITLE: What happened, in one sentence.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: News
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# News: Something happened. What, why it matters, and what to do, in that order. Short, with a link to the source.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* What happened
+# The facts: what, who, when. Link to the source.
+Write this section.
+
+* Why it matters
+# What it changes for a Lisp or Emacs programmer.
+Write this section.
+
+* What to do
+# Upgrade, try it, wait, or ignore it, and how.
+Write this section.

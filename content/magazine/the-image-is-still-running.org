@@ -1,0 +1,55 @@
+#+TITLE: The image\\is still\\running
+#+SUBTITLE: Most languages make you stop a program before you can change it. In Common Lisp you recompile a function while the program keeps running, and an error pauses the program to ask how to recover instead of killing it. This is what a working day looks like when nothing has to restart.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-24
+#+TYPE: Opinion
+#+TOPIC: Lisp
+#+RELATED: an-error-that-waits-for-you-to-decide restarting-isnt-a-build-step
+
+* The program is the image, the image is the program
+
+A Common Lisp system is an image: a running Lisp, with your functions, your data, and the connections you opened all living in that one process. Loading a file does not produce a program you then start. The image is already started. The file changes the image.
+
+That is why a restart feels so expensive in other languages and so unnecessary here. The process was never a build artifact. It is the place the work happens.
+
+#+BEGIN_NOTE In the book
+[[/book/essentials][Lisp & Emacs Essentials]] starts from this picture: one image, one editor, and the commands that compile into it.
+#+END_NOTE
+
+* Change one function
+
+Define a function, call it, then define it again. The second definition replaces the first in the image. Nothing else has to be torn down.
+
+#+BEGIN_SRC lisp :buffer image.lisp :package cl-user
+(defun greet (name)
+  (format nil "Hello, ~a" name))
+
+(greet "Ada")
+#+END_SRC
+
+#+RESULTS:
+"Hello, Ada"
+
+Put the cursor on a new definition and compile it. In Sly that is =C-c C-c=. The function object the rest of the image already holds is updated. Call it again.
+
+#+BEGIN_SRC lisp :buffer image.lisp :package cl-user
+(defun greet (name)
+  (format nil "Hello, ~a." name))
+
+(greet "Ada")
+#+END_SRC
+
+#+RESULTS:
+"Hello, Ada."
+
+The strings in the listener are not a metaphor. The same process printed both, and it did not exit between them.
+
+#+BEGIN_NOTE Try it
+With a Sly REPL connected, =C-c C-c= compiles the top-level form under the cursor into the running image. =C-c C-k= compiles the whole file.
+#+END_NOTE
+
+* An error can wait
+
+When the image hits a problem it did not know how to finish, the stack is still there. The debugger is not a crash report you read after the process has died. It is the process, paused, listing the restarts the program offered and waiting for you to pick one.
+
+You can compile a fixed function from the editor, invoke a restart, and watch the same request, the same server, the same data continue. Killing the process and starting a new one is still available. It is no longer the only way to find out whether the fix worked.

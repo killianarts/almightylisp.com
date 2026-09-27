@@ -1,0 +1,35 @@
+#+TITLE: Working title
+#+SUBTITLE: What the reader will build, and what they'll understand by the end.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: Tutorial
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# Tutorial: Teach by building one small, complete thing. The reader types along and ends with something that works.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* What we're building
+# Show the finished result first, so the reader knows where this goes.
+Write this section.
+
+* Setting up
+# Everything needed before the first step: packages, a fresh REPL, a file to open.
+Write this section.
+
+* First step
+# One step per section. Give the code, run it, show #+RESULTS:, then explain only what the next step needs.
+Write this section.
+
+* Second step
+# Keep each step small enough to type and check.
+Write this section.
+
+* What you have now
+# Recap what works, what the reader learned, and where to go next.
+Write this section.

@@ -1,6 +1,8 @@
 almightylisp: *.asd *.lisp src/* *.ros static/*
 	vend get
 	ros build almightylisp.ros
+dev:
+	sbcl --load load-system.lisp
 install:
 	mv almightylisp ~/.local/bin/almightylisp
 	sudo cp almightylisp.service /etc/systemd/system/almightylisp.service

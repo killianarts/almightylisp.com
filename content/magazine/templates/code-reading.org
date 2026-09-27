@@ -1,0 +1,31 @@
+#+TITLE: Working title
+#+SUBTITLE: What we're reading, and what it teaches.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: Code reading
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# Code reading: A guided walk through existing source, usually someone else's.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* What we're reading
+# The project and file, the version, and why this code is worth reading.
+Write this section.
+
+* The entry point
+# Where to start, and how to find it yourself (M-. in Sly).
+Write this section.
+
+* The interesting part
+# The code worth studying, a piece at a time, with what each piece does and why.
+Write this section.
+
+* What to take from it
+# The techniques the reader can reuse.
+Write this section.

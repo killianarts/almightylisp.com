@@ -1,0 +1,35 @@
+#+TITLE: Working title
+#+SUBTITLE: The symptom, and the cause in a sentence.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: Post-mortem
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# Post-mortem: One failure traced to its cause, and what changed so it can't happen again.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* The symptom
+# What went wrong, as the user saw it. When, and how bad.
+Write this section.
+
+* The investigation
+# How you narrowed it down, including the wrong turns. The REPL session is often the best part.
+Write this section.
+
+* The cause
+# The root cause, shown in code.
+Write this section.
+
+* The fix
+# What you changed, and how you know it worked.
+Write this section.
+
+* What changed
+# What stops it happening again: tests, checks, habits.
+Write this section.

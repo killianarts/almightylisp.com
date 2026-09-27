@@ -1,0 +1,111 @@
+#+title: Fluxion vs Reblocks vs Shiso + Datastar
+
+All three are Common Lisp approaches to server-rendered HTML. The
+browser is a renderer, not the source of truth. None of them is a JSON
+API plus a JavaScript SPA.
+
+The split is not “who generates HTML.” It is *who owns the UI protocol*.
+
+* Two kinds of stack
+
+** Integrated: Fluxion and Reblocks
+
+Fluxion and Reblocks are the same kind of framework. Lisp owns the
+widget tree, the session, the action protocol, and the browser
+runtime. The client is not a public standard. You cannot swap the JS
+or the backend language and keep the wire format.
+
+Both keep *session-scoped CLOS objects* in the Lisp image: Reblocks
+widgets, Fluxion components. That is UI identity (open row, wizard
+step, live clock, a cart that is not in the database yet). It is not
+BKNR prevalence. Domain data can still live in Mito, BKNR, or an event
+log. Fluxion’s todo example happens to keep todos on the component;
+that is a demo choice, not a persistence architecture.
+
+They differ in how the DOM is updated:
+
+|                | User action                         | Patch                         | Server push                          |
+|----------------+-------------------------------------+-------------------------------+--------------------------------------|
+| Fluxion        | HTTP POST ~/action/…~               | Same event types as SSE       | Always-on ~EventSource~ ~/sse~       |
+| Reblocks       | AJAX (~initiateAction~)             | JSON commands in the response | Optional (~reblocks-websocket~)      |
+
+Fluxion does not put clicks on SSE. SSE is one-way, so actions are
+still POST. Unsolicited updates (clocks, background jobs) go on the
+long-lived stream. Reblocks is request/response until you add
+WebSockets.
+
+WebSockets are the more powerful pipe (full duplex, binary) and the
+more operationally fragile one in Common Lisp (HTTP ~Upgrade~, proxy
+idle timeouts, ~websocket-driver~ and Woo). SSE is still HTTP:
+reconnect and keepalive are ordinary HTTP problems. For “Lisp renders
+HTML, the browser morphs it,” POST plus SSE is usually enough.
+
+Other differences inside the integrated camp:
+
+- Reblocks actions can be *session closures* (~make-js-action~ with a
+  lambda). Fluxion actions are *named methods* (~defaction~) on a
+  component.
+- Fluxion’s Lattice (cells, computed cells, bidirectional
+  propagators, glitch-free transactions) is a server-side reactive
+  graph. Reblocks has none; you ~setf~ a slot and call ~update~.
+- Reblocks wraps widgets in a DOM node and replaces them. Fluxion
+  morphs by id and tries to keep focus and caret.
+- Reblocks has the larger ecosystem (UI kits, auth, prometheus,
+  Ultralisp as a production example). Fluxion is younger, MIT, and
+  ships CSRF, roles, validation, and Woo-oriented SSE in one tree.
+
+** Composed: Shiso + Datastar
+
+Shiso is a Django-shaped HTTP framework: modules, Mito models, forms,
+admin, auth, CSRF, i18n. Datastar is a *language-agnostic* hypermedia
+client and SSE protocol (~datastar-patch-elements~,
+~datastar-patch-signals~). ~datastar-cl~ is an SDK against that ADR,
+not a product of its own.
+
+Almighty HTML ~define-component~ is a *render function* (props in,
+element tree out). It is not a live object. Controllers are
+request-scoped. Persistence is typically the database: save a todo,
+re-read Mito, patch HTML. You can put drafts in the Lack session or
+point handlers at BKNR; the paved road is ~define-model~.
+
+Datastar’s reactive graph runs in the browser (~$signals~,
+~data-bind~, ~data-computed~). Attributes are an expression language
+(~@post('/…')~, ~$count++~). Used with discipline—only ~@get~/~@post~
+of Shiso URLs, logic in Lisp—the “second language” shrinks to
+something no larger than Fluxion’s ~data-on-click~. Used fully, it is
+a client VM. Morph over SSE is the same idea as Fluxion’s; Datastar’s
+client is the more complete morph.
+
+Shiso and Hunchentoot are still Lisp-specific. The portable piece is
+Datastar (and HTTP/SSE). You can change the Lisp server—or the
+language—and keep the HTML attributes and ~datastar.js~.
+
+* At a glance
+
+|                    | Fluxion                    | Reblocks                     | Shiso + Datastar              |
+|--------------------+----------------------------+------------------------------+-------------------------------|
+| Kind of stack      | Integrated Lisp UI         | Integrated Lisp UI           | Lisp HTTP + universal client  |
+| UI objects         | Session CLOS components    | Session CLOS widgets         | Render functions + DB/session |
+| Actions            | ~defaction~ methods        | Closures or named actions    | Ordinary routes/controllers   |
+| User → server      | POST                       | AJAX                         | POST (~@post~)                |
+| Server → DOM       | SSE morph                  | AJAX commands                | SSE morph (Datastar ADR)      |
+| Server push        | Built-in SSE               | Optional WebSocket           | Long-lived SSE if you hold it |
+| Reactivity         | Lattice (Lisp)             | Manual ~update~              | Datastar signals (browser)    |
+| Client JS          | Custom ~fluxion.js~        | jQuery helpers               | Shared ~datastar.js~          |
+| Wire format        | Fluxion events             | Reblocks commands            | Datastar ADR                  |
+| Domain persistence | Yours (often none in demos)| Yours                        | Mito (typical)                |
+| Swap the JS client | No                         | No                           | Yes                           |
+
+* When the difference shows up
+
+For a magazine page or CRUD admin that re-reads the database on each
+POST, Shiso + Datastar already does components (templates), Lisp
+logic, and SSE morph. Fluxion is not a new category of *what the
+browser does*. It is a change of ownership and defaults: session
+objects, a Lisp reactive graph, no expression VM in the page.
+
+You feel the integrated object model when you want in-memory UI state
+that is not a row. You feel Datastar’s universality when you want a
+client and protocol that are not tied to one Lisp framework. You feel
+Reblocks vs Fluxion when you care about closure actions and the
+existing 40ants ecosystem versus POST+SSE as the only update path.

@@ -1,0 +1,23 @@
+#+TITLE: Learn enough Emacs\\to write Lisp, then stop
+#+SUBTITLE: The commands you need on day one, the ones worth learning once they'd save you time, and the Sly tools to pick up after that.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-19
+#+TYPE: How-to
+#+TOPIC: Emacs
+#+SERIES: EMX
+#+PART: 1
+#+RELATED: a-doom-emacs-setup-you-wont-have-to-fight to-loop-or-not-to-loop
+
+* Day one is a short list
+
+You need to open a file, move by expression, evaluate a form, and get back to a buffer you already had. That is =C-x C-f=, =C-M-f= and =C-M-b=, =C-x C-e=, and =C-x b=. Everything else can wait until a task is awkward without it.
+
+Learning the whole keymap up front is how people bounce off Emacs. The editor pays you back when a command removes a kind of work you actually do. Until then it is just another binding to forget.
+
+#+BEGIN_NOTE Try it
+=C-M-f= and =C-M-b= move over a whole form. =C-M-k= kills that form. =C-y= puts it back. Those three are the whole of structural editing on day one.
+#+END_NOTE
+
+* Sly, after the file commands feel dull
+
+Once the file commands are boring, connect Sly. =C-c C-c= compiles the form at point into the running image. =C-c C-k= compiles the buffer. =M-.= jumps to a definition. Those are the commands that make the editor and the Lisp the same place.

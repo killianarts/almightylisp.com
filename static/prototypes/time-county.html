@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html class="dark" lang="en" data-theme="almighty-lisp">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Almighty Lisp — Flight Manual · Landing Prototype</title>
+  <meta name="description" content="Industrial aerospace magazine prototype for professional Common Lisp programmers. Live almightylisp.com themes. County Highway type × TIME layout.">
+  <script>
+    (() => {
+      const t = localStorage.getItem('theme') || localStorage.getItem('proto-theme') || 'almighty-lisp';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <!-- Live site design system: tokens, fonts, all 16 themes -->
+  <link rel="stylesheet" href="/static/css/almightylisp.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png">
+  <link rel="stylesheet" href="time-county.css">
+</head>
+<body class="tc">
+  <div class="proto-badge" title="Static prototype">Proto · Themes · Aerospace · No images</div>
+
+  <!-- Fixed industrial edge band (accent, like book yellow strip) -->
+  <div class="tc-band" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TELEMETRY STRIP — aerospace status bar
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="telemetry" aria-hidden="true">
+    <div class="shell telemetry__row">
+      <span class="telemetry__item"><i class="led led--safe"></i> SYS NOMINAL</span>
+      <span class="telemetry__item">IMG · LIVE</span>
+      <span class="telemetry__item">REPL · HOT</span>
+      <span class="telemetry__item">PKG · CL-USER</span>
+      <span class="telemetry__item telemetry__item--end">UTC 2026-07-10 · T+00:00:00</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       MASTHEAD
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <header class="masthead">
+    <div class="shell masthead__row">
+      <button class="masthead__menu" type="button" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <a class="brand" href="#top" id="top">
+        <span class="brand__mark" aria-hidden="true">λ</span>
+        <span class="brand__stack">
+          <span class="brand__word">Almighty <em>Lisp</em></span>
+          <span class="brand__sub">Flight Manual · Professional Periodical</span>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Primary">
+        <a href="#lead">Mission</a>
+        <a href="#lisp">Lisp</a>
+        <a href="#emacs">Emacs</a>
+        <a href="#ideas">Briefs</a>
+        <a href="#people">Crew</a>
+        <a href="#book">Manual</a>
+      </nav>
+
+      <div class="masthead__actions">
+        <label class="theme-ctl">
+          <span class="theme-ctl__label">Theme</span>
+          <select id="theme-select" name="theme" aria-label="Site theme">
+            <option value="almighty-lisp">almighty-lisp</option>
+            <option value="almighty-lisp-moon">almighty-lisp-moon</option>
+            <option value="almighty-titan">almighty-titan</option>
+            <option value="almighty-titan-moon">almighty-titan-moon</option>
+            <option value="almighty-gear">almighty-gear</option>
+            <option value="almighty-gear-moon">almighty-gear-moon</option>
+            <option value="almighty-macro">almighty-macro</option>
+            <option value="almighty-macro-moon">almighty-macro-moon</option>
+            <option value="almighty-ena">almighty-ena</option>
+            <option value="almighty-ena-moon">almighty-ena-moon</option>
+            <option value="almighty-mikasa">almighty-mikasa</option>
+            <option value="almighty-mikasa-moon">almighty-mikasa-moon</option>
+            <option value="almighty-lisp-x">almighty-lisp-x</option>
+            <option value="almighty-lisp-x-moon">almighty-lisp-x-moon</option>
+            <option value="almighty-saga">almighty-saga</option>
+            <option value="almighty-saga-moon">almighty-saga-moon</option>
+          </select>
+        </label>
+        <a class="btn btn--solid masthead__cta" href="#subscribe" aria-label="Subscribe">Subscribe</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mission plate -->
+  <div class="issue-bar">
+    <div class="shell issue-bar__row">
+      <span class="issue-bar__vol">
+        <span class="issue-bar__code">VOL/01</span>
+        <span class="issue-bar__sep">·</span>
+        <span class="issue-bar__code">ISS/03</span>
+      </span>
+      <span class="issue-bar__tagline">Magazine for professional Common Lisp programmers</span>
+      <span class="issue-bar__price">
+        <i class="led led--accent"></i>
+        CLASS · OPEN · FREE ONLINE
+      </span>
+    </div>
+  </div>
+
+  <main>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         HERO — TIME lead + secondary + rail
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="hero shell panel" id="lead" aria-label="Top stories">
+      <div class="panel__corners" aria-hidden="true"></div>
+
+      <article class="hero__lead">
+        <div class="meta-row">
+          <p class="slug">Cover · Language</p>
+          <p class="callsign">DOC-AL-2026-03-A</p>
+        </div>
+        <h1 class="hed hed--lead">
+          The Image Is Still Running
+        </h1>
+        <p class="dek">
+          How Common Lisp’s long-lived world outlasted restart-culture tooling —
+          and why professionals walk back into the REPL with Doom Emacs as the
+          flight deck.
+        </p>
+        <p class="byline">
+          <span class="byline__role">Auth</span> Micah
+          <span class="byline__sep">//</span>
+          Essentials
+          <span class="byline__sep">//</span>
+          18 min
+        </p>
+        <p class="lede">
+          Compile a definition into a world that does not die when you save.
+          Redefine it while the process still runs. Restarts are the debugger’s
+          checklist — not an apology dialog. Other books teach the language and
+          strand you with the editor. This manual refuses the split.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn--solid" href="/book/essentials">Open cover story</a>
+          <a class="read-more" href="/book/essentials">Full briefing →</a>
+        </div>
+      </article>
+
+      <div class="hero__side">
+        <article class="story story--side">
+          <div class="meta-row">
+            <p class="slug">Profile · Editor</p>
+            <p class="callsign">SEC-B</p>
+          </div>
+          <h2 class="hed hed--side">Over the Emacs Wall Without a Second Apprenticeship</h2>
+          <p class="dek dek--tight">
+            Survival Mode first. Keybindings when they earn their keep.
+            Stickers and restarts when the image is warm.
+          </p>
+          <p class="byline"><span class="byline__role">Auth</span> Desk</p>
+        </article>
+
+        <article class="story story--side">
+          <div class="meta-row">
+            <p class="slug">Jeremiad · Tooling</p>
+            <p class="callsign">SEC-C</p>
+          </div>
+          <h2 class="hed hed--side">The Industry Is Too Restarted</h2>
+          <p class="dek dek--tight">
+            Reflections on an uncool half-century of killing the process to fix a bug.
+          </p>
+          <p class="byline"><span class="byline__role">Auth</span> Tired image</p>
+        </article>
+      </div>
+
+      <aside class="hero__rail" aria-label="More top stories">
+        <div class="rail-head">
+          <p class="slug slug--rail">Queue</p>
+          <span class="rail-head__status"><i class="led led--secondary"></i> LIVE</span>
+        </div>
+        <ul class="rail-list">
+          <li>
+            <span class="rail-list__sec">Lisp</span>
+            <a href="#lisp">CLOS for people who already ship objects</a>
+          </li>
+          <li>
+            <span class="rail-list__sec">Emacs</span>
+            <a href="#emacs">Doom install that doesn’t strand you</a>
+          </li>
+          <li>
+            <span class="rail-list__sec">Manual</span>
+            <a href="#book">Money that refuses floats</a>
+          </li>
+          <li>
+            <span class="rail-list__sec">Deploy</span>
+            <a href="#ideas">Binaries, web paths, last mile</a>
+          </li>
+          <li>
+            <span class="rail-list__sec">Ideas</span>
+            <a href="#ideas">Macros when they earn their keep</a>
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         NEWSLETTER — mission uplink
+         ═══════════════════════════════════════════════════════════════════ -->
+    <!--
+      Scoped theme: data-theme on a subtree redefines --color-* tokens for
+      descendants only. Root page theme (html[data-theme]) stays elsewhere.
+    -->
+    <section class="newsletter" id="subscribe" aria-label="Newsletter" data-theme="almighty-gear">
+      <div class="shell newsletter__row">
+        <div class="newsletter__copy">
+          <p class="slug">Uplink · Newsletters</p>
+          <h2 class="hed hed--section">Telemetry for the professional image</h2>
+          <p class="dek dek--tight">
+            Issue notes, Emacs craft, one good form. No growth-hacking.
+            No “just following up.” Built for people who keep a REPL warm.
+          </p>
+        </div>
+        <form class="newsletter__form" action="#" method="post" onsubmit="return false;">
+          <label class="sr-only" for="email">Email</label>
+          <input id="email" class="newsletter__input" type="email" name="email" placeholder="you@domain.lisp" autocomplete="email">
+          <button class="btn btn--accent" type="submit">Engage uplink</button>
+          <p class="newsletter__fine">
+            Occasional mail. Zero list-selling. Abort anytime.
+          </p>
+        </form>
+        <ul class="newsletter__picks" aria-label="Newsletter channels">
+          <li><span class="n">CH-01</span> The Image Brief</li>
+          <li><span class="n">CH-02</span> Chord of the Week</li>
+          <li><span class="n">CH-03</span> Condition Notes</li>
+          <li><span class="n">CH-04</span> Theme Watch</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         FEATURE — type well instead of photo
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="feature shell panel" aria-label="Featured">
+      <div class="panel__corners" aria-hidden="true"></div>
+      <div class="feature__well" aria-hidden="true">
+        <span class="feature__num">01</span>
+        <div class="feature__well-meta">
+          <span class="feature__label">Feature</span>
+          <span class="feature__hash"># CURRICULUM</span>
+        </div>
+        <span class="feature__cross"></span>
+      </div>
+      <div class="feature__copy">
+        <p class="slug">Curriculum · Dual track</p>
+        <h2 class="hed hed--feature">
+          The Dual Curriculum Narrows the Gap Between Language and Editor
+        </h2>
+        <p class="dek">
+          Which half is narrowing it — and why professionals still bounce off
+          Emacs alone after years of shipping elsewhere.
+        </p>
+        <p class="byline">
+          <span class="byline__role">Desk</span> Essentials
+          <span class="byline__sep">//</span>
+          <a class="read-more" href="/book/essentials">Read more →</a>
+        </p>
+      </div>
+      <ul class="feature__list">
+        <li>
+          <span class="slug">Focus</span>
+          <a class="hed hed--list" href="#emacs">13 Survival-Mode habits that stick</a>
+        </li>
+        <li>
+          <span class="slug">Ops</span>
+          <a class="hed hed--list" href="#ideas">How one restart saved an entire session</a>
+        </li>
+        <li>
+          <span class="slug">Specimen</span>
+          <a class="hed hed--list" href="#lisp">Breaking down a mid-game recompile</a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         LATEST ISSUES — type "covers"
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="covers" aria-label="Latest issues">
+      <div class="shell">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__code">// ARCHIVE</span>
+            <h2 class="hed hed--section">Mission volumes</h2>
+          </div>
+          <a class="read-more" href="#book">Get the manual →</a>
+        </div>
+        <div class="covers__track">
+          <a class="cover" href="#book">
+            <span class="cover__vol">VOL.01</span>
+            <span class="cover__title">Essentials</span>
+            <span class="cover__dek">Language · Editor · Image</span>
+            <span class="cover__stamp">PRIMARY</span>
+          </a>
+          <a class="cover" href="#emacs">
+            <span class="cover__vol">VOL.01</span>
+            <span class="cover__title">Doom</span>
+            <span class="cover__dek">Wall · Chord · Buffer</span>
+            <span class="cover__stamp">DECK</span>
+          </a>
+          <a class="cover" href="#lisp">
+            <span class="cover__vol">VOL.01</span>
+            <span class="cover__title">CLOS</span>
+            <span class="cover__dek">Objects that stay warm</span>
+            <span class="cover__stamp">CORE</span>
+          </a>
+          <a class="cover" href="#ideas">
+            <span class="cover__vol">VOL.01</span>
+            <span class="cover__title">Money</span>
+            <span class="cover__dek">No floats · Honest books</span>
+            <span class="cover__stamp">FIN</span>
+          </a>
+          <a class="cover" href="#ideas">
+            <span class="cover__vol">VOL.01</span>
+            <span class="cover__title">Ship</span>
+            <span class="cover__dek">Binary · Deploy · Live</span>
+            <span class="cover__stamp">OPS</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         CREW
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <section class="people shell" id="people" aria-label="People">
+      <div class="section-head">
+        <div class="section-head__left">
+          <span class="section-head__code">// CREW</span>
+          <h2 class="hed hed--section">Names on the plate</h2>
+        </div>
+        <span class="section-head__meta">Orbit · Influence · Reference</span>
+      </div>
+      <ul class="people__grid">
+        <li>
+          <span class="people__initial">S</span>
+          <span class="people__code">REF-01</span>
+          <h3 class="hed hed--person">Steele</h3>
+          <p class="dek dek--tight">The language still answers to the HyperSpec.</p>
+        </li>
+        <li>
+          <span class="people__initial">N</span>
+          <span class="people__code">REF-02</span>
+          <h3 class="hed hed--person">Norvig</h3>
+          <p class="dek dek--tight">PAIP as the long curriculum, still.</p>
+        </li>
+        <li>
+          <span class="people__initial">S</span>
+          <span class="people__code">REF-03</span>
+          <h3 class="hed hed--person">Seibel</h3>
+          <p class="dek dek--tight">Practical Common Lisp as the on-ramp.</p>
+        </li>
+        <li>
+          <span class="people__initial">S</span>
+          <span class="people__code">REF-04</span>
+          <h3 class="hed hed--person">Stallman</h3>
+          <p class="dek dek--tight">The editor that outlived every fashion.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         BRIEFS (Ideas)
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="ideas shell panel" id="ideas" aria-label="Ideas">
+      <div class="panel__corners" aria-hidden="true"></div>
+      <div class="section-head">
+        <div class="section-head__left">
+          <span class="section-head__code">// BRIEFS</span>
+          <h2 class="hed hed--section">Ideas</h2>
+        </div>
+        <a class="read-more" href="#lead">Read more →</a>
+      </div>
+      <ol class="ideas__list">
+        <li>
+          <h3 class="hed hed--idea"><a href="#">The Tech Bro-ification of the REPL</a></h3>
+          <p class="byline"><span class="byline__role">Auth</span> Careful package</p>
+        </li>
+        <li>
+          <h3 class="hed hed--idea"><a href="#">How Restart Culture Degrades Focus Climate</a></h3>
+          <p class="byline"><span class="byline__role">Auth</span> Sarah Kernel · Alejandro Frame</p>
+        </li>
+        <li>
+          <h3 class="hed hed--idea"><a href="#">Candidates Have an Opening on Local Software</a></h3>
+          <p class="byline"><span class="byline__role">Auth</span> David Image</p>
+        </li>
+        <li>
+          <h3 class="hed hed--idea"><a href="#">Attacks on the HyperSpec Are Attacks on Shared History</a></h3>
+          <p class="byline"><span class="byline__role">Auth</span> Marc Spec</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         LISP DEPARTMENT
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="dept shell" id="lisp" aria-label="Lisp">
+      <div class="section-head section-head--dept">
+        <div class="section-head__left">
+          <span class="section-head__code">// SYS · LISP</span>
+          <h2 class="hed hed--section">Lisp</h2>
+        </div>
+        <ul class="dept__tags">
+          <li><button type="button">Fundamentals</button></li>
+          <li><button type="button">CLOS</button></li>
+          <li><button type="button">Macros</button></li>
+        </ul>
+      </div>
+
+      <div class="dept__grid">
+        <article class="story story--dept-lead">
+          <p class="slug">Language</p>
+          <h3 class="hed hed--dept">We Need Planetary Intelligence in the Age of the Image</h3>
+          <p class="dek">
+            Long-lived processes, careful packages, and the habit of continuing
+            instead of rebooting — applied to systems that must stay up.
+          </p>
+          <p class="byline"><span class="byline__role">Auth</span> Lisp desk</p>
+        </article>
+
+        <article class="story story--dept">
+          <p class="slug">Safety</p>
+          <h3 class="hed hed--list">The Latest Condition Rankings Are In. Nobody Gets an A</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Harry Booth-type</p>
+        </article>
+
+        <article class="story story--dept">
+          <p class="slug">Access</p>
+          <h3 class="hed hed--list">Powerful Models, Restricted Floats</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Money chapter</p>
+        </article>
+
+        <article class="story story--dept-sm">
+          <p class="slug">Body</p>
+          <h3 class="hed hed--list">The Unexpected Way the Debugger Helped Me Appreciate My Code</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Rebekah Restart</p>
+        </article>
+        <article class="story story--dept-sm">
+          <p class="slug">Governance</p>
+          <h3 class="hed hed--list">How to Govern Macros in a World in Rupture</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Alain Package</p>
+        </article>
+        <article class="story story--dept-sm">
+          <p class="slug">Policy</p>
+          <h3 class="hed hed--list">Labs Woo Capitals; We Woo the REPL</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Ops desk</p>
+        </article>
+      </div>
+      <p class="dept__more"><a class="read-more" href="/book/essentials/lisp-fundamentals">More Lisp stories →</a></p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         EMACS DEPARTMENT
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="dept shell" id="emacs" aria-label="Emacs">
+      <div class="section-head section-head--dept">
+        <div class="section-head__left">
+          <span class="section-head__code">// SYS · EMACS</span>
+          <h2 class="hed hed--section">Emacs</h2>
+        </div>
+        <ul class="dept__tags">
+          <li><button type="button">Doom</button></li>
+          <li><button type="button">Sly</button></li>
+          <li><button type="button">Chords</button></li>
+        </ul>
+      </div>
+
+      <div class="dept__grid">
+        <article class="story story--dept-lead">
+          <p class="slug">Editor · Flight deck</p>
+          <h3 class="hed hed--dept">Losing Even an Hour of Muscle Memory Is Linked to Restart Rage</h3>
+          <p class="dek">
+            Buffers, frames, and the slow conversion from menu tourist to chord
+            native — without pretending the wall isn’t real.
+          </p>
+          <p class="byline"><span class="byline__role">Auth</span> Veronique Chord</p>
+        </article>
+
+        <article class="story story--dept">
+          <p class="slug">History</p>
+          <h3 class="hed hed--list">‘Taking the Waters’ Was the Original Summer Getaway — C-x C-c Is Not</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Wall desk</p>
+        </article>
+
+        <article class="story story--dept">
+          <p class="slug">Outbreak</p>
+          <h3 class="hed hed--list">What to Know About the Keybinding Outbreak Tied to Fresh Configs</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Config ops</p>
+        </article>
+
+        <article class="story story--dept-sm">
+          <p class="slug">Sleep</p>
+          <h3 class="hed hed--list">Will an Evening Config Ruin Your Sleep?</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Night shift</p>
+        </article>
+        <article class="story story--dept-sm">
+          <p class="slug">Psychology</p>
+          <h3 class="hed hed--list">Why We View the Past as Better Than the Present Init</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Markham Heid-type</p>
+        </article>
+        <article class="story story--dept-sm">
+          <p class="slug">Habit</p>
+          <h3 class="hed hed--list">13 Summer Buffer Tips Experienced Users Swear By</h3>
+          <p class="byline"><span class="byline__role">Auth</span> Deck crew</p>
+        </article>
+      </div>
+      <p class="dept__more"><a class="read-more" href="/book/essentials/getting-started-w-doom-emacs-lisp">More Emacs stories →</a></p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         THE MANUAL (Book)
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="dept shell dept--book panel" id="book" aria-label="The Book">
+      <div class="panel__corners" aria-hidden="true"></div>
+      <div class="section-head section-head--dept">
+        <div class="section-head__left">
+          <span class="section-head__code">// PRIMARY MANUAL</span>
+          <h2 class="hed hed--section">The Book</h2>
+        </div>
+        <a class="btn btn--accent" href="/book/essentials">Read free online</a>
+      </div>
+
+      <div class="book-grid">
+        <article class="story story--book-lead">
+          <p class="slug">Almighty Lisp · Essentials</p>
+          <h3 class="hed hed--dept">One manual. Two systems. Zero fluff.</h3>
+          <p class="dek">
+            Written for experienced, Lisp-curious professionals. Fundamentals,
+            lists, CLOS, conditions, macros, packages, a money library,
+            double-entry accounting, and deploy — beside Doom Emacs craft.
+          </p>
+          <ul class="book-points">
+            <li>Menus first, then <kbd>C-c C-c</kbd> when it earns its keep</li>
+            <li>Fix a bug mid-mission without restarting the image</li>
+            <li>Projects you can ship, not toy demos only</li>
+          </ul>
+          <a class="btn btn--solid" href="/book/essentials">Learn Lisp &amp; Emacs immediately</a>
+        </article>
+
+        <div class="book-rail">
+          <article class="story">
+            <p class="slug">Chapter · Money</p>
+            <h3 class="hed hed--list">A library that refuses floating-point lies</h3>
+            <p class="byline">Essentials · projects</p>
+          </article>
+          <article class="story">
+            <p class="slug">Chapter · Accounting</p>
+            <h3 class="hed hed--list">Double-entry with Mito, not vibes</h3>
+            <p class="byline">Essentials · projects</p>
+          </article>
+          <article class="story">
+            <p class="slug">Chapter · Deploy</p>
+            <h3 class="hed hed--list">Binaries and a web path that leave the REPL</h3>
+            <p class="byline">Essentials · ship</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pull -->
+    <section class="pull" aria-label="Pull quote">
+      <div class="shell">
+        <p class="pull__code">// QUOTE · ALMIGHTY PHILOSOPHY</p>
+        <blockquote>
+          “Common Lisp is optimized for ultimate adaptability — a generalist’s secret weapon.”
+        </blockquote>
+        <cite class="byline">Essentials · Flight philosophy</cite>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="shell footer__grid">
+      <div class="footer__brand">
+        <span class="brand__word">Almighty <em>Lisp</em></span>
+        <p class="dek dek--tight">
+          Professional periodical for Common Lisp and Emacs craft.
+          Adaptability over fashion. Image over restart.
+        </p>
+      </div>
+      <div>
+        <p class="slug">Sections</p>
+        <ul class="footer__links">
+          <li><a href="#lisp">Lisp</a></li>
+          <li><a href="#emacs">Emacs</a></li>
+          <li><a href="#ideas">Briefs</a></li>
+          <li><a href="#people">Crew</a></li>
+          <li><a href="#book">Manual</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="slug">Type stack</p>
+        <ul class="footer__type">
+          <li><span class="t-league">League Gothic</span> — display / heds</li>
+          <li><span class="t-construct">Construct Mono</span> — slugs / labels</li>
+          <li><span class="t-berkeley">Berkeley Mono</span> — bylines / nav / meta</li>
+          <li><span class="t-instrument">Instrument Serif</span> — body / deks</li>
+        </ul>
+      </div>
+      <div>
+        <p class="slug">Prototype notes</p>
+        <p class="footer__note">
+          Layout after TIME.com. Typography after County Highway roles.
+          Color from live almightylisp.com themes. Industrial / aerospace
+          chrome. No images — hierarchy and rules carry the page.
+        </p>
+      </div>
+    </div>
+    <div class="shell footer__bar">
+      <span>© 2026 almightylisp.com</span>
+      <span>THEME · <span id="footer-theme">almighty-lisp</span></span>
+      <span>Prototype · not production chrome</span>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const sel = document.getElementById('theme-select');
+      const foot = document.getElementById('footer-theme');
+      const saved = localStorage.getItem('theme')
+        || localStorage.getItem('proto-theme')
+        || 'almighty-lisp';
+      if (sel) {
+        sel.value = saved;
+        document.documentElement.dataset.theme = saved;
+        if (foot) foot.textContent = saved;
+        sel.addEventListener('change', (e) => {
+          const v = e.target.value;
+          document.documentElement.dataset.theme = v;
+          localStorage.setItem('theme', v);
+          localStorage.setItem('proto-theme', v);
+          if (foot) foot.textContent = v;
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

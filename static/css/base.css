@@ -611,11 +611,6 @@ body::after {
     body::after { animation: none; }
 }
 
-a {
-    font-family: var(--font-link);
-}
-
-
 ::-webkit-scrollbar {
     height: auto;
 }

@@ -1,0 +1,27 @@
+#+TITLE: Working title
+#+SUBTITLE: What this covers and who it's for.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: Reference
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# Reference: Material to look things up in: complete, terse, ordered for scanning. No story.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* Overview
+# What's covered, how it's organised, and what's deliberately left out.
+Write this section.
+
+* Entries
+# The entries themselves. A table per group works well: name, what it does, an example.
+Write this section.
+
+* Notes
+# Exceptions, gotchas and implementation differences.
+Write this section.

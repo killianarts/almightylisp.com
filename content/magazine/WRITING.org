@@ -1,0 +1,290 @@
+#+TITLE: Writing for Almighty Lisp
+
+This folder is the magazine. Each =.org= file here with a lowercase name is
+one article (this guide's capital W keeps it out), and
+=series/= holds one file per series. This guide covers everything a file
+can contain. =templates/= has a starting file for every article type.
+
+* Quick start
+
+1. Pick a type (see [[*Choosing a type][Choosing a type]]) and copy its template:
+   : cp templates/how-to.org my-article-slug.org
+   The file name becomes the URL: =/magazine/my-article-slug=. Use
+   lowercase letters, digits and hyphens.
+2. Fill in the header. Leave =#+DRAFT: t= in while you write; the site
+   ignores drafts entirely.
+3. Replace the template's sections with your own. The lines starting with
+   =#= are guidance for you; the site never shows them.
+4. Run through [[*Before you publish][Before you publish]], delete =#+DRAFT: t=, and save.
+   The running site picks up the change on the next page load.
+
+* The header
+
+Every article starts with these lines, before its first heading.
+
+| Line            | Needed?  | What it does                                                          |
+|-----------------+----------+-----------------------------------------------------------------------|
+| =#+TITLE:=      | Required | The headline everywhere. =\\= forces a line break in big headlines.     |
+| =#+SUBTITLE:=   | Required | The dek: under the headline, on cards, and in search results.         |
+| =#+AUTHOR:=     | Required | The byline.                                                           |
+| =#+DATE:=       | Required | =YYYY-MM-DD=. Sets the order on the homepage and the serial.          |
+| =#+TOPIC:=      | Required | What it's about: Lisp, Emacs or Tooling. See [[*Topics][Topics]].                   |
+| =#+TYPE:=       | Required | What kind of piece it is. See [[*Types][Types]].                                 |
+| =#+RELATED:=    | Optional | Slugs for the Keep reading cards, in order. Others fill empty slots.  |
+| =#+SERIES:=     | Optional | A series code, e.g. =CND=. Needs =#+PART:= too. See [[*Series][Series]].            |
+| =#+PART:=       | Optional | The article's number in its series.                                   |
+| =#+BOOK_CHAPTER:= | Optional | With the next three, adds a card for the book chapter this relates to. |
+| =#+BOOK_TITLE:= | Optional | The chapter's title on that card.                                     |
+| =#+BOOK_SUMMARY:= | Optional | One sentence about the chapter.                                      |
+| =#+BOOK_HREF:=  | Optional | Where the card links, e.g. =/book/essentials/the-loop-macro=.         |
+| =#+HOME: lead=  | Optional | Forces this article into the homepage lead instead of the newest one. |
+| =#+SLUG:=       | Optional | A URL other than the file name.                                       |
+| =#+CODE:=       | Optional | Overrides the generated serial. You should almost never need it.     |
+| =#+DRAFT: t=    | Optional | Keeps the article off the site.                                      |
+
+Writing the title and dek:
+
+- The title is set very large. Up to about nine characters fit on a line
+  at full size, and longer titles are set smaller to fit in four lines.
+  Short titles with a deliberate =\\= break look best.
+- The dek says what the reader gets, in one or two sentences. It is also
+  the summary on cards and the recap when the next part of a series starts.
+
+* Serials
+
+Every article gets a serial like =CL-OP-26924=, printed in the byline, on
+cards and in the archive. It is built for you from the header:
+
+| Part    | From      | Example              |
+|---------+-----------+----------------------|
+| =CL=    | =TOPIC=   | Lisp                 |
+| =OP=    | =TYPE=    | Opinion              |
+| =26924= | =DATE=    | 2026-09-24: year, month, day |
+
+Two articles with the same topic, type and date would share a serial; the
+second (by file name) gets a =B= on the end, and the site warns about it.
+
+* Topics
+
+| Topic   | Code | For                                                      |
+|---------+------+----------------------------------------------------------|
+| Lisp    | CL   | Common Lisp: the language, its libraries, its ideas      |
+| Emacs   | EM   | Emacs, Sly, and editing Lisp                              |
+| Tooling | TL   | Building, shipping and running Lisp programs             |
+
+To add a topic, add a line to =*article-topics*= in
+=src/modules/magazine/model.lisp=. Types are in =*article-types*= in the
+same file.
+
+* Choosing a type
+
+Ask these in order and stop at the first yes:
+
+1. Did something just happen (a release, an event, a change)? *News*
+2. Are you judging one specific thing (a library, a tool, a book)? *Review*
+3. Is it a conversation with someone? *Interview*
+4. Are you answering questions readers sent in? *Q&A*
+5. Is it about a failure you tracked down? *Post-mortem*
+6. Is it the story of how a real project was built? *Case study*
+7. Is it a guided walk through someone else's source? *Code reading*
+
+Otherwise, ask what the reader wants when they arrive:
+
+| The reader wants to...           | Type        |
+|----------------------------------+-------------|
+| learn, by building something     | Tutorial    |
+| get one task done                | How-to      |
+| understand how or why            | Explanation |
+| look something up                | Reference   |
+| be persuaded, or argued with     | Opinion     |
+
+The ones people mix up:
+
+- *Tutorial or How-to?* A tutorial is for someone learning. It chooses the
+  example for them and explains each step. A how-to is for someone who
+  already knows the basics and has a goal of their own. It skips the
+  teaching and gets to the steps.
+- *Explanation or Opinion?* An explanation builds a model and stays
+  neutral about what to do with it. An opinion takes a side and argues
+  for it. "How =loop= expands" is an explanation; "Stop writing =loop="
+  is an opinion.
+- *Case study or Post-mortem?* A case study covers a whole project and its
+  trade-offs. A post-mortem follows one failure to its cause.
+
+* Types
+
+Each type has a template in =templates/=, named after it.
+
+** Opinion (OP) — =templates/opinion.org=
+Argues one position. State the claim at the start, make the case with
+evidence and code, answer the strongest objection honestly, and end with
+what the reader should do differently.
+
+** Tutorial (TU) — =templates/tutorial.org=
+Teaches by building one small, complete thing. The reader types along and
+finishes with something that works. Show every step and its result;
+explain as you go, but keep theory to what the next step needs.
+
+** How-to (HT) — =templates/how-to.org=
+Gets one task done for a reader who already knows the basics. Say what the
+result is, list what they need, give the steps, then cover the variations
+and the ways it goes wrong.
+
+** Explanation (EX) — =templates/explanation.org=
+Builds understanding of an idea: how something works, or why it is the way
+it is. Start with the question, build a model, test it on examples and
+edge cases, and end with a rule the reader can use.
+
+** Reference (RF) — =templates/reference.org=
+Material to look things up in: complete, terse and ordered for scanning.
+An overview, then the entries (tables work well), then notes on the
+exceptions. No story.
+
+** News (NW) — =templates/news.org=
+Something happened. Say what, why it matters to a Lisp or Emacs
+programmer, and what to do about it, in that order. Keep it short and
+link to the source.
+
+** Review (RV) — =templates/review.org=
+A verdict on one specific thing. Say what it is and how you tested it,
+what is good, what is not, who should use it, and what to use instead.
+Give a clear verdict.
+
+** Case study (CS) — =templates/case-study.org=
+How a real project was built: the problem, the constraints, the decisions
+and what they cost, and what you would do differently.
+
+** Post-mortem (PM) — =templates/post-mortem.org=
+One failure traced to its cause: the symptom, how you investigated, the
+root cause, the fix, and what changed so it can't happen again.
+
+** Code reading (CR) — =templates/code-reading.org=
+A guided walk through existing source, usually someone else's. Say what
+you are reading and why it is worth it, start at the entry point, follow
+the interesting paths, and end with what the reader can take from it.
+
+** Interview (IV) — =templates/interview.org=
+A conversation. Introduce the person and why they are worth hearing, then
+group the questions by theme, one section each. Edit for clarity, not
+for voice.
+
+** Q&A (QA) — =templates/q-and-a.org=
+Answers to questions readers sent in. One section per question, with the
+question as the heading and a direct answer first.
+
+* Series
+
+A series is a set of numbered parts. It needs a file in =series/= (copy
+=templates/series.org=):
+
+#+BEGIN_EXAMPLE
+#+CODE: CND
+#+TITLE: The condition system, bottom up
+#+SUMMARY: One or two sentences for the series card.
+#+FEATURED: t
+
+1. Signals are not exceptions
+2. Handlers that don't unwind
+#+END_EXAMPLE
+
+- =CODE= is three letters. It picks the series logo, drawn in
+  =src/modules/magazine/hypermedia/logos.lisp=; a code without one gets a
+  plain square until it is drawn.
+- The numbered lines are the planned parts. Parts with no article yet
+  appear as "Queued".
+- =FEATURED: t= puts the series first on the homepage, and gives the lead
+  a banner when the lead is part of it. Feature one series at a time.
+
+An article joins with =#+SERIES: CND= and =#+PART: 1=. Its own title
+replaces the planned one. From part 2 on, the article opens with a recap
+of the part before it, taken from that part's dek.
+
+* The body
+
+Everything after the header is the body.
+
+** Sections
+
+#+BEGIN_EXAMPLE
+* A language inside the language
+Paragraphs are plain text, separated by a blank line.
+
+** An optional subheading
+More text.
+#+END_EXAMPLE
+
+- Each top-level heading is a numbered section. It gets a row of its own
+  and an entry in the contents.
+- Aim for three to six sections. The contents strip at the top of the
+  window shows them all.
+- A section title can use =\\= for a line break.
+
+** Inline markup
+
+#+BEGIN_EXAMPLE
+Wrap code in equals signs: =loop= or =:collect x=.
+Link to an article by its slug: [[to-loop-or-not-to-loop][To LOOP or not]].
+Link elsewhere with a path or URL: [[/book/essentials][the book]].
+#+END_EXAMPLE
+
+** Margin notes
+
+#+BEGIN_EXAMPLE
+#+BEGIN_NOTE Try it
+Put the cursor on any =loop= form and press =C-c C-m=.
+#+END_NOTE
+#+END_EXAMPLE
+
+Notes sit in the right-hand column next to their section. The word after
+=BEGIN_NOTE= is the note's label. A note labelled =Syntax= is set in the
+code font, for grammar summaries.
+
+** Code
+
+#+BEGIN_EXAMPLE
+#+BEGIN_SRC lisp :buffer grades.lisp :package cl-user :highlight 2
+(loop :for (name . score) :in *scores*
+      :sum score :into total)
+#+END_SRC
+
+#+RESULTS:
+351
+#+END_EXAMPLE
+
+- =:buffer= and =:package= are tags on the top edge of the block. Either or both can be left out.
+- =:highlight= shades lines by number, counting from 1: =:highlight 2= shades the second line, =:highlight 3 4= the third and fourth.
+- A =#+RESULTS:= block right after the code becomes the Returns stub below the block. Without one, the block ends at the code.
+
+** Tables
+
+#+BEGIN_EXAMPLE
+| If the loop           | Use         |
+|-----------------------+-------------|
+| changes every element | =mapcar=    |
+#+END_EXAMPLE
+
+The row before the =|---|= line is the header.
+
+* When the site rejects a file
+
+The site reads every file again when one changes. If an article or series
+file is wrong, pages fail with a message naming the file and, for syntax,
+the line, for example:
+
+: Cannot read content/magazine/my-article.org: line 40: #+BEGIN_NOTE has no #+END_NOTE.
+
+Fix it and save; the next page load picks it up. A keyword the magazine
+doesn't know, such as a typo like =#+SUBTILE:=, doesn't stop the site: it
+is ignored with a warning in the server log.
+
+* Before you publish
+
+- [ ] The title reads well in capitals, and any =\\= breaks are deliberate.
+- [ ] The dek says what the reader gets, and works on its own as a summary.
+- [ ] =TOPIC= and =TYPE= are right, so the serial is right.
+- [ ] Every section heading is short enough to read in the contents strip.
+- [ ] Every code block runs, and its =#+RESULTS:= is what it really returns.
+- [ ] =RELATED= points at articles a reader of this one would want next.
+- [ ] In a series: =SERIES= and =PART= are set, and the series file lists
+      the part.
+- [ ] =#+DRAFT: t= is gone.

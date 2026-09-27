@@ -1,0 +1,613 @@
+/* ==========================================================================
+   Restyle: Andrew Kelley — My Thoughts on the Bun Rust Rewrite
+   Uses live almightylisp.com tokens (data-theme + almightylisp.css)
+   ========================================================================== */
+
+.essay {
+  --essay-max: 48rem;
+  --essay-rail: 16rem;
+  --essay-gutter: clamp(1rem, 3vw, 2rem);
+  --essay-band: 0.55rem;
+  min-height: 100vh;
+  padding-bottom: 5rem;
+  color: var(--color-ink-light);
+}
+
+/* Accent edge — book grammar */
+.essay::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--essay-band);
+  background: var(--color-accent);
+  z-index: 40;
+  pointer-events: none;
+}
+
+.essay-wrap {
+  width: min(calc(var(--essay-max) + var(--essay-rail) + 3rem),
+             calc(100% - var(--essay-gutter) * 2 - var(--essay-band)));
+  margin-inline: auto;
+  margin-right: calc(var(--essay-gutter) + var(--essay-band));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Masthead                                                                   */
+/* -------------------------------------------------------------------------- */
+
+.essay-masthead {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: color-mix(in oklch, var(--color-canvas-darker) 92%, transparent);
+  border-bottom: 2px solid var(--color-accent);
+  backdrop-filter: blur(10px);
+}
+
+.essay-masthead__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem 1.25rem;
+  padding-block: 0.6rem;
+}
+
+.essay-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.essay-brand__mark {
+  width: 2.25rem;
+  height: auto;
+  display: block;
+}
+
+.essay-brand__word {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: 1.55rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--color-ink-light);
+}
+
+.essay-brand__word em {
+  font-style: normal;
+  color: var(--color-secondary);
+}
+
+.essay-masthead__meta {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+/* Issue strip */
+.essay-issue {
+  background: var(--color-canvas-dark);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-canvas-soft) 35%, transparent);
+}
+
+.essay-issue__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  padding-block: 0.5rem;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-canvas-soft);
+}
+
+.essay-issue__vol {
+  color: var(--color-accent);
+}
+
+.essay-issue__dek {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.essay-issue__src a {
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+
+.essay-issue__src a:hover {
+  color: var(--color-accent);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Theme dock                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.essay-themes {
+  border-bottom: 1px solid color-mix(in oklch, var(--color-canvas-soft) 30%, transparent);
+  background: color-mix(in oklch, var(--color-canvas-dark) 80%, transparent);
+}
+
+.essay-themes__inner {
+  padding-block: 0.75rem 0.9rem;
+}
+
+.essay-themes__label {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  margin: 0 0 0.5rem;
+}
+
+.essay-theme-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.essay-theme-btn {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.55rem;
+  background: var(--color-canvas-light);
+  color: var(--color-ink-light);
+  cursor: pointer;
+  border: 1px solid transparent;
+  line-height: 1.2;
+  transition: background-color 150ms, color 150ms, border-color 150ms;
+}
+
+.essay-theme-btn input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.essay-theme-btn:hover {
+  background: var(--color-secondary);
+  color: var(--color-ink);
+}
+
+.essay-theme-btn:has(input:checked),
+.essay-theme-btn:has(input:focus-visible) {
+  background: var(--color-accent);
+  color: var(--color-ink);
+  border-color: var(--color-accent);
+}
+
+.essay-theme-btn:has(input:focus-visible) {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Hero title                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.essay-hero {
+  padding-block: clamp(2rem, 5vw, 3.25rem) clamp(1.5rem, 3vw, 2.25rem);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-canvas-soft) 28%, transparent);
+}
+
+.essay-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.85rem;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.essay-kicker__num {
+  display: inline-block;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  padding: 0.2rem 0.45rem;
+  letter-spacing: 0.08em;
+}
+
+.essay-hero h1 {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: clamp(2.75rem, 9vw, 5.5rem);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-ink-light);
+  margin: 0 0 1rem;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.essay-hero h1 .accent {
+  color: var(--color-accent);
+}
+
+.essay-hero h1 .cyan {
+  color: var(--color-secondary);
+}
+
+.essay-lede {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  line-height: 1.45;
+  color: var(--color-ink-light);
+  max-width: 48ch;
+  margin: 0 0 1.25rem;
+}
+
+.essay-lede a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.essay-lede a:hover {
+  color: var(--color-secondary);
+}
+
+.essay-byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.5rem;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-canvas-soft);
+}
+
+.essay-byline strong {
+  color: var(--color-ink-light);
+  font-weight: 400;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Layout: article + rail                                                     */
+/* -------------------------------------------------------------------------- */
+
+.essay-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--essay-rail);
+  gap: clamp(1.5rem, 4vw, 2.75rem);
+  padding-top: clamp(1.75rem, 4vw, 2.75rem);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .essay-body {
+    grid-template-columns: 1fr;
+  }
+
+  .essay-rail {
+    order: -1;
+  }
+}
+
+/* Sections */
+.essay-section {
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.essay-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.essay-section__num {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: 2.5rem;
+  line-height: 0.85;
+  color: var(--color-secondary);
+  letter-spacing: 0.02em;
+}
+
+.essay-section h2 {
+  font-family: var(--font-construct-mono), var(--font-heading), monospace;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
+  margin: 0;
+  line-height: 1.05;
+}
+
+/* Prose */
+.essay-prose p {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  color: var(--color-ink-light);
+  margin: 0 0 1.05rem;
+  max-width: 62ch;
+}
+
+.essay-prose p.drop::first-letter {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: 3.4rem;
+  float: left;
+  line-height: 0.78;
+  padding-right: 0.35rem;
+  color: var(--color-accent);
+  margin-top: 0.15rem;
+}
+
+.essay-prose em {
+  color: var(--color-secondary);
+  font-style: italic;
+}
+
+.essay-prose a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+}
+
+.essay-prose a:hover {
+  color: var(--color-secondary);
+}
+
+.essay-prose code {
+  font-family: var(--font-berkeley), monospace;
+  font-size: 0.92em;
+  color: var(--color-secondary);
+  background: color-mix(in oklch, var(--color-canvas-dark) 85%, transparent);
+  padding: 0.08em 0.35em;
+  border: 1px solid color-mix(in oklch, var(--color-canvas-light) 45%, transparent);
+}
+
+/* Blockquote plate */
+.essay-prose blockquote {
+  margin: 1.35rem 0 1.5rem;
+  padding: 1rem 1.1rem 1.05rem;
+  border-left: 4px solid var(--color-accent);
+  background: color-mix(in oklch, var(--color-canvas-dark) 88%, transparent);
+  position: relative;
+}
+
+.essay-prose blockquote::before {
+  content: "QUOTE";
+  display: block;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  background: var(--color-accent);
+  width: fit-content;
+  padding: 0.18rem 0.4rem;
+  margin-bottom: 0.65rem;
+}
+
+.essay-prose blockquote p {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.12rem;
+  line-height: 1.5;
+  color: var(--color-ink-light);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Punch line / short emphasis paragraph */
+.essay-prose p.punch {
+  font-family: var(--font-construct-mono), monospace;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  max-width: 48ch;
+  margin-block: 1.25rem;
+}
+
+/* Update callout */
+.essay-update {
+  margin: 1.5rem 0;
+  padding: 0.9rem 1rem 1rem;
+  border: 1px solid color-mix(in oklch, var(--color-secondary) 55%, transparent);
+  background: color-mix(in oklch, var(--color-canvas-dark) 70%, transparent);
+}
+
+.essay-update__label {
+  display: inline-block;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--color-secondary);
+  color: var(--color-ink);
+  padding: 0.18rem 0.4rem;
+  margin-bottom: 0.55rem;
+}
+
+.essay-update p {
+  margin-bottom: 0;
+}
+
+/* Closing shrug */
+.essay-shrug {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed color-mix(in oklch, var(--color-canvas-soft) 40%, transparent);
+}
+
+.essay-shrug a {
+  font-family: var(--font-berkeley), monospace;
+  font-size: 1.35rem;
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+
+.essay-shrug a:hover {
+  color: var(--color-accent);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Rail                                                                       */
+/* -------------------------------------------------------------------------- */
+
+.essay-rail {
+  position: sticky;
+  top: 5.5rem;
+  display: grid;
+  gap: 0.85rem;
+  align-content: start;
+}
+
+.essay-rail__box {
+  background: var(--color-canvas-dark);
+  border: 1px solid color-mix(in oklch, var(--color-canvas-light) 40%, transparent);
+  padding: 0.85rem 0.95rem 1rem;
+}
+
+.essay-rail__box h3 {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 0.65rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--color-canvas-soft) 35%, transparent);
+}
+
+.essay-rail__box ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.essay-rail__box li,
+.essay-rail__box p {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--color-ink-light);
+  margin: 0;
+}
+
+.essay-rail__box li span {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+}
+
+.essay-rail__box a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.essay-rail__box a:hover {
+  color: var(--color-secondary);
+}
+
+.essay-rail__toc a {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.45rem;
+  align-items: baseline;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-light);
+  text-decoration: none;
+  padding: 0.2rem 0;
+}
+
+.essay-rail__toc a:hover {
+  color: var(--color-accent);
+}
+
+.essay-rail__toc a span {
+  color: var(--color-secondary);
+}
+
+/* Footer */
+.essay-footer {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--color-accent);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.essay-footer a {
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+
+.essay-footer a:hover {
+  color: var(--color-accent);
+}
+
+.essay-proto-tag {
+  position: fixed;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  z-index: 50;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  background: var(--color-accent);
+  padding: 0.25rem 0.45rem;
+  pointer-events: none;
+}
+
+@media (max-width: 639px) {
+  .essay-issue__row {
+    grid-template-columns: 1fr;
+  }
+
+  .essay-prose p {
+    font-size: 1rem;
+  }
+
+  .essay-rail {
+    position: static;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .essay-theme-btn {
+    transition: none;
+  }
+}

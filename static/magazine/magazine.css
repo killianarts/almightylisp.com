@@ -1,0 +1,848 @@
+/* ==========================================================================
+   ALMIGHTY LISP — Magazine landing (redesign)
+   Built on live almighty-lisp theme tokens + visual grammar from:
+     - simple-landing (hero, CTAs, nested cards, logo lockup)
+     - book (chapter numbers, subheading badges, asides, almighty-blocks)
+   ========================================================================== */
+
+/* Prototype shell only — colors/type come from /static/css/almightylisp.css */
+
+.mag {
+  --mag-max: 72rem;
+  --mag-gutter: clamp(1rem, 3vw, 2.5rem);
+  --mag-band: 0.55rem; /* matches book yellow edge strip */
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+/* Right yellow band like book chapter pages */
+.mag::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--mag-band);
+  background: var(--color-accent);
+  z-index: 40;
+  pointer-events: none;
+}
+
+.mag-wrap {
+  width: min(var(--mag-max), calc(100% - var(--mag-gutter) * 2 - var(--mag-band)));
+  margin-inline: auto;
+  margin-right: calc(var(--mag-gutter) + var(--mag-band));
+  padding-inline: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Masthead — compact, mono labels, logo mark                                 */
+/* -------------------------------------------------------------------------- */
+
+.mag-masthead {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: color-mix(in oklch, var(--color-canvas-darker) 92%, transparent);
+  border-bottom: 2px solid var(--color-accent);
+  backdrop-filter: blur(8px);
+}
+
+.mag-masthead__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-block: 0.65rem;
+}
+
+.mag-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mag-brand__mark {
+  width: 2.4rem;
+  height: auto;
+  display: block;
+}
+
+.mag-brand__word {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--color-ink-light);
+}
+.mag-brand__word em {
+  font-style: normal;
+  color: var(--color-secondary);
+}
+
+.mag-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  font-family: var(--font-berkeley-uc), var(--font-code), monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.mag-nav a {
+  color: var(--color-ink-light);
+  text-decoration: none;
+}
+.mag-nav a:hover {
+  color: var(--color-accent);
+  text-shadow: 1px 1px 0 var(--color-canvas-dark);
+}
+
+.mag-masthead__meta {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+/* Issue strip */
+.mag-issue {
+  background: var(--color-canvas-dark);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-canvas-soft) 35%, transparent);
+}
+.mag-issue__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+  padding-block: 0.55rem;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-canvas-soft);
+}
+.mag-issue__vol {
+  color: var(--color-accent);
+}
+.mag-issue__dek {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mag-issue__price {
+  color: var(--color-secondary);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Hero — landing-page grammar: logo lockup + mega condensed headline         */
+/* -------------------------------------------------------------------------- */
+
+.mag-hero {
+  padding-block: clamp(2rem, 5vw, 3.5rem) clamp(2.5rem, 6vw, 4rem);
+}
+
+.mag-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.2fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .mag-hero__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mag-lockup {
+  display: grid;
+  justify-items: start;
+  gap: 0.15rem;
+  max-width: 20rem;
+}
+.mag-lockup__word {
+  width: min(100%, 17rem);
+  height: auto;
+  display: block;
+}
+.mag-lockup__essentials {
+  width: min(92%, 14.5rem);
+  height: auto;
+  display: block;
+  margin-top: -0.15rem;
+}
+.mag-lockup__status {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  margin-top: 0.35rem;
+}
+
+.mag-hero__copy h1 {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-weight: 400;
+  font-size: clamp(3rem, 8.5vw, 6.5rem);
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--color-ink-light);
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+/* Accent utilities (landing/book emphasis grammar) */
+.mag .cyan,
+.mag-hero__copy h1 .cyan {
+  color: var(--color-secondary);
+}
+.mag .yellow,
+.mag-hero__copy h1 .yellow {
+  color: var(--color-accent);
+}
+
+.mag-hero__lede {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  line-height: 1.55;
+  letter-spacing: 0.03ch;
+  color: var(--color-ink-light);
+  margin: 0 0 1.35rem;
+  max-width: 42ch;
+  text-align: left;
+}
+.mag-hero__lede em {
+  color: var(--color-secondary);
+  font-style: italic;
+}
+
+.mag-cta {
+  display: inline-block;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: clamp(1rem, 1.5vw, 1.35rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  color: var(--color-accent);
+  transition: color 0.2s, text-shadow 0.2s;
+}
+.mag-cta:hover {
+  color: var(--color-secondary);
+  text-shadow: 1px 1px 0 var(--color-canvas-dark);
+}
+.mag-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: baseline;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Section heads — book-style number badge + League Gothic title              */
+/* -------------------------------------------------------------------------- */
+
+.mag-section {
+  padding-block: clamp(1.75rem, 4vw, 3rem);
+  border-top: 1px solid color-mix(in oklch, var(--color-canvas-soft) 30%, transparent);
+}
+
+.mag-section__kicker {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0 0 0.65rem;
+  width: fit-content;
+  max-width: 100%;
+}
+.mag-section__num {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 0.35rem 0.5rem;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  text-transform: uppercase;
+}
+.mag-section__label {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-light);
+  background: var(--color-canvas-dark);
+  padding: 0.4rem 0.75rem;
+  flex: 1;
+}
+
+.mag-section__title {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 5.5vw, 4rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 1rem;
+}
+.mag-section__title.cyan {
+  color: var(--color-secondary);
+}
+.mag-section__title.white {
+  color: var(--color-ink-light);
+}
+
+.mag-section__title--hero {
+  /* chapter-scale: yellow number + white title */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 1.25rem;
+}
+.mag-section__title--hero .chap-num {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: clamp(3.2rem, 8vw, 6rem);
+  line-height: 0.9;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  padding: 0.15em 0.22em 0.05em;
+  text-transform: uppercase;
+}
+.mag-section__title--hero .chap-name {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: clamp(3.2rem, 8vw, 6rem);
+  line-height: 0.9;
+  color: var(--color-ink-light);
+  text-transform: uppercase;
+  padding: 0.15em 0.15em 0.05em 0.12em;
+}
+
+/* -------------------------------------------------------------------------- */
+/* TOC — book sidebar energy                                                  */
+/* -------------------------------------------------------------------------- */
+
+.mag-toc {
+  background: var(--color-canvas-dark);
+  border-top: 2px solid var(--color-accent);
+  border-bottom: 2px solid var(--color-accent);
+  padding-block: 1.25rem 1.4rem;
+}
+.mag-toc__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+.mag-toc__head h2 {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: 2rem;
+  text-transform: uppercase;
+  color: var(--color-ink-light);
+  margin: 0;
+  line-height: 1;
+}
+.mag-toc__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem 1.25rem;
+}
+@media (max-width: 900px) {
+  .mag-toc__list { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .mag-toc__list { grid-template-columns: 1fr; }
+}
+.mag-toc__list a {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-ink-light);
+  padding-block: 0.35rem;
+  border-bottom: 1px solid color-mix(in oklch, var(--color-canvas-soft) 25%, transparent);
+}
+.mag-toc__list a:hover { color: var(--color-accent); }
+.mag-toc__list .n { color: var(--color-accent); }
+.mag-toc__list .p { color: var(--color-secondary); }
+
+/* -------------------------------------------------------------------------- */
+/* Feature cards — landing "What's New" nested panels                         */
+/* -------------------------------------------------------------------------- */
+
+.mag-features {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 860px) {
+  .mag-features { grid-template-columns: 1fr; }
+}
+
+.mag-card {
+  background: var(--color-canvas-dark);
+  border: 1px solid color-mix(in oklch, var(--color-canvas-light) 50%, transparent);
+  padding: 1.25rem 1.35rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.mag-card--lead {
+  grid-row: span 2;
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in oklch, var(--color-canvas-light) 35%, transparent),
+      transparent 55%
+    ),
+    var(--color-canvas-dark);
+}
+.mag-card h2,
+.mag-card h3 {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 0.95;
+  margin: 0 0 0.75rem;
+  color: var(--color-ink-light);
+}
+.mag-card h2 { font-size: clamp(2.2rem, 4vw, 3.4rem); }
+.mag-card h3 { font-size: 1.85rem; }
+.mag-card h2 .yellow,
+.mag-card h3 .yellow { color: var(--color-accent); }
+.mag-card h2 .cyan,
+.mag-card h3 .cyan { color: var(--color-secondary); }
+
+.mag-card p {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  letter-spacing: 0.03ch;
+  color: var(--color-ink-light);
+  margin: 0 0 0.85rem;
+}
+.mag-card p em { color: var(--color-secondary); font-style: italic; }
+.mag-card ul {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.02rem;
+  color: var(--color-ink-light);
+}
+.mag-card li {
+  margin-bottom: 0.35rem;
+  list-style: square;
+}
+.mag-card li::marker { color: var(--color-accent); }
+
+.mag-card__meta {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  margin: 0 0 0.5rem;
+}
+
+.mag-card .mag-cta {
+  margin-top: auto;
+  font-size: 0.95rem;
+}
+
+.mag-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Pull quote                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.mag-pull {
+  padding-block: clamp(2.25rem, 5vw, 3.5rem);
+  text-align: center;
+  border-top: 1px solid color-mix(in oklch, var(--color-canvas-soft) 30%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-canvas-soft) 30%, transparent);
+  background: color-mix(in oklch, var(--color-canvas-dark) 55%, transparent);
+}
+.mag-pull blockquote {
+  margin: 0 auto;
+  max-width: 24ch;
+  font-family: var(--font-instrument-serif), var(--font-serif), Georgia, serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.6rem);
+  font-style: italic;
+  line-height: 1.25;
+  color: var(--color-ink-light);
+  text-wrap: balance;
+}
+.mag-pull cite {
+  display: block;
+  margin-top: 1rem;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  font-style: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Specimen — almighty-block inspired                                         */
+/* -------------------------------------------------------------------------- */
+
+.mag-specimen {
+  display: grid;
+  grid-template-columns: 0.95fr 1.15fr;
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+  align-items: start;
+}
+@media (max-width: 800px) {
+  .mag-specimen { grid-template-columns: 1fr; }
+}
+
+.mag-specimen__copy p {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.08rem;
+  line-height: 1.55;
+  color: var(--color-ink-light);
+  margin: 0 0 0.9rem;
+  max-width: 40ch;
+}
+.mag-specimen__copy p em { color: var(--color-secondary); }
+.mag-specimen__copy code,
+.mag-chord {
+  font-family: var(--font-berkeley), monospace;
+  font-size: 0.9em;
+  color: var(--color-secondary);
+  background: var(--color-canvas-dark);
+  padding: 0.05em 0.3em;
+}
+
+/* Simplified almighty-block */
+.a-block {
+  --cell-bg: var(--color-canvas);
+  --display: var(--color-canvas-light);
+  background-color: var(--color-canvas-dark);
+  background-image: conic-gradient(
+    from 270deg at 1.5px 1.5px,
+    color-mix(in oklch, var(--display) 45%, transparent) 0 25%,
+    transparent 25%
+  );
+  background-size: 3px 3px;
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+  box-shadow: 1px 1px 0 color-mix(in oklch, var(--display) 30%, transparent);
+}
+.a-block__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-family: var(--font-construct-mono), var(--font-berkeley), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.a-block__meta span {
+  color: var(--color-accent);
+}
+.a-block__meta b {
+  font-weight: 400;
+  color: var(--color-ink-light);
+}
+.a-block__cell {
+  background: var(--cell-bg);
+  padding: 0.55rem 0.7rem 0.65rem;
+  position: relative;
+  /* L-bracket top-left */
+}
+.a-block__cell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-top: 3px solid var(--color-accent);
+  border-left: 3px solid var(--color-accent);
+}
+.a-block__cell pre {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--font-berkeley), monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-ink-light);
+}
+.a-block__cell .kw { color: var(--color-secondary); }
+.a-block__cell .sym { color: var(--color-accent); }
+.a-block__cell .cmt { color: var(--color-canvas-soft); }
+.a-block__cell .num { color: var(--color-ink-light); }
+.a-block__result {
+  background: var(--cell-bg);
+  padding: 0.4rem 0.7rem;
+  font-family: var(--font-construct-mono), var(--font-berkeley), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  border-left: 3px solid var(--color-secondary);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Editorial well + rail                                                      */
+/* -------------------------------------------------------------------------- */
+
+.mag-well {
+  display: grid;
+  grid-template-columns: 1.4fr 0.85fr;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+}
+@media (max-width: 800px) {
+  .mag-well { grid-template-columns: 1fr; }
+}
+
+.mag-article p {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  letter-spacing: 0.03ch;
+  color: var(--color-ink-light);
+  margin: 0 0 1rem;
+  max-width: 62ch;
+  text-align: justify;
+}
+.mag-article p em { color: var(--color-secondary); font-style: italic; }
+.mag-article p.drop::first-letter {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: 3.5rem;
+  float: left;
+  line-height: 0.8;
+  padding-right: 0.3rem;
+  color: var(--color-accent);
+  margin-top: 0.12rem;
+}
+
+/* Book aside style */
+.mag-aside {
+  border-left: 3px solid var(--color-secondary);
+  background: color-mix(in oklch, var(--color-canvas-dark) 70%, transparent);
+  padding: 0.75rem 0.9rem 0.9rem;
+  margin-top: 0.5rem;
+}
+.mag-aside__title {
+  display: inline-block;
+  font-family: var(--font-construct-mono), var(--font-berkeley), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  padding: 0.2rem 0.4rem;
+  margin: 0 0 0.5rem;
+}
+.mag-aside p {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 0.95rem;
+  margin: 0;
+  color: var(--color-ink-light);
+  text-align: left;
+}
+.mag-aside a { color: var(--color-secondary); }
+
+.mag-rail {
+  display: grid;
+  gap: 0.85rem;
+  align-content: start;
+}
+.mag-rail__box {
+  background: var(--color-canvas-dark);
+  border: 1px solid color-mix(in oklch, var(--color-canvas-light) 40%, transparent);
+  padding: 0.9rem 1rem 1rem;
+}
+.mag-rail__box h3 {
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  margin: 0 0 0.55rem;
+}
+.mag-rail__box ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mag-rail__box li {
+  font-family: var(--font-berkeley), monospace;
+  font-size: 0.8rem;
+  color: var(--color-ink-light);
+  padding: 0.35rem 0;
+  border-bottom: 1px solid color-mix(in oklch, var(--color-canvas-soft) 22%, transparent);
+}
+.mag-rail__box li:last-child { border-bottom: 0; }
+.mag-rail__box li span { color: var(--color-accent); }
+
+/* -------------------------------------------------------------------------- */
+/* Themes lab                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.mag-themes__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1.1rem;
+}
+.mag-swatches {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.45rem;
+}
+@media (max-width: 700px) {
+  .mag-swatches { grid-template-columns: repeat(4, 1fr); }
+}
+.mag-swatch {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in oklch, var(--color-ink-light) 18%, transparent);
+  position: relative;
+}
+.mag-swatch span {
+  position: absolute;
+  left: 0.3rem;
+  bottom: 0.25rem;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}
+.mag-swatch--lisp { background: linear-gradient(135deg, var(--color-canvas), var(--color-accent) 72%); }
+.mag-swatch--moon { background: linear-gradient(135deg, #0a1628, #94a3b8); }
+.mag-swatch--titan { background: linear-gradient(135deg, #1a1030, #f472b6); }
+.mag-swatch--gear { background: linear-gradient(135deg, #102018, #4ade80); }
+.mag-swatch--macro { background: linear-gradient(135deg, #201010, #fb923c); }
+.mag-swatch--ena { background: linear-gradient(135deg, #1e1030, #c084fc); }
+.mag-swatch--saga { background: linear-gradient(135deg, #101820, #38bdf8); }
+.mag-swatch--star { background: linear-gradient(135deg, #050510, var(--color-accent) 40%, var(--color-secondary)); }
+
+.mag-themes p {
+  margin: 1.1rem 0 0;
+  font-family: var(--font-serif), Georgia, serif;
+  color: var(--color-ink-light);
+  max-width: 55ch;
+  font-size: 1.05rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Colophon                                                                   */
+/* -------------------------------------------------------------------------- */
+
+.mag-colophon {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.25rem;
+  align-items: center;
+}
+@media (max-width: 700px) {
+  .mag-colophon { grid-template-columns: 1fr; }
+}
+.mag-colophon__photo {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border: 2px solid var(--color-accent);
+}
+.mag-colophon h2 {
+  font-family: var(--font-league-gothic), Impact, sans-serif;
+  font-size: 2rem;
+  text-transform: uppercase;
+  color: var(--color-ink-light);
+  margin: 0 0 0.35rem;
+  line-height: 1;
+}
+.mag-colophon p {
+  margin: 0;
+  font-family: var(--font-serif), Georgia, serif;
+  color: var(--color-ink-light);
+  font-size: 1rem;
+  max-width: 48ch;
+}
+.mag-colophon__links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.mag-colophon__links a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+.mag-colophon__links a:hover { color: var(--color-secondary); }
+
+/* -------------------------------------------------------------------------- */
+/* Footer                                                                     */
+/* -------------------------------------------------------------------------- */
+
+.mag-footer {
+  margin-top: 1rem;
+  padding-block: 1.25rem 2rem;
+  border-top: 2px solid var(--color-accent);
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-canvas-soft);
+}
+.mag-footer__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.65rem 1.25rem;
+}
+.mag-footer a {
+  color: var(--color-ink-light);
+  text-decoration: none;
+}
+.mag-footer a:hover { color: var(--color-accent); }
+
+/* Proto flag */
+.mag-proto {
+  position: fixed;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 50;
+  font-family: var(--font-berkeley-uc), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--color-canvas-darker);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  padding: 0.4rem 0.55rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mag-cta { transition: none; }
+}

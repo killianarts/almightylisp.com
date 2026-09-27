@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The S-Express — A Common Lisp Broadsheet (Prototype)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap">
+<!-- brand faces: League Gothic, Berkeley Mono, Construct Mono -->
+<link rel="stylesheet" href="/static/css/fonts.css">
+<style>
+/* ============================================================
+   THE S-EXPRESS — a Common Lisp broadsheet.
+   County Highway's antique-newsprint card/type treatment, laid
+   out with TIME's news-portal structure (lead + rail + section
+   bands + a timestamped river), sans images.
+   Signature: the "Latest from the REPL" wire, its datelines set
+   as live CL-USER> prompts.
+   ============================================================ */
+:root{
+  --paper:    #ece4d3;
+  --paper-2:  #e3dac4;   /* boxed panels */
+  --ink:      #1c1712;
+  --ink-soft: #574d3c;
+  --accent:   #8a2417;   /* oxblood — the newspaper red */
+  --rule:     rgba(28,23,18,.32);
+  --rule-2:   rgba(28,23,18,.7);
+
+  --marquee: "Playfair Display", Georgia, "Times New Roman", serif;
+  --text:    "Old Standard TT", Charter, Georgia, serif;
+  --cond:    "League Gothic", "Oswald", "Arial Narrow", sans-serif;
+  --label:   "Construct Mono", ui-monospace, monospace;
+  --mono:    "Berkeley Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --wrap: 1180px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--text);font-size:18px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+/* subtle paper grain */
+body::before{
+  content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.05;
+  mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:clamp(14px,3.5vw,34px)}
+
+/* shared newspaper vocabulary ------------------------------------- */
+.kicker{font-family:var(--label);font-size:.7rem;text-transform:uppercase;
+  letter-spacing:.2em;color:var(--accent);display:block;margin-bottom:.35rem}
+.byline{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--ink-soft)}
+.dek{font-family:var(--text);font-style:italic;color:var(--ink-soft)}
+.orn{font-family:var(--text);text-align:center;color:var(--accent);
+  font-size:1.2rem;letter-spacing:.5em;padding-block:1.1rem}
+.rule{border:0;border-top:1px solid var(--rule);margin:0}
+.morelink{font-family:var(--label);font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--accent);border-bottom:1px solid var(--accent);
+  padding-bottom:1px}
+.morelink:hover{color:var(--ink);border-color:var(--ink)}
+
+/* ── MASTHEAD ────────────────────────────────────────────── */
+.masthead{padding-top:clamp(16px,3vw,30px)}
+.mast-top{display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.16em;
+  color:var(--ink-soft);padding-bottom:.6rem}
+.nameplate{font-family:var(--marquee);font-weight:900;text-align:center;
+  font-size:clamp(3rem,12vw,8.4rem);line-height:.86;letter-spacing:-.01em;
+  margin:.3rem 0 .1rem;display:flex;align-items:center;justify-content:center;gap:.28em}
+.nameplate .flank{font-family:var(--text);font-weight:400;color:var(--accent);
+  font-size:.32em;transform:translateY(-.15em)}
+.motto{font-family:var(--text);font-style:italic;text-align:center;color:var(--ink-soft);
+  font-size:1.02rem;margin-bottom:.7rem}
+.dateline{border-top:3px double var(--rule-2);border-bottom:3px double var(--rule-2);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem;
+  padding-block:.4rem;font-family:var(--mono);font-size:.66rem;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--ink)}
+.dateline b{color:var(--accent);font-weight:400}
+.sectnav{display:flex;justify-content:center;flex-wrap:wrap;gap:0;
+  border-bottom:1px solid var(--rule);font-family:var(--cond);text-transform:uppercase;
+  font-size:1.02rem;letter-spacing:.04em}
+.sectnav a{padding:.5rem .95rem;color:var(--ink)}
+.sectnav a+a{border-left:1px solid var(--rule)}
+.sectnav a:hover{color:var(--accent)}
+
+/* ── LEAD + RAIL (TIME's dominant top) ───────────────────── */
+.lead-grid{display:grid;grid-template-columns:1fr 340px;gap:0;
+  border-bottom:3px double var(--rule-2)}
+.lead{padding:clamp(20px,3vw,34px) clamp(20px,3vw,34px) clamp(20px,3vw,34px) 0}
+.lead .kicker{color:var(--accent)}
+.lead h1{font-family:var(--marquee);font-weight:800;line-height:.98;
+  font-size:clamp(2.3rem,5.4vw,4.4rem);margin:.2rem 0 .8rem;text-wrap:balance}
+.lead .standfirst{font-family:var(--text);font-size:1.22rem;line-height:1.5;
+  color:var(--ink);max-width:42ch;margin:0 0 1rem}
+.lead .body{columns:2;column-gap:2rem;column-rule:1px solid var(--rule);
+  font-size:1rem;line-height:1.5;margin-bottom:1rem}
+.lead .body p{margin:0 0 .8rem}
+.lead .body p:first-child::first-letter{font-family:var(--marquee);font-weight:900;
+  float:left;font-size:3.6rem;line-height:.72;padding:.12rem .4rem 0 0;color:var(--accent)}
+.lead .foot{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  border-top:1px solid var(--rule);padding-top:.7rem}
+
+.rail{padding:clamp(20px,3vw,34px) 0 clamp(20px,3vw,34px) clamp(18px,2.4vw,26px);
+  border-left:1px solid var(--rule-2)}
+.rail-head{font-family:var(--cond);text-transform:uppercase;font-size:1.5rem;
+  letter-spacing:.02em;border-bottom:2px solid var(--ink);padding-bottom:.3rem;margin-bottom:.7rem}
+.rail ol{list-style:none;margin:0;padding:0;counter-reset:r}
+.rail li{padding:.8rem 0;border-bottom:1px solid var(--rule);display:grid;
+  grid-template-columns:auto 1fr;gap:.7rem;align-items:start}
+.rail li::before{counter-increment:r;content:counter(r);font-family:var(--marquee);
+  font-weight:900;font-size:1.5rem;line-height:.8;color:var(--accent)}
+.rail h3{font-family:var(--cond);text-transform:uppercase;font-size:1.32rem;line-height:.98;
+  margin:0 0 .2rem;font-weight:400}
+.rail h3 a:hover{color:var(--accent)}
+.rail .byline{font-size:.62rem}
+
+/* ── DEPARTMENT BANDS (TIME's section rows) ──────────────── */
+.dept{padding-block:clamp(26px,3.4vw,42px)}
+.dept-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+  border-bottom:2px solid var(--ink);padding-bottom:.35rem;margin-bottom:0}
+.dept-head h2{font-family:var(--cond);text-transform:uppercase;font-weight:400;margin:0;
+  font-size:clamp(1.6rem,3.4vw,2.5rem);letter-spacing:.02em}
+.dept-head .tag{font-family:var(--label);font-size:.7rem;text-transform:uppercase;
+  letter-spacing:.18em;color:var(--accent)}
+.cardrow{display:grid;grid-template-columns:repeat(3,1fr)}
+.card{padding:1.3rem 1.4rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.card:last-child{border-right:0}
+.card h3{font-family:var(--marquee);font-weight:700;font-size:1.55rem;line-height:1.04;
+  margin:.15rem 0 .5rem}
+.card h3 a:hover{color:var(--accent)}
+.card .dek{font-size:.98rem;line-height:1.42;margin:0 0 .7rem}
+.card .byline{display:block}
+
+/* ── THE INDEX (dense multi-column briefs) ───────────────── */
+.index{padding-block:clamp(26px,3.4vw,42px);border-top:3px double var(--rule-2)}
+.brieflist{columns:3;column-gap:2rem;column-rule:1px solid var(--rule);margin-top:1rem}
+.brief{break-inside:avoid;padding-bottom:.85rem;margin-bottom:.85rem;
+  border-bottom:1px solid var(--rule)}
+.brief h4{font-family:var(--cond);text-transform:uppercase;font-weight:400;
+  font-size:1.35rem;line-height:.98;margin:0 0 .25rem}
+.brief h4 a:hover{color:var(--accent)}
+.brief .byline{font-size:.62rem}
+.brief .micro{font-family:var(--text);font-size:.92rem;color:var(--ink-soft);margin:.25rem 0 0;line-height:1.38}
+
+/* ── LATEST FROM THE REPL (the signature wire) ───────────── */
+.wire{padding-block:clamp(26px,3.4vw,42px);border-top:3px double var(--rule-2)}
+.wire-head{font-family:var(--cond);text-transform:uppercase;font-size:clamp(1.6rem,3.4vw,2.4rem);
+  border-bottom:2px solid var(--ink);padding-bottom:.35rem;margin:0 0 0}
+.wire-list{display:grid;grid-template-columns:1fr 1fr;gap:0;list-style:none;margin:0;padding:0}
+.wire-item{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:baseline;
+  padding:.95rem 1.4rem .95rem 0;border-bottom:1px solid var(--rule)}
+.wire-item:nth-child(odd){border-right:1px solid var(--rule);padding-right:1.4rem}
+.wire-item:nth-child(even){padding-left:1.4rem}
+.repl-dateline{font-family:var(--mono);font-size:.72rem;color:var(--accent);white-space:nowrap;
+  padding-top:.15rem}
+.repl-dateline b{color:var(--ink);font-weight:400}
+.wire-item h4{font-family:var(--text);font-weight:700;font-size:1.12rem;line-height:1.2;margin:0 0 .2rem}
+.wire-item h4 a:hover{color:var(--accent)}
+.wire-item .micro{font-family:var(--text);font-style:italic;font-size:.9rem;color:var(--ink-soft);margin:0}
+
+/* ── REVIEWED (book column) ──────────────────────────────── */
+.review{padding-block:clamp(28px,3.8vw,48px);border-top:3px double var(--rule-2)}
+.review-grid{display:grid;grid-template-columns:270px 1fr;gap:clamp(22px,4vw,48px);align-items:start}
+.tome{border:1px solid var(--rule-2);background:var(--paper-2);padding:1.5rem 1.4rem;
+  aspect-ratio:3/4;display:flex;flex-direction:column;justify-content:space-between;text-align:center;
+  box-shadow:8px 8px 0 rgba(28,23,18,.16)}
+.tome .pub{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.18em;color:var(--ink-soft)}
+.tome .tt{font-family:var(--marquee);font-weight:900;font-size:2rem;line-height:.98}
+.tome .tt em{font-style:italic;color:var(--accent)}
+.tome .orn{padding:0;font-size:1.4rem}
+.review-body .kicker{color:var(--accent)}
+.review-body h2{font-family:var(--marquee);font-weight:800;font-size:clamp(2rem,4vw,3rem);
+  line-height:1;margin:.2rem 0 .8rem}
+.review-body .body{columns:2;column-gap:2rem;column-rule:1px solid var(--rule);font-size:1rem;line-height:1.5}
+.review-body .body p{margin:0 0 .8rem}
+.review-body .body p:first-child::first-letter{font-family:var(--marquee);font-weight:900;float:left;
+  font-size:3.2rem;line-height:.72;padding:.1rem .38rem 0 0;color:var(--accent)}
+.review-body .verdict{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--ink);border-top:1px solid var(--rule);margin-top:.6rem;padding-top:.7rem}
+.review-body .verdict b{color:var(--accent);font-weight:400}
+.review-body .code{font-family:var(--mono);font-size:.85em;background:var(--paper-2);padding:.05em .3em}
+
+/* ── COLOPHON ────────────────────────────────────────────── */
+.colophon{border-top:3px double var(--rule-2);margin-top:.5rem}
+.colophon .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  padding-block:1.8rem;font-family:var(--mono);font-size:.66rem;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--ink-soft)}
+.colophon b{color:var(--ink);font-weight:400}
+.colophon .mark{font-family:var(--text);color:var(--accent);font-size:1.1rem;letter-spacing:.4em}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media(max-width:860px){
+  .lead-grid{grid-template-columns:1fr}
+  .lead{padding-right:0;border-bottom:1px solid var(--rule)}
+  .rail{border-left:0;padding-left:0}
+  .lead .body{columns:1}
+  .cardrow{grid-template-columns:1fr 1fr}
+  .card:nth-child(2){border-right:0}
+  .brieflist{columns:2}
+  .wire-list{grid-template-columns:1fr}
+  .wire-item:nth-child(odd){border-right:0;padding-right:0}
+  .wire-item:nth-child(even){padding-left:0}
+  .review-grid{grid-template-columns:1fr}
+  .tome{max-width:260px}
+}
+@media(max-width:540px){
+  .cardrow{grid-template-columns:1fr}
+  .card{border-right:0}
+  .brieflist{columns:1}
+  .review-body .body{columns:1}
+  .sectnav{font-size:.9rem}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead"><div class="wrap">
+  <div class="mast-top">
+    <span>Established 2026 · Saga, Japan</span>
+    <span>almightylisp.com</span>
+  </div>
+  <h1 class="nameplate"><span class="flank">(</span>The S-Express<span class="flank">)</span></h1>
+  <p class="motto">“All the forms fit to eval.”</p>
+  <div class="dateline">
+    <span>Vol. <b>I</b> · No. <b>1</b></span>
+    <span>Summer 2026 — The Common Lisp Broadsheet</span>
+    <span>Price: <b>Free</b>, Evaluated Fresh</span>
+  </div>
+  <nav class="sectnav">
+    <a href="#">Fundamentals</a>
+    <a href="#">The Editor</a>
+    <a href="#">The Object System</a>
+    <a href="#">Macros</a>
+    <a href="#">Conditions</a>
+    <a href="#">Reviewed</a>
+  </nav>
+</div></header>
+
+<!-- LEAD + RAIL -->
+<section class="wrap"><div class="lead-grid">
+  <article class="lead">
+    <span class="kicker">Cover Story · Macros</span>
+    <h1>Bending the Language to Your Will</h1>
+    <p class="standfirst">Macros are Lisp's most controversial gift — and the reason a patient
+      writer can bend the whole language into a shape no committee ever anticipated.</p>
+    <div class="body">
+      <p>There are no limits. A macro receives your code before it is run and hands back new
+        code in its place, so the constructs you wish the language had can simply be written
+        into existence — quietly, at compile time, with backquote and a comma or two.</p>
+      <p>That power is also the trouble. A macro that could have been a function is a small act
+        of vandalism against the next reader. The craft, then, is knowing the difference: when
+        to reach for one, when to let the evaluator do its ordinary work, and how to keep your
+        expansions honest about the variables they capture.</p>
+      <p>This issue takes the whole tour — from a ten-line <span style="font-family:var(--mono);font-size:.85em">while</span>
+        to hygiene, variable capture, and the moment a masterful writer decides <em>not</em> to.</p>
+    </div>
+    <div class="foot">
+      <span class="byline">By Micah Killian</span>
+      <a class="morelink" href="#">Continue reading ☞</a>
+    </div>
+  </article>
+
+  <aside class="rail">
+    <h2 class="rail-head">Top of the Stack</h2>
+    <ol>
+      <li><div><h3><a href="#">CLOS Chooses Its Methods by Every Argument at Once</a></h3><span class="byline">The Object System</span></div></li>
+      <li><div><h3><a href="#">Restarts Turn a Crash Into a Conversation</a></h3><span class="byline">Conditions</span></div></li>
+      <li><div><h3><a href="#">Survival Emacs, No Keybindings Required</a></h3><span class="byline">The Editor</span></div></li>
+      <li><div><h3><a href="#">In Praise of the Much-Maligned LOOP</a></h3><span class="byline">Iteration</span></div></li>
+      <li><div><h3><a href="#">Ship a Whole Program as One File</a></h3><span class="byline">Deploying</span></div></li>
+    </ol>
+  </aside>
+</div></section>
+
+<div class="orn">⁂</div>
+
+<!-- DEPARTMENT: FUNDAMENTALS -->
+<section class="wrap dept">
+  <div class="dept-head"><h2>Fundamentals</h2><span class="tag">Chapter III</span></div>
+  <div class="cardrow">
+    <article class="card">
+      <span class="kicker">Syntax &amp; Grammar</span>
+      <h3><a href="#">The Whole Language in a Handful of Parentheses</a></h3>
+      <p class="dek">Prefix notation and s-expressions are the entire grammar. Learn to read
+        one form and you can read them all.</p>
+      <span class="byline">By The Editor</span>
+    </article>
+    <article class="card">
+      <span class="kicker">Symbols</span>
+      <h3><a href="#">A Name Is a First-Class Thing</a></h3>
+      <p class="dek">Symbols are not strings and not variables — they are interned names the
+        reader hands you, ready to stand for anything.</p>
+      <span class="byline">Our Correspondent</span>
+    </article>
+    <article class="card">
+      <span class="kicker">Lists</span>
+      <h3><a href="#">The Cons Cell, Doing Double Duty</a></h3>
+      <p class="dek">The same humble pair that holds your data also holds your program. This is
+        the whole trick of the language.</p>
+      <span class="byline">Special to the S-Express</span>
+    </article>
+  </div>
+</section>
+
+<!-- DEPARTMENT: THE EDITOR -->
+<section class="wrap dept">
+  <div class="dept-head"><h2>The Editor</h2><span class="tag">Chapters IV–VI</span></div>
+  <div class="cardrow">
+    <article class="card">
+      <span class="kicker">Getting Started</span>
+      <h3><a href="#">Begin in the Menus, Earn Your Keys Later</a></h3>
+      <p class="dek">You need not memorize a thing to start. The menus will carry you until the
+        keybindings feel like your own.</p>
+      <span class="byline">By Micah Killian</span>
+    </article>
+    <article class="card">
+      <span class="kicker">Structured Editing</span>
+      <h3><a href="#">To Slurp and to Barf, a Primer</a></h3>
+      <p class="dek">Move whole expressions, not characters, and you will never again lose a
+        parenthesis at two in the morning.</p>
+      <span class="byline">Our Correspondent</span>
+    </article>
+    <article class="card">
+      <span class="kicker">The Lisp IDE</span>
+      <h3><a href="#">Living Inside the SLY Listener</a></h3>
+      <p class="dek">Compile a single form, inspect a live object, redefine a class beneath a
+        running program. The image never stops.</p>
+      <span class="byline">Special to the S-Express</span>
+    </article>
+  </div>
+</section>
+
+<!-- THE INDEX -->
+<section class="wrap index">
+  <div class="dept-head"><h2 style="font-family:var(--cond);text-transform:uppercase;font-weight:400;margin:0;font-size:clamp(1.6rem,3.4vw,2.5rem)">The Index</h2><span class="tag">More Dispatches</span></div>
+  <div class="brieflist">
+    <div class="brief"><h4><a href="#">Ratios That Refuse to Round</a></h4><span class="byline">Numbers</span><p class="micro">Exact arithmetic, and why 1/3 stays 1/3.</p></div>
+    <div class="brief"><h4><a href="#">The Reader, Demystified</a></h4><span class="byline">Syntax</span><p class="micro">What happens between your keystroke and the form.</p></div>
+    <div class="brief"><h4><a href="#">Keywords Are Symbols With a Colon</a></h4><span class="byline">Fundamentals</span></div>
+    <div class="brief"><h4><a href="#">Tail Positions and the LOOP That Never Grows</a></h4><span class="byline">Iteration</span></div>
+    <div class="brief"><h4><a href="#">Packages Without the Panic</a></h4><span class="byline">Organizing Code</span><p class="micro">Namespaces for people who dislike namespaces.</p></div>
+    <div class="brief"><h4><a href="#">A Format Directive for Every Occasion</a></h4><span class="byline">Strings &amp; I/O</span></div>
+    <div class="brief"><h4><a href="#">Feature Expressions and the #+nil Trick</a></h4><span class="byline">Fundamentals</span></div>
+    <div class="brief"><h4><a href="#">Coalton, or Types When You Want Them</a></h4><span class="byline">The Ecosystem</span></div>
+    <div class="brief"><h4><a href="#">One File, One Executable, No Runtime</a></h4><span class="byline">Deploying</span><p class="micro">From a live image to a binary you can hand anyone.</p></div>
+  </div>
+</section>
+
+<!-- LATEST FROM THE REPL -->
+<section class="wrap wire">
+  <h2 class="wire-head">Latest From the REPL</h2>
+  <ul class="wire-list">
+    <li class="wire-item"><span class="repl-dateline">CL-USER&gt; <b>14:02</b></span>
+      <div><h4><a href="#">A New Restart for Every Occasion</a></h4><p class="micro">The condition system, revisited for those who fear the debugger.</p></div></li>
+    <li class="wire-item"><span class="repl-dateline">CL-USER&gt; <b>13:47</b></span>
+      <div><h4><a href="#">make-instance Returns Before You Finish Typing</a></h4><p class="micro">On the strange comfort of interactive object creation.</p></div></li>
+    <li class="wire-item"><span class="repl-dateline">CL-USER&gt; <b>11:19</b></span>
+      <div><h4><a href="#">Redefining a Class Beneath a Running Program</a></h4><p class="micro">Instances update themselves. Nobody has to restart anything.</p></div></li>
+    <li class="wire-item"><span class="repl-dateline">CL-USER&gt; <b>10:05</b></span>
+      <div><h4><a href="#">The Backquote Is Just a Template</a></h4><p class="micro">Comma to escape, comma-at to splice. That is the entire syntax.</p></div></li>
+    <li class="wire-item"><span class="repl-dateline">CL-USER&gt; <b>09:31</b></span>
+      <div><h4><a href="#">Quicklisp Now Installs in a Single Form</a></h4><p class="micro">The library situation is, at last, boringly easy.</p></div></li>
+    <li class="wire-item"><span class="repl-dateline">CL-USER&gt; <b>08:58</b></span>
+      <div><h4><a href="#">A Second Theme Pack Descends</a></h4><p class="micro">Sixteen palettes for Emacs, eight light and eight dark.</p></div></li>
+  </ul>
+</section>
+
+<!-- REVIEWED -->
+<section class="wrap review">
+  <div class="review-grid">
+    <div class="tome">
+      <span class="pub">Almighty Lisp · No. 1</span>
+      <div class="orn">❦</div>
+      <span class="tt">Lisp &amp; Emacs<br><em>Essentials</em></span>
+      <span class="pub">The Online Book · Available Now</span>
+    </div>
+    <div class="review-body">
+      <span class="kicker">Reviewed · The Featured Volume</span>
+      <h2>Learn the Language &amp; the Editor at Once</h2>
+      <div class="body">
+        <p>Other books teach Common Lisp and then abandon you at the Emacs wall — a fine
+          language on one side, an inscrutable editor on the other. This volume refuses the
+          choice, and pulls the reader up and over the wall with both hands.</p>
+        <p>By setting the language and its editor in a single book, proficiency with each
+          compounds rather than competes. You will be barfing and slurping while you
+          <span class="code">C-c C-c</span> your first macros, and you will not have noticed
+          learning either.</p>
+      </div>
+      <p class="verdict">The Verdict: <b>Read it immediately.</b> &nbsp;·&nbsp; <a class="morelink" href="/book/essentials">Open the book ☞</a></p>
+    </div>
+  </div>
+</section>
+
+<footer class="colophon"><div class="wrap">
+  <span>Set in <b>Playfair Display</b>, <b>League Gothic</b>, <b>Old Standard</b>, <b>Berkeley Mono</b> &amp; <b>Construct Mono</b></span>
+  <span class="mark">( λ )</span>
+  <span>© 2026 <b>The S-Express</b> · Printed on the cloud, Saga JP</span>
+</div></footer>
+
+</body>
+</html>

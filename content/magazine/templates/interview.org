@@ -1,0 +1,31 @@
+#+TITLE: Working title
+#+SUBTITLE: Who, and the most interesting thing they said.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: Interview
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# Interview: A conversation. Introduce the person, then group the questions by theme.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* Who
+# Who they are, what they've made, and why they're worth hearing.
+Write this section.
+
+* First theme
+# One section per theme. Questions in bold, answers as their own paragraphs. Edit for clarity, not for voice.
+Write this section.
+
+* Second theme
+# Keep each section to one subject.
+Write this section.
+
+* Last word
+# What they'd tell a reader starting out, or what's next for them.
+Write this section.

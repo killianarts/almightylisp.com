@@ -10,6 +10,7 @@
                :book
                :article
                :author
+               :magazine
                :home)
   :build-operation "program-op"
   :build-pathname "almightylisp"

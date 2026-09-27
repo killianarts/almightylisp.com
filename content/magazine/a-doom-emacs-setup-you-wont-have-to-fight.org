@@ -1,0 +1,23 @@
+#+TITLE: A Doom Emacs setup you won't have to fight
+#+SUBTITLE: Doom already wires Emacs, Evil, and the Lisp tools. The setup that lasts is the one that leaves Doom's modules alone until you know which default is actually in your way.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-15
+#+TYPE: How-to
+#+TOPIC: Emacs
+#+SERIES: EMX
+#+PART: 2
+#+RELATED: learn-enough-emacs-to-write-lisp-then-stop
+
+* Turn on the Lisp module and stop
+
+=(doom! :lang (lisp +sly))= is the whole Common Lisp setup Doom expects. Sly, the REPL, and the structural keys come with it. A second package manager layered on top is how the config becomes a second project.
+
+Put your own bindings in =config.el= after you miss them twice. Until then the default is the documentation, and the documentation matches what you are typing.
+
+#+BEGIN_NOTE In the book
+[[/book/essentials/emacs-fundamentals][Emacs Fundamentals]] and the Doom install notes are the long version of this page.
+#+END_NOTE
+
+* When the default really is wrong
+
+Change one binding, =doom sync=, and restart Emacs once so the module graph reloads. Then go back to the image and stay there. A config that you rebuild every morning is a sign you are editing the editor instead of the program.

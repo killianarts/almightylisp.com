@@ -1,0 +1,195 @@
+#+TITLE: To LOOP or\\not to LOOP
+#+SUBTITLE: loop is a small language with its own grammar, built into Common Lisp. Some programmers write every iteration with it and some refuse to. The better question is which loops it makes clearer, and which it makes worse.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-21
+#+TYPE: Explanation
+#+TOPIC: Lisp
+#+RELATED: an-error-that-waits-for-you-to-decide handling-money-without-floating-point
+#+BOOK_CHAPTER: 8
+#+BOOK_TITLE: The LOOP Macro
+#+BOOK_SUMMARY: Every clause from :for to :named, each with an example and the built-in function it can replace.
+#+BOOK_HREF: /book/essentials/the-loop-macro
+
+* A language inside the language
+
+Almost every form in Common Lisp is a list you can read from the inside out. =loop= isn't. Its arguments are a run of clauses that read almost like English, =:for x :in list :collect x=, and the macro parses them with a grammar of its own, set out in section 6.1 of the standard.
+
+None of that costs anything when the program runs. Expand a =loop= and you get ordinary Lisp: a =block=, a =let= for the variables, and a =tagbody= that jumps back to the top with =go=. The cost is paid by whoever reads the code, and whether it's worth paying depends on the loop.
+
+#+BEGIN_NOTE Syntax
+=loop [name-clause] {variable-clause}* {main-clause}*= returns result*
+#+END_NOTE
+
+#+BEGIN_NOTE Try it
+Put the cursor on any =loop= form and press =C-c C-m= in Sly to see it expanded one step.
+#+END_NOTE
+
+#+BEGIN_NOTE Keywords or symbols
+=loop= matches clause names by their spelling, so =:for= and =for= mean the same thing. This magazine writes them as keywords so they stand apart from your variables.
+#+END_NOTE
+
+* Where it earns its place
+
+Here is a small job. From a list of students and their scores, get the names of everyone who scored 90 or more, and the class average.
+
+#+BEGIN_SRC lisp :buffer grades.lisp :package cl-user
+(defparameter *scores*
+  '(("Ada" . 94) ("Grace" . 88)
+    ("Alan" . 97) ("Barbara" . 72)))
+
+(loop :for (name . score) :in *scores*
+      :when (>= score 90)
+        :collect name :into honours
+      :sum score :into total
+      :count t :into students
+      :finally (return (values honours (/ total students))))
+#+END_SRC
+
+#+RESULTS:
+("Ada" "Alan")
+351/4
+
+That's one pass over the list, three running results and a destructured entry, all in one form. Without =loop=, the same work needs three variables that you declare and update yourself:
+
+#+BEGIN_SRC lisp
+(let ((honours '()) (total 0) (students 0))
+  (dolist (entry *scores*)
+    (destructuring-bind (name . score) entry
+      (when (>= score 90) (push name honours))
+      (incf total score)
+      (incf students)))
+  (values (nreverse honours) (/ total students)))
+#+END_SRC
+
+#+RESULTS:
+("Ada" "Alan")
+351/4
+
+That version isn't wrong, but its intent is buried in bookkeeping: the =push= needs an =nreverse= at the end, and the counter is kept by hand. Several results gathered in one pass is the job =loop= was made for.
+
+#+BEGIN_NOTE Why 351/4
+Dividing integers in Common Lisp gives an exact ratio, not a truncated integer or a rounded float. Wrap the division in =float= to get 87.75.
+#+END_NOTE
+
+#+BEGIN_NOTE Syntax
+=destructuring-bind lambda-list expression declaration* form*= returns result*
+#+END_NOTE
+
+* Where it bites
+
+Now change the job: total the scores of the honours students only. The obvious edit is to indent a =:sum= under the =:when=.
+
+#+BEGIN_SRC lisp :highlight 4
+(loop :for (name . score) :in *scores*
+      :when (>= score 90)
+        :collect name :into honours
+        :sum score :into honours-total
+      :finally (return (values honours honours-total)))
+#+END_SRC
+
+#+RESULTS:
+("Ada" "Alan")
+351
+
+The answer should be 191. It's 351, the total for the whole class. A =:when= controls exactly one clause. The indentation is only a suggestion, and =loop= ignores it. To make the =:sum= conditional as well, you have to chain it with =:and=:
+
+#+BEGIN_SRC lisp :highlight 4
+(loop :for (name . score) :in *scores*
+      :when (>= score 90)
+        :collect name :into honours
+        :and :sum score :into honours-total
+      :finally (return (values honours honours-total)))
+#+END_SRC
+
+#+RESULTS:
+("Ada" "Alan")
+191
+
+Nothing warned about the first version. It compiled, ran and returned a believable number. That's the real cost of =loop=: its structure lives in keywords, not parentheses, so neither the compiler nor your editor can see it. Structured editing moves whole forms, and a clause isn't a form.
+
+The second trap involves closures. Each function below should remember a different =x=:
+
+#+BEGIN_SRC lisp
+(mapcar #'funcall
+        (loop :for x :in '(1 2 3)
+              :collect (lambda () x)))
+#+END_SRC
+
+#+RESULTS:
+(3 3 3)
+
+On SBCL, =loop= updates a single variable on every pass instead of binding a new one, so all three closures share it and see its last value. The same code written with =dolist= returns =(1 2 3)= on SBCL, and a =mapcar= always does, because each call to the function gets its own binding. To capture the variable inside =loop=, rebind it: =(let ((x x)) (lambda () x))=.
+
+#+BEGIN_NOTE Syntax
+=:when form clause {:and clause}* [:else clause {:and clause}*] [:end]=
+#+END_NOTE
+
+#+BEGIN_NOTE The standard
+Whether =dolist= makes a new binding on each pass is left to the implementation. Portable code shouldn't count on either behaviour, in =dolist= or in =loop=.
+#+END_NOTE
+
+#+BEGIN_NOTE In the book
+[[/book/essentials/structured-editing][Chapter 6, Structured Editing]] covers the editor commands that move whole forms.
+#+END_NOTE
+
+* The alternatives
+
+When =loop= is the wrong tool, it's usually because a simpler one says the same thing in fewer words. For one transformation, one filter or one total, the sequence functions read better, because their names state the intent:
+
+#+BEGIN_SRC lisp
+(mapcar #'car *scores*)
+;; => ("Ada" "Grace" "Alan" "Barbara")
+
+(reduce #'+ *scores* :key #'cdr)
+;; => 351
+
+(every (lambda (entry) (>= (cdr entry) 70)) *scores*)
+;; => T, everyone passed
+#+END_SRC
+
+For side effects with no result, =dolist= and =dotimes= are shorter and say so. And if you want everything =loop= does with Lisp's own syntax, there's ITERATE, a library on Quicklisp. Each clause is a form in parentheses, so a =when= has a body you can see:
+
+#+BEGIN_SRC lisp :buffer grades.lisp :package grades
+(iter (for (name . score) in *scores*)
+      (when (>= score 90)
+        (collect name into honours)
+        (sum score into honours-total))
+      (finally (return (values honours honours-total))))
+#+END_SRC
+
+#+RESULTS:
+("Ada" "Alan")
+191
+
+The trap from the last section can't happen here. Both clauses are inside the =when= because the parentheses put them there, and your editor can move, wrap or delete each one as a unit. The price is a dependency, and one more library every reader of your code has to know.
+
+#+BEGIN_NOTE Syntax
+=reduce function sequence &key key from-end start end initial-value= returns result
+#+END_NOTE
+
+#+BEGIN_NOTE Getting ITERATE
+Load it with =(ql:quickload "iterate")=, then define your package with =(:use :cl :iterate)=, as the grades package here does.
+#+END_NOTE
+
+* A rule you can use
+
+Ask what the loop produces, then pick the smallest tool that says it.
+
+| If the loop | Use |
+|-------------+-----|
+| changes every element | mapcar, map |
+| keeps some elements | remove-if-not |
+| boils everything down to one value | reduce, count-if, every, some |
+| only has side effects | dolist, dotimes |
+| gathers several results in one pass, or walks two sequences in step | loop |
+| needs a condition around several clauses | loop with :and, or ITERATE |
+
+The last two rows are where =loop= is worth its grammar. Everywhere else it's a longer way of saying something Common Lisp already has a word for.
+
+#+BEGIN_NOTE In the book
+[[/book/essentials/the-loop-macro][Chapter 8, The LOOP Macro]] goes through every clause with an example, and ends with when to use something else.
+#+END_NOTE
+
+#+BEGIN_NOTE Tested on
+Every example on this page was run on SBCL 2.6.3, with ITERATE from Quicklisp. The results shown are the ones it printed.
+#+END_NOTE

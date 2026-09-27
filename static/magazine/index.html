@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html class="dark" lang="en" data-theme="almighty-lisp">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Almighty Lisp — Magazine Prototype</title>
+  <meta name="description" content="Magazine-style Common Lisp periodical: language, Emacs, Essentials, themes.">
+  <script>
+    // Match production theme boot (avoid flash)
+    (() => {
+      const t = localStorage.getItem('theme') || 'almighty-lisp';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <!-- Live site design system: tokens, fonts, theme palette -->
+  <link rel="stylesheet" href="/static/css/almightylisp.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png">
+  <!-- Magazine layout only -->
+  <link rel="stylesheet" href="/static/magazine/magazine.css">
+</head>
+<body>
+  <div class="mag-proto" title="Static prototype using live almighty-lisp tokens">Prototype · Mag v2</div>
+
+  <div class="mag">
+    <!-- MASTHEAD -->
+    <header class="mag-masthead">
+      <div class="mag-wrap mag-masthead__row">
+        <a class="mag-brand" href="#top" id="top">
+          <img class="mag-brand__mark" src="/static/assets/images/lisp-logo.png" width="48" height="54" alt="">
+          <span class="mag-brand__word">Almighty <em>Lisp</em></span>
+        </a>
+        <nav class="mag-nav" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#essentials">The Book</a>
+          <a href="#specimen">Code</a>
+          <a href="#emacs">Emacs</a>
+          <a href="#themes">Themes</a>
+          <a href="#colophon">About</a>
+        </nav>
+        <div class="mag-masthead__meta">almightylisp.com · periodical</div>
+      </div>
+    </header>
+
+    <div class="mag-issue">
+      <div class="mag-wrap mag-issue__row">
+        <div class="mag-issue__vol">Vol. 01 · No. 01</div>
+        <div class="mag-issue__dek">The Essentials Issue — language · editor · image · deploy</div>
+        <div class="mag-issue__price">Read free online · themes from $10</div>
+      </div>
+    </div>
+
+    <main>
+      <!-- HERO: landing logo lockup + mega headline -->
+      <section class="mag-hero">
+        <div class="mag-wrap mag-hero__grid">
+          <div class="mag-lockup" aria-label="Almighty Lisp Essentials lockup">
+            <!-- Same two-part lockup as the live landing page -->
+            <img class="mag-lockup__word" src="/static/assets/images/almighty-lisp.svg" width="185" height="127" alt="Almighty Lisp">
+            <img class="mag-lockup__essentials" src="/static/assets/images/the-essentials.svg" width="157" height="57" alt="Lisp &amp; Emacs Essentials">
+            <div class="mag-lockup__status">Online book available now</div>
+          </div>
+
+          <div class="mag-hero__copy">
+            <h1>
+              Almighty tools<br>
+              for <span class="cyan">almighty</span><br>
+              <span class="yellow">programmers</span>
+            </h1>
+            <p class="mag-hero__lede">
+              Common Lisp is the most powerful programming language in history.
+              Emacs is the most powerful text editor in history. Master both in
+              one brief curriculum: <em>Almighty Lisp: Lisp &amp; Emacs Essentials</em>.
+            </p>
+            <div class="mag-cta-row">
+              <a class="mag-cta" href="/book/essentials">Learn Lisp &amp; Emacs immediately</a>
+              <a class="mag-cta" href="#toc" style="color: var(--color-secondary)">Browse this issue</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOC -->
+      <section class="mag-toc" id="toc">
+        <div class="mag-wrap">
+          <div class="mag-toc__head">
+            <h2>In this issue</h2>
+            <span class="mag-masthead__meta">Departments</span>
+          </div>
+          <ul class="mag-toc__list">
+            <li><a href="#essentials"><span class="n">01</span><span>The dual curriculum</span><span class="p">p.12</span></a></li>
+            <li><a href="#emacs"><span class="n">02</span><span>Over the Emacs wall</span><span class="p">p.18</span></a></li>
+            <li><a href="#specimen"><span class="n">03</span><span>Image programming</span><span class="p">p.24</span></a></li>
+            <li><a href="#features"><span class="n">04</span><span>Money · accounting · ship</span><span class="p">p.36</span></a></li>
+            <li><a href="#specimen"><span class="n">05</span><span>Sly: stickers &amp; restarts</span><span class="p">p.44</span></a></li>
+            <li><a href="#themes"><span class="n">06</span><span>Theme laboratory</span><span class="p">p.52</span></a></li>
+            <li><a href="#colophon"><span class="n">07</span><span>From the editor</span><span class="p">p.58</span></a></li>
+            <li><a href="#features"><span class="n">08</span><span>Course preview</span><span class="p">p.62</span></a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- COVER STORY: book chapter header style -->
+      <section class="mag-section" id="essentials">
+        <div class="mag-wrap">
+          <div class="mag-section__title--hero" aria-label="Cover story">
+            <span class="chap-num">01</span>
+            <span class="chap-name">The dual curriculum</span>
+          </div>
+          <p class="mag-hero__lede" style="max-width: 62ch; margin-bottom: 1.5rem">
+            Other books teach Common Lisp and leave you alone with Emacs.
+            <em>Essentials</em> teaches the language and the editor together —
+            Survival Mode first, then keybindings, Sly, and structured editing —
+            so veterans clear the Emacs wall without a second apprenticeship.
+          </p>
+
+          <div class="mag-features" id="features">
+            <article class="mag-card mag-card--lead">
+              <p class="mag-card__meta">Cover story · Book</p>
+              <h2>One book.<br><span class="yellow">Two tools.</span><br><span class="cyan">Zero fluff.</span></h2>
+              <p>
+                Written for experienced, Lisp-curious programmers. Fundamentals,
+                lists, CLOS, conditions, macros, packages, a money library,
+                double-entry accounting, and deploy — beside Doom Emacs craft.
+              </p>
+              <ul>
+                <li>Menus first, then <span class="mag-chord">C-c C-c</span> when it earns its keep</li>
+                <li>Fix a bug mid-game without restarting the image</li>
+                <li>Projects you can ship, not toy demos only</li>
+              </ul>
+              <a class="mag-cta" href="/book/essentials">Read the book immediately</a>
+            </article>
+
+            <div class="mag-stack">
+              <article class="mag-card" id="emacs">
+                <p class="mag-card__meta">Department · Editor</p>
+                <h3>Over the <span class="yellow">Emacs</span> wall</h3>
+                <p>
+                  Install Doom, learn buffers and frames, then graduate into the
+                  Lisp IDE: backtraces, stickers, restarts, and structured editing.
+                </p>
+                <a class="mag-cta" href="/book/essentials/getting-started-w-doom-emacs-lisp">Getting started →</a>
+              </article>
+              <article class="mag-card">
+                <p class="mag-card__meta">Department · Projects</p>
+                <h3>Build what you can <span class="cyan">ship</span></h3>
+                <p>
+                  Tic-tac-toe for the image. Money that refuses floats. Accounting
+                  with Mito. Binaries and a web deploy path.
+                </p>
+                <a class="mag-cta" href="/book/essentials/money-library">Projects in the book →</a>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PULL -->
+      <section class="mag-pull" aria-label="Pull quote">
+        <div class="mag-wrap">
+          <blockquote>
+            “Common Lisp is optimized for ultimate adaptability — a generalist’s secret weapon.”
+          </blockquote>
+          <cite>The Almighty Philosophy · Essentials</cite>
+        </div>
+      </section>
+
+      <!-- SPECIMEN: almighty-block -->
+      <section class="mag-section" id="specimen">
+        <div class="mag-wrap mag-specimen">
+          <div class="mag-specimen__copy">
+            <div class="mag-section__kicker">
+              <span class="mag-section__num">03</span>
+              <span class="mag-section__label">Lisp fundamentals · specimen</span>
+            </div>
+            <h2 class="mag-section__title cyan">The image is the point</h2>
+            <p>
+              Compile a definition into a long-lived world. Redefine it while the
+              game still runs. Restarts are the debugger’s menu — not an apology
+              dialog.
+            </p>
+            <p>
+              Veterans don’t need another tutorial on <em>if</em>. They need the
+              habit: edit → <span class="mag-chord">C-c C-c</span> → continue.
+            </p>
+            <a class="mag-cta" href="/book/essentials/lisp-fundamentals">Open Lisp Fundamentals →</a>
+          </div>
+
+          <div class="a-block" aria-label="Code specimen">
+            <div class="a-block__meta">
+              <span>Buffer // <b>tic-tac-toe.lisp</b></span>
+              <span>Package // <b>cl-user</b></span>
+            </div>
+            <div class="a-block__cell">
+              <pre><code><span class="cmt">;;; Bug found mid-game — recompile without restarting</span>
+(<span class="kw">defun</span> <span class="sym">win-or-block</span> (board target-sum)
+  (<span class="kw">let</span> ((target-triplet
+         (<span class="sym">find-if</span>
+          (<span class="kw">lambda</span> (triplet)
+            <span class="cmt">;; was: *test-board* → now the live board</span>
+            (= target-sum (<span class="sym">sum-triplet</span> board triplet)))
+          *triplets*)))
+    (<span class="kw">when</span> target-triplet
+      (<span class="sym">find-if</span>
+       (<span class="kw">lambda</span> (element) (= (<span class="sym">nth</span> element board) <span class="num">0</span>))
+       target-triplet))))</code></pre>
+            </div>
+            <div class="a-block__result">
+              Note // C-c C-c · continue the game · same image · same board
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ESSAY + RAIL -->
+      <section class="mag-section">
+        <div class="mag-wrap mag-well">
+          <article class="mag-article">
+            <div class="mag-section__kicker">
+              <span class="mag-section__num">07</span>
+              <span class="mag-section__label">Essay · editor’s letter</span>
+            </div>
+            <h2 class="mag-section__title">Why a magazine for Lisp?</h2>
+            <p class="drop">
+              Common Lisp has masterpieces — Norvig, Seibel, Steele — but the
+              culture around the language still scatters: Hyperspec tabs, Discord
+              threads, one-off blogs, and an editor that looks like 1994 until it
+              suddenly looks like the future.
+            </p>
+            <p>
+              This site is becoming a periodical home for that culture: brief
+              features for veterans, Emacs craft as first-class content, book
+              chapters as long-form, and tools (themes, tips, courses) that keep
+              the REPL warm.
+            </p>
+            <p>
+              The tone stays <em>almighty</em> — not corporate, not tutorial-factory.
+              Adaptability over fashion. Macros when they earn their keep. Doom
+              when the keybinding is the lesson.
+            </p>
+            <aside class="mag-aside">
+              <div class="mag-aside__title">Coming next</div>
+              <p>
+                A video course that weaves Lisp and Emacs in every lesson — same
+                philosophy as the book, shorter clips, fingers on the chords.
+              </p>
+            </aside>
+          </article>
+
+          <aside class="mag-rail" aria-label="Sidebar">
+            <div class="mag-rail__box">
+              <h3>Inside Essentials</h3>
+              <ul>
+                <li><span>01</span> · Survival Emacs → keybindings</li>
+                <li><span>02</span> · Lists, FP, CLOS, conditions</li>
+                <li><span>03</span> · Macros &amp; packages</li>
+                <li><span>04</span> · Money &amp; accounting</li>
+                <li><span>05</span> · Deploy the image</li>
+              </ul>
+            </div>
+            <div class="mag-rail__box">
+              <h3>Chords worth stealing</h3>
+              <ul>
+                <li><span>C-c C-c</span> · compile defun</li>
+                <li><span>C-c C-k</span> · compile &amp; load file</li>
+                <li><span>SPC m s s</span> · sticker</li>
+                <li><span>SPC m m</span> · macrostep</li>
+                <li><span>g d</span> · jump to definition</li>
+              </ul>
+            </div>
+            <div class="mag-rail__box">
+              <h3>From the book</h3>
+              <ul>
+                <li><a href="/book/essentials/lisp-fundamentals" style="color:var(--color-accent);text-decoration:none"><span>Ch.3</span> · Lisp Fundamentals</a></li>
+                <li><a href="/book/essentials/the-lisp-ide" style="color:var(--color-accent);text-decoration:none"><span>Ch.5</span> · The Lisp IDE</a></li>
+                <li><a href="/book/essentials/macros" style="color:var(--color-accent);text-decoration:none"><span>Ch.9</span> · Macros</a></li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- THEMES -->
+      <section class="mag-section mag-themes" id="themes">
+        <div class="mag-wrap">
+          <div class="mag-themes__head">
+            <div>
+              <div class="mag-section__kicker">
+                <span class="mag-section__num">06</span>
+                <span class="mag-section__label">Laboratory · Doom themes</span>
+              </div>
+              <h2 class="mag-section__title white">Sixteen themes.<br><span class="yellow">Primary colors welcome.</span></h2>
+            </div>
+            <a class="mag-cta" href="/">View packs on the main site →</a>
+          </div>
+          <div class="mag-swatches" aria-label="Theme swatches">
+            <div class="mag-swatch mag-swatch--lisp"><span>lisp</span></div>
+            <div class="mag-swatch mag-swatch--moon"><span>moon</span></div>
+            <div class="mag-swatch mag-swatch--titan"><span>titan</span></div>
+            <div class="mag-swatch mag-swatch--gear"><span>gear</span></div>
+            <div class="mag-swatch mag-swatch--macro"><span>macro</span></div>
+            <div class="mag-swatch mag-swatch--ena"><span>ena</span></div>
+            <div class="mag-swatch mag-swatch--saga"><span>saga</span></div>
+            <div class="mag-swatch mag-swatch--star"><span>star</span></div>
+          </div>
+          <p>
+            Pack 1 and Pack 2 are live — light and dark pairs tuned to match the
+            book’s code blocks as closely as browsers allow. Purchases fund more
+            Lisp propaganda.
+          </p>
+        </div>
+      </section>
+
+      <!-- COLOPHON -->
+      <section class="mag-section" id="colophon">
+        <div class="mag-wrap mag-colophon">
+          <img
+            class="mag-colophon__photo"
+            src="/static/assets/images/profile_photo.png"
+            width="192"
+            height="192"
+            alt="Portrait of Micah Killian">
+          <div>
+            <h2>From the editor</h2>
+            <p>
+              Micah Killian writes for programmers who already know how to ship —
+              and who want Common Lisp and Emacs without a second apprenticeship
+              in configuration archaeology.
+            </p>
+          </div>
+          <div class="mag-colophon__links">
+            <a href="https://x.com/almighty_lisp">@almighty_lisp</a>
+            <a href="/book/essentials">Read the book</a>
+            <a href="/">Classic landing</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="mag-footer">
+      <div class="mag-wrap mag-footer__row">
+        <div>© <span id="y"></span> Almighty Lisp · Magazine prototype v2</div>
+        <div>
+          <a href="/">Current site</a>
+          ·
+          <a href="/book/essentials/lisp-fundamentals">Lisp Fundamentals</a>
+          ·
+          <a href="/static/prototype.html">Component lab</a>
+        </div>
+        <div>Printed on the image · Bound in parentheses</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

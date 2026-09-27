@@ -1,0 +1,40 @@
+#+title: Magazine landing prototype (v2)
+
+* What this is
+
+A static, high-fidelity *magazine-style* homepage for almightylisp.com —
+periodical framing for Common Lisp content, rebuilt to match the live
+=almighty-lisp= theme and the visual grammar of the landing page + book.
+
+* View it
+
+With the local site running (=127.0.0.1:5000=):
+
+http://127.0.0.1:5000/static/magazine/index.html
+
+Prefer the full =index.html= path (directory URLs may 301 → 404).
+
+* Files
+
+| File / dir        | Role |
+|-------------------+------|
+| =index.html=      | Markup; loads live =almightylisp.css= + theme |
+| =magazine.css=    | Layout only (uses theme CSS variables) |
+| =ref/=            | Screenshots of live landing + Lisp Fundamentals |
+| =preview-v2-*.png=| Redesign screenshots |
+
+* Design system (from live site)
+
+- *Palette:* =data-theme="almighty-lisp"= via =/static/css/almightylisp.css=
+  (canvas blue ≈ =#193CB4=, accent yellow, secondary cyan)
+- *Type:* League Gothic display · serif body · Berkeley Mono / Construct Mono labels
+- *Landing elements:* Essentials logo lockup, mega condensed headline, yellow
+  underline CTAs, nested dark-blue cards, square yellow list markers
+- *Book elements:* chapter number badge (=01= yellow block), section kickers
+  (yellow num + cyan bar), yellow right edge band, aside callouts, almighty-block
+  style code specimen (corner bracket, BUFFER/PACKAGE meta, result bar)
+
+* Not wired
+
+Not hooked into the Lisp home controller yet. Port into =home/hypermedia= when
+ready; tokens already come from the real theme.

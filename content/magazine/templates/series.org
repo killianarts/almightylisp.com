@@ -1,0 +1,16 @@
+#+CODE: ABC
+#+TITLE: The series title
+#+SUMMARY: One or two sentences for the series card: what the reader will be able to do by the end.
+
+# A series. Copy this file to content/magazine/series/, with any name.
+# CODE is three capital letters and picks the series logo: ask for a new
+# logo when you start a series. Add #+FEATURED: t to put it first on the
+# homepage; feature one series at a time.
+#
+# The numbered lines are the planned parts. An article joins the series
+# with #+SERIES: ABC and #+PART: 2, and its title replaces the planned one.
+# Parts with no article yet are shown as queued.
+
+1. First part
+2. Second part
+3. Third part

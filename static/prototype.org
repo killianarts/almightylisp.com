@@ -1,0 +1,42 @@
+#+title: Prototype
+
+claude --resume 161cb2f6-6f0b-4220-b928-e5bb9b959572
+
+* Different kinds of blocks
+- Built-in definition, single form
+- Built-in definition, multiple forms
+- Built-in call, single form
+- Custom definition, single form
+- Custom definition, multiple forms
+- Custom call, single form
+
+These different blocks have slightly different needs. Built-ins can talk about
+syntax because they teach the language features. Syntax isn't relevant to custom
+forms, but the teaching or system role they have is relevant. Likewise,
+built-ins are part of a larger, standards spec, whereas custom forms are part of
+non-standardized systems.
+
+When reading about builtins, readers want to understand how to write and understand
+them.
+
+When reading about customs, readers want to follow logic.
+
+* Built-in, single form
+- BUFFER: <pathname>
+- PACKAGE: <package name>
+- SYNTAX
+- Notes
+* Builtin, multi form
+- Buffer
+- Package
+- Syntax(es?)
+- Notes
+* Builtin, call
+- Result
+- Success/Error
+* User Written, single
+- Buffer
+- Package
+- Notes
+- Defines
+

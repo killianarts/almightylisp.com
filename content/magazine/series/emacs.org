@@ -1,0 +1,8 @@
+#+CODE: EMX
+#+TITLE: An Emacs of your own
+#+SUMMARY: Start from an empty init.el and add only what you can explain. Four parts, one config you understand.
+
+1. Learn enough Emacs to write Lisp, then stop
+2. A Doom Emacs setup you won't have to fight
+3. Keybindings that stay put
+4. Your first minor mode

@@ -1,0 +1,35 @@
+#+TITLE: Working title
+#+SUBTITLE: The task, and the result the reader ends up with.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Lisp
+#+TYPE: How-to
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+SERIES: CND
+# #+PART: 1
+
+# How-to: Get one task done for a reader who already knows the basics.
+# See WRITING.org for the header and markup. Copy this file to
+# content/magazine/your-slug.org, then replace these sections.
+# Delete #+DRAFT: t when it's ready.
+
+* The goal
+# The finished result in a sentence or two, and when you'd want it.
+Write this section.
+
+* What you need
+# Versions, packages and prerequisites. Assume the basics; don't teach them.
+Write this section.
+
+* Steps
+# The steps in order. Code blocks with #+RESULTS: wherever the output matters.
+Write this section.
+
+* Variations
+# The common alternatives, and when to use them.
+Write this section.
+
+* When it goes wrong
+# The errors people hit, and the fix for each.
+Write this section.

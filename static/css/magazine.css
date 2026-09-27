@@ -1,0 +1,1677 @@
+@layer reset, base, components, modules, utilities;
+
+@import url('resets.css') layer(reset);
+@import url('fonts.css') layer(base);
+@import url('components/package.css') layer(components);
+
+@layer modules;
+
+@layer utilities;
+@font-face {
+  font-family: "Science Gothic";
+  src: url("/static/assets/fonts/ScienceGothic-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-stretch: 50% 200%;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Construct Mono";
+  src: url("/static/assets/fonts/ConstructMono.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url("/static/assets/fonts/BerkeleyMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+body {
+    /* Film-grain noise — tunable overlay drawn by body::before (currently off). */
+    --noise-color: var(--color-canvas-darker);  /* grain tint (any color / theme var) */
+    --noise-opacity: 0.15;   /* overall strength (0 = off) */
+    --noise-size: 200px;     /* tile size; smaller = finer, busier grain */
+    --noise-z: 9998;         /* just below the scanlines */
+    --noise-anim-duration: 0.5s;  /* full flicker cycle; lower = more frantic */
+
+    /* CRT scanlines — animated overlay drawn by body::after (see below). */
+    --scanline-color: color-mix(in srgb, var(--color-canvas-darker) 15%, transparent);
+    --scanline-thickness: 1px;   /* height of each dark line */
+    --scanline-gap: 2px;         /* transparent space between lines */
+    --scanline-opacity: 0.35;    /* overall strength of the effect */
+    --scanline-speed: 0.4s;      /* time to scroll one line cycle; lower = faster */
+    --scanline-z: 9999;          /* above content, below nothing */
+}
+/* Whole-viewport film-grain / static noise (currently OFF — flip to scanlines).
+   An inline SVG feTurbulence filter (data URI, no external asset) used as an
+   alpha *mask* over a solid color fill, so the grain takes whatever
+   --noise-color you give it. Uncomment the block below to bring it back. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: var(--noise-z, 9998);
+    pointer-events: none;
+    opacity: var(--noise-opacity, 0.06);
+    background-color: var(--noise-color, currentColor);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    -webkit-mask-size: var(--noise-size, 160px) var(--noise-size, 160px);
+    mask-size: var(--noise-size, 160px) var(--noise-size, 160px);
+    animation: noise-flicker var(--noise-anim-duration, 0.7s) steps(1) infinite;
+}
+
+@keyframes noise-flicker {
+    0%   { -webkit-mask-position:   0    0;   mask-position:   0    0;   }
+    10%  { -webkit-mask-position: -17px  9px; mask-position: -17px  9px; }
+    20%  { -webkit-mask-position:  31px -22px; mask-position:  31px -22px; }
+    30%  { -webkit-mask-position: -43px 13px; mask-position: -43px 13px; }
+    40%  { -webkit-mask-position:  27px 41px; mask-position:  27px 41px; }
+    50%  { -webkit-mask-position: -11px -37px; mask-position: -11px -37px; }
+    60%  { -webkit-mask-position:  49px 19px; mask-position:  49px 19px; }
+    70%  { -webkit-mask-position: -29px -13px; mask-position: -29px -13px; }
+    80%  { -webkit-mask-position:  13px 33px; mask-position:  13px 33px; }
+    90%  { -webkit-mask-position: -37px 27px; mask-position: -37px 27px; }
+    100% { -webkit-mask-position:   0    0;   mask-position:   0    0;   }
+}
+
+/* Whole-viewport CRT scanlines. Fixed + pointer-events:none so it overlays
+   every scroll position without intercepting clicks. The lines drift downward
+   by scrolling the gradient exactly one period, so the loop is seamless. */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: var(--scanline-z);
+    pointer-events: none;
+    opacity: var(--scanline-opacity);
+    background-image: repeating-linear-gradient(
+        to bottom,
+        var(--scanline-color) 0,
+        var(--scanline-color) var(--scanline-thickness),
+        transparent var(--scanline-thickness),
+        transparent calc(var(--scanline-thickness) + var(--scanline-gap))
+    );
+    animation: scanline-scroll var(--scanline-speed, 0.4s) linear infinite;
+}
+
+/* Move one full line period (thickness + gap) so start and end frames align. */
+@keyframes scanline-scroll {
+    from { background-position: 0 0; }
+    to   { background-position: 0 calc(var(--scanline-thickness) + var(--scanline-gap)); }
+}
+
+/* Honor reduced-motion: keep the lines, drop the scroll. */
+@media (prefers-reduced-motion: reduce) {
+    body::after { animation: none; }
+}
+
+/* ==========================================================================
+   Almighty Lisp, the magazine (Figma: Neoindustrial).
+
+   Every page is a grey sheet on a five-column grid, built from bands of
+   cells separated by 1px white rules. This file is in five parts:
+
+     1. Tokens      colours, type, spacing and column ratios, on .mag
+     2. Base        element defaults inside the magazine
+     3. Roles       type and layout shared by many components: change a
+                    role here, not in each component
+     4. Components  the sheet, then each part of a page, in page order
+     5. Responsive, effects and view transitions
+
+   A component sets only what makes it different from its roles.
+   ========================================================================== */
+
+/* 1. Tokens ---------------------------------------------------------------- */
+
+.mag {
+  /* Colour. Black and white, with greys for secondary text. */
+  --ink: #000;
+  --paper: #fff;
+  --sheet: #e5e5e5;       /* the sheet, and cells on it */
+  --muted: #3a3a3a;       /* secondary text on the sheet */
+  --mid: #6b6b6b;         /* labels on the sheet */
+  --faint: #8f8f8f;       /* what isn't out yet; bylines' terms */
+  --on-ink: #b4b4b4;      /* secondary text on black */
+  --hairline: #c9c9c9;    /* hatching, rules between notes */
+  --code-bar: #f0f0ef;
+  --code-hit: #ececeb;
+  --code-ink: #161616;
+  --code-comment: #6f6f6f;
+
+  /* Patterns (Figma: Neo / Pattern). */
+  --dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Crect width='2' height='2' fill='%234a4a4a'/%3E%3C/svg%3E");
+  --hatch: repeating-linear-gradient(135deg, var(--hairline) 0 1px, var(--sheet) 1px 5.657px);
+
+  /* Type. Science Gothic for display, Construct Mono for labels, Mohave
+     for reading, Avenir for article prose, Berkeley Mono for code. */
+  --disp: "Science Gothic", "Arial Narrow", Impact, sans-serif;
+  --disp-axes: "wdth" 100, "CTRS" 0, "slnt" 0;
+  --mono: "Construct Mono", ui-monospace, monospace;
+  --mohave: "Mohave", "Avenir Next", "Helvetica Neue", sans-serif;
+  --sans: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cond: "Avenir Next Condensed", "Avenir Next", "Barlow Condensed", "Arial Narrow", sans-serif;
+  --code: "Berkeley Mono", "Construct Mono", ui-monospace, monospace;
+
+  /* Space. Cells are padded by the Figma grid's 32px, less the rule. */
+  --pad: 31.68px;
+  --pad-lead: 40px;
+  --pad-narrow: 16px;
+
+  /* Column ratios of the 1440px main column. */
+  --cols-lead: minmax(0, 958fr) minmax(0, 479fr);     /* two thirds, one third */
+  --cols-index: minmax(0, 479fr) minmax(0, 958fr);    /* one third, two thirds */
+  --cols-piece: minmax(0, 359fr) minmax(0, 599fr) minmax(0, 479fr);
+
+  margin: 0;
+  overflow-x: clip;
+  background: var(--sheet);
+  color: var(--ink);
+  font-family: var(--sans);
+}
+
+/* 2. Base ------------------------------------------------------------------ */
+
+.mag *,
+.mag *::before,
+.mag *::after { box-sizing: border-box; }
+
+.mag a { color: inherit; text-decoration: none; }
+.mag a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.mag h1, .mag h2, .mag h3, .mag p { margin: 0; }
+
+/* 3. Roles ----------------------------------------------------------------- */
+
+/* Display: Science Gothic in capitals. */
+.neo-headline, .section-title, .series-title, .featured-title, .featured-count,
+.index-name, .piece-number, .piece-name, .contents-t, .neo-brief-title,
+.index-cell-n, .index-cell-title, .arch-month-head, .toc-article-title {
+  font-family: var(--disp);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-variation-settings: var(--disp-axes);
+}
+
+/* Captions: small tracked capitals, for facts and counts. */
+.running-row, .strip-cell, .series-progress, .series-strip, .part-n, .part-new,
+.part-state, .arch-when, .arch-code, .arch-count, .index-top, .index-cell-meta,
+.contents-folio, .src-k, .src-v {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Labels: the size up, naming what follows. The first group is set in
+   capitals; the second as written. */
+.book-ad-label, .neo-brief-code, .featured-label, .section-meta, .section-action,
+.previously-label, .contents-title, .margin-note-label, .end-label {
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+
+.book-ad-label, .neo-brief-code, .featured-label, .section-meta, .section-action {
+  text-transform: uppercase;
+}
+
+/* Summaries: a short paragraph under a title. */
+.neo-brief-dek, .series-summary, .book-ad-pitch {
+  font-family: var(--mohave);
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* Tiles: cells laid side by side, the white rule between them is the
+   container's background showing through a 1px gap. */
+.strip, .neo-plate, .latest-grid, .latest-briefs, .series-cards, .art-head,
+.art-side, .piece-row, .end-block, .keep-briefs, .index, .index-cells, .toc-strip {
+  gap: 1px;
+  background: var(--paper);
+}
+
+/* Lead split: two thirds beside one third. */
+.neo-plate, .latest-grid, .art-head {
+  display: grid;
+  grid-template-columns: var(--cols-lead);
+}
+
+/* Cells: padded panels on the sheet. */
+.neo-brief, .piece-cell, .contents-panel, .index-head {
+  padding: var(--pad);
+  background: var(--sheet);
+}
+
+/* Columns that end in a hatch-fill: flex columns whose --gap the hatch
+   takes back, so the gap before it shows only when there is hatching. */
+.series-body, .archive-col, .piece-margin, .index-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* 4. Components ------------------------------------------------------------ */
+
+/* The sheet: two gutters beside the 1440px main column, between dotted
+   edges. Bands sit on fixed rows so the full-height furniture can share
+   them; a section a page doesn't show leaves its rows empty. */
+
+.sheet {
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(72px, 1fr) 71px
+    [main-start] minmax(0, 1440px) [main-end]
+    71px minmax(72px, 1fr) [full-end];
+  grid-template-rows: repeat(10, auto) 1fr;
+  min-height: 100vh;
+}
+
+.running.top { grid-row: 1; }
+.nameplate-band { grid-row: 2; }
+.strip-band { grid-row: 3; }
+.plate-band, .art-head-band, .archive-gap, .missing-gap { grid-row: 4; }
+.series-gap, .pieces-band, .archive-head, .missing-head { grid-row: 5; }
+.series-head, .end-band, .archive-band { grid-row: 6; }
+.series-band { grid-row: 7; }
+.latest-gap { grid-row: 8; }
+.latest-head { grid-row: 9; }
+.latest-band { grid-row: 10; }
+.running.bottom { grid-row: 11; align-self: start; }
+
+.band {
+  grid-column: full;
+  display: grid;
+  grid-template-columns: subgrid;
+  border-bottom: 1px solid var(--paper);
+}
+
+.band > * { grid-column: main; grid-row: 1; min-width: 0; }
+
+/* Furniture: gutter dots and column rules, the sheet's full height. */
+
+.sheet-furniture { display: contents; }
+
+.edge,
+.vrule {
+  grid-row: 1 / -1;
+  pointer-events: none;
+}
+
+.edge {
+  background-image: var(--dots);
+  background-position: center top;
+}
+
+.edge.left { grid-column: 1; }
+.edge.right { grid-column: 5; }
+
+.vrule {
+  z-index: 2;
+  width: 1px;
+  background: var(--paper);
+}
+
+.vrule.r1 { grid-column: 2; }
+.vrule.r2 { grid-column: 3; }
+.vrule.r3 { grid-column: 4; }
+.vrule.r4 { grid-column: 5; }
+
+/* Side labels sit in a band's gutter cells, so they stay centred on it. */
+.band > .side-label {
+  z-index: 3;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+  pointer-events: none;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: pre;
+}
+
+.band > .side-label.left { grid-column: 2; }
+.band > .side-label.right { grid-column: 4; }
+
+/* Running header and footer. */
+
+.running { border-bottom: 0; }
+.running.top { border-bottom: 1px solid var(--paper); }
+
+.running-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 11px 32px;
+  line-height: 20px;
+  white-space: pre;
+}
+
+.running .sep { font-size: 9px; }
+
+.running-center.jp {
+  font-family: "IBM Plex Sans JP", var(--mono);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.barcode {
+  width: 224px;
+  height: 20px;
+  background: url("/static/assets/images/magazine/patterns/barcode.svg") 0 0 / 1344px 28px no-repeat;
+}
+
+/* Nameplate. */
+
+.neo-nameplate {
+  display: grid;
+  justify-items: center;
+  gap: 30px;
+  padding: 20px 10px;
+}
+
+.neo-logo {
+  flex: 0 0 auto;
+  margin: -2.5px -2.9px -5px -4.3px;
+}
+
+.neo-typemark {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Strip: today's date between two links. */
+
+.strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.strip-cell {
+  padding: 12px var(--pad);
+  background: var(--sheet);
+  line-height: 1.4;
+}
+
+.strip-cell.mid { text-align: center; }
+.strip-cell.end { text-align: right; }
+
+/* Crop marks at a panel's corners. */
+
+.crop {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid var(--ink);
+  pointer-events: none;
+}
+
+.crop.tl { top: 10px; left: 10px; border-top-width: 2px; border-left-width: 2px; }
+.crop.tr { top: 10px; right: 10px; border-top-width: 2px; border-right-width: 2px; }
+.crop.bl { bottom: 10px; left: 10px; border-bottom-width: 2px; border-left-width: 2px; }
+.crop.br { bottom: 10px; right: 10px; border-bottom-width: 2px; border-right-width: 2px; }
+
+/* Spacer hatch (Figma: Neo / Pattern, Hatch · Paper): 1px grey diagonals
+   8px apart. It takes the space left in a flex column. The mask hides its
+   first --hatch-gap pixels, so the gap before it only shows when there is
+   room for hatching too; with no room it adds nothing. */
+
+.hatch-fill {
+  --hatch-gap: 5px;
+  flex: 1 1 0;
+  min-height: 0;
+  margin-top: calc(var(--gap, 0px) * -1);
+  background: var(--hatch);
+  -webkit-mask-image: linear-gradient(transparent var(--hatch-gap), #000 var(--hatch-gap));
+  mask-image: linear-gradient(transparent var(--hatch-gap), #000 var(--hatch-gap));
+}
+
+/* Hazard stripes (Figma: Neo / Pattern, Hazard · Reversed): 14px white
+   bands every 28px at 45 degrees, beside section heads and under bylines. */
+
+.head-band > .hazard {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  background: repeating-linear-gradient(135deg, var(--paper) 0 9.9px, var(--ink) 9.9px 19.8px);
+}
+
+.hazard-plate {
+  display: block;
+  height: 43px;
+  background: repeating-linear-gradient(135deg, var(--paper) 0 9.9px, transparent 9.9px 19.8px);
+}
+
+/* Spec lists: term, dot leader, value. */
+
+.spec { margin: 0; font-family: var(--mono); }
+
+.spec-row {
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.spec dt,
+.spec dd { margin: 0; flex: 0 0 auto; }
+
+/* Long values wrap under a narrow panel instead of running out of it. */
+.spec dd {
+  flex-shrink: 1;
+  min-width: 0;
+  white-space: normal;
+  text-align: right;
+}
+
+.spec-lead {
+  flex: 1 1 0;
+  min-width: 1ch;
+  overflow: hidden;
+  contain: inline-size;
+}
+
+.spec-lead::before {
+  content: "................................................................................................................................";
+}
+
+.byline-spec {
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.byline-spec dd { color: var(--ink); }
+
+.book-spec {
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.book-spec dd { color: var(--sheet); }
+.book-spec .spec-row:last-child dd { color: var(--paper); }
+
+/* Buttons (Figma: Neo / Button). Primary carries a dither strip on its
+   right edge; the call to action on the lead is the black one. */
+
+.neo-button {
+  position: relative;
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 16px;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mag a.neo-button.primary {
+  padding-right: 60px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.neo-button.primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 52px;
+  /* The button's own colour behind the dither, so it follows :hover too. */
+  background: url("/static/assets/images/magazine/patterns/dither-ramp-paper.svg") 0 0 / 224px 224px;
+  background-color: inherit;
+}
+
+.mag a.neo-button.secondary {
+  border: 1px solid var(--paper);
+  color: var(--paper);
+}
+
+.mag a.neo-button.secondary:hover { background: #1a1a1a; }
+.mag a.neo-button.primary:hover { background: var(--sheet); }
+
+.mag a.neo-cta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 43px;
+  padding: 0 0 0 18px;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--sheet);
+  font-family: var(--cond);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.neo-cta::after {
+  content: "";
+  position: absolute;
+  left: 153px;
+  top: -27px;
+  width: 118px;
+  height: 118px;
+  opacity: 0.4;
+  background: url("/static/assets/images/magazine/patterns/dither-ramp-reversed.svg") 0 0 / 224px 224px;
+  pointer-events: none;
+}
+
+.mag a.neo-cta:hover { background: #222; }
+
+/* Section heads: a grey gap band, then the name set large on black. */
+
+.gap-band { height: 48px; }
+
+.head-band > .section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  margin: 0;
+  padding: 26px var(--pad) 20px;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.section-title {
+  font-size: 64px;
+  line-height: 0.84;
+  letter-spacing: -0.015em;
+}
+
+.section-meta { color: var(--on-ink); }
+.mag a.section-action { margin-left: auto; color: var(--paper); }
+.mag a.section-action:hover { text-decoration: underline; }
+
+/* Series marks: one logo per series (Figma: Neo / Series logo), filled
+   with currentColor. A stamp puts it in a small square. */
+
+.series-logo { display: block; flex: 0 0 auto; overflow: visible; }
+
+.series-stamp {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.series-stamp .series-logo { width: 64%; height: 64%; }
+.series-stamp.ink { background: var(--ink); color: var(--paper); }
+.series-stamp.paper { background: var(--paper); color: var(--ink); }
+
+/* Progress meter: one square per part. */
+
+.meter { display: inline-flex; gap: 4px; }
+
+.meter .cell {
+  width: 14px;
+  height: 14px;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.meter .cell.on { background: currentColor; }
+
+.series-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* The lead: a headline scaled to fit (--headline-scale, set per title),
+   the dek, and the byline. The article's lede is the same panel. */
+
+.neo-lead {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 577px;
+  padding: var(--pad-lead);
+  background: var(--sheet);
+}
+
+.neo-lead > .hatch-fill { --hatch-gap: 24px; }
+
+.mag .neo-headline {
+  /* Figma gives the headline 894px of the lead's 958px: 12px more than the
+     dek row below it. The size tracks the main column, 136.7px at 1440px. */
+  margin: 0 -12px 0 0;
+  font-size: calc(min(136.7px, calc((100vw - 286px) * 0.102 - 10.5px)) * var(--headline-scale, 1));
+  line-height: 0.84;
+  letter-spacing: -0.015em;
+}
+
+.neo-headline a { color: var(--ink); }
+.neo-headline a:hover { text-decoration: underline; text-decoration-thickness: 0.06em; }
+
+.neo-lead-row {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  padding-top: 32px;
+}
+
+.neo-dek {
+  max-width: 632px;
+  align-self: center;
+  font-family: var(--mohave);
+  font-size: 24px;
+  line-height: 1.44;
+}
+
+.neo-lead-meta {
+  flex: 0 0 216px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 2.67px;
+}
+
+/* The featured-series banner, across the top of the lead. */
+
+.lead-cell { display: flex; flex-direction: column; background: var(--sheet); }
+.lead-cell > .neo-lead { flex: 1 1 auto; }
+
+.featured-banner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 22px var(--pad);
+  background: var(--paper);
+  border-bottom: 1px solid var(--ink);
+}
+
+.banner-logo { width: 64px; height: 64px; }
+
+.featured-name { flex: 1 1 auto; min-width: 0; }
+
+.featured-label {
+  margin-bottom: 10px;
+  color: var(--mid);
+}
+
+.featured-title,
+.featured-count,
+.series-title {
+  font-size: 30px;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+}
+
+.featured-part {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.featured-part .meter { gap: 5px; }
+.featured-part .meter .cell { width: 16px; height: 16px; }
+
+/* The book panel, beside the lead, or compact beside an article. */
+
+.book-ad {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--pad);
+  background:
+    url("/static/assets/images/magazine/Neo/Pattern/Neo/Pattern/Neo/Pattern/Dither%20ramp/Reversed.svg") right top / 224px 224px no-repeat,
+    url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
+    var(--ink);
+  color: var(--on-ink);
+}
+
+.book-ad-label {
+  line-height: 1.2;
+  text-box: trim-both cap alphabetic;
+}
+
+.book-ad-logo { display: block; }
+.book-ad-pitch { color: inherit; }
+
+.book-ad-actions {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.book-ad.compact { flex: 0 0 auto; }
+.book-ad.compact .book-ad-actions { margin-top: 10px; }
+
+.book-ad a:focus-visible { outline-color: var(--paper); }
+
+/* Briefs: the card an article, or a book chapter, is listed with. One in a
+   series has a black strip across the top naming its part. */
+
+.neo-brief {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  color: var(--ink);
+}
+
+.neo-brief.in-series { position: relative; }
+
+.neo-brief-head {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 33px;
+}
+
+.neo-brief-mark { flex: 0 0 auto; }
+
+.neo-brief-dots {
+  flex: 1 1 auto;
+  height: 14px;
+  margin: 0 11px 0 28px;
+  background-image: var(--dots);
+}
+
+.neo-brief-code {
+  padding-inline: 1ch;
+  line-height: 1.2;
+  color: var(--mid);
+}
+
+.neo-brief-title {
+  font-weight: 400;
+  font-size: clamp(19px, calc((100vw - 286px) * 0.0175), 25.2px);
+  line-height: 1.14;
+  letter-spacing: -0.005em;
+}
+
+.neo-brief:hover .neo-brief-title { text-decoration: underline; }
+
+.neo-brief-dek { max-width: 360.5px; }
+
+.neo-brief-by {
+  padding-top: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.series-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  padding: 0 var(--pad);
+  background: var(--ink);
+  color: var(--paper);
+  white-space: pre;
+}
+
+/* Series cards. The featured series is the white one. */
+
+.series-cards {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+.series-card { display: flex; flex-direction: column; background: var(--sheet); }
+.series-card.featured { background: var(--paper); }
+
+.series-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 var(--pad);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: pre;
+}
+
+.series-bar .series-stamp { width: 20px; height: 20px; }
+
+.series-body {
+  --gap: 16px;
+  flex: 1 1 auto;
+  padding: 24px var(--pad) var(--pad);
+}
+
+.series-title-row { display: flex; align-items: flex-start; gap: 20px; }
+.series-title { flex: 1 1 auto; margin: 0; }
+.card-logo { width: 56px; height: 56px; }
+
+.series-parts { margin: 0; padding: 0; list-style: none; }
+
+.part-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 8px 0;
+  border-top: 1px solid var(--paper);
+}
+
+.series-card.featured .part-row { border-top-color: var(--sheet); }
+
+.part-n { flex: 0 0 20px; }
+.part-row.summary .part-n { flex-basis: 44px; }
+
+.part-t {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--mohave);
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.mag a.part-t:hover,
+.part-row.newest .part-t { text-decoration: underline; }
+
+.part-new, .part-state { flex: 0 0 auto; }
+.part-new { padding: 1px 5px; background: var(--ink); color: var(--paper); }
+
+.part-row.queued,
+.part-row.queued .part-t { color: var(--faint); }
+
+/* Latest: four briefs in two columns, the archive column in the third. */
+
+.latest-grid.no-archive { grid-template-columns: minmax(0, 1fr); }
+
+.latest-briefs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.archive-col {
+  --gap: 20px;
+  padding: 24px var(--pad) var(--pad);
+  background: var(--sheet);
+}
+
+.arch-month-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ink);
+  font-size: 20px;
+  letter-spacing: -0.005em;
+}
+
+.arch-count {
+  font-weight: 400;
+  color: var(--faint);
+  white-space: pre;
+}
+
+.arch-lines { margin: 0; padding: 0; list-style: none; }
+
+.mag a.arch-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--paper);
+  color: var(--ink);
+}
+
+.arch-when { flex: 0 0 48px; }
+
+.arch-mark {
+  flex: 0 0 52px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.arch-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--mohave);
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.mag a.arch-line:hover .arch-name { text-decoration: underline; }
+
+/* Article: the lede beside the book and the contents; then one row of
+   cells per section; then the end band. */
+
+.neo-lead.art-lede { min-height: 0; }
+.art-lede > .hatch-fill { min-height: 0; }
+.art-lede .neo-lead-row { margin-top: 0; }
+
+.series-tags {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.series-tag.outline { padding: 4px 8px; border: 1px solid var(--ink); }
+.series-tag.filled { padding: 4px 8px; background: var(--ink); color: var(--paper); }
+.series-tag.slashes { font-size: 14px; letter-spacing: 0; }
+
+.previously {
+  max-width: 632px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ink);
+}
+
+.previously-label { margin-bottom: 10px; }
+
+.previously-recap {
+  font-family: var(--mohave);
+  font-size: 19px;
+  line-height: 1.44;
+  color: var(--muted);
+}
+
+.previously-recap .inline-link { color: var(--ink); }
+
+.art-side {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contents: the sections, or in a series every part with this one's
+   sections under it. */
+
+.contents-panel {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.contents-panel.in-series { padding-inline: 21.68px; }
+.contents-panel > .hatch-fill { --hatch-gap: 32px; }
+
+.contents-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--paper);
+}
+
+.in-series .contents-title { margin-inline: 10px; }
+
+.contents-folio { color: var(--faint); }
+
+.contents-list { margin: 0; padding: 0; list-style: none; }
+
+.contents-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--paper);
+  color: var(--ink);
+}
+
+.in-series .contents-row { padding-inline: 10px; }
+.in-series .contents-row.sub { padding-left: 44px; }
+
+.contents-n {
+  flex: 0 0 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--mid);
+}
+
+.contents-t {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+}
+
+.contents-row.sub .contents-t { font-size: 14px; }
+a.contents-row:hover .contents-t { text-decoration: underline; }
+.contents-row.current { background: var(--ink); color: var(--paper); }
+.contents-row.current .contents-n { color: var(--on-ink); }
+.contents-row.queued,
+.contents-row.queued .contents-n { color: var(--faint); }
+
+/* Sections: heading, text and margin notes, each row on the sheet's grid. */
+
+.pieces-band > .piece-list {
+  grid-column: full;
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
+.pieces-band > .side-label { z-index: 3; }
+
+.neo-piece {
+  grid-column: full;
+  display: grid;
+  grid-template-columns: subgrid;
+  border-bottom: 1px solid var(--paper);
+  scroll-margin-top: 90px;
+}
+
+.neo-piece:last-child { border-bottom: 0; }
+
+.piece-row {
+  grid-column: main;
+  display: grid;
+  grid-template-columns: var(--cols-piece);
+}
+
+.piece-cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.piece-number {
+  font-size: 56px;
+  line-height: 0.84;
+}
+
+.mag .piece-name {
+  margin: 0;
+  padding: 16px 0;
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 1.14;
+  letter-spacing: -0.005em;
+}
+
+.piece-head > .hatch-fill { --hatch-gap: 0px; }
+
+.piece-text { gap: 22px; }
+.piece-margin { --gap: 20px; }
+
+/* Article text. */
+
+.prose {
+  max-width: 40em;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.subhead {
+  margin: 10px 0 0;
+  font-family: var(--disp);
+  font-size: 22px;
+  font-weight: 650;
+  font-variation-settings: "wdth" 100, "CTRS" 0;
+}
+
+.inline-link { text-decoration: underline; text-underline-offset: 2px; }
+
+/* =code= in text. Beside Mohave and Avenir, Construct Mono a size down. */
+code.verb {
+  font-family: var(--mono);
+  font-size: 0.84em;
+}
+
+.rule td code.verb { font-size: 0.8em; }
+
+.margin-note + .margin-note {
+  padding-top: 20px;
+  border-top: 1px solid var(--hairline);
+}
+
+.margin-note-label {
+  padding-bottom: 1ch;
+  color: var(--mid);
+}
+
+.margin-note-body {
+  font-family: var(--mohave);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.margin-note-body + .margin-note-body { margin-top: 0.6em; }
+
+.margin-note.syntax .margin-note-body {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* Code blocks, drawn as a plate. The buffer and package are tags over its
+   top edge, and what the code returns is a stub below a perforation; each
+   is left out when it isn't given. highlight-lisp.js colours the code. */
+
+.src { --src-behind: var(--sheet); margin: 0; }
+
+/* In the flow rather than positioned, so tags that wrap push the code down. */
+.src-tags {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 13px -11px;
+}
+
+.src-tag {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 5px 9px 6px;
+  background: var(--ink);
+  line-height: 1;
+}
+
+.src-k { color: var(--mid); letter-spacing: 0.1em; }
+.src-tag .src-k { font-size: 9px; color: var(--on-ink); }
+.src-tag .src-v { color: var(--paper); }
+
+.src-returns {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 20px;
+  padding: 25px 14px 14px;
+  border: 1px solid var(--ink);
+  border-top: 0;
+  background: var(--paper);
+}
+
+/* The perforation, and the notches cut at either end of it. */
+.src-returns::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 14px;
+  right: 14px;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--ink) 0 3px, transparent 3px 7px);
+}
+
+/* Each notch is a circle centred on the side border. The layer stops at the
+   border's outer edge, so only the half inside the block is drawn. */
+.src-returns::after {
+  --notch: var(--src-behind) 6px, var(--ink) 6px 7px, transparent 7px;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -1px;
+  right: -1px;
+  height: 14px;
+  background:
+    radial-gradient(circle 7px at 0.5px 50%, var(--notch)),
+    radial-gradient(circle 7px at calc(100% - 0.5px) 50%, var(--notch));
+}
+
+.src-result,
+.src-line,
+.src-line code {
+  font-family: var(--code);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Long lines scroll inside the block instead of running into the margin. */
+.src-body {
+  padding: 16px 0;
+  overflow-x: auto;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+}
+
+.src-tags + .src-body { padding-top: 26px; }
+.src.has-results .src-body { border-bottom: 0; }
+.src-line { padding: 0 14px; white-space: pre; }
+.src-line code { white-space: pre; }
+.src-line.is-hit { background: var(--code-hit); }
+.src-result { margin: 0; white-space: pre-wrap; }
+
+.mag code.hl-highlighted {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--code-ink);
+  white-space: pre;
+}
+
+.mag code.hl-highlighted .comment,
+.mag code.hl-highlighted .comment * { color: var(--code-comment); font-style: italic; }
+
+.mag code.hl-highlighted .string,
+.mag code.hl-highlighted .string * { color: var(--code-ink); }
+
+/* Tables. */
+
+.rule {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  background: var(--paper);
+  font-size: 15px;
+}
+
+.rule th,
+.rule td {
+  padding: 10px 14px;
+  border: 1px solid var(--ink);
+  text-align: left;
+  vertical-align: top;
+}
+
+.rule th {
+  background: var(--code-bar);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--mid);
+}
+
+.rule td {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+/* End band: Keep reading, or the rest of the series. */
+
+.end-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.end-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px var(--pad);
+  background: var(--sheet);
+  white-space: pre;
+}
+
+/* The rule under the label runs across the gutters, like a band's. The
+   band clips it at the page's edges. */
+.end-band { overflow-x: clip; }
+.end-label { position: relative; }
+
+.end-label::after {
+  content: "";
+  position: absolute;
+  left: -100vw;
+  right: -100vw;
+  bottom: -1px;
+  height: 1px;
+  background: var(--paper);
+}
+
+.end-label.dark { background: var(--ink); color: var(--paper); }
+.end-folio { color: var(--on-ink); }
+.end-label:not(.dark) .end-folio { color: var(--mid); }
+.end-folio a:hover { text-decoration: underline; }
+
+.keep-briefs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Indexes: a head cell, then cells filled column by column. The end of a
+   series lists its parts in one, the archive each month. */
+
+.index {
+  display: grid;
+  grid-template-columns: var(--cols-index);
+}
+
+.index-head { --gap: 18px; }
+
+.index-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--mid);
+}
+
+.index-top > span:last-child { padding: 0 5px; background: var(--paper); }
+
+.index-name {
+  font-size: 44px;
+  line-height: 0.88;
+  letter-spacing: -0.015em;
+}
+
+.index-cells {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows, 3), auto);
+  grid-auto-flow: column;
+}
+
+.index-fill { background: var(--hatch); }
+
+.index-cell {
+  display: flex;
+  gap: 14px;
+  padding: 20px var(--pad);
+  background: var(--sheet);
+  color: var(--ink);
+}
+
+.index-cell.current { background: var(--ink); color: var(--paper); }
+.index-cell.queued { color: var(--faint); }
+
+.index-cell-n,
+.index-cell-title { font-weight: 400; }
+
+.index-cell-n { flex: 0 0 44px; font-size: 25.2px; line-height: 1.14; }
+.index-cell-text { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.index-cell-title { font-size: 19px; line-height: 1.14; letter-spacing: -0.005em; }
+a.index-cell:hover .index-cell-title { text-decoration: underline; }
+
+.index-cell-meta {
+  color: var(--muted);
+  white-space: pre;
+}
+
+.index-cell.current .index-cell-meta { color: var(--on-ink); }
+.index-cell.queued .index-cell-meta { color: var(--faint); }
+
+/* The archive stacks day over month, and its facts may wrap. */
+.archive-band .index-cell-n { flex-basis: 60px; }
+.archive-band .index-cell-meta { white-space: pre-wrap; }
+
+/* Contents strip (Sticky contents C). It sits in the sections' row with no
+   height, so position: sticky pins it to the top of the window over the
+   sections; magazine-toc.js shows it once the lede has gone. */
+
+.toc-dock {
+  grid-row: 5;
+  grid-column: main;
+  align-self: start;
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  height: 0;
+}
+
+.toc-strip {
+  display: flex;
+  height: 72px;
+  border-bottom: 1px solid var(--ink);
+  transform: translateY(-110%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.toc-dock.is-shown .toc-strip { transform: none; opacity: 1; pointer-events: auto; }
+
+.mag a.toc-article {
+  flex: 0 0 calc(359 / 1438 * 100%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0 20px;
+  background: var(--sheet);
+  color: var(--ink);
+}
+
+.toc-article .series-stamp { width: 28px; height: 28px; }
+.toc-article-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+.toc-article-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mid);
+  white-space: pre;
+}
+
+.toc-article-title {
+  font-size: 16px;
+  line-height: 0.95;
+}
+
+.mag a.toc-cell {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 12px 16px 0;
+  overflow: hidden;
+  background: var(--sheet);
+  color: var(--ink);
+}
+
+.strip-n {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+.strip-t {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-family: var(--mohave);
+  font-size: 16px;
+  line-height: 1.15;
+}
+
+.mag a.toc-cell.is-passed { color: var(--faint); }
+.mag a.toc-cell.is-current { background: var(--ink); color: var(--paper); }
+.mag a.toc-cell:hover .strip-t { text-decoration: underline; }
+
+.strip-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: none;
+  width: calc(var(--progress, 0) * 100%);
+  height: 4px;
+  background: var(--paper);
+}
+
+.toc-cell.is-current .strip-bar { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-strip { transition: none; }
+}
+
+/* 5. Responsive ------------------------------------------------------------ */
+
+/* Narrower screens drop the gutters, then stack the columns. */
+
+@media (max-width: 1180px) {
+  .sheet {
+    grid-template-columns:
+      [full-start] 0 0 [main-start] minmax(0, 1fr) [main-end] 0 0 [full-end];
+  }
+  .edge, .vrule, .band > .side-label, .head-band > .hazard { display: none; }
+  .mag .neo-headline { font-size: calc(min(136.7px, calc(10.2vw - 10.5px)) * var(--headline-scale, 1)); }
+  .neo-brief-title { font-size: clamp(19px, 1.75vw, 25.2px); }
+}
+
+@media (max-width: 980px) {
+  .mag { --pad: var(--pad-narrow); --pad-lead: var(--pad-narrow); }
+
+  /* One column. */
+  .strip, .neo-plate, .latest-grid, .latest-briefs, .art-head, .piece-row,
+  .keep-briefs, .index { grid-template-columns: minmax(0, 1fr); }
+  .series-cards { grid-auto-flow: row; }
+  .index-cells { grid-template-columns: minmax(0, 1fr); grid-auto-flow: row; grid-template-rows: none; }
+  .index-fill { display: none; }
+
+  /* Cells lose some height. */
+  .neo-brief, .piece-cell, .contents-panel, .index-head, .neo-lead, .book-ad,
+  .series-body, .archive-col { padding-block: 24px; }
+  .neo-lead { min-height: 0; }
+  .book-ad { min-height: 560px; }
+  .book-ad.compact { min-height: 0; }
+
+  .strip-cell.mid, .strip-cell.end { text-align: left; }
+  .prose { max-width: 100%; overflow-wrap: anywhere; }
+  .piece-head > .hatch-fill, .piece-margin > .hatch-fill { display: none; }
+  .piece-margin:not(:has(.margin-note)) { display: none; }
+  .mag a.toc-article, .mag a.toc-cell:not(.is-current) { display: none; }
+  .toc-strip { height: 56px; }
+  .end-label { flex-wrap: wrap; white-space: normal; }
+  .featured-banner { flex-wrap: wrap; padding: 20px var(--pad); }
+  .featured-name { flex-basis: calc(100% - 88px); }
+  .head-band > .section-head { flex-wrap: wrap; row-gap: 8px; padding: 20px var(--pad) 16px; }
+  .section-title { font-size: 48px; }
+  .gap-band { height: 32px; }
+  .neo-brief-title { font-size: 25.2px; }
+  .mag .neo-headline { margin-right: 0; font-size: calc(min(136.7px, calc((100vw - 40px) / 6.7)) * var(--headline-scale, 1)); }
+  .neo-lead-row { flex-direction: column; align-items: stretch; }
+  .neo-lead-meta { flex-basis: auto; }
+  .neo-dek { font-size: 20px; }
+  .neo-nameplate { gap: 16px; padding: 16px; }
+  .neo-logo { width: 48px; height: auto; }
+  .running-row { flex-wrap: wrap; justify-content: flex-start; padding: 11px 12px; white-space: normal; }
+  .running .sep { display: none; }
+}
+
+@media (max-width: 520px) {
+  .neo-brief-title { font-size: 21px; }
+  .neo-brief-dots { margin-right: 12px; }
+}
+
+/* Screen effects (static/js/magazine-fx.js). */
+
+/* Hover flicker: scanlines and a one-frame inversion over the window. Only
+   opacity animates, so it stays on the compositor. */
+.fx-flicker {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+}
+
+.fx-flicker::before,
+.fx-flicker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.fx-flicker::before {
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.34) 0 1px, transparent 1px 3px),
+    rgba(0, 0, 0, 0.1);
+  mix-blend-mode: multiply;
+}
+
+.fx-flicker::after {
+  background: #fff;
+  mix-blend-mode: difference;
+}
+
+.fx-flicker.is-on::before { animation: fx-scan 260ms linear; }
+.fx-flicker.is-on::after { animation: fx-invert 260ms linear; }
+
+@keyframes fx-scan {
+  0% { opacity: 0.9; }
+  10% { opacity: 0.2; }
+  18% { opacity: 1; }
+  34% { opacity: 0.35; }
+  46% { opacity: 0.8; }
+  62% { opacity: 0.1; }
+  76% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+/* Held for about 30ms each, so a 60Hz screen always shows them. */
+@keyframes fx-invert {
+  0%, 12% { opacity: 0.9; }
+  13%, 39% { opacity: 0; }
+  40%, 51% { opacity: 0.45; }
+  52%, 100% { opacity: 0; }
+}
+
+/* Click: the page splits and tears (SVG filter), under the WebGL overlay. */
+.sheet.fx-torn {
+  filter: url(#fx-aberration);
+  will-change: transform, filter;
+}
+
+/* While the page tears, the gaps it leaves are black. */
+html.fx-broken,
+html.fx-broken body { background: #000; }
+
+.fx-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 9001;
+  display: none;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.fx-canvas.is-on { display: block; }
+
+/* View transitions for boosted magazine navigation (htmx). The header and
+   nameplate hold still while the rest of the page crossfades. */
+.running.top { view-transition-name: running-header; }
+.nameplate-band { view-transition-name: nameplate; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+}

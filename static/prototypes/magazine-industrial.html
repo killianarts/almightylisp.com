@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en" data-theme="almighty-lisp">
+<head>
+<meta charset="utf-8">
+<!-- Apply saved livery BEFORE first paint (no FOUC). Namespaced key so we
+     never cross-contaminate the main site's `theme` vocabulary. -->
+<script>try{var t=localStorage.getItem('so-livery');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Standard Output — a Common Lisp technical bulletin. Dispatches from the running image.">
+<title>STANDARD OUTPUT — The Common Lisp Technical Bulletin (Prototype)</title>
+<link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+<style>
+/* ============================================================
+   STANDARD OUTPUT — Rev B (per design review SO-001-A)
+   Type roles:
+     League Gothic  — the poster voice (wordmark, lead headline,
+                      article headlines)
+     Construct Mono — the machine's LABELS (section titles, tabs,
+                      nav, kickers, stamps, checklists)
+     Berkeley Mono  — the machine's DATA (part numbers, values,
+                      timestamps, code, spec readouts)
+   Every text color is derived from --color-ink-light so all 16
+   liveries stay readable by construction (review finding P0).
+   ============================================================ */
+:root{
+  --wrap:1200px;
+
+  /* ink derivations — degrade gracefully in every livery */
+  --ink-hi:    var(--color-ink-light);
+  --ink-muted: color-mix(in oklch, var(--color-ink-light) 80%, var(--color-canvas));
+  --ink-faint: color-mix(in oklch, var(--color-ink-light) 70%, var(--color-canvas));
+  --ink-data:  color-mix(in oklch, var(--color-secondary) 55%, var(--color-ink-light));
+  --line:      color-mix(in oklch, var(--color-ink-light) 22%, transparent);
+  --line-2:    color-mix(in oklch, var(--color-ink-light) 48%, transparent);
+  --panel:     var(--color-canvas-alt);
+
+  /* label scale — exactly three sizes (review finding P3),
+     floor 11px so nothing drops below legibility */
+  --fs-l:.82rem; --fs-m:.74rem; --fs-s:.69rem;
+
+  --label:var(--font-heading);          /* Construct Mono */
+  --data:var(--font-code);              /* Berkeley Mono  */
+  --poster:var(--font-league-gothic-tall);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--color-canvas);color:var(--ink-hi);
+  font-family:var(--font-serif);font-size:17px;line-height:1.5;
+  -webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:clamp(14px,3vw,32px)}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* label vocabulary (Construct Mono = labels, Berkeley = data) ----- */
+.lbl{font-family:var(--label);text-transform:uppercase;letter-spacing:.14em}
+.kicker{font-family:var(--label);font-size:var(--fs-m);text-transform:uppercase;
+  letter-spacing:.16em;color:var(--color-accent)}
+.pn{font-family:var(--data);font-size:var(--fs-s);letter-spacing:.08em;color:var(--ink-faint)}
+.dek{font-family:var(--font-serif);color:var(--ink-muted)}
+.led{width:.58rem;height:.58rem;border-radius:50%;display:inline-block;flex:none;
+  background:var(--color-secondary);box-shadow:0 0 6px var(--color-secondary)}
+.led--off{background:transparent;box-shadow:none;border:1px solid var(--line-2)}
+.led--amber{background:var(--color-accent);box-shadow:0 0 6px var(--color-accent)}
+
+/* hazard stripe */
+.hazard{height:11px;background:repeating-linear-gradient(-45deg,
+  var(--color-accent) 0 15px, var(--color-canvas-dark) 15px 30px)}
+
+/* panel: one bracket convention everywhere + drafting grid aligned
+   to the panel's own origin (review finding: grid must sit on
+   something structural) */
+.panel{position:relative;background:var(--panel);border:1px solid var(--line);
+  background-image:
+    linear-gradient(color-mix(in oklch,var(--color-ink-light) 4%,transparent) 1px,transparent 1px),
+    linear-gradient(90deg,color-mix(in oklch,var(--color-ink-light) 4%,transparent) 1px,transparent 1px);
+  background-size:28px 28px}
+.panel::before,.panel::after{content:"";position:absolute;width:12px;height:12px;pointer-events:none;z-index:2}
+.panel::before{top:4px;left:4px;border-top:2px solid var(--color-accent);border-left:2px solid var(--color-accent)}
+.panel::after{bottom:4px;right:4px;border-bottom:2px solid var(--color-accent);border-right:2px solid var(--color-accent)}
+
+/* machined panel screws */
+.screw{position:absolute;width:9px;height:9px;border-radius:50%;z-index:2;
+  background:radial-gradient(circle at 34% 30%,
+    color-mix(in oklch,var(--color-ink-light) 55%,var(--color-canvas)),
+    color-mix(in oklch,var(--color-ink-light) 12%,var(--color-canvas)));
+  box-shadow:inset 0 0 0 1px color-mix(in oklch,var(--color-ink-light) 30%,transparent)}
+.screw::after{content:"";position:absolute;inset:3.5px 1px;height:1.5px;
+  background:color-mix(in oklch,var(--color-canvas) 80%,#000);transform:rotate(45deg)}
+.screw--tl{top:5px;left:5px}.screw--tr{top:5px;right:5px}
+.screw--bl{bottom:5px;left:5px}.screw--br{bottom:5px;right:5px}
+
+/* barcode + registration mark */
+.barcode{display:inline-block;height:22px;width:110px;
+  background:repeating-linear-gradient(90deg,
+    var(--ink-hi) 0 2px,transparent 2px 4px,
+    var(--ink-hi) 4px 7px,transparent 7px 9px,
+    var(--ink-hi) 9px 10px,transparent 10px 14px,
+    var(--ink-hi) 14px 16px,transparent 16px 17px,
+    var(--ink-hi) 17px 21px,transparent 21px 24px)}
+.regmark{font-family:var(--data);color:var(--ink-faint);font-size:1rem}
+
+.morelink{font-family:var(--label);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.12em;color:var(--color-accent);border-bottom:1px solid var(--color-accent);
+  padding-bottom:1px}
+.morelink:hover{color:var(--ink-hi);border-color:var(--ink-hi)}
+
+/* ── MASTHEAD DATA PLATE ─────────────────────────────────── */
+.mast{padding-top:clamp(14px,2.4vw,26px)}
+.mast-plate{border:2px solid var(--line-2);display:grid;grid-template-columns:1fr auto;
+  position:relative;background:var(--panel);
+  background-image:
+    linear-gradient(color-mix(in oklch,var(--color-ink-light) 4%,transparent) 1px,transparent 1px),
+    linear-gradient(90deg,color-mix(in oklch,var(--color-ink-light) 4%,transparent) 1px,transparent 1px);
+  background-size:28px 28px}
+.mast-id{padding:clamp(16px,2.6vw,26px) clamp(18px,2.8vw,30px)}
+.mast-id .super{font-family:var(--label);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.26em;color:var(--ink-data);margin-bottom:.35rem}
+.mast-id h1{font-family:var(--poster);font-weight:400;text-transform:uppercase;
+  font-size:clamp(2.6rem,8vw,6rem);line-height:.82;margin:0;color:var(--ink-hi);
+  display:flex;align-items:baseline;gap:.12em}
+.cursor{display:inline-block;width:.42em;height:.72em;background:var(--color-accent);
+  transform:translateY(.04em)}
+.mast-id .sub{font-family:var(--data);font-size:var(--fs-m);text-transform:uppercase;
+  letter-spacing:.18em;color:var(--ink-muted);margin-top:.55rem}
+.spec{border-left:1px solid var(--line);display:grid;align-content:center;min-width:min(46vw,272px)}
+.spec .row{display:grid;grid-template-columns:1fr 1fr;font-size:var(--fs-s);
+  text-transform:uppercase;border-bottom:1px solid var(--line)}
+.spec .row:last-child{border-bottom:0}
+.spec .k{font-family:var(--label);letter-spacing:.12em;padding:.48rem .8rem;
+  color:var(--ink-muted);border-right:1px solid var(--line)}
+.spec .v{font-family:var(--data);letter-spacing:.08em;padding:.48rem .8rem;color:var(--ink-data)}
+.sectnav{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-top:0;
+  font-family:var(--label);text-transform:uppercase;font-size:var(--fs-s);letter-spacing:.12em}
+.sectnav a{padding:.62rem 1rem;color:var(--ink-muted)}
+.sectnav a+a{border-left:1px solid var(--line)}
+.sectnav a:hover{color:var(--color-accent);background:color-mix(in oklch,var(--color-accent) 10%,transparent)}
+
+/* ── LEAD BULLETIN + MANIFEST ────────────────────────────── */
+.lead-grid{display:grid;grid-template-columns:1fr 330px;gap:clamp(18px,2.4vw,28px);
+  padding-block:clamp(22px,3vw,38px)}
+.lead .kicker{display:block;margin-bottom:.55rem}
+.lead h2{font-family:var(--poster);font-weight:400;text-transform:uppercase;line-height:.9;
+  font-size:clamp(2.4rem,6vw,5rem);margin:0 0 .8rem;color:var(--ink-hi);text-wrap:balance}
+.lead h2 em{font-style:normal;color:var(--color-accent)}
+.warn{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--label);
+  font-size:var(--fs-s);text-transform:uppercase;letter-spacing:.14em;
+  color:var(--color-canvas-dark);background:var(--color-accent);padding:.32rem .7rem;margin-bottom:1rem}
+.lead .standfirst{font-size:1.2rem;line-height:1.5;max-width:46ch;margin:0 0 1rem;color:var(--ink-hi)}
+.lead .body{columns:2;column-gap:1.8rem;column-rule:1px solid var(--line);
+  font-size:.98rem;line-height:1.5;color:var(--ink-muted);margin-bottom:1rem}
+.lead .body p{margin:0 0 .7rem}
+.lead .body .mono{font-family:var(--data);font-size:.9em;color:var(--ink-data)}
+.lead .foot{display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  border-top:1px solid var(--line);padding-top:.7rem;font-family:var(--data);
+  font-size:var(--fs-s);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted)}
+.lead .foot b{color:var(--ink-hi);font-weight:400}
+
+.manifest{padding:0}
+.manifest .panel-tab{display:flex;justify-content:space-between;font-family:var(--label);
+  font-size:var(--fs-s);text-transform:uppercase;letter-spacing:.16em;
+  color:var(--color-canvas-dark);background:var(--color-accent);padding:.45rem .8rem}
+.manifest .panel-tab h2{font:inherit;margin:0;letter-spacing:inherit}
+.manifest ol{list-style:none;margin:0;padding:0 .9rem}
+.manifest li{display:grid;grid-template-columns:auto 1fr;gap:.7rem;align-items:start;
+  padding:.75rem 0;border-bottom:1px solid var(--line)}
+.manifest li:last-child{border-bottom:0}
+.manifest .num{font-family:var(--data);font-size:var(--fs-s);color:var(--ink-data);padding-top:.18rem}
+.manifest h3{font-family:var(--poster);text-transform:uppercase;font-weight:400;
+  font-size:1.28rem;line-height:.98;margin:0 0 .18rem;color:var(--ink-hi)}
+.manifest h3 a:hover{color:var(--color-accent)}
+.manifest .sys{font-family:var(--label);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.1em;color:var(--ink-faint)}
+
+/* ── FIG SECTIONS (drafting-ruler headers) ───────────────── */
+.fig{padding-block:clamp(22px,3vw,38px)}
+.fig-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+  border-bottom:2px solid var(--line-2);padding-bottom:.4rem;position:relative;margin-bottom:0}
+.fig-head::after{ /* ruler ticks under the section rule */
+  content:"";position:absolute;left:0;right:0;bottom:-7px;height:5px;
+  background-image:repeating-linear-gradient(90deg,var(--line-2) 0 1px,transparent 1px 14px)}
+.fig-head h2{font-family:var(--label);text-transform:uppercase;font-weight:400;margin:0;
+  font-size:clamp(1.25rem,2.6vw,1.9rem);letter-spacing:.06em;color:var(--ink-hi)}
+.fig-head .fno{font-family:var(--data);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.14em;color:var(--color-accent)}
+.parts{display:grid;grid-template-columns:repeat(3,1fr);margin-top:7px}
+.part{position:relative;padding:1.25rem 1.3rem;border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:.5rem}
+.part:nth-child(3n){border-right:0}
+.part::before{content:"";position:absolute;top:0;left:0;width:10px;height:10px;
+  border-top:2px solid var(--color-accent);border-left:2px solid var(--color-accent)}
+.part:hover{background:color-mix(in oklch,var(--color-ink-light) 4%,transparent)}
+.part-top{display:flex;justify-content:space-between;align-items:center;gap:.6rem}
+.part-top .tag{font-family:var(--label);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.14em;color:var(--color-accent)}
+.part h3{font-family:var(--poster);text-transform:uppercase;font-weight:400;
+  font-size:1.7rem;line-height:.96;margin:.1rem 0 0;color:var(--ink-hi)}
+.part h3 a:hover{color:var(--color-accent)}
+.part .dek{font-size:.94rem;line-height:1.42;margin:0}
+.part .byline{font-family:var(--data);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.08em;color:var(--ink-faint);margin-top:auto;padding-top:.4rem}
+
+/* ── MODE SELECT (real radio group) ──────────────────────── */
+.modeband{padding-block:clamp(22px,3vw,38px)}
+.modeband .panel{padding:0}
+.ms-tab{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;
+  background:var(--color-accent);color:var(--color-canvas-dark);padding:.5rem .9rem;
+  font-family:var(--label);font-size:var(--fs-s);text-transform:uppercase;letter-spacing:.14em}
+.ms-tab h2{font:inherit;margin:0;letter-spacing:inherit}
+.ms-sub{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.4rem;
+  padding:.55rem .9rem;border-bottom:1px solid var(--line);font-family:var(--data);
+  font-size:var(--fs-s);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted)}
+.ms-sub b{color:var(--ink-data);font-weight:400}
+.ms-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.chip{position:relative;display:flex;align-items:center;gap:.7rem;cursor:pointer;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:.7rem .8rem;transition:background .12s}
+.chip:nth-child(4n){border-right:0}
+.chip:nth-last-child(-n+4){border-bottom:0}
+.chip:hover{background:color-mix(in oklch,var(--color-accent) 12%,transparent)}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip:has(input:checked){background:color-mix(in oklch,var(--color-accent) 16%,transparent);
+  box-shadow:inset 0 0 0 2px var(--color-accent)}
+.chip:has(input:focus-visible){outline:2px solid var(--color-accent);outline-offset:-4px}
+.chip .led{margin-left:auto}
+.chip input:not(:checked) ~ .led{background:transparent;box-shadow:none;border:1px solid var(--line-2)}
+.livery{display:flex;flex:none;width:34px;height:20px;border:1px solid var(--line-2);overflow:hidden}
+.livery i{flex:1;display:block}
+.chip-meta{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.chip-label{font-family:var(--label);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.05em;color:var(--ink-hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip-sub{font-family:var(--data);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.08em;color:var(--ink-faint)}
+
+/* ── TELEMETRY ───────────────────────────────────────────── */
+.telem{padding-block:clamp(22px,3vw,38px)}
+.telem .panel{padding:0}
+.telem-tab{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;
+  padding:.5rem .9rem;border-bottom:1px solid var(--line);font-family:var(--label);
+  font-size:var(--fs-s);text-transform:uppercase;letter-spacing:.14em;color:var(--ink-hi)}
+.telem-tab h2{font:inherit;margin:0;letter-spacing:inherit}
+.telem-tab .inst{display:inline-flex;align-items:center;gap:.9rem;font-family:var(--data);
+  color:var(--ink-muted)}
+.telem-tab .inst .rd{color:var(--ink-data)}
+.gauge{display:inline-block;vertical-align:-4px}
+.gauge .arc{stroke:var(--line-2)}
+.gauge .needle{stroke:var(--color-accent)}
+.telem-list{display:grid;grid-template-columns:1fr 1fr;list-style:none;margin:0;padding:0}
+.trow{display:grid;grid-template-columns:auto auto 1fr;gap:.7rem;align-items:baseline;
+  padding:.7rem .9rem;border-bottom:1px solid var(--line)}
+.trow:nth-child(odd){border-right:1px solid var(--line)}
+.trow:nth-last-child(-n+1){border-bottom:0}
+.trow .ts{font-family:var(--data);font-size:var(--fs-s);color:var(--ink-data);white-space:nowrap}
+.trow .pr{font-family:var(--data);font-size:var(--fs-s);color:var(--color-accent)}
+.trow h3{font-family:var(--label);font-size:.92rem;font-weight:400;margin:0;color:var(--ink-hi);
+  text-transform:uppercase;letter-spacing:.03em;line-height:1.3}
+.trow h3 a:hover{color:var(--color-accent)}
+.trow .mi{font-size:.86rem;color:var(--ink-muted);margin:.2rem 0 0;grid-column:3}
+
+/* the one earned motion moment: telemetry boots in, link LED pulses */
+@media (prefers-reduced-motion: no-preference){
+  .cursor{animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .led--pulse{animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.35}}
+  .trow{opacity:0;animation:tin .35s ease-out forwards}
+  @keyframes tin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .trow:nth-child(1){animation-delay:.05s}.trow:nth-child(2){animation-delay:.15s}
+  .trow:nth-child(3){animation-delay:.25s}.trow:nth-child(4){animation-delay:.35s}
+  .trow:nth-child(5){animation-delay:.45s}.trow:nth-child(6){animation-delay:.55s}
+}
+
+/* ── DATASHEET ───────────────────────────────────────────── */
+.sheet{padding-block:clamp(24px,3.4vw,46px)}
+.sheet-grid{display:grid;grid-template-columns:260px 1fr;gap:clamp(20px,3.4vw,44px);align-items:start}
+.datacard{padding:1.3rem}
+.datacard .pub{font-family:var(--label);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.16em;color:var(--ink-faint)}
+.datacard .tt{font-family:var(--poster);text-transform:uppercase;font-size:2rem;line-height:.9;
+  margin:.6rem 0;color:var(--ink-hi)}
+.datacard .tt em{color:var(--color-accent);font-style:normal}
+.datacard dl{margin:1rem 0 0}
+.datacard .drow{display:flex;justify-content:space-between;padding:.36rem 0;
+  border-top:1px solid var(--line);font-size:var(--fs-s);text-transform:uppercase}
+.datacard .drow dt{font-family:var(--label);letter-spacing:.1em;color:var(--ink-muted);margin:0}
+.datacard .drow dd{font-family:var(--data);letter-spacing:.06em;color:var(--ink-data);margin:0}
+.sheet-body{position:relative}
+.sheet-body .kicker{display:block;margin-bottom:.45rem}
+.sheet-body h2{font-family:var(--poster);text-transform:uppercase;font-weight:400;
+  font-size:clamp(2rem,4.4vw,3.4rem);line-height:.92;margin:0 0 .8rem;color:var(--ink-hi)}
+.sheet-body .body{columns:2;column-gap:1.8rem;column-rule:1px solid var(--line);
+  font-size:.98rem;line-height:1.5;color:var(--ink-muted)}
+.sheet-body .body p{margin:0 0 .8rem}
+.sheet-body .code{font-family:var(--data);color:var(--ink-data);
+  background:color-mix(in oklch,var(--color-ink-light) 8%,transparent);padding:.05em .35em}
+.checklist{list-style:none;margin:1rem 0 0;padding:0;font-family:var(--label);
+  font-size:var(--fs-s);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-hi)}
+.checklist li{display:flex;gap:.6rem;padding:.32rem 0}
+.checklist li::before{content:"[x]";font-family:var(--data);color:var(--color-accent)}
+.stamp{position:absolute;top:-.4rem;right:0;transform:rotate(-7deg);
+  font-family:var(--label);font-size:var(--fs-m);text-transform:uppercase;letter-spacing:.18em;
+  color:var(--color-accent);border:3px double var(--color-accent);padding:.5rem .9rem;
+  text-align:center;line-height:1.5;opacity:.85;pointer-events:none}
+
+/* ── FOOTER PLATE ────────────────────────────────────────── */
+.foot-plate{margin-block:clamp(20px,3vw,36px) clamp(28px,4vw,52px)}
+.foot-plate .panel{padding:1.1rem;display:flex;justify-content:space-between;align-items:center;
+  gap:1rem;flex-wrap:wrap;font-family:var(--label);font-size:var(--fs-s);text-transform:uppercase;
+  letter-spacing:.1em;color:var(--ink-muted)}
+.foot-plate b{color:var(--ink-hi);font-weight:400}
+.foot-plate .qc{font-family:var(--data);color:var(--color-accent);
+  border:1px solid var(--color-accent);padding:.2rem .5rem}
+.foot-plate .idblock{display:inline-flex;align-items:center;gap:.8rem}
+
+@media(max-width:880px){
+  .mast-plate{grid-template-columns:1fr}
+  .spec{border-left:0;border-top:1px solid var(--line)}
+  .lead-grid{grid-template-columns:1fr}
+  .lead .body{columns:1}
+  .parts{grid-template-columns:1fr 1fr}
+  .part:nth-child(3n){border-right:1px solid var(--line)}
+  .part:nth-child(2n){border-right:0}
+  .ms-grid{grid-template-columns:repeat(2,1fr)}
+  .chip:nth-child(4n){border-right:1px solid var(--line)}
+  .chip:nth-child(2n){border-right:0}
+  .chip:nth-last-child(-n+4){border-bottom:1px solid var(--line)}
+  .chip:nth-last-child(-n+2){border-bottom:0}
+  .telem-list{grid-template-columns:1fr}
+  .trow:nth-child(odd){border-right:0}
+  .sheet-grid{grid-template-columns:1fr}
+  .datacard{max-width:280px}
+  .sheet-body .body{columns:1}
+  .stamp{position:static;display:inline-block;margin-bottom:.8rem}
+}
+@media(max-width:540px){
+  .parts{grid-template-columns:1fr}
+  .part{border-right:0!important}
+  .ms-grid{grid-template-columns:1fr}
+  .chip{border-right:0!important}
+}
+</style>
+</head>
+<body>
+
+<header class="mast"><div class="wrap">
+  <div class="mast-plate">
+    <span class="screw screw--tl" aria-hidden="true"></span>
+    <span class="screw screw--tr" aria-hidden="true"></span>
+    <span class="screw screw--bl" aria-hidden="true"></span>
+    <span class="screw screw--br" aria-hidden="true"></span>
+    <div class="mast-id">
+      <div class="super">Common Lisp · Technical Bulletin</div>
+      <h1>Standard&nbsp;Output<span class="cursor" aria-hidden="true"></span></h1>
+      <div class="sub">*standard-output* — dispatches from the running image</div>
+    </div>
+    <div class="spec" role="table" aria-label="Document control block">
+      <div class="row"><span class="k">Document</span><span class="v">SO-001</span></div>
+      <div class="row"><span class="k">Revision</span><span class="v">B</span></div>
+      <div class="row"><span class="k">Class</span><span class="v">Unrestricted</span></div>
+      <div class="row"><span class="k">Issued</span><span class="v">2026-07</span></div>
+      <div class="row"><span class="k">Figures</span><span class="v">6</span></div>
+      <div class="row"><span class="k">Sheet</span><span class="v">1 / 1</span></div>
+    </div>
+  </div>
+  <nav class="sectnav" aria-label="Sections">
+    <a href="#fig00">Fig 00 · Fundamentals</a>
+    <a href="#fig01">Fig 01 · The Editor</a>
+    <a href="#fig02">Fig 02 · Subsystems</a>
+    <a href="#fig03">Fig 03 · Livery</a>
+    <a href="#fig04">Fig 04 · Telemetry</a>
+    <a href="#fig05">Fig 05 · Datasheet</a>
+  </nav>
+</div></header>
+
+<div class="hazard" aria-hidden="true"></div>
+
+<!-- LEAD BULLETIN + MANIFEST -->
+<section class="wrap"><div class="lead-grid">
+  <article class="lead">
+    <span class="kicker">Primary Bulletin · Subsystem: Macros</span>
+    <h2>Bending the Language <em>to Your Will</em></h2>
+    <span class="warn">⚠ Caution — Expands at Compile Time</span>
+    <p class="standfirst">A macro receives your code before it runs and hands back new code in
+      its place. The constructs you wish the language had can simply be fabricated — on the line,
+      at compile time.</p>
+    <div class="body">
+      <p>There are no limits. Backquote lays down a template; a comma escapes back to your values;
+        comma-at splices a list into position. What returns is ordinary code the compiler never
+        knows was assembled by hand.</p>
+      <p>That capability is also the failure mode. A macro that should have been a function is a
+        defect logged against the next reader. The discipline is knowing the boundary — when to
+        fabricate syntax, and when to let the evaluator do its ordinary work.</p>
+      <p>This bulletin runs the full procedure: from a ten-line <span class="mono">while</span> to
+        hygiene, variable capture, and the sign-off where a competent writer declines the part.</p>
+    </div>
+    <div class="foot">
+      <span>Author: <b>M. Killian</b> · Field: Saga JP</span>
+      <a class="morelink" href="#">Open procedure →</a>
+    </div>
+  </article>
+
+  <aside class="manifest panel" aria-labelledby="manifest-h">
+    <div class="panel-tab"><h2 id="manifest-h">Manifest · Top of Stack</h2><span>Rev B</span></div>
+    <ol>
+      <li><span class="num">01</span><div><h3><a href="#fig02">CLOS Dispatches on Every Argument at Once</a></h3><span class="sys">Subsystem · Object System</span></div></li>
+      <li><span class="num">02</span><div><h3><a href="#fig02">Restarts Convert a Crash Into a Procedure</a></h3><span class="sys">Subsystem · Conditions</span></div></li>
+      <li><span class="num">03</span><div><h3><a href="#fig01">Survival Emacs, No Keybindings Required</a></h3><span class="sys">Subsystem · The Editor</span></div></li>
+      <li><span class="num">04</span><div><h3><a href="#fig04">In Defense of the Much-Maligned LOOP</a></h3><span class="sys">Subsystem · Iteration</span></div></li>
+      <li><span class="num">05</span><div><h3><a href="#fig02">Ship the Whole Program as One Unit</a></h3><span class="sys">Subsystem · Deploying</span></div></li>
+    </ol>
+  </aside>
+</div></section>
+
+<!-- FIG. 00 FUNDAMENTALS -->
+<section class="wrap fig" id="fig00">
+  <div class="fig-head"><h2>Fundamentals</h2><span class="fno">FIG. 00 · Chapter III</span></div>
+  <div class="parts">
+    <article class="part">
+      <div class="part-top"><span class="tag">Syntax &amp; Grammar</span><span class="pn">P/N SYN-01</span></div>
+      <h3><a href="#">The Whole Grammar, in Parentheses</a></h3>
+      <p class="dek">Prefix notation and s-expressions are the entire specification. Read one form and you can read them all.</p>
+      <span class="byline">Rev B · The Editor</span>
+    </article>
+    <article class="part">
+      <div class="part-top"><span class="tag">Symbols</span><span class="pn">P/N SYM-02</span></div>
+      <h3><a href="#">A Name as a First-Class Part</a></h3>
+      <p class="dek">Symbols are interned names the reader hands you — not strings, not variables, ready to stand for anything.</p>
+      <span class="byline">Rev B · Our Correspondent</span>
+    </article>
+    <article class="part">
+      <div class="part-top"><span class="tag">Lists</span><span class="pn">P/N CNS-03</span></div>
+      <h3><a href="#">The Cons Cell, Doing Double Duty</a></h3>
+      <p class="dek">The same pair that carries your data carries your program. This is the whole mechanism of the language.</p>
+      <span class="byline">Rev B · Special to S.O.</span>
+    </article>
+  </div>
+</section>
+
+<!-- FIG. 01 THE EDITOR -->
+<section class="wrap fig" id="fig01">
+  <div class="fig-head"><h2>The Editor</h2><span class="fno">FIG. 01 · Chapters IV–VI</span></div>
+  <div class="parts">
+    <article class="part">
+      <div class="part-top"><span class="tag">Getting Started</span><span class="pn">P/N EMX-04</span></div>
+      <h3><a href="#">Begin in the Menus, Earn Your Keys Later</a></h3>
+      <p class="dek">No memorization required to spin up. The menus carry you until the keybindings become your own.</p>
+      <span class="byline">Rev B · M. Killian</span>
+    </article>
+    <article class="part">
+      <div class="part-top"><span class="tag">Structured Editing</span><span class="pn">P/N SLP-05</span></div>
+      <h3><a href="#">To Slurp and to Barf, a Procedure</a></h3>
+      <p class="dek">Move whole expressions, not characters, and never lose a parenthesis at 0200 again.</p>
+      <span class="byline">Rev B · Our Correspondent</span>
+    </article>
+    <article class="part">
+      <div class="part-top"><span class="tag">The Lisp IDE</span><span class="pn">P/N SLY-06</span></div>
+      <h3><a href="#">Operating Inside the SLY Listener</a></h3>
+      <p class="dek">Compile one form, inspect a live object, redefine a class beneath a running program. The image never halts.</p>
+      <span class="byline">Rev B · Special to S.O.</span>
+    </article>
+  </div>
+</section>
+
+<!-- FIG. 02 ADVANCED SUBSYSTEMS -->
+<section class="wrap fig" id="fig02">
+  <div class="fig-head"><h2>Advanced Subsystems</h2><span class="fno">FIG. 02 · Chapters VIII–XIV</span></div>
+  <div class="parts">
+    <article class="part">
+      <div class="part-top"><span class="tag">Object System</span><span class="pn">P/N CLS-07</span></div>
+      <h3><a href="#">CLOS Selects by Every Argument</a></h3>
+      <p class="dek">Multiple dispatch and <span style="font-family:var(--data);font-size:.9em">call-next-method</span> — the most capable object machinery fitted to any language.</p>
+      <span class="byline">Rev B · M. Killian</span>
+    </article>
+    <article class="part">
+      <div class="part-top"><span class="tag">Conditions</span><span class="pn">P/N CND-08</span></div>
+      <h3><a href="#">A Restart for Every Failure Mode</a></h3>
+      <p class="dek">Signal, handle, recover. The condition system keeps the image running while you repair it in place.</p>
+      <span class="byline">Rev B · Our Correspondent</span>
+    </article>
+    <article class="part">
+      <div class="part-top"><span class="tag">Deploying</span><span class="pn">P/N SHP-09</span></div>
+      <h3><a href="#">Ship the Program as One Unit</a></h3>
+      <p class="dek">From a live image to a single executable you hand to anyone. No runtime to install, nothing to assemble on site.</p>
+      <span class="byline">Rev B · Special to S.O.</span>
+    </article>
+  </div>
+</section>
+
+<!-- FIG. 03 MODE SELECT -->
+<section class="wrap modeband fig" id="fig03">
+  <div class="panel">
+    <div class="ms-tab"><h2>◧ Mode Select · Operating Livery</h2><span>FIG. 03 · 16 Configurations</span></div>
+    <div class="ms-sub"><span>Select livery — applies to entire document, retained locally</span>
+      <span aria-live="polite">Active: <b id="ms-active">ALMIGHTY-LISP</b></span></div>
+    <div class="ms-grid" id="ms-grid" role="radiogroup" aria-label="Operating livery"></div>
+  </div>
+</section>
+
+<!-- FIG. 04 TELEMETRY -->
+<section class="wrap telem fig" id="fig04">
+  <div class="panel">
+    <div class="telem-tab">
+      <h2>▚ Telemetry · *standard-output*</h2>
+      <span class="inst">
+        <span>FIG. 04</span>
+        <span><svg class="gauge" width="34" height="19" viewBox="0 0 40 22" aria-hidden="true">
+          <path class="arc" d="M4 20 A16 16 0 0 1 36 20" fill="none" stroke-width="3"/>
+          <line class="needle" x1="20" y1="20" x2="27.5" y2="8.5" stroke-width="2"/>
+        </svg> Heap 62%</span>
+        <span class="rd"><span class="led led--pulse"></span> Link Nominal · 115200 baud</span>
+      </span>
+    </div>
+    <ul class="telem-list">
+      <li class="trow"><span class="ts">14:02:07</span><span class="pr">CL-USER&gt;</span><h3><a href="#">A New Restart for Every Occasion</a></h3><p class="mi">The condition system, reissued for operators who fear the debugger.</p></li>
+      <li class="trow"><span class="ts">13:47:51</span><span class="pr">CL-USER&gt;</span><h3><a href="#">make-instance Returns Before You Finish Typing</a></h3><p class="mi">On the comfort of interactive object fabrication.</p></li>
+      <li class="trow"><span class="ts">11:19:33</span><span class="pr">CL-USER&gt;</span><h3><a href="#">Redefine a Class Beneath a Running Program</a></h3><p class="mi">Instances update in place. No restart is scheduled.</p></li>
+      <li class="trow"><span class="ts">10:05:12</span><span class="pr">CL-USER&gt;</span><h3><a href="#">The Backquote Is Only a Template</a></h3><p class="mi">Comma to escape, comma-at to splice. That is the full syntax.</p></li>
+      <li class="trow"><span class="ts">09:31:00</span><span class="pr">CL-USER&gt;</span><h3><a href="#">Quicklisp Installs in a Single Form</a></h3><p class="mi">The library situation is, at last, boringly reliable.</p></li>
+      <li class="trow"><span class="ts">08:58:44</span><span class="pr">CL-USER&gt;</span><h3><a href="#">A Second Theme Pack Comes Online</a></h3><p class="mi">Sixteen liveries for Emacs — eight day, eight moon.</p></li>
+    </ul>
+  </div>
+</section>
+
+<div class="hazard" aria-hidden="true"></div>
+
+<!-- FIG. 05 DATASHEET -->
+<section class="wrap sheet fig" id="fig05">
+  <div class="sheet-grid">
+    <div class="datacard panel">
+      <span class="pub">Almighty Lisp · Unit 001</span>
+      <div class="tt">Lisp &amp; Emacs <em>Essentials</em></div>
+      <dl>
+        <div class="drow"><dt>Format</dt><dd>Online Book</dd></div>
+        <div class="drow"><dt>Chapters</dt><dd>15</dd></div>
+        <div class="drow"><dt>Editor</dt><dd>Doom Emacs</dd></div>
+        <div class="drow"><dt>Rated for</dt><dd>Production Use</dd></div>
+        <div class="drow"><dt>Status</dt><dd>Available</dd></div>
+      </dl>
+    </div>
+    <div class="sheet-body">
+      <span class="stamp" aria-hidden="true">Approved<br>for Release</span>
+      <span class="kicker">Datasheet · FIG. 05 · The Featured Unit</span>
+      <h2>Learn the Language &amp; the Editor as One Assembly</h2>
+      <div class="body">
+        <p>Other manuals teach Common Lisp and abandon you at the Emacs wall — a fine language on
+          one side, an inscrutable editor on the other. This unit refuses the split and carries
+          the operator up and over with both hands.</p>
+        <p>With the language and its editor specified in a single volume, proficiency compounds
+          instead of competing. You will be barfing and slurping while you <span class="code">C-c C-c</span>
+          your first macros, and never notice acquiring either skill.</p>
+      </div>
+      <ul class="checklist">
+        <li>Install &amp; configure the editor</li>
+        <li>Read, evaluate, print, loop</li>
+        <li>Ship a standalone binary</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap foot-plate">
+  <div class="panel">
+    <span>Labels in <b>Construct Mono</b> · Data in <b>Berkeley Mono</b> · Display in <b>League Gothic</b> · Drawings per MIL-STD-100</span>
+    <span class="qc">QC ✓ PASSED</span>
+    <span class="idblock"><span class="regmark" aria-hidden="true">⌖</span><span class="barcode" aria-hidden="true"></span><span>© 2026 <b>Standard Output</b> · Saga, JP</span></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var THEMES=[
+    ["almighty-lisp","Lisp"],["almighty-lisp-moon","Lisp · Moon"],
+    ["almighty-titan","Titan"],["almighty-titan-moon","Titan · Moon"],
+    ["almighty-gear","Gear"],["almighty-gear-moon","Gear · Moon"],
+    ["almighty-macro","Macro"],["almighty-macro-moon","Macro · Moon"],
+    ["almighty-ena","Ena"],["almighty-ena-moon","Ena · Moon"],
+    ["almighty-mikasa","Mikasa"],["almighty-mikasa-moon","Mikasa · Moon"],
+    ["almighty-lisp-x","Lisp-X"],["almighty-lisp-x-moon","Lisp-X · Moon"],
+    ["almighty-saga","Saga"],["almighty-saga-moon","Saga · Moon"]
+  ];
+  var root=document.documentElement, grid=document.getElementById("ms-grid"),
+      readout=document.getElementById("ms-active");
+  var current=root.getAttribute("data-theme")||"almighty-lisp";
+
+  THEMES.forEach(function(t,i){
+    var val=t[0], label=t[1];
+    var l=document.createElement("label");
+    l.className="chip";
+    l.innerHTML=
+      '<input type="radio" name="livery" value="'+val+'"'+(val===current?' checked':'')+'>'+
+      '<span class="livery" data-theme="'+val+'" aria-hidden="true">'+
+        '<i style="background:var(--color-canvas)"></i>'+
+        '<i style="background:var(--color-accent)"></i>'+
+        '<i style="background:var(--color-secondary)"></i></span>'+
+      '<span class="chip-meta"><span class="chip-label">'+label+'</span>'+
+        '<span class="chip-sub">CFG '+String(i).padStart(2,"0")+'</span></span>'+
+      '<span class="led" aria-hidden="true"></span>';
+    grid.appendChild(l);
+  });
+
+  grid.addEventListener("change",function(e){
+    if(e.target.name!=="livery")return;
+    var val=e.target.value;
+    // Livery applies purely via data-theme. The site's `.dark` class carries
+    // the default palette at higher specificity, so it must never be set here.
+    root.setAttribute("data-theme",val);
+    try{localStorage.setItem("so-livery",val);}catch(err){}
+    readout.textContent=val.toUpperCase();
+  });
+
+  readout.textContent=current.toUpperCase();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head><title>ORGANIZING CODE - ALMIGHTYLISP.COM</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>(() => {
+    const t = localStorage.getItem('theme');
+    if (t) document.documentElement.dataset.theme = t;
+    const sel = document.getElementById('theme-select');
+    if (sel && t) sel.value = t;
+  })();</script><link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Oswald:wght@200..700&display=swa"><link rel="apple-touch-icon" sizes="180x180" href="/static/assets/images/favicon/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/images/favicon/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png"><link rel="manifest" href="/static/assets/images/favicon/site.webmanifest"><script src="https://cdn.jsdelivr.net/npm/hyperscript.org@0.9.91/dist/_hyperscript.min.js"></script><script src="/static/js/highlight-lisp.js"></script></head><body><div class="sidebar-container"><div class="book-navigation"><div class="book-navigation__book-title"><a href="/book/essentials"><div class="almighty-lisp-logo-container"><svg class="almighty-lisp-logo" width="185" height="127" viewBox="0 0 185 127" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_1310_182)"><path class="lisp-logo-accent-paths" d="M42.6505 72.9308C43.01 72.8635 43.6305 72.8898 44.0162 72.8763C45.6508 72.8186 51.225 73.1157 49.1217 75.9803C47.3011 78.4598 45.3233 80.9101 43.4148 83.3475L32.0555 97.8768C30.5227 99.8426 28.3101 102.437 27.0062 104.471C21.6566 112.816 39.2013 111.657 43.1275 111.654L58.0747 111.654L84.9585 111.631C90.3662 111.633 95.8194 111.651 101.205 111.622C104.827 111.487 108.749 110.952 111.4 108.239C112.928 106.676 113.219 104.615 111.633 102.988C107.586 99.0378 101.829 100.316 96.597 99.7722C90.0309 99.09 77.42 96.7197 76.7781 88.3604C76.4047 83.4987 82.72 80.1298 86.6887 78.6668C94.2848 75.8669 102.572 75.7534 110.588 75.8888C112.61 75.9152 114.664 75.8188 116.691 75.781C118.908 75.7593 121.125 75.7514 123.342 75.7572C127.112 75.755 132.492 75.3313 135.585 78.0361C136.039 78.4461 136.318 79.0188 136.333 79.6235C136.377 81.4112 133.635 82.3123 132.167 82.4744C129.096 82.8135 125.827 82.6892 122.719 82.6868L106.034 82.683C102.747 82.6482 98.0722 82.8641 95.6027 85.3695C94.5446 86.4436 95.04 88.0183 96.2581 88.7786C99.9385 91.1496 104.503 90.3955 108.596 90.7107C115.757 91.262 123.946 92.8908 129.675 97.3989C135.277 101.808 137.227 109.114 132.469 114.904C126.898 121.684 117.758 124.266 109.356 125.205C107.177 125.45 105.117 125.416 102.948 125.443L92.2702 125.477L64.5565 125.652C54.3956 125.802 44.2338 125.872 34.0718 125.864C24.2182 125.91 12.1402 127.133 3.71989 121.138C-1.67632 117.282 -0.0948632 110.044 3.89003 105.869C12.846 96.4842 22.1358 87.3833 31.4234 78.3321C32.0523 77.7192 32.6252 77.0022 33.2501 76.3785C35.7587 73.875 39.2858 73.2846 42.6505 72.9308Z" fill="#FEE048"></path><path class="lisp-logo-accent-paths" d="M84.8919 67.6304C89.9997 67.4938 95.7117 67.6192 100.859 67.6189L133.096 67.6257L150.395 67.5997C153.393 67.5907 158.347 67.4929 161.277 67.801C168.099 68.6479 175.749 70.0366 181.249 74.4255C183.46 76.189 185.175 79.4127 182.893 81.7988C179.831 85.0017 174.651 85.6828 170.442 86.0501C167.281 86.3262 162.889 85.6709 160.467 88.1038C159.112 89.4963 161.523 92.8469 162.218 94.2767C163.339 96.5804 164.723 98.8239 165.842 101.14C166.938 103.411 169.732 106.815 167.657 109.179C166.061 110.933 163.058 111.35 160.836 111.554C156.899 111.914 148.55 110.254 146.989 105.979C144.959 100.414 143.209 94.2557 141.269 88.6186C140.722 87.0294 141.152 85.4415 142.329 84.1949C146.857 79.9007 155.556 79.1523 161.334 78.8978C162.051 78.8886 162.769 78.8759 163.486 78.8593C164.561 78.8324 168.698 78.3111 168.363 76.6852C167.827 74.0813 162.832 73.1393 160.573 72.9901C156.376 72.7131 152.067 72.8812 147.841 72.8938L125.007 72.9178L97.934 72.9142L89.3273 72.9122C85.3404 72.9133 77.4561 72.7223 74.1887 75.1834C73.659 75.5814 73.2113 76.0781 72.8702 76.6461C72.0352 78.0239 70.4224 81.6823 69.6634 83.267L63.7349 95.5026C63.0057 97.0193 61.4825 100.466 60.4934 101.558C58.1787 104.113 53.4278 105.488 50.0747 105.696C47.3172 105.837 43.7489 105.886 41.4774 104.08C40.1563 103.03 40.4683 101.415 41.2283 100.155C41.9733 98.9206 42.8087 97.7862 43.5958 96.5802C45.9204 93.0748 48.2633 89.5816 50.6245 86.1006C52.1137 83.8374 53.6206 81.5859 55.1448 79.3462C55.6407 78.6099 57.2009 76.217 57.7688 75.646C63.2495 70.135 73.2896 68.5098 80.7355 67.7595C81.9047 67.6416 83.649 67.7029 84.8919 67.6304Z" fill="#FEE048"></path></g><path class="lisp-logo-ink-paths" d="M14.84 62.4121L20.888 0.672108H29.036L35 62.4121H27.776L26.852 49.8121H22.988L22.064 62.4121H14.84ZM23.534 41.1601H26.39L25.004 17.0101V15.7081H24.836V17.0101L23.534 41.1601ZM37.5003 62.4121V0.672108H44.4723V54.0121H51.6963V62.4121H37.5003ZM55.3011 62.4121V0.672108H63.6591L66.2211 29.0641L66.3471 32.7601H66.5151L66.6411 29.0641L69.2031 0.672108H77.5611V62.4121H70.8831V31.1641H70.7571L70.7151 32.5921L68.3631 62.4121H64.5831L62.1471 32.5921L62.1051 31.1641H61.9791V62.4121H55.3011ZM80.8948 62.4121V0.672108H87.8668V62.4121H80.8948ZM98.0348 63.0841C95.9628 63.0841 94.4088 62.4401 93.3728 61.1521C92.3368 59.8361 91.6508 58.2121 91.3148 56.2801C90.9788 54.3481 90.8108 52.4441 90.8108 50.5681V12.5161C90.8108 10.6681 91.0628 8.77811 91.5668 6.84611C92.0988 4.91411 92.9668 3.29011 94.1708 1.97411C95.3748 0.658108 97.0268 0.000106812 99.1268 0.000106812C100.807 0.000106812 102.179 0.420106 103.243 1.26011C104.335 2.07211 105.189 3.12211 105.805 4.41011C106.421 5.69811 106.841 7.07011 107.065 8.5261C107.317 9.9541 107.443 11.2841 107.443 12.5161V22.8481H100.471V12.1801C100.471 11.4801 100.401 10.7521 100.261 9.99611C100.121 9.21211 99.7428 8.82011 99.1268 8.82011C98.5388 8.82011 98.1748 9.19811 98.0348 9.95411C97.9228 10.7101 97.8668 11.4521 97.8668 12.1801V51.6601C97.8668 52.5561 97.9508 53.3401 98.1188 54.0121C98.3148 54.6841 98.7208 55.0201 99.3368 55.0201C100.009 55.0201 100.443 54.6701 100.639 53.9701C100.863 53.2421 100.975 52.4721 100.975 51.6601V40.1521H99.4628V31.6681H107.443V62.4121H103.831L103.075 60.1441C102.711 61.0961 102.067 61.8241 101.143 62.3281C100.247 62.8321 99.2108 63.0841 98.0348 63.0841ZM110.836 62.4121V0.672108H117.808V26.2081H120.496V0.672108H127.468V62.4121H120.496V35.5321H117.808V62.4121H110.836ZM135.136 62.4121V9.99611H130.012V0.672108H147.232V9.99611H142.108V62.4121H135.136ZM155.599 62.4121V36.1201L148.669 0.672108H156.145L158.665 20.4121L158.875 23.1001H159.085L159.337 20.4121L161.773 0.672108H169.333L162.403 36.1201V62.4121H155.599Z" fill="white"></path><defs><clippath id="clip0_1310_182"><rect class="lisp-logo-ink-paths" width="184.11" height="58.695" fill="white" transform="translate(0 67.4121)"></rect></clippath></defs></svg></div><div class="the-essentials-container"><svg class="essentials-logo" width="157" height="57" viewBox="0 0 157 57" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="lisp-logo-accent-paths" d="M1.92 56V20.72H13.776V26.048H7.104V35.552H11.904V40.736H7.104V50.672H13.776V56H1.92ZM23.8631 56.384C22.4391 56.384 21.2551 56.152 20.3111 55.688C19.3671 55.208 18.6231 54.52 18.0791 53.624C17.5351 52.728 17.1431 51.648 16.9031 50.384C16.6791 49.12 16.5671 47.696 16.5671 46.112L21.6551 45.632C21.6551 46.4 21.6791 47.144 21.7271 47.864C21.7911 48.568 21.8951 49.208 22.0391 49.784C22.1991 50.344 22.4231 50.792 22.7111 51.128C23.0151 51.464 23.3991 51.632 23.8631 51.632C24.6311 51.632 25.1751 51.28 25.4951 50.576C25.8151 49.856 25.9751 48.992 25.9751 47.984C25.9751 46.976 25.7111 45.928 25.1831 44.84C24.6551 43.752 24.0231 42.72 23.2871 41.744C22.0391 40.08 20.9431 38.536 19.9991 37.112C19.0711 35.688 18.3431 34.288 17.8151 32.912C17.3031 31.536 17.0471 30.096 17.0471 28.592C17.0471 27.408 17.1991 26.32 17.5031 25.328C17.8071 24.32 18.2471 23.448 18.8231 22.712C19.4151 21.96 20.1271 21.376 20.9591 20.96C21.7911 20.544 22.7431 20.336 23.8151 20.336C25.1431 20.336 26.2631 20.56 27.1751 21.008C28.1031 21.456 28.8471 22.096 29.4071 22.928C29.9831 23.76 30.3991 24.752 30.6551 25.904C30.9271 27.04 31.0631 28.304 31.0631 29.696L25.9751 30.176C25.9751 29.584 25.9431 28.992 25.8791 28.4C25.8311 27.792 25.7351 27.24 25.5911 26.744C25.4471 26.248 25.2391 25.848 24.9671 25.544C24.6951 25.24 24.3431 25.088 23.9111 25.088C23.2391 25.088 22.7751 25.376 22.5191 25.952C22.2631 26.512 22.1351 27.312 22.1351 28.352C22.1351 29.696 22.4951 30.992 23.2151 32.24C23.9351 33.488 24.9031 34.944 26.1191 36.608C27.5751 38.576 28.7591 40.384 29.6711 42.032C30.5991 43.68 31.0631 45.504 31.0631 47.504C31.0631 48.768 30.9271 49.944 30.6551 51.032C30.3831 52.104 29.9511 53.04 29.3591 53.84C28.7831 54.64 28.0391 55.264 27.1271 55.712C26.2311 56.16 25.1431 56.384 23.8631 56.384ZM40.0819 56.384C38.6579 56.384 37.4739 56.152 36.5299 55.688C35.5859 55.208 34.8419 54.52 34.2979 53.624C33.7539 52.728 33.3619 51.648 33.1219 50.384C32.8979 49.12 32.7859 47.696 32.7859 46.112L37.8739 45.632C37.8739 46.4 37.8979 47.144 37.9459 47.864C38.0099 48.568 38.1139 49.208 38.2579 49.784C38.4179 50.344 38.6419 50.792 38.9299 51.128C39.2339 51.464 39.6179 51.632 40.0819 51.632C40.8499 51.632 41.3939 51.28 41.7139 50.576C42.0339 49.856 42.1939 48.992 42.1939 47.984C42.1939 46.976 41.9299 45.928 41.4019 44.84C40.8739 43.752 40.2419 42.72 39.5059 41.744C38.2579 40.08 37.1619 38.536 36.2179 37.112C35.2899 35.688 34.5619 34.288 34.0339 32.912C33.5219 31.536 33.2659 30.096 33.2659 28.592C33.2659 27.408 33.4179 26.32 33.7219 25.328C34.0259 24.32 34.4659 23.448 35.0419 22.712C35.6339 21.96 36.3459 21.376 37.1779 20.96C38.0099 20.544 38.9619 20.336 40.0339 20.336C41.3619 20.336 42.4819 20.56 43.3939 21.008C44.3219 21.456 45.0659 22.096 45.6259 22.928C46.2019 23.76 46.6179 24.752 46.8739 25.904C47.1459 27.04 47.2819 28.304 47.2819 29.696L42.1939 30.176C42.1939 29.584 42.1619 28.992 42.0979 28.4C42.0499 27.792 41.9539 27.24 41.8099 26.744C41.6659 26.248 41.4579 25.848 41.1859 25.544C40.9139 25.24 40.5619 25.088 40.1299 25.088C39.4579 25.088 38.9939 25.376 38.7379 25.952C38.4819 26.512 38.3539 27.312 38.3539 28.352C38.3539 29.696 38.7139 30.992 39.4339 32.24C40.1539 33.488 41.1219 34.944 42.3379 36.608C43.7939 38.576 44.9779 40.384 45.8899 42.032C46.8179 43.68 47.2819 45.504 47.2819 47.504C47.2819 48.768 47.1459 49.944 46.8739 51.032C46.6019 52.104 46.1699 53.04 45.5779 53.84C45.0019 54.64 44.2579 55.264 43.3459 55.712C42.4499 56.16 41.3619 56.384 40.0819 56.384ZM50.0606 56V20.72H61.9166V26.048H55.2446V35.552H60.0446V40.736H55.2446V50.672H61.9166V56H50.0606ZM65.7638 56V20.72H70.6118L75.4118 39.104L75.8438 40.736H76.1318V20.72H80.8838V56H76.5157L71.2358 37.616L70.8038 35.984H70.5158V56H65.7638ZM88.1573 56V26.048H83.2613V20.72H98.2373V26.048H93.3413V56H88.1573ZM100.639 56V20.72H105.823V56H100.639ZM108.606 56L113.934 20.72H120.27L125.598 56H120.558L119.598 48.8H114.606L113.646 56H108.606ZM115.326 43.328H118.878L117.39 31.472L117.246 29.6H116.958L116.814 31.472L115.326 43.328ZM128.342 56V20.72H133.526V51.2H140.39V56H128.342ZM148.738 56.384C147.314 56.384 146.13 56.152 145.186 55.688C144.242 55.208 143.498 54.52 142.954 53.624C142.41 52.728 142.018 51.648 141.778 50.384C141.554 49.12 141.442 47.696 141.442 46.112L146.53 45.632C146.53 46.4 146.554 47.144 146.602 47.864C146.666 48.568 146.77 49.208 146.914 49.784C147.074 50.344 147.298 50.792 147.586 51.128C147.89 51.464 148.274 51.632 148.738 51.632C149.506 51.632 150.05 51.28 150.37 50.576C150.69 49.856 150.85 48.992 150.85 47.984C150.85 46.976 150.586 45.928 150.058 44.84C149.53 43.752 148.898 42.72 148.162 41.744C146.914 40.08 145.818 38.536 144.874 37.112C143.946 35.688 143.218 34.288 142.69 32.912C142.178 31.536 141.922 30.096 141.922 28.592C141.922 27.408 142.074 26.32 142.378 25.328C142.682 24.32 143.122 23.448 143.698 22.712C144.29 21.96 145.002 21.376 145.834 20.96C146.666 20.544 147.618 20.336 148.69 20.336C150.018 20.336 151.138 20.56 152.05 21.008C152.978 21.456 153.722 22.096 154.282 22.928C154.858 23.76 155.274 24.752 155.53 25.904C155.802 27.04 155.938 28.304 155.938 29.696L150.85 30.176C150.85 29.584 150.818 28.992 150.754 28.4C150.706 27.792 150.61 27.24 150.466 26.744C150.322 26.248 150.114 25.848 149.842 25.544C149.57 25.24 149.218 25.088 148.786 25.088C148.114 25.088 147.65 25.376 147.394 25.952C147.138 26.512 147.01 27.312 147.01 28.352C147.01 29.696 147.37 30.992 148.09 32.24C148.81 33.488 149.778 34.944 150.994 36.608C152.45 38.576 153.634 40.384 154.546 42.032C155.474 43.68 155.938 45.504 155.938 47.504C155.938 48.768 155.802 49.944 155.53 51.032C155.258 52.104 154.826 53.04 154.234 53.84C153.658 54.64 152.914 55.264 152.002 55.712C151.106 56.16 150.018 56.384 148.738 56.384Z" fill="#FDE047"></path><path class="lisp-logo-accent-paths" d="M1.96 18V0.36H4.552V15.6H7.984V18H1.96ZM9.03813 18V0.36H11.6301V18H9.03813ZM16.6816 18.192C15.9696 18.192 15.3776 18.076 14.9056 17.844C14.4336 17.604 14.0616 17.26 13.7896 16.812C13.5176 16.364 13.3216 15.824 13.2016 15.192C13.0896 14.56 13.0336 13.848 13.0336 13.056L15.5776 12.816C15.5776 13.2 15.5896 13.572 15.6136 13.932C15.6456 14.284 15.6976 14.604 15.7696 14.892C15.8496 15.172 15.9616 15.396 16.1056 15.564C16.2576 15.732 16.4496 15.816 16.6816 15.816C17.0656 15.816 17.3376 15.64 17.4976 15.288C17.6576 14.928 17.7376 14.496 17.7376 13.992C17.7376 13.488 17.6056 12.964 17.3416 12.42C17.0776 11.876 16.7616 11.36 16.3936 10.872C15.7696 10.04 15.2216 9.268 14.7496 8.556C14.2856 7.844 13.9216 7.144 13.6576 6.456C13.4016 5.768 13.2736 5.048 13.2736 4.296C13.2736 3.704 13.3496 3.16 13.5016 2.664C13.6536 2.16 13.8736 1.724 14.1616 1.356C14.4576 0.98 14.8136 0.688 15.2296 0.48C15.6456 0.271999 16.1216 0.167999 16.6576 0.167999C17.3216 0.167999 17.8816 0.279999 18.3376 0.503999C18.8016 0.727999 19.1736 1.048 19.4536 1.464C19.7416 1.88 19.9496 2.376 20.0776 2.952C20.2136 3.52 20.2816 4.152 20.2816 4.848L17.7376 5.088C17.7376 4.792 17.7216 4.496 17.6896 4.2C17.6656 3.896 17.6176 3.62 17.5456 3.372C17.4736 3.124 17.3696 2.924 17.2336 2.772C17.0976 2.62 16.9216 2.544 16.7056 2.544C16.3696 2.544 16.1376 2.688 16.0096 2.976C15.8816 3.256 15.8176 3.656 15.8176 4.176C15.8176 4.848 15.9976 5.496 16.3576 6.12C16.7176 6.744 17.2016 7.472 17.8096 8.304C18.5376 9.288 19.1296 10.192 19.5856 11.016C20.0496 11.84 20.2816 12.752 20.2816 13.752C20.2816 14.384 20.2136 14.972 20.0776 15.516C19.9416 16.052 19.7256 16.52 19.4296 16.92C19.1416 17.32 18.7696 17.632 18.3136 17.856C17.8656 18.08 17.3216 18.192 16.6816 18.192ZM21.6709 18V0.36H24.2629C25.2469 0.36 26.0669 0.576 26.7229 1.008C27.3869 1.44 27.8829 2.052 28.2109 2.844C28.5389 3.636 28.7029 4.568 28.7029 5.64C28.7029 6.712 28.5309 7.636 28.1869 8.412C27.8429 9.188 27.3389 9.796 26.6749 10.236C26.0189 10.668 25.2149 10.904 24.2629 10.944V18H21.6709ZM24.2629 8.304C24.7189 8.304 25.0789 8.216 25.3429 8.04C25.6069 7.856 25.7949 7.568 25.9069 7.176C26.0269 6.784 26.0869 6.28 26.0869 5.664C26.0869 5.04 26.0269 4.532 25.9069 4.14C25.7949 3.748 25.6029 3.46 25.3309 3.276C25.0669 3.092 24.7109 3 24.2629 3V8.304ZM37.0036 18.192C35.9716 18.192 35.1196 17.86 34.4476 17.196C33.7836 16.524 33.4516 15.56 33.4516 14.304C33.4516 13.52 33.5556 12.82 33.7636 12.204C33.9796 11.58 34.2396 11.02 34.5436 10.524C34.8556 10.028 35.1556 9.584 35.4436 9.192C35.0276 8.328 34.7156 7.48 34.5076 6.648C34.2996 5.808 34.1956 4.928 34.1956 4.008C34.1956 2.912 34.4636 2 34.9996 1.272C35.5356 0.535999 36.3236 0.167999 37.3636 0.167999C38.3796 0.167999 39.1476 0.527999 39.6676 1.248C40.1876 1.968 40.4476 2.852 40.4476 3.9C40.4476 4.772 40.2156 5.64 39.7516 6.504C39.2876 7.36 38.7236 8.224 38.0596 9.096C38.4436 9.968 38.7716 10.66 39.0436 11.172C39.3156 11.676 39.5636 12.096 39.7876 12.432C39.9476 11.984 40.0716 11.512 40.1596 11.016C40.2556 10.512 40.3156 10.16 40.3396 9.96L42.4036 10.344C42.3476 11.024 42.2076 11.748 41.9836 12.516C41.7596 13.284 41.4996 13.96 41.2036 14.544C41.3636 14.72 41.5596 14.896 41.7916 15.072C42.0236 15.24 42.2276 15.36 42.4036 15.432V18.192C42.1796 18.192 41.9036 18.096 41.5756 17.904C41.2476 17.712 40.9316 17.488 40.6276 17.232C40.3316 16.976 40.1076 16.752 39.9556 16.56C39.5876 17.048 39.1836 17.444 38.7436 17.748C38.3036 18.044 37.7236 18.192 37.0036 18.192ZM37.1236 15.936C37.4516 15.936 37.7276 15.84 37.9516 15.648C38.1756 15.456 38.3876 15.216 38.5876 14.928C38.2676 14.408 37.9396 13.872 37.6036 13.32C37.2756 12.768 36.9236 12.152 36.5476 11.472C36.3716 11.768 36.2276 12.156 36.1156 12.636C36.0036 13.108 35.9476 13.532 35.9476 13.908C35.9476 14.42 36.0436 14.888 36.2356 15.312C36.4276 15.728 36.7236 15.936 37.1236 15.936ZM37.0996 6.888C37.3876 6.44 37.6556 5.952 37.9036 5.424C38.1516 4.896 38.2756 4.4 38.2756 3.936C38.2756 3.464 38.2116 3.064 38.0836 2.736C37.9556 2.4 37.7156 2.232 37.3636 2.232C37.0196 2.232 36.7796 2.404 36.6436 2.748C36.5076 3.092 36.4396 3.5 36.4396 3.972C36.4396 4.468 36.4996 4.96 36.6196 5.448C36.7476 5.936 36.9076 6.416 37.0996 6.888ZM47.6631 18V0.36H53.5911V3.024H50.2551V7.776H52.6551V10.368H50.2551V15.336H53.5911V18H47.6631ZM55.5147 18V0.36H58.8027L60.2187 9.504L60.3387 10.44H60.3867L60.5067 9.504L61.9227 0.36H65.2107V18H62.8107V6.168H62.6667L62.5707 6.912L61.0347 18H59.6907L58.1547 6.912L58.0587 6.168H57.9147V18H55.5147ZM66.5997 18L69.2637 0.36H72.4317L75.0957 18H72.5757L72.0957 14.4H69.5997L69.1197 18H66.5997ZM69.9597 11.664H71.7357L70.9917 5.736L70.9197 4.8H70.7757L70.7037 5.736L69.9597 11.664ZM79.8038 18.192C79.0678 18.192 78.4398 18.028 77.9198 17.7C77.4078 17.364 77.0158 16.908 76.7438 16.332C76.4798 15.756 76.3478 15.104 76.3478 14.376V3.984C76.3478 3.264 76.4838 2.616 76.7558 2.04C77.0358 1.464 77.4358 1.008 77.9558 0.671999C78.4758 0.335999 79.0918 0.167999 79.8038 0.167999C80.3398 0.167999 80.8198 0.267999 81.2438 0.467999C81.6678 0.667999 82.0278 0.943999 82.3238 1.296C82.6278 1.64 82.8598 2.044 83.0198 2.508C83.1798 2.964 83.2598 3.456 83.2598 3.984V6.408H80.8358V3.984C80.8358 3.616 80.7598 3.308 80.6078 3.06C80.4558 2.812 80.2038 2.688 79.8518 2.688C79.5318 2.688 79.2998 2.816 79.1558 3.072C79.0118 3.328 78.9398 3.632 78.9398 3.984V14.376C78.9398 14.728 79.0158 15.032 79.1678 15.288C79.3278 15.544 79.5558 15.672 79.8518 15.672C80.2118 15.672 80.4638 15.548 80.6078 15.3C80.7598 15.052 80.8358 14.744 80.8358 14.376V11.952H83.2598V14.376C83.2598 15.096 83.1198 15.744 82.8398 16.32C82.5598 16.896 82.1598 17.352 81.6398 17.688C81.1278 18.024 80.5158 18.192 79.8038 18.192ZM88.1894 18.192C87.4774 18.192 86.8854 18.076 86.4134 17.844C85.9414 17.604 85.5694 17.26 85.2974 16.812C85.0254 16.364 84.8294 15.824 84.7094 15.192C84.5974 14.56 84.5414 13.848 84.5414 13.056L87.0854 12.816C87.0854 13.2 87.0974 13.572 87.1214 13.932C87.1534 14.284 87.2054 14.604 87.2774 14.892C87.3574 15.172 87.4694 15.396 87.6134 15.564C87.7654 15.732 87.9574 15.816 88.1894 15.816C88.5734 15.816 88.8454 15.64 89.0054 15.288C89.1654 14.928 89.2454 14.496 89.2454 13.992C89.2454 13.488 89.1134 12.964 88.8494 12.42C88.5854 11.876 88.2694 11.36 87.9014 10.872C87.2774 10.04 86.7294 9.268 86.2574 8.556C85.7934 7.844 85.4294 7.144 85.1654 6.456C84.9094 5.768 84.7814 5.048 84.7814 4.296C84.7814 3.704 84.8574 3.16 85.0094 2.664C85.1614 2.16 85.3814 1.724 85.6694 1.356C85.9654 0.98 86.3214 0.688 86.7374 0.48C87.1534 0.271999 87.6294 0.167999 88.1654 0.167999C88.8294 0.167999 89.3894 0.279999 89.8454 0.503999C90.3094 0.727999 90.6814 1.048 90.9614 1.464C91.2494 1.88 91.4574 2.376 91.5854 2.952C91.7214 3.52 91.7894 4.152 91.7894 4.848L89.2454 5.088C89.2454 4.792 89.2294 4.496 89.1974 4.2C89.1734 3.896 89.1254 3.62 89.0534 3.372C88.9814 3.124 88.8774 2.924 88.7414 2.772C88.6054 2.62 88.4294 2.544 88.2134 2.544C87.8774 2.544 87.6454 2.688 87.5174 2.976C87.3894 3.256 87.3254 3.656 87.3254 4.176C87.3254 4.848 87.5054 5.496 87.8654 6.12C88.2254 6.744 88.7094 7.472 89.3174 8.304C90.0454 9.288 90.6374 10.192 91.0934 11.016C91.5574 11.84 91.7894 12.752 91.7894 13.752C91.7894 14.384 91.7214 14.972 91.5854 15.516C91.4494 16.052 91.2334 16.52 90.9374 16.92C90.6494 17.32 90.2774 17.632 89.8214 17.856C89.3734 18.08 88.8294 18.192 88.1894 18.192Z" fill="#FDE047"></path><path class="lisp-logo-accent-paths" d="M146 0V8H104V18H96V0H146ZM157 18H106V10H148V0H157V18Z" fill="#FDE047"></path></svg></div></a></div><p class="book-navigation__chapter-name-heading"><span>11. ORGANIZING CODE</span></p><nav><ul><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#packages"><span class="book-navigation__section-link-text">Packages</span> <small class="book-navigation__section-link-number">11.1</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#systems"><span class="book-navigation__section-link-text">Systems</span> <small class="book-navigation__section-link-number">11.2</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#styles-of-factoring-packages-systems"><span class="book-navigation__section-link-text">Styles of Factoring Packages &amp; Systems</span> <small class="book-navigation__section-link-number">11.3</small></a></li><li class="book-navigation__section-link-container"><a class="book-navigation__section-link" href="#the-great-debate-package-system-best-practices"><span class="book-navigation__section-link-text">The Great Debate: Package &amp; System Best Practices</span> <small class="book-navigation__section-link-number">11.4</small></a></li></ul></nav><div class="book-navigation__previous-and-next"><a href="/book/essentials/macros" class="book-navigation__previous-section">&larr; 10. MACROS</a><a href="/book/essentials/the-ecosystem" class="book-navigation__next-section">12. THE ECOSYSTEM &rarr;</a></div><form id="theme-select-form"><select id="theme-select" name="theme-select" data-script="on change set $theme to my.value then set @data-theme of document.documentElement to $theme then set localStorage.theme to $theme end on load set $theme to localStorage.theme set @data-theme of document.documentElement to $theme if $theme set document.documentElement.dataset.theme to $theme set my.value to localStorage.theme"><option value="almighty-lisp">almighty-lisp</option><option value="almighty-lisp-moon">almighty-lisp-moon</option><option value="almighty-titan">almighty-titan</option><option value="almighty-titan-moon">almighty-titan-moon</option><option value="almighty-gear">almighty-gear</option><option value="almighty-gear-moon">almighty-gear-moon</option><option value="almighty-macro">almighty-macro</option><option value="almighty-macro-moon">almighty-macro-moon</option><option value="almighty-mono">almighty-mono</option><option value="almighty-mono-moon">almighty-mono-moon</option></select></form></div></div><main class="sidebar-main"><article class="book"><section id="organizing-code"><div class="book-heading-container book-heading-container--1"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--1">11</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h1>ORGANIZING CODE</h1></div></hgroup></div><div class="outline-text-2" id="text-1">
+<p>
+Organizing code is a divisive topic. Us programming nerds get emotional about
+whether we should put this code here or there, name it this or that, etc.
+</p>
+
+<p>
+But, it's an important topic to discuss, and one newcomers to Common Lisp often
+find a bit confusing. This chapter should bring clarity to the subject and get
+you jump started into organizing your own code.
+</p>
+</div>
+<section id="packages"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">11.1</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h2>Packages</h2></div></hgroup></div><div class="outline-text-3" id="text-1-1">
+<p>
+Packages are namespaces for symbols. Symbols are "interned" inside packages.
+They can be interned in a number of ways which we'll see later.
+</p>
+
+<p>
+In old-style code, entire libraries or projects used one packages for all
+symbols. One central file defines all of the symbols imported and exported into
+and out of the package, then all files within the project simply use the package.
+</p>
+
+<p>
+Modern style uses one package per file, with each file exporting symbols it
+wants to share with other packages.
+</p>
+
+<p>
+We'll have a discussion about these different factoring styles later.
+</p>
+</div>
+<section id="defining-packages"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.1.1</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Defining Packages</h3></div></hgroup></div><div class="outline-text-4" id="text-1-1-1">
+<p>
+Packages are defined with <code>defpackage</code>.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:my-package
+  (:use #:cl))
+</code></pre></div></div></figure>
+<p>
+<code>my-package</code> inherits or "uses" all of the external symbols of <code>cl</code>, a nickname
+for the <code>common-lisp</code> package, which contains all of the standard Common Lisp
+symbols.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(describe 'cl:defun)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">COMMON-LISP:DEFUN
+  [symbol]
+
+DEFUN names a macro:
+  Lambda-list: (NAME LAMBDA-LIST &amp;BODY BODY)
+  Documentation:
+    Define a function at top level.
+  Source file: SYS:SRC;CODE;MACROS.LISP
+ &#x3D;&gt; ; No value</pre></div></div></div></figure>
+
+
+<p>
+If you don't include this line, you will need to add a package-qualifier to all
+of the symbols built into Common Lisp. If you evaluate this code, you'll get a strange error:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:messy-package)
+(in-package #:messy-package)
+
+(defun hello-world ()
+  (print "Hello world"))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell almighty-block__result-cell--error"><span class="almighty-block__result-label almighty-block__result-label--error">Signals<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text almighty-block__result-text--error">The variable HELLO-WORLD is unbound.
+   [Condition of type COMMON-LISP:UNBOUND-VARIABLE]</pre></div></div></div></figure>
+
+<aside class="book-aside"><div class="book-aside-contents"><div class="book-aside-title">It Depends</div><p>
+Okay, this is not technically true (the best kind of true amiright fellow
+nerds). If you don't have a <code>(:use ...)</code> option set, the behavior is
+implementation-dependent.
+</p>
+
+<p>
+On SBCL (the implementation used in this book), what
+is written here is true: you will have a bad time. In ECL, another
+implementation, the <code>(:use ...)</code> option defaults to use <code>#:cl</code>, meaning the above
+<code>messy-package</code> won't be messy after all.
+</p>
+
+<p>
+Common Lisp has a rich variety of implementation-dependent behavior waiting for
+you to discover in the debugger.
+</p>
+</div></aside>
+
+<p>
+Why? Because the <code>defun</code> is a <i>macro</i> whose first argument is a name for the
+function you are defining. Because it's a macro, the order of operations is to
+first <i>expand</i> the macro and then execute the code. After the macro expansion,
+the <code>hello-world</code> symbol will be read, interned, and its <i>function name</i> value will be
+bound to <code>hello-world</code>.
+</p>
+
+<p>
+However, because we didn't <code>:use #:cl</code>, <code>defun</code> is interpreted as the name of a
+<i>function</i>, which requires first that all inner forms be evaluated and their
+values returned. And since <code>hello-world</code> isn't bound to any value yet, we get
+the above error.
+</p>
+
+<p>
+All that is to say, unless you're a Lisp wizard concocting a sexp brew, you
+should be adding <code>(:use #:cl)</code> to all of your package definitions.
+</p>
+</div>
+</section>
+<section id="interning-symbols"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.1.2</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Interning Symbols</h3></div></hgroup></div><div class="outline-text-4" id="text-1-1-2">
+<p>
+Notice also the call to <code>in-package</code>. Forms following a call to <code>in-package</code>
+will have access to, and be accessible in, that package. That's because symbols
+are "interned" in packages. If you have a
+<code>defpackage</code> but no <code>in-package</code>, then none of your symbols will be interned in
+that package, and none of the forms will have access to the symbols in that
+package (without a package-qualifier prefix).
+</p>
+
+<p>
+The most common and intuitive way they are interned is when they are defined as
+the name of a function, a variable, etc.
+</p>
+
+<p>
+Which package a symbol is interned to depends on a couple of factors. If you are
+using the REPL and you execute <code>(defparameter *name* 'micah)</code> in the REPL, the
+symbol <code>*name*</code> will be interned into <b>whichever package the REPL is synced to</b>.
+For example:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code">CL-USER&gt; (defparameter *name* 'micah)
+</code></pre></div></div></figure>
+
+<p>
+Here, <code>*name*</code> is interned into the default <code>CL-USER</code> package.
+</p>
+
+<p>
+If you are in a file buffer and you <code>sly-eval</code> or <code>sly-compile</code> the
+<code>defparameter</code> form, <code>*name*</code> will be interned into the package named in
+<code>in-package</code>.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:my-package
+  (:use #:cl))
+(in-package #:my-package) 
+</code></pre></div></div></figure>
+</div>
+</section>
+<section id="using-importing-exporting"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.1.3</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Using, Importing &amp; Exporting</h3></div></hgroup></div><div class="outline-text-4" id="text-1-1-3">
+<p>
+To use symbols from one package in another, all you need to do is:
+</p>
+<ol class="org-ol">
+<li>Make sure both packages are compiled/loaded.</li>
+<li>Add a package-qualifer to the beginning of the symbol.</li>
+</ol>
+
+<p>
+Here, for example, the package-qualifier for <code>*global*</code> is <code>my-package:</code>.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:my-package
+  (:use #:cl)
+  (:export #:*global*))
+
+(in-package #:my-package)
+
+(defparameter *global* "This is a global variable interned in MY-PACKAGE.")
+
+(defpackage #:your-package
+  (:use #:cl))
+(in-package #:your-package)
+
+(print my-package:*global*)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">This is a global variable interned in MY-PACKAGE.</pre></div></div></div></figure>
+
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(symbol-package 'my-package:*global*)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">#&lt;PACKAGE &quot;MY-PACKAGE&quot;&gt;</pre></div></div></div></figure>
+
+
+<p>
+We can add our own <code>*global*</code> in <code>your-package</code>:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defparameter *global* "This is a global variable interned in YOUR-PACKAGE.")
+</code></pre></div></div></figure>
+
+<p>
+And then call both globals together:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(list my-package:*global* *global*)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">(&quot;This is a global variable interned in MY-PACKAGE.&quot; &quot;This is a global variable interned in YOUR-PACKAGE.&quot;)</pre></div></div></div></figure>
+
+
+<p>
+You can modify the values of package-qualified variables:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(let ((my-package:*global* "Symbol from MY-PACKAGE temporarily rebound in YOUR-PACKAGE"))
+  my-package:*global*)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">Symbol from MY-PACKAGE temporarily rebound in YOUR-PACKAGE</pre></div></div></div></figure>
+
+
+<p>
+You may also want to import the symbol, allowing you to use it without a
+package-name qualifier.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:your-package
+  (:use #:cl)
+  (:import-from #:my-package #:*global*))
+</code></pre></div></div></figure>
+
+<p>
+If you start this way, then you won't need a package name qualifier when you use
+it.
+</p>
+</div>
+</section>
+<section id="shadowing-and-conflicts"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.1.4</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Shadowing And Conflicts</h3></div></hgroup></div><div class="outline-text-4" id="text-1-1-4">
+<p>
+This is not the case if you <code>use</code> <code>my-package</code>. Change the definition of
+<code>your-package</code>. If you compile this form you will get an error:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:your-package
+  (:use #:cl #:my-package))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell almighty-block__result-cell--error"><span class="almighty-block__result-label almighty-block__result-label--error">Signals<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text almighty-block__result-text--error">USE-PACKAGE (MY-PACKAGE:*GLOBAL*) causes name-conflicts in
+#&lt;PACKAGE &quot;YOUR-PACKAGE&quot;&gt; between the following symbols:
+  YOUR-PACKAGE::*GLOBAL*, MY-PACKAGE:*GLOBAL*
+   [Condition of type SB-EXT:NAME-CONFLICT]
+
+Restarts:
+ 0: [KEEP-OLD] Keep YOUR-PACKAGE::*GLOBAL* accessible in YOUR-PACKAGE (shadowing MY-PACKAGE:*GLOBAL*).
+ 1: [TAKE-NEW] Make MY-PACKAGE:*GLOBAL* accessible in YOUR-PACKAGE (uninterning YOUR-PACKAGE::*GLOBAL*).
+ 2: [RESOLVE-CONFLICT] Resolve conflict.
+ 3: [ABORT] Abort compilation.
+ 4: [*ABORT] Return to SLY&#x27;s top level.
+ 5: [ABORT] abort thread (#&lt;THREAD tid&#x3D;20391 &quot;slynk-worker&quot; RUNNING {7005097833}&gt;)</pre></div></div></div></figure>
+
+
+<p>
+Now you'll have several different <code>restarts</code> to choose from, including
+<code>TAKE-NEW</code>, <code>KEEP-OLD</code>, etc. and a bit of a mess to clean up. My recommendation
+is to only use <code>:use</code> sparingly in situations you know you aren't going to have
+conflicts later (like in your testing packages).
+</p>
+
+<p>
+If you choose <code>KEEP-OLD</code>, you will <i>shadow</i> the <code>my-package:*global*</code> with
+<code>your-package:*global*</code>. Shadowing means that the imported symbol is hidden,
+allowing the same symbol in the current package.
+</p>
+
+<p>
+My experience has been that doing anything short of aborting, <code>unintern</code> ing the
+symbol or <code>unuse-package</code> ing the package I'm using leads to frustration. You're
+better off not using <code>:use</code> in the first place.
+</p>
+
+<p>
+Even if you do as I recommend you might still have this name conflict problem.
+Consider this situation:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:my-package
+  (:use #:cl))
+(in-package #:my-package)
+
+(defun my-function () (print "my-function"))
+
+(defpackage #:my-other-package
+  (:use #:cl))
+
+(in-package #:my-other-package)
+
+(defun my-other-function ()
+  (my-function))
+</code></pre></div></div></figure>
+<p>
+Right now, we have a couple of problems.
+</p>
+
+<ol class="org-ol">
+<li>I forgot to <b>export the symbol from my-package</b>.</li>
+<li>I don't have a package-qualifier attached to <code>my-function</code> when I try to use
+it.</li>
+</ol>
+
+<p>
+When I try to compile <code>my-other-function</code>, I'll get a style-warning about an
+undefined function. At this point, there are two options:
+</p>
+
+<ol class="org-ol">
+<li>Add a package name qualifier, as in <code>(my-package:my-function)</code>; or</li>
+<li>Add the function symbol in the imports as below</li>
+</ol>
+
+<p>
+If you add the package name qualifier, you'll get an error:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defun my-other-function ()
+  (my-package:my-function))
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell almighty-block__result-cell--error"><span class="almighty-block__result-label almighty-block__result-label--error">Signals<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text almighty-block__result-text--error">READ error during COMPILE-FILE:
+    
+    The symbol &quot;MY-FUNCTION&quot; is not external in the MY-PACKAGE package.
+    
+    Line: 2, Column: 25, File-Position: 52
+    
+    Stream: #&lt;SB-INT:FORM-TRACKING-STREAM for &quot;file &#x2F;var&#x2F;tmp&#x2F;slime1YpOBd&quot;
+ {7008A37DA3}&gt;
+
+Compilation failed.</pre></div></div></div></figure>
+
+
+<p>
+Oh bother, forgot to export it.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:my-package
+  (:use #:cl)
+  (:export #:my-function))
+</code></pre></div></div></figure>
+<p>
+Recompile and continue.
+</p>
+
+<p>
+If you fix the problem while it is just a style-warning, you'll be okay. But if
+you happen to execute code that uses <code>my-function</code>, then you'll get an error
+message:
+</p>
+
+<div class="code-block"><pre class="code-block-result-pre almighty-block-result-pre result error"><code class="code-block-result">The function MY-OTHER-PACKAGE::MY-FUNCTION is undefined.
+   [Condition of type UNDEFINED-FUNCTION]
+
+Restarts:
+ 0: [CONTINUE] Retry calling MY-FUNCTION.
+ 1: [USE-VALUE] Call specified function.
+ 2: [RETURN-VALUE] Return specified values.
+ 3: [RETURN-NOTHING] Return zero values.
+ 4: [*ABORT] Return to SLY&#x27;s top level.
+ 5: [ABORT] abort thread (#&lt;THREAD tid&#x3D;15507 &quot;slynk-worker&quot; RUNNING
+ {7005A4AA33}&gt;)</code></pre></div>
+
+<p>
+Whoops, <i>now</i> let's add it to imports and recompile.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:my-other-package
+  (:use #:cl)
+  (:import-from #:my-package
+                #:my-function))
+(in-package #:my-other-package)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell almighty-block__result-cell--error"><span class="almighty-block__result-label almighty-block__result-label--error">Signals<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text almighty-block__result-text--error">IMPORT (MY-PACKAGE::MY-FUNCTION) causes name-conflicts in
+#&lt;PACKAGE &quot;MY-OTHER-PACKAGE&quot;&gt; between the following symbols:
+  MY-OTHER-PACKAGE::MY-FUNCTION, MY-PACKAGE::MY-FUNCTION
+   [Condition of type SB-EXT:NAME-CONFLICT]
+
+Restarts:
+ 0: [SHADOWING-IMPORT-IT] Shadowing-import MY-PACKAGE::MY-FUNCTION, uninterning MY-OTHER-PACKAGE::MY-FUNCTION.
+ 1: [DONT-IMPORT-IT] Don&#x27;t import MY-PACKAGE::MY-FUNCTION, keeping MY-OTHER-PACKAGE::MY-FUNCTION.
+ 2: [RESOLVE-CONFLICT] Resolve conflict.
+ 3: [ABORT] Abort compilation.
+ 4: [*ABORT] Return to SLY&#x27;s top level.
+ 5: [ABORT] abort thread (#&lt;THREAD tid&#x3D;20827 &quot;slynk-worker&quot; RUNNING {700670E963}&gt;)</pre></div></div></div></figure>
+
+
+<p>
+If you choose <code>SHADOWING-IMPORT-IT</code> and try to recompile your code again, you'll
+get a similar error:
+</p>
+
+<div class="code-block"><pre class="code-block-result-pre almighty-block-result-pre result error"><code class="code-block-result">warning: 
+    MY-OTHER-PACKAGE also shadows the following symbols:
+      (MY-PACKAGE::MY-FUNCTION)
+    &#x3D;&#x3D;&gt;
+      (SB-IMPL::%DEFPACKAGE &quot;MY-OTHER-PACKAGE&quot; &#x27;NIL &#x27;NIL &#x27;NIL &#x27;NIL &#x27;(&quot;CL&quot;)
+                            &#x27;((&quot;MY-PACKAGE&quot; &quot;MY-FUNCTION&quot;)) &#x27;NIL &#x27;NIL
+                            &#x27;(&quot;MY-OTHER-PACKAGE&quot;) &#x27;NIL ...)
+    
+
+Compilation failed.</code></pre></div>
+
+<p>
+If all this has your head spinning now, you're not alone.
+</p>
+
+<p>
+To reiterate, you have two options:
+</p>
+
+<p>
+Add a package name qualifier:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:my-package
+  (:use #:cl)
+  (:export #:my-function))              ; &lt;- Don't forget to export.
+(in-package #:my-package)
+
+(defun my-function () (print "my-function"))
+
+(defpackage #:my-other-package
+  (:use #:cl))
+
+(in-package #:my-other-package)
+
+(defun my-other-function ()
+  (my-package:my-function))             ; &lt;- Added package name qualifier
+
+(my-other-function)
+</code></pre></div></div></figure>
+
+<p>
+Or add <code>my-function</code> to your imports:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:my-package
+  (:use #:cl)
+  (:export #:my-function))
+(in-package #:my-package)
+
+(defun my-function () (print "my-function"))
+
+(defpackage #:my-other-package
+  (:use #:cl)
+  (:import-from #:my-package
+                #:my-function)) ; &lt;- Added import
+
+(in-package #:my-other-package)
+
+(defun my-other-function ()
+  (my-function))
+</code></pre></div></div></figure>
+
+<p>
+Then while in <code>my-other-package</code>, unintern <code>my-function</code>.
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(unintern 'my-function)
+</code></pre></div></div></figure>
+
+<p>
+It'll take some getting used to, but eventually you'll know how to clean up any
+messes you make.
+</p>
+</div>
+</section>
+<section id="nicknames"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.1.5</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Nicknames</h3></div></hgroup></div><div class="outline-text-4" id="text-1-1-5">
+<p>
+It's possible for packages to define nicknames. Nicknames are useful for calling
+individual symbols from packages that have long names.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:a-package-with-a-long/and-annoying/name
+  (:use #:cl)
+  (:nicknames #:smol-name)
+  (:export #:smol-hello))
+
+(in-package #:a-package-with-a-long/and-annoying/name)
+
+(defun smol-hello ()
+  :hi)
+
+(defpackage #:my-package
+  (:use #:cl))
+
+(in-package #:my-package)
+</code></pre></div></div></figure>
+
+<p>
+Now we can call the function using the nickname from <code>my-package</code>:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">;;; in my-package
+(smol-name:smol-hello)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">:HI</pre></div></div></div></figure>
+
+
+<p>
+If a package doesn't define its own nickname, you can define a nickname local to
+your package:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:a-package-with-a-long/and-annoying/name
+  (:use #:cl)
+  (:export #:smol-hello))
+
+(in-package #:a-package-with-a-long/and-annoying/name)
+
+(defun smol-hello ()
+  :hi)
+
+(defpackage #:my-package
+  (:use #:cl)
+  (:local-nicknames (#:annoying #:a-package-with-a-long/and-annoying/name)))
+
+(in-package #:my-package)
+</code></pre></div></div></figure>
+
+<p>
+The local nickname works the same way:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">;;; in my-package
+(annoying:smol-hello)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">:HI</pre></div></div></div></figure>
+
+
+<p>
+Unfortunately, you can't define nicknames for individual symbols.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:a-package-with-a-long/and-annoying/name
+  (:use #:cl)
+  (:export
+   #:a-very-long-and-annoying-function-or-macro-name #:smol-hello))
+
+(in-package #:a-package-with-a-long/and-annoying/name)
+
+(defun smol-hello () :hi)
+
+(defun a-very-long-and-annoying-function-or-macro-name () :oof)
+
+(defpackage #:my-package (:use #:cl) (:local-nicknames (#:annoying
+  #:a-package-with-a-long/and-annoying/name)))
+
+(in-package #:my-package)
+</code></pre></div></div></figure>
+
+<p>
+No shortcut for long symbol names:
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">;;; Deal with it.
+(annoying:a-very-long-and-annoying-function-or-macro-name)
+</code></pre></div></div><div class="almighty-block__row"><div class="almighty-block__cell"><div class="almighty-block__result-cell"><span class="almighty-block__result-label">Returns<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewbox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span><pre class="almighty-block__result-text">:OOF</pre></div></div></div></figure>
+
+
+<p>
+The good news is that symbols with long names like that aren't usually in public
+APIs.
+</p>
+</div>
+</section>
+<section id="another-way-to-define-packages"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.1.6</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Another Way to Define Packages</h3></div></hgroup></div><div class="outline-text-4" id="text-1-1-6">
+<p>
+UIOP is a cross-implementation compatibility library that comes with ASDF (more
+on that in a second). Its <code>define-package</code> macro provides some extra
+capabilities that the standard <code>defpackage</code> doesn't. We'll see them in use later
+when discussing different factoring styles.
+</p>
+</div>
+</section>
+</section>
+<section id="systems"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">11.2</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h2>Systems</h2></div></hgroup></div><div class="outline-text-3" id="text-1-2">
+<p>
+Common Lisp systems are what other languages might call "packages".
+</p>
+
+<p>
+A project may have code organized across many different files. In order to call
+code from one file in another file, you will need to have that file loaded into
+your Lisp image. If <code>core.lisp</code> calls and relies on <code>utils.lisp</code> code, then
+<code>utils.lisp</code> code needs to be loaded before <code>core.lisp</code> is loaded and run. If
+you have a lot of files that need to be loaded in a particular order, you
+probably want a way to automate this process. Systems, defined with <code>defsystem</code>
+and the <code>ASDF</code> library, are declarations of groups of code loaded in a
+particular order.
+</p>
+
+<p>
+When you need to coordinate the loading of multiple files, including third-party
+systems, then it's time to think about your <code>defsystem</code>.
+</p>
+</div>
+<section id="what-is-asdf-"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.2.1</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>What Is ASDF?</h3></div></hgroup></div><div class="outline-text-4" id="text-1-2-1">
+<p>
+ASDF is the defacto-standard library (available out of the box with SBCL and
+other implementations) that adds convenient code loading orchestration
+capabilities to Lisp. You do so by defining a <code>defsystem</code> in a <code>.asd</code> file in
+your project's root directory and then loading the system. When you load the
+system, ASDF will load your other files depending on your system definition.
+</p>
+
+<p>
+Because <code>defsystem</code> is a third-party extension to Lisp and was not previously
+available, there are different styles of organizing packages and systems in
+older projects that are less common in more modern projects. We'll be taking a
+look at different styles of factoring later, but for now let's focus on
+<code>defsystem</code> alone.
+</p>
+</div>
+</section>
+<section id="defining-systems"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.2.2</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Defining Systems</h3></div></hgroup></div><div class="outline-text-4" id="text-1-2-2">
+<p>
+Let's say we have a project that looks like this:
+</p>
+<div class="code-block"><pre class="code-block-result-pre almighty-block-result-pre result"><code class="code-block-result">% tree
+.
+├── almighty-system.asd
+└── src
+    └── core.lisp</code></pre></div>
+<p>
+This is our <code>defsystem</code>:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defsystem "almighty-system"
+  :author "Micah Killian"
+  :version "0.0.1"
+  :description "A system for demonstrating how to define systems."
+  :depends-on ("local-time")
+  :components ((:module "src"
+                :components ((:file "core")))))
+</code></pre></div></div></figure>
+<p>
+If we load this system (more on that later), ASDF will look for a local copy of
+the <code>local-time</code> library. After loading the <code>defsystem</code> defined by
+<code>local-time</code>, ASDF will read the <code>core.lisp</code> file in the <code>src</code> directory and
+load it into the Lisp image.
+</p>
+</div>
+</section>
+<section id="loading-systems"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.2.3</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Loading Systems</h3></div></hgroup></div><div class="outline-text-4" id="text-1-2-3">
+<p>
+Loading a system requires first that the <code>.asd</code> file is loaded.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(asdf:load-asd (merge-pathnames "almighty-system.asd" *default-pathname-defaults*))
+</code></pre></div></div></figure>
+<p>
+This requires some explanation. <code>asdf:load-asd</code> takes a <code>pathname</code> to the
+<code>.asd</code> file. If you have the absolute path available, you can use that:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(asdf:load-asd "/Users/micah/common-lisp/almighty-system/almighty-system.asd")
+</code></pre></div></div></figure>
+<p>
+Or, in the REPL, you can type <code>,</code> (<code>sly-mrepl-shortcut</code>) and select
+<code>set-directory</code> and ensure that the current working directory is set to the
+project root (where the <code>.asd</code> file lives), and then run the other line above.
+<code>set-directory</code> will set the value of <code>*default-pathname-defaults*</code>, and
+<code>merge-pathnames</code> does what it says. Thus, it's equivalent to the following:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(asdf:load-asd (merge-pathnames
+                "almighty-system.asd"
+                "/Users/micah/common-lisp/almighty/almighty-system/"))
+</code></pre></div></div></figure>
+<p>
+After you load the asd file, you can load the system with <code>,</code> and <code>load system</code>
+or <code>(asdf:load-system "almighty-system")</code> in the REPL.
+</p>
+</div>
+</section>
+<section id="code-available-after-loading"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.2.4</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Code Available After Loading</h3></div></hgroup></div><div class="outline-text-4" id="text-1-2-4">
+<p>
+When you load a system, you load not only the files listed as <code>:components</code> in the
+system, but also all of the <code>:components</code> of the systems in its <code>:depends-on</code> form,
+recursively. That means that even if you only list one system in your
+<code>:depends-on</code> form, you will actually have access to all of the symbols from the
+packages of your direct and indirect dependencies.
+</p>
+
+<p>
+In the next section, we'll be looking at the Mito library's system definition.
+In its definition, it <code>:depends-on</code> a system called <code>mito-core</code>. <code>mito-core</code> itself
+<code>:depends-on</code> several other systems like <code>cl-ppcre</code>, <code>local-time</code>, and <code>alexandria</code>.
+That means when you load <code>mito</code>, not only can you call <code>mito:select-dao</code>,
+<code>mito:ensure-table-exists</code>, etc. you can also call <code>cl-ppcre:parse-string</code>,
+<code>local-time:now</code>, or <code>alexandria:hash-table-keys</code>, even if you don't have them as
+direct dependencies in your own system. This can be confusing because Common
+Lisp code can include references to third-party code that wasn't declared ahead
+of time in a <code>defpackage</code> or something like that.
+</p>
+
+<p>
+That's probably why, as you will see in the next session, "modern" Common Lisp
+uses conventions that help avoid that confusion by explicitly declaring what
+package's code is used in which file.
+</p>
+</div>
+</section>
+</section>
+<section id="styles-of-factoring-packages-systems"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">11.3</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h2>Styles of Factoring Packages &amp; Systems</h2></div></hgroup></div><div class="outline-text-3" id="text-1-3">
+<p>
+Instead of dealing with systems separately from packages, it's useful to see how
+systems can be configured depending on different code organization strategies.
+As you might expect, the way you organize a project is heavily influenced by how
+large the project is.
+</p>
+</div>
+<section id="mother-of-all-package-strategy"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.3.1</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Mother Of All Package Strategy</h3></div></hgroup></div><div class="outline-text-4" id="text-1-3-1">
+<p>
+A good representation of the Mother Of All package strategy of Common Lisp code
+organization is <code>hunchentoot</code>&#x2013;a popular Lisp web server and web dev framework.
+If we take a look at the file tree it looks like this:
+</p>
+<div class="code-block"><pre class="code-block-result-pre almighty-block-result-pre result"><code class="code-block-result">% tree
+.
+├── acceptor.lisp
+├── CHANGELOG
+├── CHANGELOG_TBNL
+├── compat.lisp
+├── conditions.lisp
+├── cookie.lisp
+... (docs)
+├── easy-handlers.lisp
+├── headers.lisp
+├── hunchentoot.asd
+├── lispworks.lisp
+├── log.lisp
+├── make-docstrings.lisp
+├── mime-types.lisp
+├── misc.lisp
+├── packages.lisp
+├── README.md
+├── release-checklist.txt
+├── reply.lisp
+├── request.lisp
+├── run-test.lisp
+├── session.lisp
+├── set-timeouts.lisp
+├── specials.lisp
+├── ssl.lisp
+├── taskmaster.lisp
+... (testing stuff)
+├── url-rewrite
+│   ├── packages.lisp
+│   ├── primitives.lisp
+│   ├── specials.lisp
+│   ├── url-rewrite.lisp
+│   └── util.lisp
+└── util.lisp</code></pre></div>
+<p>
+The organization is flat, lots of separate files, mostly in the project root
+directory.
+</p>
+
+<p>
+Hunchentoot has one package definition (well, two), found in the <code>packages.lisp</code>
+file.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(in-package :cl-user)
+
+(defpackage #:hunchentoot
+  (:nicknames #:tbnl)
+  (:use :cl :cl-ppcre :chunga :flexi-streams :url-rewrite :alexandria)
+  (:shadow #:defconstant
+           #:url-encode)
+  (:export #:*acceptor*
+           #:*catch-errors-p*
+           #+:lispworks
+           #:*cleanup-function*
+           #+:lispworks
+           #:*cleanup-interval*
+           #:*content-types-for-url-rewrite*
+           #:*default-connection-timeout*
+           #:*default-content-type*
+           #:*dispatch-table*
+           #:*file-upload-hook*
+                                        ; ... and many more
+           ))                           
+</code></pre></div></div></figure>
+
+<p>
+<code>:nicknames</code> defines what other package name qualifiers you can use besides
+<code>hunchentoot</code>. That means that Hunchentoot itself provides you the ability to
+use <code>(tbnl:*acceptor*)</code> if you want. Useful for allowing users to use a smaller
+package name qualifier on their symbols.
+</p>
+
+<p>
+Hunchentoot uses <code>:use</code> for several utility libraries. Again, I don't recommend
+it, but it is not uncommon.
+</p>
+
+<p>
+<code>:shadow</code> here creates a symbol or symbols that are initially unbound in the
+package. Clearly, there was a naming conflict somewhere between Common Lisp's
+built-in <code>defconstant</code> and the <code>url-encode</code> symbol intended to have two
+different values (<code>utils.lisp</code> and <code>url-rewrite/url-rewrite.lisp</code> both define
+<code>url-encode</code> functions). What this means is that in the <code>hunchentoot</code> package,
+if you write <code>url-encode</code> while you are in the <code>hunchentoot</code> package, it has a
+different value than if you are in the <code>url-rewrite</code> package.
+</p>
+
+<p>
+It's a wonky way of preventing a naming conflict error because the <code>hunchentoot</code>
+package <i>uses</i> <code>:url-rewrite</code> instead of importing it. However, you might
+sometimes need to use <code>:shadow</code> to get around naming conflicts caused by other
+systems/libraries that use Common Lisp symbol names, so it's something to keep
+in mind.
+</p>
+
+<p>
+The important point is this: All of the files in the project root begin with
+<code>(in-package :hunchentoot)</code>. Each file contributes their defined symbols to the
+<code>:hunchentoot</code> package.
+</p>
+
+<p>
+If all this package talk has the ol' noggin working overtime, you might be
+thinking, "Hey Micah, doesn't that assume that the <code>packages.lisp</code> file is
+loaded before all the others?"
+</p>
+
+<p>
+Yes, yes it does. Let's take a look at the <code>hunchentoot.asd</code> file:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defsystem :hunchentoot
+  :serial t
+  :version "1.3.1"
+  :description "Hunchentoot is a HTTP server based on USOCKET and
+  BORDEAUX-THREADS. It supports HTTP 1.1, serves static files, has a simple
+  framework for user-defined handlers and can be extended through subclassing."
+  :license "BSD-2-Clause"
+  :depends-on (:chunga
+               :cl-base64
+               :cl-fad
+               :cl-ppcre
+               :flexi-streams
+               (:feature (:not (:or :lispworks :hunchentoot-no-ssl))
+                         :cl+ssl)
+               :md5
+               :alexandria
+               :rfc2388
+               :trivial-backtrace
+               (:feature (:not :lispworks) :usocket)
+               (:feature (:not :lispworks) :bordeaux-threads))
+  :components ((:module "url-rewrite"
+                :serial t
+                :components ((:file "packages")
+                             (:file "specials")
+                             (:file "primitives")
+                             (:file "util")
+                             (:file "url-rewrite")))
+               (:file "packages")
+               (:file "lispworks" :if-feature :lispworks)
+               (:file "compat" :if-feature (:not :lispworks))
+               (:file "specials")
+               (:file "conditions")
+               (:file "mime-types")
+               (:file "util")
+               (:file "log")
+               (:file "cookie")
+               (:file "reply")
+               (:file "request")
+               (:file "session")
+               (:file "misc")
+               (:file "headers")
+               (:file "set-timeouts")
+               (:file "taskmaster")
+               (:file "acceptor")
+               (:file "ssl" :if-feature (:not :hunchentoot-no-ssl))
+               (:file "easy-handlers"))
+  :perform (test-op (o c) (load (merge-pathnames "run-test.lisp" (system-source-directory
+ c)))))
+</code></pre></div></div></figure>
+<p>
+Notice <code>:serial t</code> up at the top. That means that all of the <code>:components</code> will
+be loaded <i>in the order they are listed</i>. So, after all of the <code>:depends-on</code>
+dependency systems are loaded, the <code>url-rewrite</code> module will be loaded. Its
+contents will also be loaded in order, and so first the
+<code>url-rewrite/packages.lisp</code> file will be loaded, then <code>specials.lisp</code>,
+<code>primitives.lisp</code>, etc. After that module is loaded, the first file in the
+project root that will be loaded is its <code>packages.lisp</code> file that we look at
+before. The Mother Of All <code>packages.lisp</code> is where all the symbols for the
+majority of the project live and are namespaced.
+</p>
+
+<p>
+There are only two other systems in the Hunchentoot project: one for development
+and the other for testing. They don't provide any further insight into this
+strategy, so we will skip them.
+</p>
+
+<p>
+In summary, the Mother Of All Package Strategy is this: you have one package
+(<code>defpackage :hunchentoot</code>) and one system (<code>defsystem :hunchentoot</code>), and that
+one package <code>:uses</code> or imports from several other packages. Other code files
+begin with <code>(in-package :hunchentoot)</code>, giving them access to the symbols
+defined in other files and contributing the symbols they define to that package.
+The <code>packages.lisp</code> file's exports define the public interface for users. This
+style is "retro", but still perfectly usable especially on smaller projects, and
+even larger projects like Hunchentoot. The <code>vend</code> library is a modern Lisp
+library that use this Mother of All Package Strategy.
+</p>
+</div>
+</section>
+<section id="multiple-systems-strategy"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.3.2</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Multiple Systems Strategy</h3></div></hgroup></div><div class="outline-text-4" id="text-1-3-2">
+<p>
+It's also possible that a single project might have several systems, primarily
+used as optional extensions to the library's core functionality. <code>transducers</code>
+is one such library, as is <code>mito</code>. However, <code>transducers</code> still uses just one
+package for the core functionality. It's <code>defsystem</code> definition also uses the
+<code>serial t</code> approach of loading source files in order. This Multi-System Strategy
+is modular, yet does not exclude the possibility of using the Mother Of All
+Package Strategy.
+</p>
+</div>
+</section>
+<section id="one-package-per-file-strategy"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.3.3</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>One Package Per File Strategy</h3></div></hgroup></div><div class="outline-text-4" id="text-1-3-3">
+<p>
+<code>mito</code>, on the other hand, in addition to having multiple systems&#x2013;one for core
+functionality and others for auxiliary functionality&#x2013;also uses the One Package
+Per File Strategy. This is a more "modern" approach and considered by some to be
+the preferred strategy generally.
+</p>
+
+<p>
+Let's take a look at the <code>mito</code> system:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defsystem "mito"
+  :version "0.2.0"
+  :author "Eitaro Fukamachi"
+  :license "BSD 3-Clause"
+  :depends-on ("mito-core"
+               "mito-migration"
+               "lack-middleware-mito"
+               (:feature :sb-package-locks "cl-package-locks"))
+  :components ((:file "src/mito"))
+  :description "Abstraction layer for DB schema"
+  :in-order-to ((test-op (test-op "mito-test"))))
+</code></pre></div></div></figure>
+<p>
+Here, we notice that the <code>:depends-on</code> list is three other subsystems in the
+<code>mito</code> project. Let's look at <code>mito-core.asd</code>:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defsystem "mito-core"
+  :version "0.2.0"
+  :author "Eitaro Fukamachi"
+  :license "BSD 3-Clause"
+  :depends-on ((:version "dbi" "0.11.1")
+               "sxql"
+               "cl-ppcre"
+               "closer-mop"
+               "dissect"
+               "trivia"
+               "local-time"
+               "uuid"
+               "alexandria")
+  :components ((:file "src/core" :depends-on ("core-components"))
+               (:module "core-components"
+                :pathname "src/core"
+                :components
+                ((:file "dao" :depends-on ("dao-components"))
+                 (:module "dao-components"
+                  :pathname "dao"
+                  :depends-on ("connection"
+                               "class"
+                               "db"
+                               "conversion"
+                               "logger"
+                               "util")
+                  :components
+                  ((:file "table" :depends-on ("column"
+                                               "mixin"
+                                               "view"))
+                   (:file "view" :depends-on ("column"))
+                   (:file "mixin" :depends-on ("column"))
+                   (:file "column")))
+                 (:file "class" :depends-on ("class-components"))
+                 (:module "class-components"
+                  :pathname "class"
+                  :depends-on ("error" "util")
+                  :components
+                  ((:file "table" :depends-on ("column"))
+                   (:file "column")))
+                 (:file "connection" :depends-on ("error"))
+                 (:file "type" :depends-on ("db"))
+                 (:file "db" :depends-on ("db-drivers"
+                                          "connection"
+                                          "class"
+                                          "util"))
+                 (:module "db-drivers"
+                  :pathname "db"
+                  :depends-on ("logger" "util")
+                  :components
+                  ((:file "mysql")
+                   (:file "postgres")
+                   (:file "sqlite3")))
+                 (:file "conversion")
+                 (:file "logger")
+                 (:file "error")
+                 (:file "util")))))
+</code></pre></div></div></figure>
+
+<p>
+Now we see some third-party systems in the <code>:depends-on</code> list. What's more
+interesting here is the definition in <code>:components</code>: Many of the files use
+<code>:depends-on</code> as well, pointing to other files within the system. We don't see
+<code>:serial t</code> here, either. Instead of a linear dependency tree, we have a graph. In
+the <code>hunchentoot</code> system, we saw that the more minor, prerequisite files like
+<code>packages.lisp</code> came <i>first</i>. Here in the <code>mito-core</code> system, the major files are
+listed first, with their prerequisites coming later in the list. The order is
+inverted.
+</p>
+
+<p>
+Let's take a look inside <code>src/mito.lisp</code> (the only component in the <code>mito.asd</code>
+file above):
+</p>
+
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(uiop:define-package #:mito
+  (:use #:cl)
+  (:use-reexport #:mito.core
+                 #:mito.migration))
+(in-package #:mito)
+</code></pre></div></div></figure>
+
+<p>
+Instead of <code>defpackage</code>, Mito uses UIOP's <code>define-package</code> macro. It uses it
+because it provides a new option, <code>:use-reexport</code>. <code>:use-reexport</code> is exactly
+what the name says: <code>:use</code> plus <code>:reexport</code>. The package <i>uses</i> the listed
+packages&#x2013;inheriting their external symbols, just as <code>:use</code> does&#x2013;and then
+<i>reexports</i> those same symbols as its own.
+</p>
+
+<p>
+A plain <code>:use</code> would make <code>mito.core</code>'s symbols visible <i>inside</i> the <code>mito</code>
+package, but users of <code>mito</code> still couldn't write <code>mito:select-dao</code>. With
+<code>:use-reexport</code>, every external symbol of <code>mito.core</code> and <code>mito.migration</code>
+becomes an external symbol of <code>mito</code> itself.
+</p>
+
+<p>
+Because <code>:use-reexport</code> is <code>:use</code> underneath, it also inherits <code>:use</code>'s
+attitude toward name conflicts: if <code>mito.core</code> and <code>mito.migration</code> both
+exported a <code>cool-symbol</code>, compiling this <code>define-package</code> would signal the
+same name-conflict error&#x2013;with the same restarts&#x2013;that we saw earlier in this
+chapter.
+</p>
+
+<p>
+In systems like Mito, the reexport options (<code>:reexport</code>, <code>:use-reexport</code>, and
+<code>:mix-reexport</code>) are used to easily "bubble up" exports from peripheral
+packages into one final public API.
+</p>
+
+<p>
+However, although Mito bubbles up dependencies with <code>:depends-on</code>, using the One
+Package Per File Strategy doesn't preclude using <code>:serial t</code>, either.
+</p>
+</div>
+</section>
+<section id="one-system-per-package"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.3.4</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>One System Per Package</h3></div></hgroup></div><div class="outline-text-4" id="text-1-3-4">
+<p>
+There is one other strategy worth noting. It's perhaps best represented by the
+<code>utopian</code> web framework. Let's take a look at its system definition:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defsystem "utopian"
+  :class :package-inferred-system
+  :version "0.9.1"
+  :author "Eitaro Fukamachi"
+  :license "LLGPL"
+  :description "Web application framework"
+  :pathname "src"
+  :depends-on ("utopian/main")
+  :in-order-to ((test-op (test-op "utopian-tests"))))
+
+(register-system-packages "lack-component" '(#:lack.component))
+(register-system-packages "lack-request" '(#:lack.request))
+(register-system-packages "lack-response" '(#:lack.response))
+(register-system-packages "mystic" '(#:mystic.util))
+(register-system-packages "mystic-file-mixin" '(#:mystic.template.file))
+</code></pre></div></div></figure>
+
+<p>
+The first thing you'll notice is that the definition is short. The dependencies
+only include&#x2026;another file in the system? And there are no <code>:components</code>! To
+investigate, let's look in the "utopian/main"&#x2026; file? Package? System?
+</p>
+
+<p>
+It's found in <code>src/main.lisp</code>:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(uiop:define-package #:utopian
+  (:nicknames #:utopian/main)
+  (:use #:cl)
+  (:mix-reexport #:utopian/routes
+                 #:utopian/views
+                 #:utopian/context
+                 #:utopian/app
+                 #:utopian/config
+                 #:utopian/exceptions))
+(in-package #:utopian)
+</code></pre></div></div></figure>
+
+<p>
+We already saw <code>:nicknames</code> in the Hunchentoot <code>packages.lisp</code> file.
+<code>:mix-reexport</code> is <code>:mix</code> plus <code>:reexport</code>. Like <code>:use</code>, <code>:mix</code> inherits the
+<i>external</i> symbols of the packages that follow (unexported symbols stay
+private, as always). The difference is what happens on a name conflict.
+</p>
+
+<p>
+Where <code>:use</code> stops and makes <i>you</i> pick a restart, <code>:mix</code> resolves the
+conflict automatically in favor of whichever package comes <i>first</i> in the
+list. If <code>utopian/routes</code> and <code>utopian/views</code> both exported a <code>render</code>
+symbol, <code>#:utopian</code> would silently take the one from <code>utopian/routes</code>,
+because it's listed first. Under the hood, <code>:mix</code> performs the same
+<code>shadowing-import</code> we chose by hand from the restart menu earlier&#x2013;it just
+picks for you.
+</p>
+
+<p>
+The <code>:reexport</code> half works as it did in Mito: everything inherited this way
+is reexported, so the public symbols of those six packages bubble up to
+become <code>#:utopian</code>'s public API.
+</p>
+
+<p>
+But now you may be wondering, "How do they get loaded if the system file doesn't
+list them in <code>:components</code>?"
+</p>
+
+<p>
+That's not all, friends. The mystery deepens when we look in the
+<code>utopian/routes</code> package file:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defpackage #:utopian/routes
+  (:use #:cl)
+  (:import-from #:utopian/context
+                #:*request*
+                #:*response*)
+  (:import-from #:utopian/file-loader
+                #:intern-rule)
+  (:import-from #:myway
+                #:make-mapper
+                #:connect
+                #:next-route)
+  (:import-from #:lack.request
+                #:request-parameters)
+  (:export #:defroutes
+           #:routes
+           #:routes-mapper
+           #:routes-controllers-directory
+           #:route
+
+           ;;; from MyWay
+           #:next-route))
+;;; ...
+</code></pre></div></div></figure>
+<p>
+Wait, there is a third-party library--<code>myway</code>&#x2013;imported in this package! That
+wasn't in the system definition!
+</p>
+
+<p>
+Actually, it is. Look again. See this line?
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">:class :package-inferred-system
+</code></pre></div></div></figure>
+<p>
+That one line drastically changes how packages and systems work.
+</p>
+
+<p>
+<b>All packages in a <code>:package-inferred-system</code> are treated as entire systems
+themselves</b>.
+</p>
+
+<p>
+Package inferred systems will all have an entry-point into the system, like
+<code>:depends-on ("utopian/main")</code>. Remember: up until now, dependencies were
+systems. We were confused because <code>:utopian</code> is a <i>package</i>, not a <i>system</i>. But
+because of <code>:package-inferred-system</code>, <code>:utopian</code> and all of its dependent
+packages are treated like their own systems by ASDF! That's why the files for
+the rest of the project aren't listed in <code>:depends-on</code>: <code>utopian/main</code> is
+treated like a system, where its prerequisite packages are as well. ASDF will do
+the work of resolving the dependencies, hence why you don't need to list them
+manually. It will <code>load</code> prerequisite packages/systems both in the <code>utopian</code>
+project, <b>including third-party libraries</b>, downloading them if necessary.
+</p>
+
+<p>
+Package inferred systems are the Package Per File taken to its limit: System Per
+File.
+</p>
+
+<p>
+Using package inferred systems requires following a few rules which I'll
+demonstrate.
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">(defsystem "almighty"
+  :class :package-inferred-system
+  :author "Micah Killian"
+  :version "0.0.1"
+  :description "A system for demonstrating how to define systems."
+  :pathname "src"
+  :depends-on ("almighty/main"))
+</code></pre></div></div></figure>
+<p>
+Notice here that the system is named <code>almighty</code>, and that the package/system in
+<code>:depends-on</code> begins with <code>almighty</code>. The entry-point and all subsequent
+packages in your package-inferred-system must begin with <code>almighty</code>.
+</p>
+
+<p>
+Notice also that <code>:pathname</code> is set. The tree view of this project looks like
+this:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">.
+├── almighty.asd
+└── src
+    ├── config.lisp
+    ├── db.lisp
+    ├── main.lisp
+    └── models
+        └── person.lisp
+</code></pre></div></div></figure>
+<p>
+And the files look like this:
+</p>
+<figure class="almighty-block"><div class="almighty-block__source-row"><div class="almighty-block__cell"><pre class="almighty-block__pre"><code class="almighty-block__code lisp">;;; src/main.lisp
+(uiop:define-package #:almighty
+  (:use #:cl)
+  (:nicknames #:almighty/main)
+  (:use-reexport #:almighty/config
+                 #:almighty/db
+                 #:almighty/models/person))
+(in-package #:almighty)
+
+;;; src/db.lisp
+(defpackage #:almighty/db
+  (:use #:cl)
+  (:export #:hello-from-db))
+(in-package #:almighty/db)
+
+(defun hello-from-db ()
+  :hello-from-deebee)
+
+;;; src/config.lisp
+(defpackage #:almighty/config
+  (:use #:cl)
+  (:export #:hello-from-config))
+(in-package #:almighty/config)
+
+(defun hello-from-config ()
+  :hello-from-config)
+
+;;; src/models/person.lisp
+(defpackage #:almighty/models/person
+  (:use #:cl)
+  (:export
+   #:hello-person))
+(in-package #:almighty/models/person)
+
+(defun hello-person ()
+  :i-am-a-person)
+</code></pre></div></div></figure>
+<p>
+In a PIS, The package name of a system begins with the system name, <code>almighty</code>.
+The part that follows is the file name, such as <code>almighty/db</code> for <code>src/db.lisp</code>.
+If a package's file is in a subdirectory, the name of the directory comes before
+the file name, as in <code>almighty/models/person</code> for <code>src/models/person.lisp</code>.
+</p>
+
+<p>
+If you don't follow these rules, ASDF won't be able to find the files. For
+example, if you have a file <code>src/wrong-name.lisp</code> that defines a package
+<code>almighty/correct-name</code> and try to <code>:import-from</code>, <code>:use-reexport</code>, etc. the
+package <code>almighty/correct-name</code> in another package like <code>almighty/db</code>, you will
+receive an error stating:
+</p>
+<div class="code-block"><pre class="code-block-result-pre almighty-block-result-pre result"><code class="code-block-result">Unknown location:
+  error: 
+    Component &quot;almighty&#x2F;correct-name&quot; not found, required by
+    #&lt;PACKAGE-INFERRED-SYSTEM &quot;almighty&#x2F;db&quot;&gt;
+
+Compilation failed.</code></pre></div>
+<p>
+With the exceptions of the different system definition and file and package
+naming conventions imposed by them, PIS are the same as the One Package Per File
+Strategy above.
+</p>
+</div>
+</section>
+<section id="quick-reference"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.3.5</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Quick Reference</h3></div></hgroup></div><div class="outline-text-4" id="text-1-3-5">
+<p>
+Here is a quick reference for the <code>uiop:define-package</code> macro:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Option</th>
+<th scope="col" class="org-left">Inherits</th>
+<th scope="col" class="org-left">On name conflict</th>
+<th scope="col" class="org-left">Reexports them?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>:use</code></td>
+<td class="org-left">external symbols</td>
+<td class="org-left">error + restarts</td>
+<td class="org-left">no</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>:mix</code></td>
+<td class="org-left">external symbols</td>
+<td class="org-left">first-listed package wins</td>
+<td class="org-left">no</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>:use-reexport</code></td>
+<td class="org-left">external symbols</td>
+<td class="org-left">error + restarts</td>
+<td class="org-left">yes</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>:mix-reexport</code></td>
+<td class="org-left">external symbols</td>
+<td class="org-left">first-listed package wins</td>
+<td class="org-left">yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="the-great-debate-package-system-best-practices"><div class="book-heading-container book-heading-container--2"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--2">11.4</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h2>The Great Debate: Package &amp; System Best Practices</h2></div></hgroup></div><div class="outline-text-3" id="text-1-4">
+<p>
+As a newcomer to Lisp, you might want to be able to fit in with the broader
+ecosystem. You want to learn the idioms and patterns common to Lisp users,
+private and professional. So even if you're a sophisticated senior who knows
+that "it depends" is probably the answer, you still ask the question, "Which
+strategy should I choose? Which one's the best?"
+</p>
+</div>
+<section id="argument-in-favor-of-pis"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.4.1</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Argument in Favor of PIS</h3></div></hgroup></div><div class="outline-text-4" id="text-1-4-1">
+<p>
+The architect of ASDF wrote <a href="https://github.com/fare/asdf/blob/master/doc/best_practices.md">a document</a> precisely to answer this question.
+Unfortunately, it leaves more questions than answers. First, it explains
+problems with the other strategies we've covered:
+</p>
+<blockquote>
+<p>
+When you start writing large enough systems, putting everything in one big
+package leads to a big mess: it's hard to find what function is defined where,
+or should be defined where; you invent your own symbol prefixing system to avoid
+name clashes; totally unrelated things end up in the same mother-of-all package;
+you divide your mother-of-all package into a few subpackages, but as the
+software keeps growing each of these packages in turn becomes too big.
+</p>
+
+<p>
+Meanwhile, as you grow large enough libraries, you find that you loading a big
+library just to use a small part of it becomes a big hassle, leading to code
+bloat, too much recompilation, too much re-testing, and not enough understanding
+of what's going on.
+</p>
+</blockquote>
+<p>
+So the problems with the Mother Of All Package Strategy are:
+</p>
+
+<ol class="org-ol">
+<li>Naming conflicts.</li>
+<li>Hard to understand.</li>
+<li>A hassle to load and recompile.</li>
+</ol>
+
+<p>
+We saw with Hunchentoot that "shadowing" of symbols was a little hard to
+understand, yet appears to be the solution to naming conflicts in a project
+factored as it is. If you have files using symbol names found in other files in
+project, it can be hard to understand which symbol's value is the <i>actual</i> value
+used in the overall package. Thus, you namespace using some sort of naming
+convention.
+</p>
+
+<p>
+Additionally, you might try dividing into some sub-packages, but it's somewhat
+arbitrary, meaning developers have to come up with their own coding conventions
+regarding package management. Whether you use one package or multiple, if your
+system is large enough, those strategies will ultimately cause trouble.
+</p>
+
+<p>
+After explaining how Package Inferred Systems work, he explains how they solve
+the above problems:
+</p>
+<blockquote>
+<p>
+This allows for large modular libraries, wherein you may use one file, and only
+that file and its transitive dependencies will be loaded, rather than the entire
+humongous library.
+</p>
+
+<p>
+This also helps you enforce a discipline wherein it is always clear in which
+file each symbol is defined, which files have symbols used by any other file,
+etc.
+</p>
+</blockquote>
+<p>
+In <a href="https://x.com/almighty_lisp/status/1938416300826759368?s=20">a discussion I had with the author on X</a>, our friend François-René Rideau (or
+<a href="https://github.com/fare">fare on Github</a>), I asked about the rationale behind PIS, why it is the best
+practice, etc. He said that the motivation to create PIS was to help large
+teams, but he also said that PIS can be useful for individuals with large or
+ambitious projects. He said that large .asd files (remember Mito's system?) tend
+to be error-prone. Further, he says,
+</p>
+<blockquote>
+<p>
+[In large .asd files] you often leave a lot of obsolete dependencies that slow
+the build and the understanding of the code by newcomers.
+</p>
+</blockquote>
+<p>
+So large system definitions are scary to mess with, making it safer and
+therefore more likely for teams to leave unused dependencies in the system. That
+can make understanding the code more difficult, and make builds unnecessarily
+slower.
+</p>
+
+<p>
+While ultimately he didn't make a conclusive recommendation to use PIS, he
+appears to prefer using PIS from the beginning to improve modularity and
+understandability of code, and to make coordination with other developers
+easier.
+</p>
+</div>
+</section>
+<section id="arguments-against-pis"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.4.2</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Arguments Against PIS</h3></div></hgroup></div><div class="outline-text-4" id="text-1-4-2">
+<p>
+So the argument in favor of Package Inferred Systems boils down to this:
+</p>
+
+<ol class="org-ol">
+<li>It helps reduce problems of coordination with other developers.</li>
+<li>It helps make the code more understandable.</li>
+<li>It helps reduce the amount of unnecessary code that remains in the project.</li>
+</ol>
+
+<p>
+The question is: Does it really do all those things? And are PIS more effective
+than the alternatives?
+</p>
+
+<p>
+Understanding packages and systems is one of the more challenging things about
+learning Common Lisp for newcomers. That's why I've gone into more detail here
+on the subject than I have with other language features.
+</p>
+
+<p>
+Before I make my counter-argument to PIS, I must emphasize that I have no
+professional experience with Common Lisp, nor have I written any large projects
+with it. Fare, on the other hand, is an accomplished Lisper with experience
+writing Lisp in large teams. The odds that I am not understanding the benefits
+of PIS because of a lack of experience are astronomically high. I make my
+counter-arguments with fear and trepidation in my heart. All I have to guide me
+are my small brain and an intuition&#x2013;as limited as it may be&#x2013;about how simple
+programs and programming should be.
+</p>
+
+<p>
+My experience of package inferred systems is that they actually led to <i>more</i>
+confusion, not less. Perhaps you felt it too as we took our journey through
+these different strategies.
+</p>
+
+<p>
+Hunchentoot listed all third-party dependencies in the system definition&#x2013;thus
+you had a sense of what code you needed to download, and what your potential
+exposure to bugs or security problems was. The <code>defsystem</code> used the <code>:serial t</code>
+option to let you, the newcomer, know that all of the <code>:component</code> files were
+loaded in the order they were listed. The Mother Of All <code>packages.lisp</code> gave us
+an easy to read overview of the public API. Without any sophisticated knowledge
+or tools, the code was understandable (with perhaps the exception of the use of
+<code>:shadow</code> for a couple of symbols).
+</p>
+
+<p>
+Was it always that way? How many challenges did the project have with
+coordination or understandability before it reached the point where we saw it?
+How much unseen discipline was practiced in the naming and organization of
+symbols in the project? For example, perhaps it was difficult to organize and
+line up the files in the <code>defsystem</code> definition so that all of the right code
+was loaded in the correct order? Is the project bloated? We see only a snapshot
+of the project as it is now. We can't know the challenges of coordination,
+dependency management, and code factoring that had to be overcome just from
+looking at the source.
+</p>
+
+<p>
+However, when we look at the source, the design of the system is undeniably
+<i>simple</i> and <i>easy to understand</i>, even for a dummy newcomer like me.
+</p>
+
+<p>
+The same is true of the <code>vend</code> library, which uses a similar strategy.
+</p>
+
+<p>
+<code>mito</code>, on the other hand, has a somewhat more difficult to follow <code>defsystem</code>: the
+liberal use of <code>:depends-on</code> and the inversion of the dependency tree makes the
+system definition much more difficult to follow. The system has several
+subsystems, and some of the packages use options like <code>:use-reexport</code> and so-on.
+You need to have a deeper understanding of how systems work, how shadowing
+works, and how those package options will effect the final shape of the system.
+While Hunchentoot was fairly transparent, Mito's system architecture introduced
+a fair bit of noisy abstractions that make reasoning about the system difficult
+at a glance.
+</p>
+
+<p>
+But perhaps with experience I would see the value in the abstractions? Perhaps
+the alternative would have been noisier, more difficult to extend with other
+developers, and more bloated?
+</p>
+
+<p>
+And then there's <code>utopian</code> and <code>:package-inferred-system</code>. The .asd file is small,
+but that just left us more questions than answers. Chief among them is: how many
+dependencies does it have, and where do they come from? What does the final
+public API actually look like after all subsystem symbols are bubbled up to the
+top system? What code is loaded (and potentially executed), and when?
+</p>
+
+<p>
+About API discoverability, Fare said the following in our discussion on X:
+</p>
+
+<blockquote>
+<p>
+The SLIME REPL, not the unaided source code, is how you discover the code. Plus
+the generated documentation.
+</p>
+</blockquote>
+
+<p>
+This is an important point: Great tools can make a developer's job easier.
+That's why one of the goals of this book is to help you understand all of the
+tools available to you in Emacs. If you code Common Lisp in Emacs without
+knowing about window management, REPL shortcuts, SLY debugger
+restarts/keybindings, <code>evil-mode</code> VIM keybindings, etc. you are missing out on a
+great number of very powerful tools for efficient and pleasant coding.
+</p>
+
+<p>
+However, I disagree with Fare about how code is discovered. Yes, we can type
+<code>SPC m g d</code> or <code>g d</code> to use <code>sly-edit-definition</code> to go to the definition of
+some symbol. Yes, we can look at the documentation. But none of those provide a
+clear overview of third-party dependencies of the project nor a clear view of
+the shape of the system as a whole. Tools like PIS blur our vision of the whole
+system. When I look at projects that use those tools, every bone in my body
+screams, "Complexity spirit demon."
+</p>
+
+<p>
+Unfortunately, I am not the only one that feels this way. Do a search for
+"package-inferred-system" on X and you'll find a lot of confusion or even
+distaste for it.
+</p>
+
+<p>
+Still, there are some notable people that really enjoy it. The most well-known
+users are probably the <a href="https://github.com/fukamachi/">Eitaro Fukamachi (https://github.com/fukamachi)</a> (author
+of <code>mito</code> and many other libraries) and <a href="https://github.com/svetlyak40wt">Alexander Artemenko
+(https://github.com/svetlyak40wt)</a>&#x2013;the man behind <a href="https://github.com/40ants">40ants
+(https://github.com/40ants)</a> and Ultralisp&#x2013;both of whom are prolific giants in
+the Common Lisp community (I think I'm starting to sweat here). Alexander has
+explained why he likes PIS <a href="https://x.com/svetlyak40wt/status/1179260459255549952?s=20">on X</a>:
+</p>
+
+<blockquote>
+<p>
+For me this more important consequence is that I have not to figure out
+dependencies between files anymore and to hardcode them in the *.asd files.
+System definition can be just: (defsystem "foo" :class :package-inferred-system
+:depends-on ("foo/main"))
+</p>
+</blockquote>
+
+<p>
+This echos what Fare says about system understandability and ease of code
+factoring. So maybe there is something to the arguments about the challenges of
+factoring that standard <code>defsystem</code> definitions impose.
+</p>
+
+<p>
+My brain may not be big enough to understand the ease-of-use and
+ease-of-understanding arguments. There's a good chance it's a skill issue.
+</p>
+
+<p>
+However, there is one feature of PIS that unfortunately I can't forgive, no
+matter how small my brain.
+</p>
+
+<p>
+The fact that third-party dependencies are not defined in the .asd file, but
+instead are spread across the codebase, is simply not acceptable. As an Almighty
+Lisp programmer, dependency management needs to be crystal clear both for
+understanding and for containment. Package inferred systems simply make it too
+easy to introduce dependencies in unknown places. My goal is to keep my use of
+dependencies limited, decreasing my dependencies over time. If it's easy to add
+and forget about them, then the temptation to increase my dependencies will be
+too great.
+</p>
+
+<p>
+The community doesn't appear to view PIS as the way forward. Community adoption
+of PIS is very low. Package inferred systems have been around since 2014, more
+than 10 years ago. At present, while there are nearly 5000 systems available on
+the Quicklisp repository, only around 60 unique systems use
+<code>:package-inferred-system</code>.
+</p>
+
+<p>
+<code>LEM</code>&#x2013;an Emacs clone written from scratch in Common Lisp&#x2013;and <code>Coalton</code>&#x2013;a new Lisp
+language implementing a Haskell-like type system&#x2013;are among the largest and most
+ambitious publicly available projects. Neither use PIS. Both use the <code>:serial t</code>
+option for the <code>:components</code>, manually listing dependencies and files to load
+from the project. Both make heavy use of the One Package Per File Strategy, but
+LEM also uses a hybrid Mother Of All Package. Coalton provides a public API in a
+<code>package.lisp</code> file! In fact, Coalton uses a strategy similar to Fare's <code>LIL</code>
+library&#x2013;providing a <code>package.lisp</code> file for smaller "modules" in the system
+(modules by convention) and reexporting the symbols from the module files,
+allowing the system to bubble up symbols to the top level packages.
+</p>
+</div>
+</section>
+<section id="conclusion"><div class="book-heading-container book-heading-container--3"><hgroup class="book-heading-group"><div class="book-subheading"><span class="book-subheading__number heading-number--3">11.4.3</span><span class="book-subheading__chapter-name">ORGANIZING CODE</span></div><div class="book-heading"><h3>Conclusion</h3></div></hgroup></div><div class="outline-text-4" id="text-1-4-3">
+<p>
+So to answer the question, "Is it essential to learn and use package inferred
+systems?", the answer is <b>No</b>. For small projects, a Mother Of All package can
+work fine, but the most common approach on modern projects by far is One Package
+Per File with some strategy for bubbling up and potentially listing exported
+symbols into a final API. </p>
+</div>
+</section>
+</section>
+</section>
+<div class="book-navigation__next-chapter"><a href="/book/essentials/the-ecosystem">Next: 12. THE ECOSYSTEM &rarr;</a></div></article></main><button class="toc-viewer">TOC</button><script>HighlightLisp.highlight_auto() ;</script></body></html>

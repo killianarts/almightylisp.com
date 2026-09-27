@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en" class="dark" data-theme="almighty-lisp">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Almighty Lisp — The Field Journal (Prototype)</title>
+<!-- The real book design system: reset, theme tokens, fonts, and the
+     genuine .almighty-block component + syntax colors. -->
+<link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+<style>
+/* ============================================================
+   Almighty Lisp — The Field Journal
+   A magazine cover/index built ON the book's own design system.
+   Everything here reuses the site tokens (--color-*, --font-*)
+   and the real .almighty-block component. Inline (unlayered)
+   styles beat the stylesheet's @layer base/reset with no fights.
+   ============================================================ */
+:root{ --wrap:1180px; }
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--color-canvas);
+  color:var(--color-ink-light);
+  font-family:var(--font-serif);
+  font-size:18px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+body::after{ /* faint scanlines, matching the site */
+  content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:.05;
+  background-image:repeating-linear-gradient(to bottom,var(--color-ink-light) 0 1px,transparent 1px 3px);
+}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--color-secondary);outline-offset:3px}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:clamp(16px,4vw,40px)}
+.band{padding-block:clamp(42px,7vw,88px)}
+
+/* shared label vocabulary (Construct Mono, uppercase) ---------------- */
+.eyebrow{font-family:var(--font-heading);font-size:.74rem;text-transform:uppercase;
+  letter-spacing:.2em;color:var(--color-accent);display:inline-flex;gap:.6em;align-items:center}
+.eyebrow .ch{color:var(--color-canvas-soft)}
+.metaline{font-family:var(--font-code-condensed);text-transform:uppercase;
+  letter-spacing:.14em;font-size:.8rem;color:var(--color-canvas-soft)}
+
+/* ── UTILITY BAR ─────────────────────────────────────────── */
+.util{border-bottom:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent);
+  background:var(--color-canvas-alt)}
+.util .wrap{display:flex;justify-content:space-between;gap:1rem;padding-block:.55rem;
+  font-family:var(--font-code-condensed);font-size:.78rem;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--color-canvas-soft)}
+.util b{color:var(--color-accent);font-weight:400}
+
+/* ── MASTHEAD ────────────────────────────────────────────── */
+.masthead .wrap{padding-block:clamp(26px,5vw,52px) 0}
+.np{display:flex;align-items:center;gap:clamp(14px,2.5vw,26px)}
+.np__badge{flex:none;display:grid;place-items:center;
+  width:clamp(64px,10vw,116px);aspect-ratio:1;background:var(--color-accent);
+  color:var(--color-canvas);font-family:var(--font-code);font-weight:700;
+  font-size:clamp(2.4rem,6vw,4.6rem);line-height:1}
+.np__title{font-family:var(--font-league-gothic-tall);font-weight:400;
+  text-transform:uppercase;line-height:.84;margin:0;
+  font-size:clamp(3rem,11vw,8.4rem);color:var(--color-ink-light)}
+.np__sub{display:block;font-family:var(--font-heading);text-transform:uppercase;
+  letter-spacing:.24em;font-size:clamp(.66rem,1.4vw,.9rem);color:var(--color-canvas-soft);
+  margin-top:.5em}
+.np__rule{display:flex;align-items:center;gap:1rem;margin-top:1rem;padding-block:.85rem;
+  border-top:2px solid var(--color-accent);border-bottom:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent)}
+.np__rule .g{flex:1}
+.np__rule .m{font-family:var(--font-code-condensed);text-transform:uppercase;
+  letter-spacing:.16em;font-size:.82rem;color:var(--color-canvas-soft)}
+.np__rule .m b{color:var(--color-accent);font-weight:400}
+
+/* ── COVER STORY ─────────────────────────────────────────── */
+.cover .wrap{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(24px,5vw,60px);
+  align-items:center;padding-block:clamp(30px,5vw,64px)}
+.cover-copy .eyebrow{margin-bottom:1.1rem}
+.cover-head{font-family:var(--font-league-gothic-tall);font-weight:400;text-transform:uppercase;
+  font-size:clamp(2.9rem,7vw,6rem);line-height:.9;margin:0 0 1.1rem;text-wrap:balance}
+.cover-head em{font-style:normal;color:var(--color-accent)}
+.deck{font-family:var(--font-serif);font-style:italic;font-size:clamp(1.1rem,2vw,1.4rem);
+  color:var(--color-canvas-soft);max-width:44ch;margin:0 0 1.5rem;line-height:1.45}
+.byline{font-family:var(--font-code-condensed);font-size:.82rem;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--color-canvas-soft);display:flex;flex-wrap:wrap;
+  gap:.4rem 1.1rem;margin-bottom:1.6rem}
+.byline b{color:var(--color-ink-light);font-weight:400}
+.readmore{font-family:var(--font-code-condensed);font-size:1.1rem;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--color-accent);border-bottom:2px solid var(--color-accent);
+  padding-bottom:.14rem;display:inline-flex;gap:.5em;transition:gap .15s,color .15s,border-color .15s}
+.readmore:hover{gap:.9em;color:var(--color-secondary);border-color:var(--color-secondary)}
+.cover-fig{margin:0}
+
+/* ── SECTION HEADER DEVICE (mirrors the book sub-heading) ── */
+.mhead{margin-bottom:1.8rem}
+.mhead__sub{display:inline-flex;align-items:center;gap:.7rem;margin-bottom:.5rem}
+.mhead__badge{background:var(--color-accent);color:var(--color-canvas);
+  font-family:var(--font-heading);font-size:.9rem;line-height:1;padding:.28em .5em}
+.mhead__chap{font-family:var(--font-code-condensed);text-transform:uppercase;
+  letter-spacing:.16em;font-size:.82rem;color:var(--color-canvas-soft)}
+.mhead__title{font-family:var(--font-league-gothic-tall);font-weight:400;text-transform:uppercase;
+  font-size:clamp(2.2rem,5.5vw,4rem);line-height:.9;margin:0;color:var(--color-accent)}
+
+/* ── FEATURES GRID ───────────────────────────────────────── */
+.features{display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent);
+  border-left:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent)}
+.fcard{position:relative;padding:1.5rem 1.4rem;display:flex;flex-direction:column;gap:.7rem;
+  border-right:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent);
+  border-bottom:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent);
+  transition:background .18s}
+.fcard::before{ /* amber corner bracket — the book's cell signature */
+  content:"";position:absolute;top:0;left:0;width:12px;height:12px;
+  border-top:3px solid var(--color-accent);border-left:3px solid var(--color-accent)}
+.fcard:hover{background:var(--color-canvas-alt)}
+.fcard .tag{display:flex;justify-content:space-between;gap:1rem}
+.fcard h3{font-family:var(--font-league-gothic-tall);font-weight:400;text-transform:uppercase;
+  font-size:clamp(1.55rem,2.3vw,2rem);line-height:.96;margin:.1rem 0 0;max-width:15ch;
+  color:var(--color-ink-light)}
+.fcard p{margin:0;font-size:.96rem;color:var(--color-canvas-soft);max-width:40ch}
+.fcard .go{margin-top:auto;font-family:var(--font-code-condensed);font-size:.82rem;
+  text-transform:uppercase;letter-spacing:.1em;color:var(--color-secondary);padding-top:.5rem}
+.fcard:hover .go{color:var(--color-accent)}
+
+/* ── MANIFESTO BAND ──────────────────────────────────────── */
+.manifesto{background:var(--color-canvas-alt);
+  border-block:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent)}
+.manifesto .wrap{text-align:center;padding-block:clamp(48px,8vw,96px)}
+.manifesto blockquote{margin:1.1rem auto 0;max-width:22ch;
+  font-family:var(--font-league-gothic-tall);font-weight:400;text-transform:uppercase;
+  font-size:clamp(2.6rem,7.5vw,5.6rem);line-height:.9;color:var(--color-ink-light)}
+.manifesto blockquote em{font-style:normal;color:var(--color-accent)}
+.manifesto .who{margin-top:1.6rem;font-family:var(--font-code-condensed);font-size:.82rem;
+  text-transform:uppercase;letter-spacing:.18em;color:var(--color-canvas-soft)}
+
+/* ── CONTENTS + THEMES ───────────────────────────────────── */
+.two{display:grid;grid-template-columns:1.45fr 1fr;gap:clamp(26px,5vw,56px)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:baseline;
+  padding:.82rem 0;border-bottom:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent)}
+.toc .n{font-family:var(--font-code-condensed);color:var(--color-accent);font-size:.9rem;letter-spacing:.06em}
+.toc .t{font-family:var(--font-league-gothic-tall);text-transform:uppercase;font-size:1.55rem;
+  line-height:1;color:var(--color-ink-light)}
+.toc .t small{display:block;font-family:var(--font-serif);font-style:italic;text-transform:none;
+  font-size:.82rem;letter-spacing:0;color:var(--color-canvas-soft);margin-top:.12rem}
+.toc .pg{font-family:var(--font-code-condensed);color:var(--color-canvas-soft);font-size:.82rem;letter-spacing:.08em}
+.themes{position:relative;border:1px solid color-mix(in oklch,var(--color-ink-light) 30%,transparent);
+  background:var(--color-canvas-alt);padding:1.7rem;display:flex;flex-direction:column;gap:1rem}
+.themes::before{content:"";position:absolute;top:0;left:0;width:12px;height:12px;
+  border-top:3px solid var(--color-accent);border-left:3px solid var(--color-accent)}
+.themes h3{font-family:var(--font-league-gothic-tall);text-transform:uppercase;font-weight:400;
+  font-size:2.3rem;line-height:.9;margin:0;color:var(--color-accent)}
+.themes p{margin:0;font-size:.95rem;color:var(--color-canvas-soft)}
+.sw{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+.sw i{aspect-ratio:1;display:block;border:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent)}
+.btn{align-self:flex-start;margin-top:.3rem;font-family:var(--font-code-condensed);text-transform:uppercase;
+  letter-spacing:.06em;font-size:1.05rem;background:var(--color-accent);color:var(--color-canvas);
+  padding:.62rem 1.25rem;transition:background .15s,transform .1s}
+.btn:hover{background:var(--color-secondary);transform:translateY(-2px)}
+
+/* ── BOOK CALLOUT ────────────────────────────────────────── */
+.book .two{grid-template-columns:.78fr 1.22fr;align-items:center}
+.bookcover{position:relative;aspect-ratio:3/4;padding:1.6rem;display:flex;flex-direction:column;
+  justify-content:space-between;background:linear-gradient(155deg,var(--color-canvas-light),var(--color-canvas-alt));
+  border:1px solid color-mix(in oklch,var(--color-ink-light) 30%,transparent);
+  box-shadow:16px 16px 0 color-mix(in oklch,var(--color-ink) 55%,transparent)}
+.bookcover::before{content:"";position:absolute;top:0;left:0;width:14px;height:14px;
+  border-top:3px solid var(--color-accent);border-left:3px solid var(--color-accent)}
+.bookcover .a{font-family:var(--font-code-condensed);font-size:.72rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--color-canvas-soft)}
+.bookcover .t{font-family:var(--font-league-gothic-tall);text-transform:uppercase;
+  font-size:clamp(2.2rem,4.6vw,3.4rem);line-height:.85;color:var(--color-ink-light)}
+.bookcover .t em{color:var(--color-accent);font-style:normal}
+.book-copy h2{font-family:var(--font-league-gothic-tall);text-transform:uppercase;font-weight:400;
+  font-size:clamp(2.3rem,5vw,3.8rem);line-height:.9;margin:.3rem 0 1rem;color:var(--color-ink-light)}
+.book-copy p{color:var(--color-canvas-soft);max-width:52ch;margin:0 0 1rem}
+.book-copy .code{font-family:var(--font-code);color:var(--color-secondary);
+  background:var(--color-canvas-alt);padding:.05em .35em}
+.book-copy .drop::first-letter{font-family:var(--font-league-gothic-tall);float:left;
+  font-size:4.2rem;line-height:.72;padding:.1rem .38rem 0 0;color:var(--color-accent)}
+
+/* ── COLOPHON ────────────────────────────────────────────── */
+.colophon{border-top:1px solid color-mix(in oklch,var(--color-ink-light) 16%,transparent);
+  background:var(--color-canvas-alt)}
+.colophon .wrap{display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;
+  padding-block:2.2rem;font-family:var(--font-code-condensed);font-size:.82rem;
+  text-transform:uppercase;letter-spacing:.12em;color:var(--color-canvas-soft)}
+.colophon b{color:var(--color-ink-light);font-weight:400}
+.colophon .mark{font-family:var(--font-league-gothic-tall);font-size:2rem;color:var(--color-accent)}
+
+@media(max-width:900px){
+  .cover .wrap{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr 1fr}
+  .two,.book .two{grid-template-columns:1fr}
+  .bookcover{max-width:320px}
+}
+@media(max-width:560px){
+  .features{grid-template-columns:1fr}
+  .util .wrap{flex-direction:column;gap:.25rem;text-align:center}
+  .np{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<div class="util"><div class="wrap">
+  <span><b>Almighty Lisp</b> &nbsp;·&nbsp; The Common Lisp Field Journal</span>
+  <span>Issue Nº 1 &nbsp;·&nbsp; Summer 2026 &nbsp;·&nbsp; <b>Free</b></span>
+</div></div>
+
+<header class="masthead"><div class="wrap">
+  <div class="np">
+    <span class="np__badge">&#955;</span>
+    <div>
+      <h1 class="np__title">Almighty Lisp</h1>
+      <span class="np__sub">A Common Lisp Field Journal</span>
+    </div>
+  </div>
+  <div class="np__rule">
+    <span class="m"><b>Read</b> · Eval · Print · Loop</span>
+    <span class="g"></span>
+    <span class="m">Common Lisp &amp; Emacs, quarterly</span>
+  </div>
+</div></header>
+
+<!-- COVER STORY -->
+<section class="cover"><div class="wrap">
+  <div class="cover-copy">
+    <span class="eyebrow">Cover Story <span class="ch">· Ch. 8 · The Object System</span></span>
+    <h2 class="cover-head">The Almighty <em>Dragon</em></h2>
+    <p class="deck">CLOS chooses a method by the types of <em>every</em> argument at once. A field
+      guide to multiple dispatch, mixins, and <code>call-next-method</code> — taught with
+      dragons, warriors, and a great deal of fire.</p>
+    <div class="byline">
+      <span>By <b>Micah Killian</b></span><span>Saga, Japan</span><span>15 min read</span>
+    </div>
+    <a class="readmore" href="#">Read the feature <span>&rarr;</span></a>
+  </div>
+
+  <!-- the genuine .almighty-block component, rendered by the real CSS -->
+  <figure class="cover-fig almighty-block">
+    <div class="almighty-block__row">
+      <div class="almighty-block__cell">
+        <div class="almighty-block__buffer-cell">
+          <div class="almighty-block__buffer-label">
+            <span class="almighty-block__buffer-label-text">Buffer</span>
+            <svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewBox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg>
+          </div>
+          <p class="almighty-block__buffer-text">almighty/dragons.lisp</p>
+        </div>
+      </div>
+      <div class="almighty-block__cell">
+        <div class="almighty-block__package-cell">
+          <div class="almighty-block__package-label">
+            <span class="almighty-block__package-label-text">Package</span>
+            <svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewBox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg>
+          </div>
+          <p class="almighty-block__package-text">CL-USER</p>
+        </div>
+      </div>
+    </div>
+    <div class="almighty-block__source-row">
+      <div class="almighty-block__cell">
+        <pre class="almighty-block__pre"><code class="almighty-block__code lisp hl-highlighted"><span class="comment">;; the method is chosen by the types of BOTH arguments</span>
+<span class="list">(</span><span class="function special known">defmethod</span> <span class="form-definition-name">attack</span> <span class="list">((</span><span class="symbol">a</span> <span class="symbol">dragon</span><span class="list">)</span> <span class="list">(</span><span class="symbol">target</span> <span class="symbol">warrior</span><span class="list">))</span>
+  <span class="list">(</span><span class="function known">format</span> <span class="variable constant">t</span> <span class="string">"~&amp;The dragon breathes fire on the ~a!~%"</span>
+          <span class="list">(</span><span class="function known">name</span> <span class="symbol">target</span><span class="list">))</span>
+  <span class="list">(</span><span class="function known">call-next-method</span><span class="list">))</span>
+</code></pre>
+      </div>
+    </div>
+    <div class="almighty-block__row">
+      <div class="almighty-block__cell">
+        <div class="almighty-block__result-cell">
+          <span class="almighty-block__result-label">Prints<svg class="almighty-block__cell-label-decoration-svg" width="5" height="8" viewBox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg"><rect class="almighty-block__cell-label-decoration-rect" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="3" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" y="6" width="2" height="2"></rect><rect class="almighty-block__cell-label-decoration-rect" x="3" width="2" height="2"></rect></svg></span>
+          <pre class="almighty-block__result-text">The dragon breathes fire on the warrior!
+Fire hits armor! 80% deflected.</pre>
+        </div>
+      </div>
+    </div>
+  </figure>
+</div></section>
+
+<!-- FEATURES -->
+<section class="band"><div class="wrap">
+  <div class="mhead">
+    <span class="mhead__sub"><span class="mhead__badge">01</span><span class="mhead__chap">The Field Journal</span></span>
+    <h2 class="mhead__title">In This Issue</h2>
+  </div>
+  <div class="features">
+    <article class="fcard">
+      <span class="tag eyebrow">:fundamentals <span class="ch">Ch. 3</span></span>
+      <h3><a href="#">The Shape of Lisp</a></h3>
+      <p>Symbols, functions and lists — why the whole language is a handful of ideas wearing parentheses.</p>
+      <span class="go">Read &rarr;</span>
+    </article>
+    <article class="fcard">
+      <span class="tag eyebrow">:macros <span class="ch">Ch. 10</span></span>
+      <h3><a href="#">Bending the Language</a></h3>
+      <p>Code that writes code — backquote, splicing, hygiene, and when not to reach for one.</p>
+      <span class="go">Read &rarr;</span>
+    </article>
+    <article class="fcard">
+      <span class="tag eyebrow">:emacs <span class="ch">Ch. 4</span></span>
+      <h3><a href="#">Survival Emacs</a></h3>
+      <p>Start in the menus. Earn your keybindings one <code>C-x</code> at a time. No memorizing.</p>
+      <span class="go">Read &rarr;</span>
+    </article>
+    <article class="fcard">
+      <span class="tag eyebrow">:conditions <span class="ch">Ch. 9</span></span>
+      <h3><a href="#">Errors as a Conversation</a></h3>
+      <p>Restarts turn a crash into a dialogue. Signal, handle, recover — keep the image alive.</p>
+      <span class="go">Read &rarr;</span>
+    </article>
+    <article class="fcard">
+      <span class="tag eyebrow">:iteration <span class="ch">Ch. 12</span></span>
+      <h3><a href="#">Learning to Love LOOP</a></h3>
+      <p>The macro the purists warned you about is also the friendliest iteration DSL anywhere.</p>
+      <span class="go">Read &rarr;</span>
+    </article>
+    <article class="fcard">
+      <span class="tag eyebrow">:deploying <span class="ch">Ch. 14</span></span>
+      <h3><a href="#">Ship a Standalone Binary</a></h3>
+      <p>From a live image to a single executable you hand to anyone. Nothing to install.</p>
+      <span class="go">Read &rarr;</span>
+    </article>
+  </div>
+</div></section>
+
+<!-- MANIFESTO -->
+<section class="manifesto"><div class="wrap">
+  <span class="eyebrow">The Almighty Philosophy</span>
+  <blockquote>An almighty language that <em>summons</em> its users to become almighty.</blockquote>
+  <p class="who">The macros are waiting &nbsp;·&nbsp; the REPL is loaded &nbsp;·&nbsp; become almighty</p>
+</div></section>
+
+<!-- CONTENTS + THEMES -->
+<section class="band"><div class="wrap">
+  <div class="mhead">
+    <span class="mhead__sub"><span class="mhead__badge">02</span><span class="mhead__chap">Lisp &amp; Emacs Essentials</span></span>
+    <h2 class="mhead__title">The Full Table</h2>
+  </div>
+  <div class="two">
+    <ol class="toc">
+      <li><span class="n">3.1</span><span class="t">Lisp Fundamentals<small>Symbols, functions, lists, control flow, I/O</small></span><span class="pg">p.34</span></li>
+      <li><span class="n">5.0</span><span class="t">The Lisp IDE<small>Living inside the SLY REPL</small></span><span class="pg">p.118</span></li>
+      <li><span class="n">6.0</span><span class="t">Structured Editing<small>Slurp, barf, never lose a paren</small></span><span class="pg">p.140</span></li>
+      <li><span class="n">8.0</span><span class="t">The Object System<small>CLOS &amp; multiple dispatch</small></span><span class="pg">p.198</span></li>
+      <li><span class="n">10.</span><span class="t">Macros<small>Compilation before evaluation</small></span><span class="pg">p.236</span></li>
+      <li><span class="n">14.</span><span class="t">Deploying<small>Executables &amp; the ecosystem</small></span><span class="pg">p.320</span></li>
+    </ol>
+    <aside class="themes">
+      <span class="eyebrow">Now Shipping</span>
+      <h3>Almighty Themes</h3>
+      <p>Sixteen Doom Emacs themes across two packs — eight light, eight dark — tuned to the
+         palette you're reading right now.</p>
+      <div class="sw">
+        <i style="background:var(--color-accent)"></i>
+        <i style="background:var(--color-secondary)"></i>
+        <i style="background:var(--color-canvas-light)"></i>
+        <i style="background:oklch(0.7 0.2 25)"></i>
+        <i style="background:oklch(0.78 0.16 145)"></i>
+        <i style="background:oklch(0.8 0.13 330)"></i>
+        <i style="background:var(--color-canvas-alt)"></i>
+        <i style="background:oklch(0.955 0.022 96)"></i>
+      </div>
+      <a class="btn" href="/">Browse the Packs</a>
+    </aside>
+  </div>
+</div></section>
+
+<!-- BOOK CALLOUT -->
+<section class="band book"><div class="wrap">
+  <div class="mhead">
+    <span class="mhead__sub"><span class="mhead__badge">03</span><span class="mhead__chap">The Featured Volume</span></span>
+    <h2 class="mhead__title">The Book</h2>
+  </div>
+  <div class="two">
+    <div class="bookcover">
+      <span class="a">Almighty Lisp · No.1</span>
+      <span class="t">Lisp &amp; Emacs <em>Essentials</em></span>
+      <span class="a">The Online Book · Available Now</span>
+    </div>
+    <div class="book-copy">
+      <p class="drop">Other books teach Common Lisp but leave you stranded at the Emacs wall.
+        This one pulls you up and over it — the language and its editor in a single volume,
+        so proficiency with both compounds instead of competing.</p>
+      <p>You'll be barfing and slurping while you <span class="code">C-c C-c</span> macros in no time.</p>
+      <a class="readmore" href="/book/essentials">Read the book <span>&rarr;</span></a>
+    </div>
+  </div>
+</div></section>
+
+<footer class="colophon"><div class="wrap">
+  <span>Set in <b>League Gothic</b>, <b>Construct Mono</b>, <b>Berkeley Mono</b> &amp; <b>Charter</b></span>
+  <span class="mark">( )</span>
+  <span>&copy; 2026 <b>Almighty Lisp</b> · Evaluated in Saga, JP</span>
+</div></footer>
+
+</body>
+</html>

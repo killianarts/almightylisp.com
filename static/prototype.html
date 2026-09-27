@@ -1,0 +1,2931 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+    <head>
+        <title>PROTOTYPES · ALMIGHTYLISP.COM</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script>
+         // Apply saved theme before paint to avoid a flash.
+         (() => {
+             const t = localStorage.getItem('proto-theme') || 'almighty-lisp';
+             document.documentElement.dataset.theme = t;
+         })();
+        </script>
+        <link rel="stylesheet" href="/static/css/almighty-lisp-essentials.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <script src="/static/js/highlight-lisp.js"></script>
+        <style>
+         /* ==========================================================================
+            PROTOTYPE-LAB CHROME  (scoped, kept deliberately quiet so the specimens
+            are the hero). Every value pulls from the site's existing design tokens
+            so all 16 themes apply correctly.
+            ========================================================================== */
+
+         .proto-topbar {
+             position: sticky;
+             top: 0;
+             z-index: 20;
+             display: flex;
+             flex-wrap: wrap;
+             gap: 1ch var(--spacing-1);
+             align-items: baseline;
+             justify-content: space-between;
+             padding: var(--spacing-xs) var(--spacing-1);
+             background: var(--color-canvas-darker);
+             border-bottom: 2px solid var(--color-accent);
+         }
+         .proto-topbar__title {
+             font-family: var(--font-heading);
+             text-transform: uppercase;
+             letter-spacing: 0.04ch;
+             font-size: var(--font-size-2xl);
+             color: var(--color-ink-light);
+         }
+         .proto-topbar__title b {
+             color: var(--color-accent);
+             font-weight: inherit;
+             font-style: normal;
+         }
+         .proto-topbar__meta {
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-sm);
+             color: var(--color-canvas-soft);
+         }
+         .proto-topbar label {
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             font-size: var(--font-size-sm);
+             letter-spacing: 0.1ch;
+             color: var(--color-secondary);
+             margin-right: 0.75ch;
+         }
+         .proto-topbar select {
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-base);
+             background: var(--color-canvas);
+             color: var(--color-ink-light);
+             border: 1px solid var(--color-secondary);
+             padding: 0.2rem 0.5rem;
+         }
+
+         /* Neutralise the book's sidebar offset — there is no sidebar here — but keep
+            the right-hand gutter so margin-note specimens have somewhere to float. */
+         .book.proto {
+             --book-margin-left: 0;
+             --book-left-padding: var(--spacing-1);
+             padding-top: var(--spacing-1);
+         }
+         .proto-intro {
+             max-width: 100ch;
+             font-family: var(--font-berkeley-thin);
+             font-size: var(--font-size-sm);
+             color: var(--color-canvas-soft);
+             border-left: 2px solid var(--color-canvas-soft);
+             padding-left: 1ch;
+             margin-block: var(--spacing-1) var(--spacing-3);
+         }
+
+         .proto-group { max-width: 100ch; }
+         .proto-group > h2 { margin-top: var(--spacing-2); }
+
+         /* Each specimen gets an eyebrow (name) + a one-line note on the trade-off. */
+         .proto-variant {
+             margin-block: var(--spacing-2) var(--spacing-3);
+             padding-top: var(--spacing-xs);
+             border-top: 1px solid color-mix(in oklch, var(--color-canvas-soft) 40%, transparent);
+         }
+         /* Reserve vertical room so an absolutely-floated margin note doesn't
+            drift down into the next specimen. */
+         .proto-variant--reserve { min-height: 14rem; }
+         .proto-variant__label {
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.12ch;
+             font-size: var(--font-size-sm);
+             color: var(--color-secondary);
+         }
+         .proto-variant__label .tag {
+             color: var(--color-canvas-soft);
+             margin-left: 0.75ch;
+         }
+         .proto-variant__note {
+             font-family: var(--font-berkeley-thin) !important;
+             text-align: left !important;
+             font-weight: 400 !important;
+             letter-spacing: 0 !important;
+             font-size: var(--font-size-sm);
+             color: var(--color-canvas-soft);
+             margin-block: 0.25rem var(--spacing-xs);
+             max-width: 80ch;
+         }
+
+         /* --------------------------------------------------------------------------
+            CODE  · variations
+            -------------------------------------------------------------------------- */
+
+         /* B — Named file header: says which file / which language the snippet edits. */
+         .proto-code-file__bar {
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+             gap: 1ch;
+             padding: 0.3rem 0.75rem;
+             background: var(--color-canvas-darker);
+             border-left: var(--code-block-border-size, 5px) solid var(--color-secondary);
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.08ch;
+             font-size: var(--font-size-sm);
+         }
+         .proto-code-file__bar .fname { color: var(--color-accent); }
+         .proto-code-file__bar .lang  { color: var(--color-secondary); }
+         .proto-code-file .code-block { --code-block-bg-color: var(--color-canvas-dark); }
+
+         /* C — REPL / terminal frame: distinguishes interactive shell + REPL output
+            from source you type into a file. */
+         .proto-term {
+             border: 1px solid color-mix(in oklch, var(--color-secondary) 45%, transparent);
+             background: var(--color-canvas-darker);
+         }
+         .proto-term__bar {
+             display: flex;
+             align-items: center;
+             gap: 0.75ch;
+             padding: 0.35rem 0.75rem;
+             background: var(--color-canvas-dark);
+             border-bottom: 1px solid color-mix(in oklch, var(--color-secondary) 45%, transparent);
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.1ch;
+             font-size: var(--font-size-sm);
+             color: var(--color-secondary);
+         }
+         .proto-term__dots { display: flex; gap: 0.4ch; margin-left: auto; }
+         .proto-term__dots span {
+             width: 0.6em; height: 0.6em; border-radius: 50%;
+             background: color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+         }
+         .proto-term pre {
+             margin: 0;
+             padding: var(--spacing-xs) 0.75rem;
+             overflow-x: auto;
+             white-space: pre;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-base);
+             color: var(--color-ink-light);
+         }
+         .proto-term pre .prompt  { color: var(--color-accent); }
+         .proto-term pre .comment { color: var(--color-canvas-soft); }
+
+         /* D — Ghost snippet: quiet, chromeless, corner language badge. For short
+            throwaway samples where a heavy frame would over-punctuate the prose. */
+         .proto-code-ghost { position: relative; }
+         .proto-code-ghost pre {
+             margin: 0;
+             padding: var(--spacing-xs) 0.75rem;
+             overflow-x: auto;
+             white-space: pre;
+             border-left: 2px solid var(--color-canvas-soft);
+             background: color-mix(in oklch, var(--color-canvas-dark) 55%, transparent);
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-base);
+             color: var(--color-ink-light);
+         }
+         .proto-code-ghost .lang-badge {
+             position: absolute;
+             top: 0.2rem; right: 0.6rem;
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.18ch;
+             font-size: var(--font-size-xs);
+             color: var(--color-canvas-soft);
+         }
+
+         /* F — Data plate: B + E fused, styled after brasshands.com's mil-spec
+            equipment plates. A framed unit with corner registration ticks, dotted
+            hairlines, a LABEL: VALUE header with dot leaders and an inverted
+            language chip, an EVAL ⇒ footer, and a whisper of grain. */
+         .proto-plate {
+             position: relative;
+             margin: 0;
+             border: 1px solid color-mix(in oklch, var(--color-canvas-soft) 45%, transparent);
+             background: var(--color-canvas-dark);
+         }
+         .proto-plate + .proto-plate { margin-top: var(--spacing-1); }
+         .proto-plate::after {
+             content: "";
+             position: absolute;
+             inset: 0;
+             pointer-events: none;
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+         }
+         .proto-plate__tick {
+             position: absolute;
+             z-index: 2;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-sm);
+             line-height: 1;
+             color: var(--color-accent);
+         }
+         .proto-plate__tick.tl { top: 0;    left: 0;    transform: translate(-50%, -50%); }
+         .proto-plate__tick.tr { top: 0;    right: 0;   transform: translate(50%, -50%); }
+         .proto-plate__tick.bl { bottom: 0; left: 0;    transform: translate(-50%, 50%); }
+         .proto-plate__tick.br { bottom: 0; right: 0;   transform: translate(50%, 50%); }
+         .proto-plate__bar {
+             display: flex;
+             align-items: baseline;
+             gap: 1ch;
+             padding: 0.4rem 0.75rem;
+             border-bottom: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.08ch;
+             font-size: var(--font-size-sm);
+         }
+         .proto-plate__bar .k { color: var(--color-canvas-soft); flex: none; }
+         .proto-plate__bar .k::after { content: ":"; }
+         .proto-plate__bar .v { color: var(--color-ink-light); flex: none; }
+         .proto-plate__bar .leader {
+             flex: 1;
+             min-width: 4ch;
+             align-self: center;
+             border-bottom: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+             transform: translateY(-0.2em);
+         }
+         .proto-plate__chip {
+             flex: none;
+             background: var(--color-accent);
+             color: var(--color-ink);
+             padding: 0.1rem 0.75ch;
+         }
+         .proto-plate__chip--task {
+             flex: 0 1 auto;
+             white-space: normal;
+             text-align: right;
+             max-width: 38ch;
+         }
+         .proto-plate__bar .v .sep { color: var(--color-canvas-soft); padding-inline: 0.2ch; }
+         .proto-plate__copy {
+             flex: none;
+             font: inherit;
+             letter-spacing: inherit;
+             text-transform: uppercase;
+             background: none;
+             border: 1px solid color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+             color: var(--color-canvas-soft);
+             padding: 0.1rem 0.75ch;
+             cursor: pointer;
+             transition: color 300ms, border-color 300ms;
+         }
+         .proto-plate__copy:hover {
+             color: var(--color-accent);
+             border-color: var(--color-accent);
+         }
+         .proto-plate__shell {
+             margin: 0;
+             padding: var(--spacing-xs);
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-base);
+             color: var(--color-ink-light);
+             overflow-x: auto;
+             white-space: pre;
+         }
+         .proto-plate__shell .prompt { color: var(--color-accent); user-select: none; }
+         .proto-plate .code-block-source-pre { border-left: none; }
+         .proto-plate__eval {
+             display: flex;
+             gap: 1ch;
+             align-items: baseline;
+             padding: 0.4rem 0.75rem;
+             border-top: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-base);
+             color: var(--color-ink-light);
+             overflow-x: auto;
+             white-space: pre;
+         }
+         .proto-plate__eval .k {
+             flex: none;
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.08ch;
+             font-size: var(--font-size-sm);
+             color: var(--color-canvas-soft);
+         }
+         .proto-plate__eval .arrow {
+             flex: none;
+             font-family: var(--font-berkeley-black);
+             color: var(--color-accent);
+         }
+
+         /* H — Field unit: the full Brass Hands panel. Vertical edge captions carry
+            the project and section; spec rows top and bottom carry metadata pulled
+            from the code itself (version, author). For hero listings. */
+         .proto-plate--field { padding-inline: 2.1rem; }
+         .proto-plate__edge {
+             position: absolute;
+             top: 50%;
+             writing-mode: vertical-rl;
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.35ch;
+             font-size: var(--font-size-xs);
+             color: var(--color-canvas-soft);
+             white-space: nowrap;
+         }
+         .proto-plate__edge.left  { left: 0.65rem;  transform: translateY(-50%) rotate(180deg); }
+         .proto-plate__edge.right { right: 0.65rem; transform: translateY(-50%); }
+         .proto-plate__edge a {
+             color: var(--color-accent);
+             text-decoration: underline dotted;
+             text-underline-offset: 0.35em;
+             transition: color 300ms;
+         }
+         .proto-plate__edge a::after { content: " \2192"; }
+         .proto-plate__edge a:hover { color: var(--color-secondary); }
+
+         /* Section tab: a file-folder tab riding the plate's top border. Horizontal,
+            readable, and dressed as a link — the wayfinding slot. */
+         .proto-plate__section {
+             position: absolute;
+             top: 0;
+             left: 1.5rem;
+             transform: translateY(-50%);
+             z-index: 1;
+             background: var(--color-canvas-dark);
+             border: 1px solid color-mix(in oklch, var(--color-canvas-soft) 45%, transparent);
+             padding: 0.1rem 1ch;
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-xs);
+             letter-spacing: 0.1ch;
+             text-transform: uppercase;
+             max-width: calc(100% - 3rem);
+             white-space: nowrap;
+             overflow: hidden;
+             text-overflow: ellipsis;
+         }
+         .proto-plate__section a {
+             color: var(--color-accent);
+             text-decoration: underline dotted;
+             text-underline-offset: 0.35em;
+             transition: color 300ms;
+         }
+         .proto-plate__section a .t { color: var(--color-canvas-soft); }
+         .proto-plate__section a::after { content: " \2192"; }
+         .proto-plate__section a:hover,
+         .proto-plate__section a:hover .t { color: var(--color-secondary); }
+
+         /* P — Manifest: same slots, different anatomy. Stacked label-over-value
+            cells in a head grid (the brasshands spec-sheet idiom), a full-width
+            inverted task banner, a ghost section numeral behind the code. */
+         .proto-manifest {
+             position: relative;
+             margin: 0;
+             border: 1px solid color-mix(in oklch, var(--color-canvas-soft) 45%, transparent);
+             border-top: 4px solid var(--color-accent);
+             background-color: var(--color-canvas-dark);
+             overflow: hidden;
+         }
+         .proto-manifest::after {
+             content: "";
+             position: absolute;
+             inset: 0;
+             pointer-events: none;
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+         }
+         .proto-manifest__head {
+             display: flex;
+             flex-wrap: wrap;
+             border-bottom: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+         }
+         .proto-manifest__cell {
+             display: flex;
+             flex-direction: column;
+             gap: 0.2rem;
+             padding: 0.5rem 1.25rem 0.45rem 0.9rem;
+             border-right: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+             text-decoration: none;
+         }
+         .proto-manifest__cell:last-child { border-right: none; flex: 1; }
+         .proto-manifest__cell .l {
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-xs);
+             letter-spacing: 0.3ch;
+             text-transform: uppercase;
+             color: var(--color-canvas-soft);
+         }
+         .proto-manifest__cell .v {
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-sm);
+             letter-spacing: 0.08ch;
+             text-transform: uppercase;
+             color: var(--color-ink-light);
+         }
+         a.proto-manifest__cell .v {
+             color: var(--color-accent);
+             text-decoration: underline dotted;
+             text-underline-offset: 0.35em;
+             transition: color 300ms;
+         }
+         a.proto-manifest__cell .v::after { content: " \2192"; }
+         a.proto-manifest__cell:hover .v { color: var(--color-secondary); }
+         .proto-manifest__task {
+             display: flex;
+             align-items: baseline;
+             gap: 1.5ch;
+             padding: 0.3rem 0.9rem;
+             background: var(--color-accent);
+             color: var(--color-ink);
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-sm);
+             letter-spacing: 0.15ch;
+             text-transform: uppercase;
+         }
+         .proto-manifest__task .arrow { font-family: var(--font-berkeley-black); }
+         .proto-manifest__body { position: relative; }
+         .proto-manifest__ghost {
+             position: absolute;
+             right: 0.5rem;
+             bottom: -0.18em;
+             z-index: 0;
+             font-family: var(--font-berkeley-uc-black);
+             font-size: 6.5rem;
+             line-height: 1;
+             color: color-mix(in oklch, var(--color-canvas-soft) 14%, transparent);
+             pointer-events: none;
+             user-select: none;
+         }
+         .proto-manifest .code-block { position: relative; z-index: 1; }
+         .proto-manifest .code-block-source-pre { border-left: none; }
+         .proto-manifest__foot {
+             display: flex;
+             flex-wrap: wrap;
+             border-top: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+         }
+         .proto-manifest__foot .proto-manifest__cell--result .v {
+             font-family: var(--font-berkeley);
+             text-transform: none;
+             letter-spacing: normal;
+         }
+         .proto-manifest__foot .proto-manifest__cell--result .v .arrow {
+             font-family: var(--font-berkeley-black);
+             color: var(--color-accent);
+         }
+
+         /* Q — Mission panel: the mission-control school (TRA / D350 reference set).
+            Flat solid cells butted together bento-style with visible gaps, one cell
+            inverted in accent as the highlight, label-over-value, a `::` log row for
+            the result with a hatched remainder, dot-matrix texture, clipped corner.
+            No grain, no ticks — flatness is the signature. */
+         .proto-mission {
+             margin: 0;
+             display: flex;
+             flex-direction: column;
+             gap: 3px;
+             clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.1rem), calc(100% - 1.1rem) 100%, 0 100%);
+         }
+         .proto-mission__head {
+             display: flex;
+             align-items: baseline;
+             gap: 2ch;
+             padding: 0.45rem 0.9rem;
+             background: var(--color-canvas-darker);
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-xs);
+             text-transform: uppercase;
+             letter-spacing: 0.1ch;
+         }
+         .proto-mission__head a {
+             color: var(--color-accent);
+             text-decoration: underline dotted;
+             text-underline-offset: 0.35em;
+             transition: color 300ms;
+             white-space: nowrap;
+             overflow: hidden;
+             text-overflow: ellipsis;
+         }
+         .proto-mission__head a .t { color: var(--color-canvas-soft); }
+         .proto-mission__head a::after { content: " \2192"; }
+         .proto-mission__head a:hover,
+         .proto-mission__head a:hover .t { color: var(--color-secondary); }
+         .proto-mission__idx {
+             margin-left: auto;
+             color: var(--color-canvas-soft);
+             letter-spacing: 0.35ch;
+         }
+         .proto-mission__cells { display: flex; flex-wrap: wrap; gap: 3px; }
+         .proto-mission__cell {
+             display: flex;
+             flex-direction: column;
+             gap: 0.4rem;
+             padding: 0.55rem 1.1rem 0.5rem 0.9rem;
+             background: var(--color-canvas-dark);
+         }
+         
+         .proto-mission__cell .l {
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-xs);
+             letter-spacing: 0.3ch;
+             text-transform: uppercase;
+             color: var(--color-canvas-soft);
+         }
+         .proto-mission__cell .v {
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-base);
+             letter-spacing: 0.05ch;
+             text-transform: uppercase;
+             color: var(--color-ink-light);
+         }
+         .proto-mission__cell--desc { flex: 1; min-width: 18ch; }
+         .proto-mission__cell--desc .v {
+             font-family: var(--font-stack-neo-grotesque);
+             text-transform: none;
+             letter-spacing: normal;
+         }
+         .proto-mission__cell--task {
+             background-color: var(--color-accent);
+             background-image: radial-gradient(color-mix(in oklch, var(--color-ink) 30%, transparent) 1px, transparent 1px);
+             background-size: 9px 9px;
+             background-position: 3px 3px;
+         }
+         .proto-mission__cell--task .l { color: color-mix(in oklch, var(--color-ink) 72%, transparent); }
+         .proto-mission__cell--task .v { color: var(--color-ink); }
+         .proto-mission__code { background: var(--color-canvas-dark); }
+         .proto-mission__code .code-block-source-pre { border-left: none; }
+         .proto-mission__result { display: flex; gap: 3px; align-items: stretch; }
+         .proto-mission__log {
+             display: flex;
+             gap: 1.2ch;
+             align-items: baseline;
+             padding: 0.45rem 0.9rem;
+             background: var(--color-canvas-darker);
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-sm);
+             color: var(--color-ink-light);
+             white-space: pre;
+             overflow-x: auto;
+         }
+         .proto-mission__log .k {
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-xs);
+             letter-spacing: 0.3ch;
+             text-transform: uppercase;
+             color: var(--color-canvas-soft);
+         }
+         .proto-mission__log .sep {
+             font-family: var(--font-berkeley-black);
+             color: var(--color-accent);
+         }
+         .proto-mission__hatch {
+             flex: 1;
+             min-width: 3rem;
+             background: repeating-linear-gradient(
+                 -45deg,
+                 color-mix(in oklch, var(--color-canvas-soft) 35%, transparent) 0 4px,
+                 transparent 4px 10px
+             );
+         }
+
+         /* R/S/T — blueprint school. Paper = the canvas scale, marks = accent,
+            annotations = secondary; in the default theme that lands exactly on
+            the mockup (blue paper, yellow crosses, cyan underlines) and every
+            other theme retints the drawing. */
+         .proto-blueprint {
+             --bp-paper: var(--color-canvas-lighter);
+             --bp-ink: var(--color-ink-light);
+             --bp-dim: color-mix(in oklch, var(--bp-ink) 62%, transparent);
+             --bp-hair: color-mix(in oklch, var(--bp-ink) 45%, transparent);
+             --bp-accent: var(--color-accent);
+             --bp-cyan: var(--color-secondary);
+             --bp-alarm: var(--color-danger);
+             position: relative;
+             margin: 0;
+             display: flex;
+             flex-direction: column;
+             gap: 1.3rem;
+             background: var(--bp-paper);
+             color: var(--bp-ink);
+             padding: 2.4rem 2.6rem 1.8rem;
+         }
+         .proto-blueprint__mark {
+             position: absolute;
+             width: 20px;
+             height: 20px;
+             background:
+                 linear-gradient(var(--bp-accent), var(--bp-accent)) center / 100% 6px no-repeat,
+                 linear-gradient(var(--bp-accent), var(--bp-accent)) center / 6px 100% no-repeat;
+         }
+         .proto-blueprint__mark--tl { top: 0.7rem; left: 0.7rem; }
+         .proto-blueprint__mark--tr { top: 0.7rem; right: 0.7rem; }
+         .proto-blueprint__mark--bl { bottom: 0.7rem; left: 0.7rem; }
+         .proto-blueprint__mark--br { bottom: 0.7rem; right: 0.7rem; }
+         .proto-blueprint__meta {
+             display: grid;
+             grid-template-columns: 3fr 2fr;
+             gap: 1.3rem;
+         }
+         .proto-blueprint__field {
+             display: flex;
+             flex-direction: column;
+             gap: 0.55rem;
+             padding: 0.5rem 2ch 0.8rem 1.4ch;
+             border: 1px dashed var(--bp-hair);
+             min-width: 0;
+         }
+         .proto-blueprint__field .l,
+         .proto-blueprint__returns .l,
+         .proto-blueprint__cell .l {
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-xs);
+             letter-spacing: 0.25ch;
+             text-transform: uppercase;
+             color: var(--bp-dim);
+         }
+         .proto-blueprint .ic { color: var(--bp-cyan); letter-spacing: 0; }
+         .proto-blueprint__field .v {
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-base);
+             letter-spacing: 0.08ch;
+             text-transform: uppercase;
+             overflow-wrap: anywhere;
+         }
+         .proto-blueprint__code {
+             margin: 0;
+             padding: 0.6rem 0 0.4rem 0.5ch;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-xl);
+             line-height: 1.45;
+             overflow-x: auto;
+             color: var(--bp-ink);
+         }
+         .proto-blueprint__code code {
+             font-family: inherit;
+             font-size: inherit;
+             color: inherit;
+             background: none;
+             padding: 0;
+         }
+         .proto-blueprint__code .k { color: var(--bp-cyan); }
+         .proto-blueprint__code .n { color: var(--bp-accent); font-family: var(--font-berkeley-black); }
+         .proto-blueprint__code .s { color: var(--bp-cyan); }
+         .proto-blueprint__returns {
+             border: 1px dashed var(--bp-hair);
+             padding: 0.6rem 2ch 1rem 1.4ch;
+         }
+         .proto-blueprint__out {
+             position: relative;
+             margin: 0.55rem 0 0 1.2ch;
+             padding: 0.1rem 2ch 0.5rem 3ch;
+             border-left: 1px solid var(--bp-hair);
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-base);
+             line-height: 1.9;
+             white-space: pre-wrap;
+             overflow-wrap: anywhere;
+             text-decoration: underline;
+             text-decoration-color: color-mix(in srgb, var(--bp-cyan) 65%, transparent);
+             text-underline-offset: 0.3em;
+             max-width: 72ch;
+         }
+         .proto-blueprint__out::before {
+             content: "";
+             position: absolute;
+             left: 0;
+             bottom: 0.9em;
+             width: 1.6ch;
+             height: 1px;
+             background: var(--bp-hair);
+         }
+         .proto-blueprint__out::after {
+             content: "";
+             position: absolute;
+             left: 1.6ch;
+             bottom: calc(0.9em - 4px);
+             border-left: 8px solid var(--bp-accent);
+             border-top: 4.5px solid transparent;
+             border-bottom: 4.5px solid transparent;
+         }
+         .proto-blueprint__returns--alarm .l { color: var(--bp-alarm); }
+         .proto-blueprint__out--alarm {
+             text-decoration-color: color-mix(in srgb, var(--bp-alarm) 55%, transparent);
+         }
+         .proto-blueprint__out--alarm::first-line {
+             color: var(--bp-alarm);
+         }
+         .proto-blueprint__out--alarm::after { border-left-color: var(--bp-alarm); }
+         .proto-blueprint__foot {
+             display: grid;
+             grid-template-columns: 3fr 2fr;
+             gap: 1.3rem;
+         }
+         .proto-blueprint__cell {
+             display: flex;
+             flex-direction: column;
+             gap: 0.55rem;
+             padding: 0.6rem 2ch 0.7rem 1.4ch;
+             border: 1px dashed var(--bp-hair);
+             min-width: 0;
+         }
+         .proto-blueprint__cell .l a {
+             color: var(--bp-cyan);
+             text-decoration: underline dotted;
+             text-underline-offset: 0.35em;
+         }
+         .proto-blueprint__cell .l a:hover { color: var(--bp-accent); }
+         .proto-blueprint__cell .v {
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-sm);
+             letter-spacing: 0.05ch;
+             text-transform: uppercase;
+             line-height: 1.7;
+             overflow-wrap: anywhere;
+         }
+         .proto-blueprint__cell .v .ret {
+             color: var(--bp-accent);
+             font-family: var(--font-berkeley-uc-black);
+         }
+         .proto-blueprint__cell--notes .v {
+             text-decoration: underline;
+             text-decoration-color: color-mix(in srgb, var(--bp-cyan) 65%, transparent);
+             text-underline-offset: 0.3em;
+         }
+         .proto-blueprint__cell--defines .v {
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-base);
+         }
+         .proto-blueprint__cell--defines .v .sepd { color: var(--bp-dim); }
+
+         /* Aside F — brasshands: a small data plate for prose. Same frame, ticks,
+            and grain vocabulary as the code plates, serif body inside. */
+         .proto-aside-plate__body {
+             position: relative;
+             padding: 0.6rem 0.9rem 0.7rem;
+             font-family: var(--font-serif);
+             font-size: var(--font-size-sm);
+             line-height: 1.7;
+             color: color-mix(in oklch, var(--color-ink-light) 90%, transparent);
+             max-width: 75ch;
+         }
+         .proto-aside-plate__body p { margin: 0; }
+
+         /* Aside G — mint: flat bento cells. Accent label cell + hatch remainder
+            on top, grotesk body cell below, clipped corner. No frame, no grain. */
+         .proto-aside-mint {
+             display: flex;
+             flex-direction: column;
+             gap: 3px;
+             max-width: 80ch;
+             clip-path: polygon(0 0, 100% 0, 100% calc(100% - 0.9rem), calc(100% - 0.9rem) 100%, 0 100%);
+         }
+         .proto-aside-mint__head { display: flex; gap: 3px; align-items: stretch; }
+         .proto-aside-mint__label {
+             padding: 0.25rem 1ch;
+             background-color: var(--color-accent);
+             background-image: radial-gradient(color-mix(in oklch, var(--color-ink) 30%, transparent) 1px, transparent 1px);
+             background-size: 9px 9px;
+             background-position: 3px 3px;
+             color: var(--color-ink);
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-xs);
+             letter-spacing: 0.3ch;
+             text-transform: uppercase;
+         }
+         .proto-aside-mint__hatch {
+             flex: 1;
+             background: repeating-linear-gradient(
+                 -45deg,
+                 color-mix(in oklch, var(--color-canvas-soft) 35%, transparent) 0 4px,
+                 transparent 4px 10px
+             );
+         }
+         .proto-aside-mint__body {
+             padding: 0.65rem 0.9rem 0.75rem;
+             background: var(--color-canvas-dark);
+             font-family: var(--font-stack-neo-grotesque);
+             font-size: var(--font-size-sm);
+             line-height: 1.6;
+             color: var(--color-ink-light);
+         }
+         .proto-aside-mint__body p { margin: 0; }
+
+         /* Header F — brasshands: dotted top rule with corner ticks, mono eyebrow
+            (§ number + dot leader + chapter context), title in the book's own
+            display face. Chrome is mono, the heading stays the heading. */
+         .proto-head-plate {
+             position: relative;
+             border-top: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+             padding-top: 0.55rem;
+         }
+         .proto-head-plate__eyebrow {
+             display: flex;
+             align-items: baseline;
+             gap: 1.5ch;
+             margin-bottom: 0.4rem;
+             font-family: var(--font-berkeley-uc-black);
+             font-size: var(--font-size-xs);
+             letter-spacing: 0.15ch;
+             text-transform: uppercase;
+         }
+         .proto-head-plate__eyebrow .num { color: var(--color-accent); }
+         .proto-head-plate__eyebrow .leader {
+             flex: 1;
+             min-width: 4ch;
+             align-self: center;
+             border-bottom: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+             transform: translateY(-0.2em);
+         }
+         .proto-head-plate__eyebrow .ch { color: var(--color-canvas-soft); letter-spacing: 0.3ch; }
+         .proto-head-plate h3 { margin: 0; }
+
+         /* Header G — mint: meta strip of flat cells (accent number cell with
+            dot-matrix, dim kicker cell, hatch remainder), heavy grotesk title in
+            sentence case, thick accent rule. Mint speaks grotesk, not gothic. */
+         .proto-head-mint { display: flex; flex-direction: column; gap: 0.55rem; }
+         .proto-head-mint__meta { display: flex; align-items: stretch; gap: 3px; }
+         .proto-head-mint__num {
+             padding: 0.2rem 1ch;
+             background-color: var(--color-accent);
+             background-image: radial-gradient(color-mix(in oklch, var(--color-ink) 30%, transparent) 1px, transparent 1px);
+             background-size: 9px 9px;
+             background-position: 3px 3px;
+             color: var(--color-ink);
+             font-family: var(--font-berkeley-black);
+             font-size: var(--font-size-sm);
+         }
+         .proto-head-mint__kicker {
+             display: flex;
+             align-items: center;
+             padding: 0.2rem 1.2ch;
+             background: var(--color-canvas-dark);
+             color: var(--color-canvas-soft);
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-xs);
+             letter-spacing: 0.3ch;
+             text-transform: uppercase;
+         }
+         .proto-head-mint__hatch {
+             flex: 1;
+             background: repeating-linear-gradient(
+                 -45deg,
+                 color-mix(in oklch, var(--color-canvas-soft) 35%, transparent) 0 4px,
+                 transparent 4px 10px
+             );
+         }
+         .proto-head-mint h3 {
+             margin: 0;
+             font-family: var(--font-stack-neo-grotesque);
+             font-weight: 700;
+             text-transform: none;
+             letter-spacing: -0.015em;
+             font-size: var(--font-size-3xl);
+             line-height: 1.05;
+             color: var(--color-ink-light);
+         }
+         .proto-head-mint__rule { height: 4px; background: var(--color-accent); }
+
+         /* Full-section demos: real book prose around the component families. */
+         .proto-demo { max-width: 100ch; }
+         .proto-demo p {
+             margin-block: var(--spacing-1);
+             font-family: var(--font-serif);
+             text-align: justify;
+             letter-spacing: 0.05ch;
+             line-height: var(--leading-wide);
+             font-weight: 100;
+             color: var(--color-ink-light);
+         }
+         .proto-demo .proto-head-plate,
+         .proto-demo .proto-head-mint { margin-bottom: 1.1rem; }
+         .proto-demo .proto-plate,
+         .proto-demo .proto-mission { margin: 1.6rem 0 1.3rem; }
+         .proto-demo .proto-aside-mint { margin: 1.3rem 0; }
+
+         /* Mint condition dress: the log row flips to danger, the payload is one
+            flat cell of plain text with ::first-line doing the highlighting. */
+         .proto-mission__log--alarm {
+             background: color-mix(in oklch, var(--color-danger) 22%, var(--color-canvas-darker));
+         }
+         .proto-mission__log--alarm .sep { color: var(--color-danger); }
+         .proto-mission__log--alarm .cond {
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.1ch;
+             color: var(--color-danger);
+         }
+         .proto-mission__hatch--alarm {
+             background: repeating-linear-gradient(
+                 -45deg,
+                 color-mix(in oklch, var(--color-danger) 55%, transparent) 0 4px,
+                 transparent 4px 10px
+             );
+         }
+         .proto-mission__dump {
+             margin: 0;
+             padding: 0.5rem 0.9rem 0.6rem;
+             background: var(--color-canvas-dark);
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-sm);
+             line-height: 1.55;
+             color: var(--color-ink-light);
+             overflow-x: auto;
+             white-space: pre-wrap;
+         }
+         .proto-mission__dump::first-line { color: var(--color-danger); }
+         .proto-plate__inner {
+             border-inline: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+         }
+         .proto-plate__bar--foot {
+             border-bottom: none;
+             border-top: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+         }
+
+         /* I — Condition plate: the hazard vocabulary for errors. A warning-stripe
+            band, danger-toned frame and ticks, and the debugger transcript — with
+            its real restarts — as the payload. */
+         .proto-plate--alarm { border-color: color-mix(in oklch, var(--color-danger) 55%, transparent); }
+         .proto-plate--alarm .proto-plate__tick { color: var(--color-danger); }
+         .proto-plate--alarm .proto-plate__bar,
+         .proto-plate--alarm .proto-plate__hazard,
+         .proto-plate--alarm .proto-plate__debugger {
+             border-color: color-mix(in oklch, var(--color-danger) 45%, transparent);
+         }
+         .proto-plate--alarm .proto-plate__bar .v { color: var(--color-danger); }
+         .proto-plate__hazard {
+             height: 7px;
+             border-bottom: 1px dotted;
+             background: repeating-linear-gradient(
+                 -45deg,
+                 color-mix(in oklch, var(--color-danger) 65%, transparent) 0 5px,
+                 transparent 5px 11px
+             );
+         }
+         .proto-plate__chip--alarm { background: var(--color-danger); }
+         .proto-plate__debugger {
+             border-top: 1px dotted;
+             padding: 0.4rem 0.75rem;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-sm);
+             color: var(--color-ink-light);
+             overflow-x: auto;
+             white-space: pre;
+             line-height: 1.5;
+         }
+         .proto-plate__debugger .cond { color: var(--color-danger); }
+         .proto-plate__debugger .restart { color: var(--color-canvas-soft); }
+         .proto-plate__debugger .restart b {
+             color: var(--color-secondary);
+             font-weight: normal;
+             font-style: normal;
+         }
+
+         /* J — Live feed: Brass Hands' ● LIVE media frame pointed at the running
+            REPL. Bordered LIVE chip with a pulsing dot, the real SLY buffer name,
+            and a blinking point at the prompt. */
+         .proto-plate__live {
+             flex: none;
+             display: inline-flex;
+             align-items: center;
+             gap: 0.6ch;
+             padding: 0.1rem 0.75ch;
+             border: 1px solid var(--color-danger);
+             color: var(--color-danger);
+         }
+         .proto-plate__live .dot {
+             width: 0.55em;
+             height: 0.55em;
+             border-radius: 50%;
+             background: var(--color-danger);
+             animation: proto-pulse 1.6s ease-in-out infinite;
+         }
+         .proto-plate__repl {
+             margin: 0;
+             padding: var(--spacing-xs) 0.75rem;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-base);
+             color: var(--color-ink-light);
+             overflow-x: auto;
+             white-space: pre;
+         }
+         .proto-plate__repl .prompt { color: var(--color-accent); }
+         .proto-plate__repl .ret { color: var(--color-secondary); }
+         .proto-plate__cursor {
+             display: inline-block;
+             width: 0.6ch;
+             height: 1em;
+             vertical-align: -0.1em;
+             background: var(--color-accent);
+             animation: proto-blink 1.1s steps(1) infinite;
+         }
+         @keyframes proto-pulse { 50% { opacity: 0.25; } }
+         @keyframes proto-blink { 50% { opacity: 0; } }
+         @media (prefers-reduced-motion: reduce) {
+             .proto-plate__live .dot, .proto-plate__cursor { animation: none; }
+         }
+
+         /* G — Emacs window: buffer + doom-modeline + echo area, the exact anatomy
+            of evaluating a form in Doom + SLY. The modeline carries the file path
+            (dirname dim, basename bold, the doom-modeline convention) and fuses the
+            source and its result into one window. Without a result, the modeline
+            simply closes the window. */
+         .proto-emacs {
+             margin: 0;
+             background: var(--color-canvas);
+             border: 1px solid color-mix(in oklch, var(--color-canvas-soft) 30%, transparent);
+         }
+         .proto-emacs + .proto-emacs { margin-top: var(--spacing-1); }
+         .proto-emacs .code-block-source-pre { border-left: none; }
+         .proto-emacs__modeline {
+             position: relative;
+             display: flex;
+             align-items: center;
+             gap: 1.5ch;
+             border: 1px solid color-mix(in oklch, var(--color-canvas-soft) 30%, transparent);
+             padding: 0.28rem 0.75rem 0.28rem calc(0.75rem + 4px);
+             background: var(--color-canvas);
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-sm);
+             color: var(--color-canvas-soft);
+             overflow-x: auto;
+             white-space: nowrap;
+         }
+         .proto-emacs__modeline::before {
+             content: "";
+             position: absolute;
+             left: 0;
+             top: 0;
+             bottom: 0;
+             width: 4px;
+             background: var(--color-accent);
+         }
+         .proto-emacs__modeline .fpath .dir { color: var(--color-canvas-soft); }
+         .proto-emacs__modeline .fpath .fname {
+             color: var(--color-ink-light);
+             font-family: var(--font-berkeley-black);
+         }
+         .proto-emacs__modeline .pos { color: var(--color-ink-light); }
+         .proto-emacs__modeline .spring { flex: 1; min-width: 2ch; }
+         .proto-emacs__modeline .vc {
+             display: inline-flex;
+             align-items: center;
+             gap: 0.5ch;
+             color: var(--color-secondary);
+         }
+         .proto-emacs__modeline .vc svg { display: block; }
+         .proto-emacs__modeline .mode { color: var(--color-ink-light); }
+         .proto-emacs__echo {
+             display: flex;
+             gap: 1ch;
+             align-items: baseline;
+             padding: 0.4rem 0.75rem;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-base);
+             color: var(--color-ink-light);
+             overflow-x: auto;
+             white-space: pre;
+         }
+         .proto-emacs__echo .arrow {
+             flex: none;
+             font-family: var(--font-berkeley-black);
+             color: var(--color-accent);
+         }
+
+         /* K/L/M — export-ready plates: same Brass Hands family, but every slot is
+            fed by data publish.el already has at export time (:tangle, :language,
+            the paired result block, :class error, chapter/section counters). Each
+            specimen shows the org source that produces it. */
+         .proto-org-src {
+             margin: 0 0 var(--spacing-xs) 0;
+             padding: 0.35rem 0.75rem;
+             border-left: 2px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-sm);
+             color: var(--color-canvas-soft);
+             overflow-x: auto;
+             white-space: pre;
+         }
+         .proto-org-src::before {
+             content: "org source";
+             display: block;
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.15ch;
+             font-size: var(--font-size-xs);
+             margin-bottom: 0.25rem;
+         }
+         .proto-org-src .kw { color: var(--color-secondary); }
+
+         /* Result payload with NO internal markup: one style for the whole dump,
+            and CSS ::first-line picks out the condition line for free — no spans,
+            no parsing, works on text pasted straight from the debugger. */
+         .proto-plate__result {
+             margin: 0;
+             padding: 0.4rem 0.75rem;
+             border-top: 1px dotted color-mix(in oklch, var(--color-canvas-soft) 60%, transparent);
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-sm);
+             color: var(--color-ink-light);
+             overflow-x: auto;
+             white-space: pre-wrap;
+             line-height: 1.5;
+         }
+         .proto-plate--alarm .proto-plate__result {
+             border-color: color-mix(in oklch, var(--color-danger) 45%, transparent);
+         }
+         .proto-plate--alarm .proto-plate__result::first-line {
+             color: var(--color-danger);
+         }
+
+         .proto-map-table {
+             overflow-x: auto;
+             margin-top: var(--spacing-1);
+             font-size: var(--font-size-sm);
+         }
+
+         /* --------------------------------------------------------------------------
+            ASIDES · variations
+            -------------------------------------------------------------------------- */
+
+         /* C — Labelled callout: Note / Tip / Warning. The label chip encodes the
+          *kind* of interjection, colour-coded to the token palette. */
+         .proto-callout {
+             --c: var(--color-secondary);
+             border-left: 5px solid var(--c);
+             background: color-mix(in oklch, var(--c) 12%, var(--color-canvas-dark));
+             padding: var(--spacing-xs) var(--spacing-1);
+         }
+         .proto-callout + .proto-callout { margin-top: var(--spacing-xs); }
+         .proto-callout--note { --c: var(--color-secondary); }
+         .proto-callout--tip  { --c: var(--color-accent); }
+         .proto-callout--warn { --c: var(--color-danger); }
+         .proto-callout__tag {
+             display: block;
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.12ch;
+             font-size: var(--font-size-sm);
+             color: var(--c);
+             margin-bottom: 0.25rem;
+         }
+         .proto-callout p {
+             margin: 0 !important;
+             text-align: left !important;
+             font-weight: 400 !important;
+             font-family: var(--font-stack-neo-grotesque);
+             font-size: var(--font-size-sm);
+             line-height: var(--line-height-normal);
+         }
+
+         /* D — Author voice: a quiet first-person interjection, set in the display
+            serif so it reads as the writer stepping out from the technical prose. */
+         .proto-aside-voice {
+             border-block: 1px solid color-mix(in oklch, var(--color-canvas-soft) 55%, transparent);
+             padding: var(--spacing-xs) 0;
+             font-family: var(--font-instrument-serif, var(--font-serif));
+             font-style: italic;
+             font-size: var(--font-size-lg);
+             line-height: var(--line-height-tight);
+             color: var(--color-canvas-soft);
+         }
+         .proto-aside-voice::before {
+             content: "— aside";
+             display: block;
+             font-family: var(--font-berkeley-uc-black);
+             font-style: normal;
+             text-transform: uppercase;
+             letter-spacing: 0.2ch;
+             font-size: var(--font-size-xs);
+             color: var(--color-accent);
+             margin-bottom: 0.35rem;
+         }
+         .proto-aside-voice code { font-style: normal; }
+
+         /* --------------------------------------------------------------------------
+            QUOTES · variations
+            -------------------------------------------------------------------------- */
+
+         /* B — Cited spec quote: big opening mark + a source line. Fits the book's
+            habit of quoting the HyperSpec with a link. */
+         .proto-quote-cite {
+             position: relative;
+             border-left: 5px solid var(--color-secondary);
+             background: var(--color-canvas-dark);
+             padding: var(--spacing-1) var(--spacing-2);
+             overflow: hidden;
+         }
+         .proto-quote-cite::before {
+             content: "\201C";
+             position: absolute;
+             top: -0.35em; right: 0.15em;
+             font-family: var(--font-serif);
+             font-size: var(--font-size-8xl);
+             line-height: 1;
+             color: color-mix(in oklch, var(--color-accent) 22%, transparent);
+             pointer-events: none;
+         }
+         .proto-quote-cite p {
+             position: relative;
+             margin: 0 !important;
+             text-align: left !important;
+             font-weight: 400 !important;
+             font-family: var(--font-stack-neo-grotesque);
+         }
+         .proto-quote-cite cite {
+             display: block;
+             margin-top: 0.6rem;
+             font-family: var(--font-berkeley-uc-black);
+             font-style: normal;
+             text-transform: uppercase;
+             letter-spacing: 0.08ch;
+             font-size: var(--font-size-sm);
+             color: var(--color-accent);
+         }
+         .proto-quote-cite cite a { color: inherit; }
+         .proto-quote-cite cite::before { content: "— "; }
+
+         /* C — Pull quote: chromeless, centred display serif for a line worth
+            enlarging. No background — leans on type alone. */
+         .proto-pullquote {
+             background: none;
+             border: none;
+             text-align: center;
+             padding: var(--spacing-1) var(--spacing-2);
+             font-family: var(--font-instrument-serif, var(--font-serif));
+             font-style: italic;
+             font-size: var(--font-size-2xl);
+             line-height: 1.12;
+             color: var(--color-ink-light);
+         }
+         .proto-pullquote p { margin: 0 !important; text-align: center !important; font-weight: 400 !important; font-family: inherit; }
+         .proto-pullquote .mark { color: var(--color-accent); font-size: 1.3em; vertical-align: -0.15em; }
+
+         /* D — Spec block: monospace, dotted frame — for verbatim standard text where
+            the exact wording matters and should read like a datasheet excerpt. */
+         .proto-spec {
+             background: none;
+             border: 1px dashed var(--color-secondary);
+             padding: var(--spacing-xs) var(--spacing-1);
+         }
+         .proto-spec__tag {
+             display: block;
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.15ch;
+             font-size: var(--font-size-xs);
+             color: var(--color-secondary);
+             margin-bottom: 0.35rem;
+         }
+         .proto-spec p {
+             margin: 0 !important;
+             text-align: left !important;
+             font-weight: 400 !important;
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-sm);
+             color: var(--color-ink-light);
+             line-height: var(--line-height-normal);
+         }
+
+         /* --------------------------------------------------------------------------
+            E SERIES · signature: the chrome speaks Lisp.
+            Structural tokens are set as small, dim s-expression syntax — the same
+            shapes the book teaches — while the body type does the talking.
+            -------------------------------------------------------------------------- */
+
+         /* Code E — evaluation pair: source block + the evaluator's return arrow.
+            The result reads like SLIME printed it. */
+         .proto-eval__result {
+             display: flex;
+             gap: 1ch;
+             align-items: baseline;
+             border-left: var(--code-block-border-size, 5px) solid var(--color-accent);
+             background: var(--color-canvas-darker);
+             padding: 0.4rem 0.75rem;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-base);
+             color: var(--color-ink-light);
+             overflow-x: auto;
+             white-space: pre;
+         }
+         .proto-eval__arrow {
+             font-family: var(--font-berkeley-black);
+             color: var(--color-accent);
+             flex: none;
+         }
+
+         /* Aside E — an (aside …) form. Opens with the operator, body indented the
+            way Lisp indents, closes on the last word — never on its own line. */
+         .proto-aside-sexp {
+             max-width: 66ch;
+         }
+         .proto-aside-sexp .sexp-open {
+             display: block;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-sm);
+             color: var(--color-canvas-soft);
+             margin-bottom: 0.3rem;
+         }
+         .proto-aside-sexp .paren { color: var(--color-accent); }
+         .proto-aside-sexp .sexp-body {
+             padding-left: 2ch;
+             font-family: var(--font-serif);
+             font-size: var(--font-size-base);
+             line-height: var(--line-height-normal);
+             color: var(--color-ink-light);
+         }
+         .proto-aside-sexp .sexp-close {
+             font-family: var(--font-berkeley);
+             color: var(--color-accent);
+         }
+
+         /* Quote E — the reader macro. In Lisp, ' means "take this form verbatim,
+            do not evaluate" — which is exactly what a quotation is. Attribution is
+            a comment. */
+         .proto-quote-reader {
+             background: none;
+             border: none;
+             position: relative;
+             max-width: 70ch;
+             padding: var(--spacing-xs) 0 var(--spacing-xs) 4ch;
+         }
+         .proto-quote-reader::before {
+             content: "'";
+             position: absolute;
+             left: 0;
+             top: -0.5rem;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-4xl);
+             line-height: 1;
+             color: var(--color-accent);
+         }
+         .proto-quote-reader p {
+             margin: 0 !important;
+             text-align: left !important;
+             font-weight: 400 !important;
+             font-family: var(--font-stack-neo-grotesque);
+             font-size: var(--font-size-base);
+             line-height: var(--line-height-normal);
+             color: var(--color-ink-light);
+         }
+         .proto-quote-reader cite {
+             display: block;
+             margin-top: 0.5rem;
+             font-style: normal;
+             font-family: var(--font-berkeley-uc);
+             font-size: var(--font-size-sm);
+             color: var(--color-canvas-soft);
+         }
+         .proto-quote-reader cite::before { content: ";; "; color: var(--color-canvas-soft); }
+         .proto-quote-reader cite a { color: var(--color-secondary); }
+
+         /* Header E — a defsection form. The operator line is set small and dim;
+            the section name is the League Gothic display the book already owns.
+            The closing paren rides the title's baseline. */
+         .proto-head-sexp .form-line {
+             display: block;
+             font-family: var(--font-berkeley);
+             font-size: var(--font-size-sm);
+             color: var(--color-canvas-soft);
+         }
+         .proto-head-sexp .form-line .paren {
+             font-family: var(--font-berkeley-black);
+             color: var(--color-accent);
+         }
+         .proto-head-sexp .form-line .num { color: var(--color-accent); }
+         .proto-head-sexp h3 {
+             margin: 0;
+             padding-left: 2ch;
+             display: flex;
+             align-items: baseline;
+             gap: 0.15ch;
+         }
+         .proto-head-sexp h3 .close {
+             font-family: var(--font-berkeley-black);
+             font-size: 0.55em;
+             color: var(--color-accent);
+         }
+
+         /* --------------------------------------------------------------------------
+            HEADERS · variations
+            -------------------------------------------------------------------------- */
+
+         /* B — Eyebrow + rule: surfaces the section number (already in the TOC) as a
+            kicker above the title, underscored with a hairline accent rule. */
+         .proto-head-eyebrow { border-bottom: 2px solid var(--color-accent); padding-bottom: 0.2rem; }
+         .proto-head-eyebrow .eyebrow {
+             display: block;
+             font-family: var(--font-berkeley-uc-black);
+             text-transform: uppercase;
+             letter-spacing: 0.2ch;
+             font-size: var(--font-size-sm);
+             color: var(--color-secondary);
+         }
+         .proto-head-eyebrow h3 { margin: 0; }
+
+         /* C — Number marker: an oversized oblique Rockwell numeral to the left, the
+            same gesture the chapter number uses, applied at section scale. */
+         .proto-head-number { display: flex; align-items: baseline; gap: 1.25ch; }
+         .proto-head-number .num {
+             font-family: var(--font-stack-slab-serif);
+             font-style: oblique;
+             font-size: var(--font-size-6xl);
+             line-height: 0.8;
+             color: var(--color-accent);
+         }
+         .proto-head-number h3 { margin: 0; }
+
+         /* D — Terminal kicker: an accent chevron prompt, echoing the REPL frame —
+            reads like a command being run to open the section. */
+         .proto-head-term h3 { margin: 0; }
+         .proto-head-term h3::before {
+             content: ">> ";
+             font-family: var(--font-berkeley-uc-black);
+             color: var(--color-accent);
+         }
+
+         @media (max-width: 639px) {
+             .proto-head-number .num { font-size: var(--font-size-4xl); }
+         }
+        </style>
+    </head>
+    <body>
+        <header class="proto-topbar">
+            <span class="proto-topbar__title">Component <b>Prototypes</b></span>
+            <span class="proto-topbar__meta">/static/prototype.html · not wired to any route</span>
+            <span>
+                <label for="theme-select">Theme</label>
+                <select id="theme-select" name="theme-select">
+                    <option value="almighty-lisp">almighty-lisp</option>
+                    <option value="almighty-lisp-moon">almighty-lisp-moon</option>
+                    <option value="almighty-titan">almighty-titan</option>
+                    <option value="almighty-titan-moon">almighty-titan-moon</option>
+                    <option value="almighty-gear">almighty-gear</option>
+                    <option value="almighty-gear-moon">almighty-gear-moon</option>
+                    <option value="almighty-macro">almighty-macro</option>
+                    <option value="almighty-macro-moon">almighty-macro-moon</option>
+                    <option value="almighty-ena">almighty-ena</option>
+                    <option value="almighty-ena-moon">almighty-ena-moon</option>
+                    <option value="almighty-mikasa">almighty-mikasa</option>
+                    <option value="almighty-mikasa-moon">almighty-mikasa-moon</option>
+                    <option value="almighty-lisp-x">almighty-lisp-x</option>
+                    <option value="almighty-lisp-x-galaxy">almighty-lisp-x-galaxy</option>
+                    <option value="almighty-saga">almighty-saga</option>
+                    <option value="almighty-saga-moon">almighty-saga-moon</option>
+                </select>
+            </span>
+        </header>
+
+        <main class="book proto">
+            <p class="proto-intro">
+                A specimen sheet for displaying <b>code</b>, <b>asides</b>, <b>quotes</b>, and <b>headers</b>.
+                Every variation is built from the site's existing design tokens and the real book markup,
+                so it themes correctly across all 16 palettes — switch the theme above to compare.
+                Each specimen carries a monospace label and a one-line note on the trade-off it makes.
+                The first entry in each group is the treatment shipping today; the <b>E</b> entries are one
+                family — the book's furniture written as the s-expressions it teaches.
+            </p>
+
+            <!-- ================================================================== CODE -->
+            <section class="proto-group">
+                <hgroup><h2>Code</h2></hgroup>
+
+                <!-- A: current -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">A · Current <span class="tag">shipping</span></div>
+                    <p class="proto-variant__note">Bare <code>.code-block</code> with a cyan left-bar. Clean, but a bare source block gives no cue about which file or language it is.</p>
+                    <div class="code-block">
+                        <pre class="code-block-source-pre"><code class="code-block-source lisp">(defsystem "almighty-kaikei"
+  :author "Micah Killian"
+  :version "0.0.1"
+  :description "Almighty Double-Entry Accounting Program"
+  :depends-on (#:almighty-money #:local-time #:mito #:sxql #:dbi)
+  :components ((:file "src/main")))
+                        </code></pre>
+                    </div>
+                </div>
+
+                <!-- B: named file header -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">B · Named file header</div>
+                    <p class="proto-variant__note">A header strip names the file and language. Useful when a chapter edits several specific files (<code>config.el</code>, <code>packages.el</code>, the <code>.asd</code>) and the reader must know where the code goes.</p>
+                    <div class="proto-code-file">
+                        <div class="proto-code-file__bar"><span class="fname">almighty-kaikei.asd</span> <span class="lang">lisp</span></div>
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(defsystem "almighty-kaikei"
+  :depends-on (#:almighty-money #:local-time #:mito #:sxql #:dbi)
+  :components ((:file "src/main")))
+                            </code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C: REPL / terminal -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">C · REPL / terminal frame</div>
+                    <p class="proto-variant__note">A framed window for interactive shell and REPL sessions — visually separates "what you run and see" from "what you type into a file." The prompt glyph is accent-coloured.</p>
+                    <div class="proto-term">
+                        <div class="proto-term__bar">shell <span class="proto-term__dots"><span></span><span></span><span></span></span></div>
+                        <pre><span class="prompt">%</span> vend get
+                            <span class="comment"># => fetching dependencies into ./vendored ...</span>
+                            <span class="prompt">$</span> make</pre>
+                    </div>
+                    <div class="proto-term" style="margin-top: var(--spacing-xs);">
+                        <div class="proto-term__bar">sbcl · repl <span class="proto-term__dots"><span></span><span></span><span></span></span></div>
+                        <pre><span class="prompt">CL-USER&gt;</span> (win-or-block *test-board* 2)
+8
+                            <span class="prompt">CL-USER&gt;</span> (make-three-in-a-row *test-board*)
+(7 "I see a winning move at 7. ")</pre>
+                    </div>
+                </div>
+
+                <!-- D: ghost -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">D · Ghost snippet</div>
+                    <p class="proto-variant__note">Chromeless, faint background, a corner language badge. For short one-liners dropped mid-paragraph where a full framed block would over-punctuate the prose.</p>
+                    <div class="proto-code-ghost">
+                        <span class="lang-badge">elisp</span>
+                        <pre><code>(package! exec-path-from-shell)</code></pre>
+                    </div>
+                </div>
+
+                <!-- E: evaluation pair (signature) -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">E · Evaluation pair <span class="tag">signature</span></div>
+                    <p class="proto-variant__note">Source plus its return value joined by the evaluator's arrow — the result reads like SLIME printed it, replacing the "Result:" label with the notation Lispers already know.</p>
+                    <div class="proto-eval">
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(win-or-block *test-board* 2)
+                            </code></pre>
+                        </div>
+                        <div class="proto-eval__result"><span class="proto-eval__arrow">&rArr;</span>8</div>
+                    </div>
+                    <div class="proto-eval" style="margin-top: var(--spacing-xs);">
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(make-three-in-a-row *test-board*)
+                            </code></pre>
+                        </div>
+                        <div class="proto-eval__result"><span class="proto-eval__arrow">&rArr;</span>(7 "I see a winning move at 7. ")</div>
+                    </div>
+                </div>
+
+                <!-- F: data plate (B + E, brass hands) -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">F · Data plate <span class="tag">B + E · after brasshands.com</span></div>
+                    <p class="proto-variant__note">B and E fused and framed like a mil-spec equipment plate: corner registration ticks, dotted hairlines, a <code>LABEL: VALUE</code> header with dot leaders and an inverted language chip, an <code>EVAL ⇒</code> footer when there's a result, and a whisper of grain. The header answers "where does this go," the footer answers "what does it return."</p>
+                    <figure class="proto-plate">
+                        <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                        <div class="proto-plate__bar">
+                            <span class="k">file</span><span class="v">almighty-kaikei.asd</span>
+                            <span class="leader"></span>
+                            <span class="proto-plate__chip">lisp</span>
+                        </div>
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(defsystem "almighty-kaikei"
+  :depends-on (#:almighty-money #:local-time #:mito #:sxql #:dbi)
+  :components ((:file "src/main")))
+                            </code></pre>
+                        </div>
+                    </figure>
+                    <figure class="proto-plate">
+                        <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                        <div class="proto-plate__bar">
+                            <span class="k">repl</span><span class="v">cl-user</span>
+                            <span class="leader"></span>
+                            <span class="proto-plate__chip">lisp</span>
+                        </div>
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(make-three-in-a-row *test-board*)
+                            </code></pre>
+                        </div>
+                        <div class="proto-plate__eval"><span class="k">eval</span><span class="arrow">&rArr;</span>(7 "I see a winning move at 7. ")</div>
+                    </figure>
+                </div>
+
+                <!-- G: Emacs window (doom-modeline) -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">G · Emacs window <span class="tag">doom-modeline</span></div>
+                    <p class="proto-variant__note">The anatomy of evaluating a form in Doom + SLY: the buffer, its doom-modeline carrying the file path (dirname dim, basename bold), and the echo area printing what <code>C-x C-e</code> returned. The modeline is what fuses source and result into one window — and when there's no result, it simply closes the window.</p>
+                    <figure class="proto-emacs">
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(make-three-in-a-row *test-board*)
+                            </code></pre>
+                        </div>
+                        <div class="proto-emacs__modeline">
+                            <span class="fpath"><span class="dir">~/almighty-kaikei/src/</span><span class="fname">main.lisp</span></span>
+                            <span class="pos">42:34</span>
+                            <span class="pct">61%</span>
+                            <span class="spring"></span>
+                            <span class="enc">LF UTF-8</span>
+                            <span class="vc"><svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="2.2" cy="2.4" r="1.3" stroke="currentColor" stroke-width="1.1"/><circle cx="2.2" cy="9.6" r="1.3" stroke="currentColor" stroke-width="1.1"/><circle cx="7.8" cy="3.6" r="1.3" stroke="currentColor" stroke-width="1.1"/><path d="M2.2 3.7v4.6M7.8 4.9c0 2.2-2.6 2.5-5.6 2.7" stroke="currentColor" stroke-width="1.1"/></svg>main</span>
+                            <span class="mode">Lisp</span>
+                        </div>
+                        <div class="proto-emacs__echo"><span class="arrow">&rArr;</span>(7 "I see a winning move at 7. ")</div>
+                    </figure>
+                    <figure class="proto-emacs">
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(defsystem "almighty-kaikei"
+  :depends-on (#:almighty-money #:local-time #:mito #:sxql #:dbi)
+  :components ((:file "src/main")))
+                            </code></pre>
+                        </div>
+                        <div class="proto-emacs__modeline">
+                            <span class="fpath"><span class="dir">~/almighty-kaikei/</span><span class="fname">almighty-kaikei.asd</span></span>
+                            <span class="pos">3:36</span>
+                            <span class="pct">Bot</span>
+                            <span class="spring"></span>
+                            <span class="enc">LF UTF-8</span>
+                            <span class="vc"><svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="2.2" cy="2.4" r="1.3" stroke="currentColor" stroke-width="1.1"/><circle cx="2.2" cy="9.6" r="1.3" stroke="currentColor" stroke-width="1.1"/><circle cx="7.8" cy="3.6" r="1.3" stroke="currentColor" stroke-width="1.1"/><path d="M2.2 3.7v4.6M7.8 4.9c0 2.2-2.6 2.5-5.6 2.7" stroke="currentColor" stroke-width="1.1"/></svg>main</span>
+                            <span class="mode">Lisp</span>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- H: field unit (brass hands, full panel) -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">H · Field unit <span class="tag">after brasshands.com</span></div>
+                    <p class="proto-variant__note">The full Brass Hands panel, for hero listings like a chapter's project file: vertical edge captions carry the project and section, and the foot row carries spec pulled from the code itself — version and author straight out of the <code>defsystem</code>.</p>
+                    <figure class="proto-plate proto-plate--field">
+                        <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                        <span class="proto-plate__edge left">almighty-kaikei</span>
+                        <span class="proto-plate__edge right">&sect; 14.5</span>
+                        <div class="proto-plate__inner">
+                            <div class="proto-plate__bar">
+                                <span class="k">file</span><span class="v">almighty-kaikei.asd</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip">lisp</span>
+                            </div>
+                            <div class="code-block">
+                                <pre class="code-block-source-pre"><code class="code-block-source lisp">(defsystem "almighty-kaikei"
+  :author "Micah Killian"
+  :version "0.0.1"
+  :depends-on (#:almighty-money #:local-time #:mito #:sxql #:dbi)
+  :components ((:file "src/main")))
+                                </code></pre>
+                            </div>
+                            <div class="proto-plate__bar proto-plate__bar--foot">
+                                <span class="k">version</span><span class="v">0.0.1</span>
+                                <span class="leader"></span>
+                                <span class="k">author</span><span class="v">micah killian</span>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- I: condition plate (brass hands, hazard) -->
+                <div class="proto-variant">
+        <div class="proto-variant__label">I · Condition plate <span class="tag">after brasshands.com</span></div>
+        <p class="proto-variant__note">Brass Hands' industrial-warning vocabulary pointed at the thing Lisp does better than anyone: signalling conditions. Hazard stripe, danger-toned frame, and the debugger transcript — with its real restarts — as the payload.</p>
+        <figure class="proto-plate proto-plate--alarm">
+          <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+          <div class="proto-plate__hazard"></div>
+          <div class="proto-plate__bar">
+            <span class="k">condition</span><span class="v">division-by-zero</span>
+            <span class="leader"></span>
+            <span class="proto-plate__chip proto-plate__chip--alarm">signalled</span>
+          </div>
+          <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(/ (account-balance *checking*) 0)
+</code></pre>
+          </div>
+          <div class="proto-plate__debugger"><span class="cond">arithmetic-error DIVISION-BY-ZERO signalled:</span>
+  Operation was (/ 1520 0).
+
+<span class="restart"> 0: <b>[RETRY]</b> Retry SLY mREPL evaluation request.</span>
+<span class="restart"> 1: <b>[*ABORT]</b> Return to SLY's top level.</span></div>
+        </figure>
+                </div>
+
+                <!-- J: live feed (brass hands, media frame) -->
+                <div class="proto-variant">
+        <div class="proto-variant__label">J · Live feed <span class="tag">after brasshands.com</span></div>
+        <p class="proto-variant__note">Their <code>&#9679; LIVE</code> media frame pointed at the running image. The header names the actual SLY buffer, the LIVE chip pulses, and the point blinks at the prompt — a transcript that reads as happening now, not quoted from the past.</p>
+        <figure class="proto-plate">
+          <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+          <div class="proto-plate__bar">
+            <span class="k">buffer</span><span class="v">*sly-mrepl for sbcl*</span>
+            <span class="leader"></span>
+            <span class="proto-plate__live"><span class="dot"></span>live</span>
+          </div>
+<pre class="proto-plate__repl"><span class="prompt">CL-USER&gt;</span> (win-or-block *test-board* 2)
+<span class="ret">8</span>
+<span class="prompt">CL-USER&gt;</span> (make-three-in-a-row *test-board*)
+<span class="ret">(7 "I see a winning move at 7. ")</span>
+<span class="prompt">CL-USER&gt;</span> <span class="proto-plate__cursor"></span></pre>
+        </figure>
+                </div>
+            </section>
+
+            <!-- ============================================================ ORG EXPORT -->
+            <section class="proto-group">
+                <hgroup><h2>Org Export</h2></hgroup>
+                <p class="proto-variant__note" style="margin-top: var(--spacing-xs);">
+                    The plate family re-cut so that <b>every</b> slot is fed by data <code>publish.el</code>
+                    already has at export time — nothing hand-authored, nothing that can't come out of
+                    <code>essentials.org</code> automatically. Each specimen shows the org source that produces it.
+                    The mapping table at the end says where each slot comes from.
+                </p>
+
+                <!-- K: export plate -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">K · Export plate <span class="tag">the quiet default</span></div>
+                    <p class="proto-variant__note">The default treatment for the 656 plain <code>lisp</code> blocks. One key for every block: <code>PACKAGE:</code> — resolved from a block <code>:package</code> header, else the chapter property, else <code>CL-USER</code>. The chip is the src language, and the footer is the paired <code>#+begin_result</code> — a pairing <code>publish.el</code> already does.</p>
+                    <pre class="proto-org-src"><span class="kw">#+begin_src</span> lisp
+(defconstant +pi+ 3.14)
++pi+
+                        <span class="kw">#+end_src</span>
+
+                        <span class="kw">#+begin_result</span>
+3.14
+                        <span class="kw">#+end_result</span></pre>
+                    <figure class="proto-plate">
+                        <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                        <div class="proto-plate__bar">
+                            <span class="k">package</span><span class="v">cl-user</span>
+                            <span class="leader"></span>
+                            <span class="proto-plate__chip">lisp</span>
+                        </div>
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(defconstant +pi+ 3.14)
++pi+
+                            </code></pre>
+                        </div>
+                        <div class="proto-plate__eval"><span class="k">result</span><span class="arrow">&rArr;</span>3.14</div>
+                    </figure>
+                </div>
+
+                <!-- L: export field unit (L+N combined) -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">L · Export field unit <span class="tag">L + N combined</span></div>
+                    <p class="proto-variant__note"><code>PACKAGE:</code> is now the <b>one</b> key, for every block — resolved block header &gt; chapter property &gt; <code>cl-user</code>. The <code>:tangle</code> path didn't vanish; it moved to the foot as <code>FILE:</code>, next to the <code>DESCRIPTION:</code> (authored <code>:description</code>, falling back to the <code>DEFINES:</code> scan when absent). The section link left the vertical edge for a <b>file-folder tab riding the top border</b> — horizontal, number + section title + arrow, dressed exactly like the book's links, so it reads as “this is where you are, click to go there.” The vertical edges are gone.</p>
+                    <pre class="proto-org-src"><span class="kw">#+HEADER:</span> :description Place a piece at a board position
+                        <span class="kw">#+CAPTION:</span> Add the place-piece function
+                        <span class="kw">#+begin_src</span> lisp :tangle src/basics/tic-tac-toe.lisp
+(defun place-piece (board piece position)
+  (setf (nth position board) piece)
+  board)
+                        <span class="kw">#+end_src</span></pre>
+                    <figure class="proto-plate" style="margin-top: 1.2rem;">
+                        <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                        <span class="proto-plate__section"><a href="#sec-3-8">&sect; 3.8 <span class="t">&middot; write functions for manipulating data</span></a></span>
+                        <div class="proto-plate__bar">
+                            <span class="k">package</span><span class="v">cl-user</span>
+                            <span class="leader"></span>
+                            <span class="proto-plate__chip proto-plate__chip--task">add the place-piece function</span>
+                        </div>
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(defun place-piece (board piece position)
+  (setf (nth position board) piece)
+  board)
+                            </code></pre>
+                        </div>
+                        <div class="proto-plate__bar proto-plate__bar--foot">
+                            <span class="k">description</span><span class="v">place a piece at a board position</span>
+                            <span class="leader"></span>
+                            <span class="k">file</span><span class="v">src/basics/tic-tac-toe.lisp</span>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- M: export condition plate -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">M · Export condition plate <span class="tag">zero markup in the payload</span></div>
+                    <p class="proto-variant__note">Triggered by <code>#+ATTR_HTML: :class error</code>, which the exporter already reads. The header says <code>RESULT: CONDITION</code> — a fixed label, no parsing. The payload is one unstyled text dump; CSS <code>::first-line</code> colours the condition line for free, so text pasted straight from the debugger needs no highlighting at all.</p>
+                    <pre class="proto-org-src"><span class="kw">#+begin_src</span> lisp
+(setf +pi+ 42)
+                        <span class="kw">#+end_src</span>
+
+                        <span class="kw">#+ATTR_HTML:</span> :class error
+                        <span class="kw">#+begin_result</span>
++PI+ is a constant and thus can't be set.
+                        <span class="kw">#+end_result</span></pre>
+                    <figure class="proto-plate proto-plate--alarm">
+                        <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                        <div class="proto-plate__hazard"></div>
+                        <div class="proto-plate__bar">
+                            <span class="k">result</span><span class="v">condition</span>
+                            <span class="leader"></span>
+                            <span class="proto-plate__chip proto-plate__chip--alarm">signalled</span>
+                        </div>
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(setf +pi+ 42)
+                            </code></pre>
+                        </div>
+                        <pre class="proto-plate__result">+PI+ is a constant and thus can't be set.</pre>
+                    </figure>
+                    <figure class="proto-plate proto-plate--alarm">
+                        <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                        <div class="proto-plate__hazard"></div>
+                        <div class="proto-plate__bar">
+                            <span class="k">result</span><span class="v">condition</span>
+                            <span class="leader"></span>
+                            <span class="proto-plate__chip proto-plate__chip--alarm">signalled</span>
+                        </div>
+                        <div class="code-block">
+                            <pre class="code-block-source-pre"><code class="code-block-source lisp">(win-or-block *test-boar* 2)
+                            </code></pre>
+                        </div>
+                        <pre class="proto-plate__result">The variable *TEST-BOAR* is unbound.
+   [Condition of type UNBOUND-VARIABLE]
+
+Restarts:
+ 0: [CONTINUE] Retry using *TEST-BOAR*.
+ 1: [USE-VALUE] Use specified value.
+ 2: [ABORT] Return to SLY's top level.</pre>
+                    </figure>
+                </div>
+
+                <!-- O: terminal plate with copy -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">O · Terminal plate <span class="tag">copy only where copying is right</span></div>
+                    <p class="proto-variant__note">Lisp blocks stay type-it-yourself — the typing <em>is</em> the lesson. But shell blocks (installing software, running <code>vend</code>) are ceremony, not practice, so <code>lang &isin; {shell, bash, sh}</code> switches the plate to terminal dress: the language takes the key slot, and a working <b>copy button</b> takes the chip slot. Fully derivable — the trigger is <code>:language</code>, nothing authored. This is the real Doom install block from chapter 2. (The button works — try it.)</p>
+                    <pre class="proto-org-src"><span class="kw">#+begin_src</span> shell
+git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+
+~/.config/emacs/bin/doom install
+                        <span class="kw">#+end_src</span></pre>
+                    <figure class="proto-plate">
+                        <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                        <div class="proto-plate__bar">
+                            <span class="k">lang</span><span class="v">shell</span>
+                            <span class="leader"></span>
+                            <button class="proto-plate__copy" type="button">&#10697; copy</button>
+                        </div>
+                        <pre class="proto-plate__shell"><span class="prompt">$ </span>git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+
+                            <span class="prompt">$ </span>~/.config/emacs/bin/doom install</pre>
+                    </figure>
+                </div>
+
+                <!-- P: manifest -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">P · Manifest <span class="tag">same slots, different anatomy</span></div>
+                    <p class="proto-variant__note">A second brasshands reading of the same data — the <b>spec-sheet</b> idiom instead of the data-plate one. Labels sit <em>over</em> their values in dotted-rule cells (SECTION is the link, first thing the eye hits). The <code>#+CAPTION:</code> becomes a full-width <b>inverted task banner</b> — unmissable. A ghost section numeral watermarks the code, the corner ticks give way to a solid accent top rule, and the grain stays. Every slot derives from the exact same org sources as K–O.</p>
+                    <pre class="proto-org-src"><span class="kw">#+HEADER:</span> :description Try place-piece at the REPL
+                        <span class="kw">#+CAPTION:</span> Test it: place player one's piece on square 5
+                        <span class="kw">#+begin_src</span> lisp
+(place-piece *board* *player-one* 5)
+                        <span class="kw">#+end_src</span>
+
+                        <span class="kw">#+begin_result</span>
+(BOARD 0 0 0 0 1 0 0 0 0)
+                        <span class="kw">#+end_result</span></pre>
+                    <figure class="proto-manifest">
+                        <div class="proto-manifest__head">
+                            <a class="proto-manifest__cell" href="#sec-3-8">
+                                <span class="l">section</span>
+                                <span class="v">&sect; 3.8</span>
+                            </a>
+                            <div class="proto-manifest__cell">
+                                <span class="l">package</span>
+                                <span class="v">cl-user</span>
+                            </div>
+                        </div>
+                        <div class="proto-manifest__task"><span class="arrow">&rArr;</span>test it: place player one's piece on square 5</div>
+                        <div class="proto-manifest__body">
+                            <span class="proto-manifest__ghost">3.8</span>
+                            <div class="code-block">
+                                <pre class="code-block-source-pre"><code class="code-block-source lisp">(place-piece *board* *player-one* 5)
+                                </code></pre>
+                            </div>
+                        </div>
+                        <div class="proto-manifest__foot">
+                            <div class="proto-manifest__cell">
+                                <span class="l">description</span>
+                                <span class="v">try place-piece at the repl</span>
+                            </div>
+                            <div class="proto-manifest__cell proto-manifest__cell--result">
+                                <span class="l">result</span>
+                                <span class="v"><span class="arrow">&rArr;</span> (BOARD 0 0 0 0 1 0 0 0 0)</span>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- Q: mission panel -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">Q · Mission panel <span class="tag">from the reference images</span></div>
+                    <p class="proto-variant__note">The mission-control school from the reference set (TRA&thinsp;/&thinsp;D350): <b>flat solid cells butted together</b> with visible seams instead of frames and hairlines — no grain, no ticks, flatness is the signature. The <code>#+CAPTION:</code> takes the <b>inverted accent cell</b> (the one highlighted row in every TRA readout), dotted with the reference dot-matrix. The result prints as a <b>log row</b> — <code>RESULT :: value</code> — and the leftover width gets the <b>diagonal hatch</b> the references use for remainder zones. Clipped corner from the TRA cards. Same org sources as everything above; an error would flip the log row's fill to danger.</p>
+                    <pre class="proto-org-src"><span class="kw">#+HEADER:</span> :description Try place-piece at the REPL
+                        <span class="kw">#+CAPTION:</span> Place player one's piece on square 5
+                        <span class="kw">#+begin_src</span> lisp
+(place-piece *board* *player-one* 5)
+                        <span class="kw">#+end_src</span>
+
+                        <span class="kw">#+begin_result</span>
+(BOARD 0 0 0 0 1 0 0 0 0)
+                        <span class="kw">#+end_result</span></pre>
+                    <figure class="proto-mission">
+                        <div class="proto-mission__head">
+                            <a href="#sec-3-8">&sect; 3.8 <span class="t">&middot; write functions for manipulating data</span></a>
+                            <span class="proto-mission__idx">lisp</span>
+                        </div>
+                        <div class="proto-mission__cells">
+                            <div class="proto-mission__cell">
+                                <span class="l">package</span>
+                                <span class="v">cl-user</span>
+                            </div>
+                            <div class="proto-mission__cell proto-mission__cell--desc">
+                                <span class="l">description</span>
+                                <span class="v">Try place-piece at the REPL</span>
+                            </div>
+                            <div class="proto-mission__cell proto-mission__cell--task">
+                                <span class="l">task</span>
+                                <span class="v">Place player one's piece on square 5</span>
+                            </div>
+                        </div>
+                        <div class="proto-mission__code">
+                            <div class="code-block">
+                                <pre class="code-block-source-pre"><code class="code-block-source lisp">(place-piece *board* *player-one* 5)
+                                </code></pre>
+                            </div>
+                        </div>
+                        <div class="proto-mission__result">
+                            <div class="proto-mission__log"><span class="k">result</span><span class="sep">::</span>(BOARD 0 0 0 0 1 0 0 0 0)</div>
+                            <div class="proto-mission__hatch"></div>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- R: blueprint panel -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">R · Blueprint panel <span class="tag">from the mockup</span></div>
+                    <p class="proto-variant__note">The blueprint school, matched to the mockup and built from the theme tokens: paper = the canvas scale, registration crosses = accent, annotations = secondary — in the default theme that lands exactly on the mockup's blue&thinsp;/&thinsp;yellow&thinsp;/&thinsp;cyan, and every other theme retints the drawing. Every cell carries a <b>full dashed border</b>, floating on the paper. Label-<code>&#8759;</code>-over-value cells. The RETURNS output is <b>underlined like a blueprint annotation</b>, with an ink leader down its left edge ending in a yellow arrow. Slots: BUFFER &larr; <code>:tangle</code>, PACKAGE &larr; the usual resolution, RETURNS &larr; the paired result, the signature cell &larr; an authored <code>:signature</code> naming a standard function (label links to the CLHS), NOTES &larr; an authored <code>:notes</code> header. The mockup's selection handles and <code>289 &times; 10</code> badge were design-tool chrome, not part of the design, so they're dropped.</p>
+                    <pre class="proto-org-src"><span class="kw">#+HEADER:</span> :signature write-to-string
+                        <span class="kw">#+HEADER:</span> :notes Common source of difficult-to-debug errors--caution advised
+                        <span class="kw">#+begin_src</span> lisp :tangle lisp/almighty-lisp/beyond-lists.lisp
+(defmethod print-object ((this pet) stream) ...)
+                        <span class="kw">#+end_src</span>
+
+                        <span class="kw">#+begin_result</span>
+Skipping line 3. ...
+                        <span class="kw">#+end_result</span></pre>
+                    <figure class="proto-blueprint">
+                        <span class="proto-blueprint__mark proto-blueprint__mark--tl"></span>
+                        <span class="proto-blueprint__mark proto-blueprint__mark--tr"></span>
+                        <span class="proto-blueprint__mark proto-blueprint__mark--bl"></span>
+                        <span class="proto-blueprint__mark proto-blueprint__mark--br"></span>
+                        <div class="proto-blueprint__meta">
+                            <div class="proto-blueprint__field">
+                                <span class="l">buffer <span class="ic">&#8759;</span></span>
+                                <span class="v">lisp/almighty-lisp/beyond-lists.lisp</span>
+                            </div>
+                            <div class="proto-blueprint__field">
+                                <span class="l">package <span class="ic">&#8759;</span></span>
+                                <span class="v">almighty-beyond-lists</span>
+                            </div>
+                        </div>
+                        <pre class="proto-blueprint__code"><code>(<span class="k">defmethod</span> <span class="n">print-object</span> ((this pet) stream)
+  (print-unreadable-object (this stream)
+    (format stream <span class="s">"PET ~a"</span> (species this))))</code></pre>
+                        <div class="proto-blueprint__returns">
+                            <span class="l">returns</span>
+                            <div class="proto-blueprint__out">Skipping line 3.
+Skipping line 6.
+Skipping line 7.
+ &rArr; (("environment" . "production") ("debug" . "false") ("db" . "sqlite") ("db_username" . "admin"))</div>
+                        </div>
+                        <div class="proto-blueprint__foot">
+                            <div class="proto-blueprint__cell">
+                                <span class="l"><a href="#">write-to-string</a> <span class="ic">&#9758;</span></span>
+                                <span class="v">object &amp;key array base case circle escape gensym length level lines miser-width pprint-dispatch pretty radix readably right-margin <span class="ret">=&gt; string</span></span>
+                            </div>
+                            <div class="proto-blueprint__cell proto-blueprint__cell--notes">
+                                <span class="l">notes <span class="ic">&#8759;</span></span>
+                                <span class="v">Common source of difficult-to-debug errors--caution advised</span>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- S: blueprint condition -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">S · Blueprint condition <span class="tag">redlined</span></div>
+                    <p class="proto-variant__note">Same panel, error result — the blueprint gets <b>redlined</b>, the way corrections are marked on real drawings. RETURNS becomes SIGNALS, the condition line takes the redline colour via <code>::first-line</code> (payload stays plain text), the leader arrow flips to match. Triggered by the existing <code>#+ATTR_HTML: :class error</code>. The caution note finally lives where it belongs.</p>
+                    <figure class="proto-blueprint">
+                        <span class="proto-blueprint__mark proto-blueprint__mark--tl"></span>
+                        <span class="proto-blueprint__mark proto-blueprint__mark--tr"></span>
+                        <span class="proto-blueprint__mark proto-blueprint__mark--bl"></span>
+                        <span class="proto-blueprint__mark proto-blueprint__mark--br"></span>
+                        <div class="proto-blueprint__meta">
+                            <div class="proto-blueprint__field">
+                                <span class="l">buffer <span class="ic">&#8759;</span></span>
+                                <span class="v">lisp/almighty-lisp/beyond-lists.lisp</span>
+                            </div>
+                            <div class="proto-blueprint__field">
+                                <span class="l">package <span class="ic">&#8759;</span></span>
+                                <span class="v">almighty-beyond-lists</span>
+                            </div>
+                        </div>
+                        <pre class="proto-blueprint__code"><code>(<span class="n">print-object</span> *my-pet* nil)</code></pre>
+                        <div class="proto-blueprint__returns proto-blueprint__returns--alarm">
+                            <span class="l">signals</span>
+                            <div class="proto-blueprint__out proto-blueprint__out--alarm">The value NIL is not of type STREAM.
+   [Condition of type TYPE-ERROR]
+
+Restarts:
+ 0: [RETRY] Retry SLY mREPL evaluation request.
+ 1: [*ABORT] Return to SLY's top level.</div>
+                        </div>
+                        <div class="proto-blueprint__foot">
+                            <div class="proto-blueprint__cell">
+                                <span class="l"><a href="#">print-object</a> <span class="ic">&#9758;</span></span>
+                                <span class="v">object stream <span class="ret">=&gt; object</span></span>
+                            </div>
+                            <div class="proto-blueprint__cell proto-blueprint__cell--notes">
+                                <span class="l">notes <span class="ic">&#8759;</span></span>
+                                <span class="v">Common source of difficult-to-debug errors--caution advised</span>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- T: blueprint defines -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">T · Blueprint defines <span class="tag">signature cell &rarr; DEFINES</span></div>
+                    <p class="proto-variant__note">The signature cell swapped for <b>DEFINES</b> — the usual scan of top-level <code>(def&hellip; NAME</code> in the block, no authoring needed. A <code>defclass</code> is the best case: the class and its accessors all fall out of one form.</p>
+                    <figure class="proto-blueprint">
+                        <span class="proto-blueprint__mark proto-blueprint__mark--tl"></span>
+                        <span class="proto-blueprint__mark proto-blueprint__mark--tr"></span>
+                        <span class="proto-blueprint__mark proto-blueprint__mark--bl"></span>
+                        <span class="proto-blueprint__mark proto-blueprint__mark--br"></span>
+                        <div class="proto-blueprint__meta">
+                            <div class="proto-blueprint__field">
+                                <span class="l">buffer <span class="ic">&#8759;</span></span>
+                                <span class="v">lisp/almighty-lisp/beyond-lists.lisp</span>
+                            </div>
+                            <div class="proto-blueprint__field">
+                                <span class="l">package <span class="ic">&#8759;</span></span>
+                                <span class="v">almighty-beyond-lists</span>
+                            </div>
+                        </div>
+                        <pre class="proto-blueprint__code"><code>(<span class="k">defclass</span> <span class="n">pet</span> ()
+  ((species :initarg :species :accessor species)
+   (name    :initarg :name    :accessor name)))</code></pre>
+                        <div class="proto-blueprint__returns">
+                            <span class="l">returns</span>
+                            <div class="proto-blueprint__out"> &rArr; #&lt;STANDARD-CLASS ALMIGHTY-BEYOND-LISTS::PET&gt;</div>
+                        </div>
+                        <div class="proto-blueprint__foot">
+                            <div class="proto-blueprint__cell proto-blueprint__cell--defines">
+                                <span class="l">defines <span class="ic">&#8759;</span></span>
+                                <span class="v">pet <span class="sepd">&middot;</span> species <span class="sepd">&middot;</span> name</span>
+                            </div>
+                            <div class="proto-blueprint__cell proto-blueprint__cell--notes">
+                                <span class="l">notes <span class="ic">&#8759;</span></span>
+                                <span class="v">Accessors are generic functions--specialize them freely</span>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- mapping table -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">Slot &rarr; org source mapping</div>
+                    <p class="proto-variant__note">Everything above derives from these. The only new exporter work is the defines scan (a regex over the block text for top-level <code>(def&hellip; NAME</code>), reading the caption/property, and the key defaulting — each a few lines in <code>publish.el</code>.</p>
+                    <div class="table-container proto-map-table">
+                        <table>
+                            <thead><tr><th>Plate slot</th><th>Org source of truth</th><th>Derivation</th></tr></thead>
+                            <tbody>
+                                <tr><td>PACKAGE: key (the one key)</td><td>block <code>:package</code> header &gt; chapter property &gt; default <em>(addition)</em></td><td>org header-arg inheritance; default <code>CL-USER</code></td></tr>
+                                <tr><td>FILE: foot slot</td><td><code>:tangle</code> header arg</td><td>verbatim from <code>:parameters</code></td></tr>
+                                <tr><td>language chip</td><td><code>#+begin_src LANG</code></td><td>verbatim (<code>:language</code>)</td></tr>
+                                <tr><td>RESULT &rArr; footer</td><td>following <code>#+begin_result</code></td><td>publish.el already pairs them</td></tr>
+                                <tr><td>alarm styling</td><td><code>#+ATTR_HTML: :class error</code></td><td>class match, already read</td></tr>
+                                <tr><td>condition line colour</td><td>&mdash;</td><td>CSS <code>::first-line</code>, no markup</td></tr>
+                                <tr><td>&sect; section tab / cell (link)</td><td>headline position + title</td><td>same counter as sidebar TOC; href = existing section slug anchor</td></tr>
+                                <tr><td>DEFINES: names</td><td>the block's own text</td><td>scan top-level <code>(def&hellip; NAME</code>; fallback when no <code>:description</code></td></tr>
+                                <tr><td>DESCRIPTION: prose</td><td><code>:description</code> header <em>(addition)</em></td><td>verbatim from <code>:parameters</code>; replaces DEFINES</td></tr>
+                                <tr><td>task chip / banner</td><td><code>#+CAPTION:</code> <em>(addition)</em></td><td><code>org-export-get-caption</code>, verbatim</td></tr>
+                                <tr><td>terminal dress + copy button</td><td><code>#+begin_src shell</code></td><td><code>:language</code> &isin; {shell, bash, sh}</td></tr>
+                                <tr><td>optional block title</td><td><code>#+NAME:</code></td><td>verbatim, if you start naming blocks</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- suggested org / HTML additions -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">Suggested additions to essentials.org / the exported HTML</div>
+                    <p class="proto-variant__note">
+                        Cheap additions that make the chrome — and the book — more useful to the reader:
+                    </p>
+                    <ul style="font-family: var(--font-serif); line-height: var(--leading-wide); margin-left: 2ch; max-width: 100ch;">
+                        <li><b>Section numbers in headings + anchors.</b> <code>publish.el</code> already computes <code>3.8</code>-style counters for the sidebar — print them in the heading itself. The <code>&sect; 3.8</code> section tab on the plates is then a <em>link</em> to its section (demonstrated in L and P), and readers can deep-link anywhere.</li>
+                        <li><b><code>#+NAME:</code> on demonstration blocks.</b> One line buys a stable anchor — most useful on the blocks that demonstrate a <em>form</em> rather than define a function: <code>#+NAME: unwind-protect-demo</code> gives “as we saw with <code>unwind-protect</code>” somewhere concrete to point.</li>
+                        <li><b><code>#+CAPTION:</code> instructions</b> on the “now do this” blocks (chip in L, banner in P): the chrome stops being decoration and becomes the task.</li>
+                        <li><b><code>:description</code> header</b> where prose beats a symbol scan (L and P): <code>DESCRIPTION: view commands for generating reports</code> in the foot instead of the raw DEFINES list.</li>
+                        <li><b>Copy button on shell blocks only</b> (variant O). Lisp blocks stay type-it-yourself — typing is how the reader experiences Emacs. Terminal ceremony (<code>brew install</code>, <code>doom install</code>, running <code>vend</code>) is the one place copying is the right move, and <code>:language</code> already marks those blocks.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ================================================================ ASIDES -->
+            <section class="proto-group">
+      <hgroup><h2>Asides</h2></hgroup>
+
+      <!-- A: current -->
+      <div class="proto-variant">
+        <div class="proto-variant__label">A · Current <span class="tag">shipping</span></div>
+        <p class="proto-variant__note">The live markup emits a bare <code>.book-aside</code> with a plain paragraph, so it reads like ordinary body text — indistinguishable from the surrounding prose.</p>
+        <aside class="book-aside"><p>
+          <code>when</code> is used here rather than <code>if</code> because it communicates intent: run this branch only when the condition holds, and otherwise do nothing.
+        </p></aside>
+      </div>
+
+      <!-- B: margin note (activates existing .book-aside-contents) -->
+      <div class="proto-variant proto-variant--reserve">
+        <div class="proto-variant__label">B · Margin note</div>
+        <p class="proto-variant__note">Wrapping the aside body in <code>.book-aside-contents</code> activates a rule already in <code>book.css</code> that is currently unused: a dashed-accent card floated into the right-hand gutter. It collapses inline on narrow screens. This paragraph is here to give the floated note something to sit beside.</p>
+        <aside class="book-aside"><div class="book-aside-contents"><p>
+          <code>let</code> creates a block, which feels heavier than <code>let var = "…"</code> in other languages. The upside: the indentation width signals how complex the binding really is.
+        </p></div></aside>
+      </div>
+
+      <!-- C: labelled callouts -->
+      <div class="proto-variant">
+        <div class="proto-variant__label">C · Labelled callout</div>
+        <p class="proto-variant__note">A colour-coded chip names the kind of interjection. Three token-mapped variants: Note (cyan), Tip (yellow), Warning (danger).</p>
+        <div class="proto-callout proto-callout--note">
+          <span class="proto-callout__tag">Note</span>
+          <p>Universal time counts seconds since midnight, 1 Jan 1900 GMT. <code>local-time</code> timestamps convert to it with <code>with-universals</code>.</p>
+        </div>
+        <div class="proto-callout proto-callout--tip">
+          <span class="proto-callout__tag">Tip</span>
+          <p>To open your private config, type <code>SPC f P</code> (<code>doom/open-private-config</code>) and pick <code>config.el</code>.</p>
+        </div>
+        <div class="proto-callout proto-callout--warn">
+          <span class="proto-callout__tag">Warning</span>
+          <p>If Emacs can't find <code>vend</code>, install <code>exec-path-from-shell</code> — the executable isn't on Emacs's <code>PATH</code>.</p>
+        </div>
+      </div>
+
+      <!-- D: author voice -->
+      <div class="proto-variant">
+        <div class="proto-variant__label">D · Author voice</div>
+        <p class="proto-variant__note">A quiet first-person interjection set in the display serif, so the writer visibly steps out from the technical register without a boxed callout's weight.</p>
+        <aside class="proto-aside-voice">
+          Strangely, after I made this change <em>and then undid it</em>, <code>vend</code> kept working. We all love software that just works, don't we?
+        </aside>
+      </div>
+
+      <!-- E: (aside …) form (signature) -->
+      <div class="proto-variant">
+        <div class="proto-variant__label">E · The (aside) form <span class="tag">signature</span></div>
+        <p class="proto-variant__note">The aside is written as the form it is: opens with the operator, body indented two spaces the way Lisp indents, and — as any Lisper would — the closing paren rides the last word, never its own line.</p>
+        <aside class="proto-aside-sexp">
+          <span class="sexp-open"><span class="paren">(</span>aside</span>
+          <p class="sexp-body"><code>when</code> is used here rather than <code>if</code> because it communicates intent: run this branch only when the condition holds, and otherwise do nothing.<span class="sexp-close">)</span></p>
+        </aside>
+      </div>
+
+      <!-- F: brasshands aside -->
+      <div class="proto-variant">
+        <div class="proto-variant__label">F · Brasshands aside <span class="tag">data plate for prose</span></div>
+        <p class="proto-variant__note">The code plates' vocabulary applied to a note: framed unit, corner ticks, grain, an <code>ASIDE:</code> key with dot leader and inverted chip. The body stays serif — chrome is mono, prose is prose. Everything is a fixed label; <code>#+begin_aside</code> carries no metadata, so nothing needs authoring. Real aside from chapter 2.</p>
+        <aside class="proto-plate">
+          <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+          <div class="proto-plate__bar">
+            <span class="k">aside</span>
+            <span class="leader"></span>
+            <span class="proto-plate__chip">note</span>
+          </div>
+          <div class="proto-aside-plate__body"><p>
+            In later chapters, I will actually recommend using a different "package manager" called <code>vend</code>, and we will use <code>vend</code> in this book — not Quicklisp. However, if we don't install Quicklisp, we will get errors when we try opening Lisp files in Doom. You will still find Quicklisp valuable for downloading more rare/hard-to-find libraries in the future, so this isn't a complete waste of time and resources.
+          </p></div>
+        </aside>
+      </div>
+
+      <!-- G: mint aside -->
+      <div class="proto-variant">
+        <div class="proto-variant__label">G · Mint aside <span class="tag">flat bento cells</span></div>
+        <p class="proto-variant__note">The mint school's version of the same aside: an inverted accent label cell with the dot-matrix, hatch filling the remainder of the strip, a flat body cell in the neo-grotesque (mint speaks grotesk, not serif), visible seams, clipped corner. No frame, no grain, no ticks.</p>
+        <aside class="proto-aside-mint">
+          <div class="proto-aside-mint__head">
+            <span class="proto-aside-mint__label">aside</span>
+            <span class="proto-aside-mint__hatch"></span>
+          </div>
+          <div class="proto-aside-mint__body"><p>
+            In later chapters, I will actually recommend using a different "package manager" called <code>vend</code>, and we will use <code>vend</code> in this book — not Quicklisp. However, if we don't install Quicklisp, we will get errors when we try opening Lisp files in Doom. You will still find Quicklisp valuable for downloading more rare/hard-to-find libraries in the future, so this isn't a complete waste of time and resources.
+          </p></div>
+        </aside>
+      </div>
+            </section>
+
+            <!-- ================================================================ QUOTES -->
+            <section class="proto-group">
+                <hgroup><h2>Quotes</h2></hgroup>
+
+                <!-- A: current -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">A · Current <span class="tag">shipping</span></div>
+                    <p class="proto-variant__note">Solid canvas panel, neo-grotesque body. Reads well but gives no attribution and no visual "this is a quotation" cue beyond the fill.</p>
+                    <blockquote><p>
+                        Universal time is an absolute time represented as a single non-negative integer — the number of seconds since midnight, January 1, 1900 GMT (ignoring leap seconds).
+                    </p></blockquote>
+                </div>
+
+                <!-- B: cited -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">B · Cited spec quote</div>
+                    <p class="proto-variant__note">Left bar, a translucent opening mark, and a source line — matches the book's habit of quoting the HyperSpec with a link.</p>
+                    <blockquote class="proto-quote-cite">
+                        <p>Universal time is an absolute time represented as a single non-negative integer — the number of seconds since midnight, January 1, 1900 GMT (ignoring leap seconds).</p>
+                        <cite><a href="https://cl-community-spec.github.io/pages/Universal-Time.html">Common Lisp HyperSpec · Universal Time</a></cite>
+                    </blockquote>
+                </div>
+
+                <!-- C: pull quote -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">C · Pull quote</div>
+                    <p class="proto-variant__note">Chromeless, centred display serif for a single line worth enlarging. Leans entirely on type — no fill, no bar.</p>
+                    <blockquote class="proto-pullquote">
+                        <p><span class="mark">&ldquo;</span>Double-entry accounting detects errors by recording every value twice.<span class="mark">&rdquo;</span></p>
+                    </blockquote>
+                </div>
+
+                <!-- D: spec block -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">D · Spec block</div>
+                    <p class="proto-variant__note">Monospace, dotted frame — for verbatim standard text where exact wording matters and should read like a datasheet excerpt rather than prose.</p>
+                    <blockquote class="proto-spec">
+                        <span class="proto-spec__tag">CLHS · universal-time</span>
+                        <p>An absolute time represented as a single non-negative integer: seconds since midnight, 1900-01-01 GMT, ignoring leap seconds.</p>
+                    </blockquote>
+                </div>
+
+                <!-- E: reader-macro quote (signature) -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">E · The reader macro <span class="tag">signature</span></div>
+                    <p class="proto-variant__note">In Lisp, <code>'</code> means "take this form verbatim — don't evaluate it." Which is exactly what quoting a source is. The attribution is a comment, because that's where Lisp puts provenance.</p>
+                    <blockquote class="proto-quote-reader">
+                        <p>Universal time is an absolute time represented as a single non-negative integer — the number of seconds since midnight, January 1, 1900 GMT (ignoring leap seconds).</p>
+                        <cite><a href="https://cl-community-spec.github.io/pages/Universal-Time.html">Common Lisp HyperSpec, Universal Time</a></cite>
+                    </blockquote>
+                </div>
+            </section>
+
+            <!-- =============================================================== HEADERS -->
+            <section class="proto-group">
+                <hgroup><h2>Headers</h2></hgroup>
+
+                <!-- A: current -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">A · Current <span class="tag">shipping</span></div>
+                    <p class="proto-variant__note">Chapter number as an oblique Rockwell numeral, then the League Gothic title. The section-number metadata from the TOC (14.7) isn't surfaced on the heading itself.</p>
+                    <hgroup>
+                        <span class="chapter-number">14</span>
+                        <h3>Project: Accounting Library</h3>
+                    </hgroup>
+                </div>
+
+                <!-- B: eyebrow -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">B · Eyebrow + rule</div>
+                    <p class="proto-variant__note">Promotes the section number to a monospace kicker above the title, closed with a hairline accent rule. Encodes ordering the reader already relies on in the sidebar.</p>
+                    <hgroup class="proto-head-eyebrow">
+                        <span class="eyebrow">14.7 · Data model</span>
+                        <h3>Why SQL?</h3>
+                    </hgroup>
+                </div>
+
+                <!-- C: number marker -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">C · Number marker</div>
+                    <p class="proto-variant__note">An oversized oblique numeral to the left — the chapter-number gesture applied at section scale, so sections feel like part of the same numbered spine.</p>
+                    <hgroup class="proto-head-number">
+                        <span class="num">08</span>
+                        <h3>Accounts</h3>
+                    </hgroup>
+                </div>
+
+                <!-- D: terminal kicker -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">D · Terminal kicker</div>
+                    <p class="proto-variant__note">An accent chevron prompt echoes the REPL frame — the heading reads like a command run to open the section. Leans hard into the terminal identity.</p>
+                    <hgroup class="proto-head-term">
+                        <h3>Playing around</h3>
+                    </hgroup>
+                </div>
+
+                <!-- E: defsection form (signature) -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">E · The defsection form <span class="tag">signature</span></div>
+                    <p class="proto-variant__note">The section opener is a definition — the same shape as <code>defsystem</code> and <code>deftable</code> the reader writes all chapter. Operator line small and dim, the name in the book's own display face, the closing paren on the baseline.</p>
+                    <hgroup class="proto-head-sexp">
+                        <span class="form-line"><span class="paren">(</span>defsection <span class="num">14.8</span></span>
+                        <h3>Accounts<span class="close">)</span></h3>
+                    </hgroup>
+                </div>
+
+                <!-- F: brasshands header -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">F · Brasshands header <span class="tag">ticked rule + eyebrow</span></div>
+                    <p class="proto-variant__note">The plate vocabulary opened up for a heading — no box, just the dotted top rule with two registration ticks, then a mono eyebrow: <code>&sect; 3.8</code> in accent, dot leader, chapter context dim on the right. The title itself stays in the book's League Gothic — the chrome frames it without re-dressing it. Number and chapter come from the counters <code>publish.el</code> already has.</p>
+                    <hgroup class="proto-head-plate">
+                        <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span>
+                        <div class="proto-head-plate__eyebrow">
+                            <span class="num">&sect; 3.8</span>
+                            <span class="leader"></span>
+                            <span class="ch">ch.3 &middot; lisp fundamentals</span>
+                        </div>
+                        <h3>Write functions for manipulating data</h3>
+                    </hgroup>
+                </div>
+
+                <!-- G: mint header -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">G · Mint header <span class="tag">meta strip + grotesk</span></div>
+                    <p class="proto-variant__note">The mint reading: a meta strip of flat cells — accent number cell with the dot-matrix, dim <code>SECTION</code> kicker cell, hatch to the margin — then the title in <b>heavy grotesk, sentence case</b> (every mint reference headline speaks grotesk, so the heading switches voice), closed with the thick accent rule from the TRA readouts. Same derivable data, opposite temperament from F.</p>
+                    <hgroup class="proto-head-mint">
+                        <div class="proto-head-mint__meta">
+                            <span class="proto-head-mint__num">3.8</span>
+                            <span class="proto-head-mint__kicker">section &middot; lisp fundamentals</span>
+                            <span class="proto-head-mint__hatch"></span>
+                        </div>
+                        <h3>Write functions for manipulating data</h3>
+                        <div class="proto-head-mint__rule"></div>
+                    </hgroup>
+                </div>
+            </section>
+
+            <!-- ========================================================== FULL SECTION -->
+            <section class="proto-group">
+                <hgroup><h2>Full Section</h2></hgroup>
+                <p class="proto-variant__note" style="margin-top: var(--spacing-xs);">
+                    &sect; 9.5 <b>Preserving Your Stack</b> (Errors &amp; Conditions) rendered end-to-end in each school —
+                    real prose, real code, real debugger dumps, zero authored slots (no captions or descriptions exist
+                    in this section yet, so the plates show their unadorned defaults). One honest finding to judge:
+                    the &sect; tab repeats on every block — in the real exporter it could render only on blocks more
+                    than a screen from their heading.
+                </p>
+
+                <!-- BRASSHANDS rendering -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">Brasshands rendering</div>
+                    <article class="proto-demo">
+                        <hgroup class="proto-head-plate">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span>
+                            <div class="proto-head-plate__eyebrow">
+                                <span class="num">&sect; 9.5</span>
+                                <span class="leader"></span>
+                                <span class="ch">ch.9 &middot; errors &amp; conditions</span>
+                            </div>
+                            <h3>Preserving Your Stack</h3>
+                        </hgroup>
+
+                        <p>Being able to signal a condition, and then choose how to respond based on the condition is very nice, but Lisp has one more trick up its sleeve.</p>
+                        <p><code>handler-case</code> has a problem: it unwinds the stack. That means that you lose local state at the point where you decide to do something with a naughty-word condition. In the simple example above, it's difficult to understand what that looks like. To illustrate the problem with <code>handler-case</code>, we'll consider a different scenario: working with a stream of data.</p>
+                        <p>Let's say we have a simple key=value style configuration system and a file like this:</p>
+
+                        <figure class="proto-plate">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                            <div class="proto-plate__bar">
+                                <span class="k">file</span><span class="v">my.config</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip">text</span>
+                            </div>
+                            <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source">environment=production
+debug=false
+api_key+oh-dear
+db=sqlite
+db_username=admin
+db_password:pass
+some other broken stuff
+</code></pre>
+                            </div>
+                        </figure>
+
+                        <aside class="proto-plate">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                            <div class="proto-plate__bar">
+                                <span class="k">aside</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip">note</span>
+                            </div>
+                            <div class="proto-aside-plate__body"><p>
+                                Save that to a file called "my.config". In another file, add the rest of this code and make sure to set the directory in the REPL using <code>,set-directory</code> (<code>sly-mrepl-shortcut</code>) in the REPL to the directory holding the config file and the rest of this code.
+                            </p></div>
+                        </aside>
+
+                        <p>We see a few errors. While parsing this file, we'd like to signal a condition and recover, report which lines are broken, what the broken lines look like, etc. and continue reading the rest of the file.</p>
+                        <p>Let's begin by parsing the file:</p>
+
+                        <figure class="proto-plate">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                            <span class="proto-plate__section"><a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a></span>
+                            <div class="proto-plate__bar">
+                                <span class="k">package</span><span class="v">cl-user</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip">lisp</span>
+                            </div>
+                            <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun parse-line (line)
+  "Parse a 'key=value' line into a cons pair."
+  (let ((pos (position #\= line)))
+    (when pos
+      (cons (subseq line 0 pos)
+            (subseq line (1+ pos))))))
+
+(defun read-config (stream)
+  "Read config lines from a stream, collecting key=value pairs."
+  (loop :for line = (read-line stream nil nil)
+        :for line-number :from 1
+        :while line
+        :for parsed = (parse-line line)
+        :if parsed
+          :collect parsed
+        :else
+          :do (restart-case
+                  (error 'malformed-line
+                         :line line
+                         :line-number line-number)
+                (skip-line ()
+                  :report "Skip this line and continue."))))
+</code></pre>
+                            </div>
+                            <div class="proto-plate__bar proto-plate__bar--foot">
+                                <span class="k">defines</span><span class="v">parse-line <span class="sep">&middot;</span> read-config</span>
+                                <span class="leader"></span>
+                            </div>
+                        </figure>
+
+                        <p>We use <code>loop</code> to read from each line and to count line-numbers up from 1. If we hit a line we can't parse, we signal a <code>malformed-line</code> condition, providing the user the <code>skip-line</code> restart in the debugger.</p>
+                        <p>The <code>malformed-line</code> condition looks like this:</p>
+
+                        <figure class="proto-plate">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                            <span class="proto-plate__section"><a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a></span>
+                            <div class="proto-plate__bar">
+                                <span class="k">package</span><span class="v">cl-user</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip">lisp</span>
+                            </div>
+                            <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(define-condition malformed-line (error)
+  ((line :initarg :line
+         :reader malformed-line-text)
+   (line-number :initarg :line-number
+                :reader malformed-line-number))
+  (:report (lambda (c stream)
+             (format stream "Malformed line ~d: ~a"
+                     (malformed-line-number c)
+                     (malformed-line-text c)))))
+</code></pre>
+                            </div>
+                            <div class="proto-plate__bar proto-plate__bar--foot">
+                                <span class="k">defines</span><span class="v">malformed-line</span>
+                                <span class="leader"></span>
+                            </div>
+                        </figure>
+
+                        <p>When this condition is signaled, it will tell us both the line number and content of the broken line.</p>
+                        <p>Let's try it out as is:</p>
+
+                        <figure class="proto-plate proto-plate--alarm">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                            <div class="proto-plate__hazard"></div>
+                            <div class="proto-plate__bar">
+                                <span class="k">result</span><span class="v">condition</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip proto-plate__chip--alarm">signalled</span>
+                            </div>
+                            <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(with-open-file (stream #P"my.config" :direction :input
+                                      :element-type 'character)
+  (read-config stream))
+</code></pre>
+                            </div>
+                            <pre class="proto-plate__result">Malformed line 3: api_key+oh-dear
+   [Condition of type MALFORMED-LINE]
+
+Restarts:
+ 0: [SKIP-LINE] Skip this line and continue.
+ 1: [RETRY] Retry SLY evaluation request.
+ 2: [*ABORT] Return to SLY's top level.
+ 3: [ABORT] abort thread (#&lt;THREAD tid=14415 "slynk-worker" RUNNING {70054C5033}&gt;)</pre>
+                        </figure>
+
+                        <p>All is well: that is the broken line and its contents. If you choose to skip the line, it will continue parsing and give us the next broken line, and so on, and then finally the not-broken parts of the configuration:</p>
+
+                        <figure class="proto-plate">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                            <div class="proto-plate__bar">
+                                <span class="k">data</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip">text</span>
+                            </div>
+                            <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source">(("environment" . "production") ("debug" . "false") ("db" . "sqlite") ("db_username" . "admin"))
+</code></pre>
+                            </div>
+                        </figure>
+
+                        <figure class="proto-plate">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                            <span class="proto-plate__section"><a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a></span>
+                            <div class="proto-plate__bar">
+                                <span class="k">package</span><span class="v">cl-user</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip">lisp</span>
+                            </div>
+                            <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-case (path)
+  (with-open-file (stream path)
+    (handler-case (read-config stream)
+      (malformed-line (c)
+        (format t "Gave up at line ~d.~%" (malformed-line-number c))
+        nil))))
+(load-config-case #P"my.config")
+</code></pre>
+                            </div>
+                            <div class="proto-plate__bar proto-plate__bar--foot">
+                                <span class="k">defines</span><span class="v">load-config-case</span>
+                                <span class="leader"></span>
+                            </div>
+                            <div class="proto-plate__eval"><span class="k">result</span><span class="arrow">&rArr;</span>Gave up at line 3.
+ =&gt; NIL</div>
+                        </figure>
+
+                        <p>You don't have access to the <code>skip-line</code> restart, since that's established in the <code>read-config</code> loop. You've broken out of the loop and can't get back in. The stack has unwound.</p>
+                        <p>That's where <code>handler-bind</code> and <code>invoke-restart</code> come to the rescue. Unlike <code>handler-case</code>, <code>handler-bind</code> can catch that <code>malformed-line</code> condition and then invoke the <code>skip-line</code> restart.</p>
+
+                        <figure class="proto-plate">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                            <span class="proto-plate__section"><a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a></span>
+                            <div class="proto-plate__bar">
+                                <span class="k">package</span><span class="v">cl-user</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip">lisp</span>
+                            </div>
+                            <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-bind (path)
+  (with-open-file (stream path)
+    (handler-bind
+        ((malformed-line
+           (lambda (c)
+             (format t "Skipping line ~d.~%" (malformed-line-number c))
+             (invoke-restart 'skip-line))))
+      (read-config stream))))
+(load-config-bind #P"my.config")
+</code></pre>
+                            </div>
+                            <div class="proto-plate__bar proto-plate__bar--foot">
+                                <span class="k">defines</span><span class="v">load-config-bind</span>
+                                <span class="leader"></span>
+                            </div>
+                            <div class="proto-plate__eval"><span class="k">result</span><span class="arrow">&rArr;</span>Skipping line 3.
+Skipping line 6.
+Skipping line 7.
+ =&gt; (("environment" . "production") ("debug" . "false") ("db" . "sqlite")
+ ("db_username" . "admin"))</div>
+                        </figure>
+
+                        <p>In this case, the debugger never popped up. Instead of manually choosing the restart for the broken lines, we used <code>invoke-restart</code> to skip them for us.</p>
+                        <p>What if we try to call <code>invoke-restart</code> inside the <code>handler-case</code> version?</p>
+
+                        <figure class="proto-plate proto-plate--alarm">
+                            <span class="proto-plate__tick tl">+</span><span class="proto-plate__tick tr">+</span><span class="proto-plate__tick bl">+</span><span class="proto-plate__tick br">+</span>
+                            <div class="proto-plate__hazard"></div>
+                            <div class="proto-plate__bar">
+                                <span class="k">result</span><span class="v">condition</span>
+                                <span class="leader"></span>
+                                <span class="proto-plate__chip proto-plate__chip--alarm">signalled</span>
+                            </div>
+                            <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-case (path)
+  (with-open-file (stream path)
+    (handler-case (read-config stream)
+      (malformed-line (c)
+        (format t "Gave up at line ~d.~%" (malformed-line-number c))
+        (invoke-restart 'skip-line)))))
+(load-config-case #P"my.config")
+</code></pre>
+                            </div>
+                            <pre class="proto-plate__result">No restart SKIP-LINE is active.
+   [Condition of type SB-INT:SIMPLE-CONTROL-ERROR]
+
+Restarts:
+ 0: [RETRY] Retry SLY evaluation request.
+ 1: [*ABORT] Return to SLY's top level.
+ 2: [ABORT] abort thread (#&lt;THREAD tid=14387 "slynk-worker" RUNNING {7007B59BA3}&gt;)</pre>
+                        </figure>
+
+                        <p>Won't work. The stack has been unwound, so we no longer have access to the <code>skip-line</code> restart. And you need restarts to be able to return to the <code>loop</code> iteration. If you call a normal function inside the <code>handler-bind</code>, the condition won't <em>actually</em> be handled. Instead, it will be "propagated" to the next outer call to <code>handler-bind</code> that also handles the same condition. <code>invoke-restart</code> is how you stop the propagation of the condition, handle the condition, and restart the process at the point where the condition was signaled.</p>
+                    </article>
+                </div>
+
+                <!-- MINT rendering -->
+                <div class="proto-variant">
+                    <div class="proto-variant__label">Mint rendering</div>
+                    <article class="proto-demo">
+                        <hgroup class="proto-head-mint">
+                            <div class="proto-head-mint__meta">
+                                <span class="proto-head-mint__num">9.5</span>
+                                <span class="proto-head-mint__kicker">section &middot; errors &amp; conditions</span>
+                                <span class="proto-head-mint__hatch"></span>
+                            </div>
+                            <h3>Preserving Your Stack</h3>
+                            <div class="proto-head-mint__rule"></div>
+                        </hgroup>
+
+                        <p>Being able to signal a condition, and then choose how to respond based on the condition is very nice, but Lisp has one more trick up its sleeve.</p>
+                        <p><code>handler-case</code> has a problem: it unwinds the stack. That means that you lose local state at the point where you decide to do something with a naughty-word condition. In the simple example above, it's difficult to understand what that looks like. To illustrate the problem with <code>handler-case</code>, we'll consider a different scenario: working with a stream of data.</p>
+                        <p>Let's say we have a simple key=value style configuration system and a file like this:</p>
+
+                        <figure class="proto-mission">
+                            <div class="proto-mission__head">
+                                <a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a>
+                                <span class="proto-mission__idx">my.config &middot; text</span>
+                            </div>
+                            <div class="proto-mission__code">
+                                <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source">environment=production
+debug=false
+api_key+oh-dear
+db=sqlite
+db_username=admin
+db_password:pass
+some other broken stuff
+</code></pre>
+                                </div>
+                            </div>
+                        </figure>
+
+                        <aside class="proto-aside-mint">
+                            <div class="proto-aside-mint__head">
+                                <span class="proto-aside-mint__label">aside</span>
+                                <span class="proto-aside-mint__hatch"></span>
+                            </div>
+                            <div class="proto-aside-mint__body"><p>
+                                Save that to a file called "my.config". In another file, add the rest of this code and make sure to set the directory in the REPL using <code>,set-directory</code> (<code>sly-mrepl-shortcut</code>) in the REPL to the directory holding the config file and the rest of this code.
+                            </p></div>
+                        </aside>
+
+                        <p>We see a few errors. While parsing this file, we'd like to signal a condition and recover, report which lines are broken, what the broken lines look like, etc. and continue reading the rest of the file.</p>
+                        <p>Let's begin by parsing the file:</p>
+
+                        <figure class="proto-mission">
+                            <div class="proto-mission__head">
+                                <a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a>
+                                <span class="proto-mission__idx">cl-user &middot; lisp</span>
+                            </div>
+                            <div class="proto-mission__cells">
+                                <div class="proto-mission__cell">
+                                    <span class="l">defines</span>
+                                    <span class="v">parse-line &middot; read-config</span>
+                                </div>
+                                <span class="proto-mission__hatch"></span>
+                            </div>
+                            <div class="proto-mission__code">
+                                <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun parse-line (line)
+  "Parse a 'key=value' line into a cons pair."
+  (let ((pos (position #\= line)))
+    (when pos
+      (cons (subseq line 0 pos)
+            (subseq line (1+ pos))))))
+
+(defun read-config (stream)
+  "Read config lines from a stream, collecting key=value pairs."
+  (loop :for line = (read-line stream nil nil)
+        :for line-number :from 1
+        :while line
+        :for parsed = (parse-line line)
+        :if parsed
+          :collect parsed
+        :else
+          :do (restart-case
+                  (error 'malformed-line
+                         :line line
+                         :line-number line-number)
+                (skip-line ()
+                  :report "Skip this line and continue."))))
+</code></pre>
+                                </div>
+                            </div>
+                        </figure>
+
+                        <p>We use <code>loop</code> to read from each line and to count line-numbers up from 1. If we hit a line we can't parse, we signal a <code>malformed-line</code> condition, providing the user the <code>skip-line</code> restart in the debugger.</p>
+                        <p>The <code>malformed-line</code> condition looks like this:</p>
+
+                        <figure class="proto-mission">
+                            <div class="proto-mission__head">
+                                <a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a>
+                                <span class="proto-mission__idx">cl-user &middot; lisp</span>
+                            </div>
+                            <div class="proto-mission__cells">
+                                <div class="proto-mission__cell">
+                                    <span class="l">defines</span>
+                                    <span class="v">malformed-line</span>
+                                </div>
+                                <span class="proto-mission__hatch"></span>
+                            </div>
+                            <div class="proto-mission__code">
+                                <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(define-condition malformed-line (error)
+  ((line :initarg :line
+         :reader malformed-line-text)
+   (line-number :initarg :line-number
+                :reader malformed-line-number))
+  (:report (lambda (c stream)
+             (format stream "Malformed line ~d: ~a"
+                     (malformed-line-number c)
+                     (malformed-line-text c)))))
+</code></pre>
+                                </div>
+                            </div>
+                        </figure>
+
+                        <p>When this condition is signaled, it will tell us both the line number and content of the broken line.</p>
+                        <p>Let's try it out as is:</p>
+
+                        <figure class="proto-mission">
+                            <div class="proto-mission__head">
+                                <a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a>
+                                <span class="proto-mission__idx">cl-user &middot; lisp</span>
+                            </div>
+                            <div class="proto-mission__code">
+                                <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(with-open-file (stream #P"my.config" :direction :input
+                                      :element-type 'character)
+  (read-config stream))
+</code></pre>
+                                </div>
+                            </div>
+                            <div class="proto-mission__result">
+                                <div class="proto-mission__log proto-mission__log--alarm"><span class="k">result</span><span class="sep">::</span><span class="cond">condition signalled</span></div>
+                                <div class="proto-mission__hatch proto-mission__hatch--alarm"></div>
+                            </div>
+                            <pre class="proto-mission__dump">Malformed line 3: api_key+oh-dear
+   [Condition of type MALFORMED-LINE]
+
+Restarts:
+ 0: [SKIP-LINE] Skip this line and continue.
+ 1: [RETRY] Retry SLY evaluation request.
+ 2: [*ABORT] Return to SLY's top level.
+ 3: [ABORT] abort thread (#&lt;THREAD tid=14415 "slynk-worker" RUNNING {70054C5033}&gt;)</pre>
+                        </figure>
+
+                        <p>All is well: that is the broken line and its contents. If you choose to skip the line, it will continue parsing and give us the next broken line, and so on, and then finally the not-broken parts of the configuration:</p>
+
+                        <figure class="proto-mission">
+                            <div class="proto-mission__head">
+                                <a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a>
+                                <span class="proto-mission__idx">text</span>
+                            </div>
+                            <div class="proto-mission__code">
+                                <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source">(("environment" . "production") ("debug" . "false") ("db" . "sqlite") ("db_username" . "admin"))
+</code></pre>
+                                </div>
+                            </div>
+                        </figure>
+
+                        <figure class="proto-mission">
+                            <div class="proto-mission__head">
+                                <a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a>
+                                <span class="proto-mission__idx">cl-user &middot; lisp</span>
+                            </div>
+                            <div class="proto-mission__cells">
+                                <div class="proto-mission__cell">
+                                    <span class="l">defines</span>
+                                    <span class="v">load-config-case</span>
+                                </div>
+                                <span class="proto-mission__hatch"></span>
+                            </div>
+                            <div class="proto-mission__code">
+                                <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-case (path)
+  (with-open-file (stream path)
+    (handler-case (read-config stream)
+      (malformed-line (c)
+        (format t "Gave up at line ~d.~%" (malformed-line-number c))
+        nil))))
+(load-config-case #P"my.config")
+</code></pre>
+                                </div>
+                            </div>
+                            <div class="proto-mission__result">
+                                <div class="proto-mission__log"><span class="k">result</span><span class="sep">::</span>Gave up at line 3.
+ =&gt; NIL</div>
+                                <div class="proto-mission__hatch"></div>
+                            </div>
+                        </figure>
+
+                        <p>You don't have access to the <code>skip-line</code> restart, since that's established in the <code>read-config</code> loop. You've broken out of the loop and can't get back in. The stack has unwound.</p>
+                        <p>That's where <code>handler-bind</code> and <code>invoke-restart</code> come to the rescue. Unlike <code>handler-case</code>, <code>handler-bind</code> can catch that <code>malformed-line</code> condition and then invoke the <code>skip-line</code> restart.</p>
+
+                        <figure class="proto-mission">
+                            <div class="proto-mission__head">
+                                <a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a>
+                                <span class="proto-mission__idx">cl-user &middot; lisp</span>
+                            </div>
+                            <div class="proto-mission__cells">
+                                <div class="proto-mission__cell">
+                                    <span class="l">defines</span>
+                                    <span class="v">load-config-bind</span>
+                                </div>
+                                <span class="proto-mission__hatch"></span>
+                            </div>
+                            <div class="proto-mission__code">
+                                <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-bind (path)
+  (with-open-file (stream path)
+    (handler-bind
+        ((malformed-line
+           (lambda (c)
+             (format t "Skipping line ~d.~%" (malformed-line-number c))
+             (invoke-restart 'skip-line))))
+      (read-config stream))))
+(load-config-bind #P"my.config")
+</code></pre>
+                                </div>
+                            </div>
+                            <div class="proto-mission__result">
+                                <div class="proto-mission__log"><span class="k">result</span><span class="sep">::</span>Skipping line 3.
+Skipping line 6.
+Skipping line 7.
+ =&gt; (("environment" . "production") ("debug" . "false") ("db" . "sqlite")
+ ("db_username" . "admin"))</div>
+                                <div class="proto-mission__hatch"></div>
+                            </div>
+                        </figure>
+
+                        <p>In this case, the debugger never popped up. Instead of manually choosing the restart for the broken lines, we used <code>invoke-restart</code> to skip them for us.</p>
+                        <p>What if we try to call <code>invoke-restart</code> inside the <code>handler-case</code> version?</p>
+
+                        <figure class="proto-mission">
+                            <div class="proto-mission__head">
+                                <a href="#sec-9-5">&sect; 9.5 <span class="t">&middot; preserving your stack</span></a>
+                                <span class="proto-mission__idx">cl-user &middot; lisp</span>
+                            </div>
+                            <div class="proto-mission__cells">
+                                <div class="proto-mission__cell">
+                                    <span class="l">defines</span>
+                                    <span class="v">load-config-case</span>
+                                </div>
+                                <span class="proto-mission__hatch"></span>
+                            </div>
+                            <div class="proto-mission__code">
+                                <div class="code-block">
+<pre class="code-block-source-pre"><code class="code-block-source lisp">(defun load-config-case (path)
+  (with-open-file (stream path)
+    (handler-case (read-config stream)
+      (malformed-line (c)
+        (format t "Gave up at line ~d.~%" (malformed-line-number c))
+        (invoke-restart 'skip-line)))))
+(load-config-case #P"my.config")
+</code></pre>
+                                </div>
+                            </div>
+                            <div class="proto-mission__result">
+                                <div class="proto-mission__log proto-mission__log--alarm"><span class="k">result</span><span class="sep">::</span><span class="cond">condition signalled</span></div>
+                                <div class="proto-mission__hatch proto-mission__hatch--alarm"></div>
+                            </div>
+                            <pre class="proto-mission__dump">No restart SKIP-LINE is active.
+   [Condition of type SB-INT:SIMPLE-CONTROL-ERROR]
+
+Restarts:
+ 0: [RETRY] Retry SLY evaluation request.
+ 1: [*ABORT] Return to SLY's top level.
+ 2: [ABORT] abort thread (#&lt;THREAD tid=14387 "slynk-worker" RUNNING {7007B59BA3}&gt;)</pre>
+                        </figure>
+
+                        <p>Won't work. The stack has been unwound, so we no longer have access to the <code>skip-line</code> restart. And you need restarts to be able to return to the <code>loop</code> iteration. If you call a normal function inside the <code>handler-bind</code>, the condition won't <em>actually</em> be handled. Instead, it will be "propagated" to the next outer call to <code>handler-bind</code> that also handles the same condition. <code>invoke-restart</code> is how you stop the propagation of the condition, handle the condition, and restart the process at the point where the condition was signaled.</p>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <script>
+         (() => {
+             const sel = document.getElementById('theme-select');
+             const saved = localStorage.getItem('proto-theme') || 'almighty-lisp';
+             sel.value = saved;
+             document.documentElement.dataset.theme = saved;
+             sel.addEventListener('change', (e) => {
+                 document.documentElement.dataset.theme = e.target.value;
+                 localStorage.setItem('proto-theme', e.target.value);
+             });
+         })();
+        </script>
+        <script>
+         window.addEventListener('DOMContentLoaded', () => {
+             try { HighlightLisp.highlight_auto(); } catch (e) { /* highlighter optional */ }
+         });
+        </script>
+        <script>
+         document.querySelectorAll('.proto-plate__copy').forEach((btn) => {
+             btn.addEventListener('click', async () => {
+                 const pre = btn.closest('.proto-plate').querySelector('.proto-plate__shell');
+                 const clone = pre.cloneNode(true);
+                 clone.querySelectorAll('.prompt').forEach((p) => p.remove());
+                 await navigator.clipboard.writeText(clone.innerText.trim());
+                 const label = btn.textContent;
+                 btn.textContent = 'copied ✓';
+                 setTimeout(() => { btn.textContent = label; }, 1200);
+             });
+         });
+        </script>
+    </body>
+</html>

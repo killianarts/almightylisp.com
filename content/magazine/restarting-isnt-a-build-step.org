@@ -1,0 +1,21 @@
+#+TITLE: Restarting isn't\\a build step
+#+SUBTITLE: For fifty years we've killed the process to fix a bug and called the wait part of the job. It never had to be.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-16
+#+TYPE: Opinion
+#+TOPIC: Lisp
+#+RELATED: the-image-is-still-running an-error-that-waits-for-you-to-decide
+
+* The wait got a name
+
+A rebuild, a restart, a refresh: the names make the pause sound like a step in the method. It is a step only because the language threw the process away. The method was fitted around that loss. People then defended the loss as discipline.
+
+Common Lisp did not make that trade. The image keeps the process, and compiling a function is the edit. A restart is what you do when you want a clean world, not what you do to see whether a one-line change compiled.
+
+#+BEGIN_NOTE A limit
+Some changes still want a new image: a different Lisp binary, a foreign library loaded at save time, a top-level side effect you did not mean to keep. Those are restarts with a reason. A typo in a function is not one of them.
+#+END_NOTE
+
+* What you keep by not exiting
+
+Open sockets, the data you had built up, the dynamic state you were in the middle of inspecting. A language that can replace a function and leave the rest alone lets you check the fix against the case that just failed. Starting over means rebuilding that case before you learn anything.

@@ -1,0 +1,185 @@
+#+TITLE: The magazine
+
+The Shiso module behind =/magazine=: articles written as org files in
+=content/magazine/=, served live, and published as static pages to
+=static/magazine/published/=. The design is Figma's /Neoindustrial/ file.
+
+Writers need only =content/magazine/WRITING.org=. This file is for
+changing the code.
+
+* How a page is made
+
+1. A request reaches a controller (=controllers.lisp=), routed by
+   =routes.lisp=: =/magazine=, =/magazine/archive=, =/magazine/:slug=.
+2. The controller asks the model for the articles and series. The model
+   (=model.lisp=) keeps them in an =almighty-press= collection, which reads
+   =content/magazine/*.org= and =content/magazine/series/*.org= again
+   whenever one of them changes.
+3. If they did change, the controller first writes every page to
+   =static/magazine/published/= (=publish.lisp=).
+4. A =page-= function (=hypermedia/=) renders the page with almighty-html,
+   and the controller sends it with =Cache-Control: private, max-age=60=,
+   which htmx's preload extension needs (see [[*Navigation and effects][Navigation and effects]]).
+
+Parsing org, watching files, dates, inline markup and writing pages are in
+=lib/almighty-press/=, which knows nothing about the magazine and can be
+used for another site.
+
+* Files
+
+| File                          | What's in it                                                       |
+|-------------------------------+--------------------------------------------------------------------|
+| =magazine.asd=                | The system                                                         |
+| =model.lisp=                  | Articles, series, parts; parsing and checking them; homepage layout |
+| =hypermedia/package.lisp=     | Links, assets and text helpers; the list of hypermedia files       |
+| =hypermedia/sheet.lisp=       | The document and the sheet: bands, gutters, header, footer, strip  |
+| =hypermedia/logos.lisp=       | Series logos, drawn as SVG paths                                   |
+| =hypermedia/cards.lisp=       | Briefs, the book panel, series cards and progress, indexes         |
+| =hypermedia/blocks.lisp=      | An article's body: prose, code, tables, margin notes; headline size |
+| =hypermedia/home.lisp=        | The homepage                                                       |
+| =hypermedia/article.lisp=     | The article page                                                   |
+| =hypermedia/archive.lisp=     | The archive and the not-found page                                 |
+| =publish.lisp=                | Writing every page to =static/magazine/published/=                 |
+| =controllers.lisp=            | The three pages, and publishing when the content changed           |
+| =routes.lisp=                 | URLs                                                               |
+| =magazine.lisp=               | =magazine:publish=, to publish from the REPL                       |
+
+Outside this directory:
+
+| File                          | What's in it                                                   |
+|-------------------------------+----------------------------------------------------------------|
+| =static/css/magazine.css=     | All the magazine's styles; see [[*The stylesheet][The stylesheet]]                |
+| =static/js/magazine-fx.js=    | htmx setup and the screen effects                              |
+| =static/js/magazine-toc.js=   | The contents strip that pins to the top of an article          |
+| =static/assets/images/magazine/= | Logos, the typemark, patterns                               |
+| =content/magazine/=           | Articles, =series/=, =templates/=, and =WRITING.org=           |
+
+* The model
+
+=model.lisp= turns org into three structs:
+
+- =article= :: one file in =content/magazine/=. Its =sections= are
+  almighty-press sections whose blocks are press's, except that
+  =#+BEGIN_NOTE= becomes =(:note label paragraphs)= and a source block gets
+  =:highlight=, its highlighted line numbers. Its =code= (serial) is
+  made from the topic, type and date unless =#+CODE= is given.
+- =series= :: one file in =content/magazine/series/=: keywords, then the
+  planned parts, one a line.
+- =part= :: a series' part: a number, a title, and its article once one
+  exists. =link-series= fills in every series' parts after loading.
+
+Checks that stop a file loading: missing =TITLE=, =DATE=, =TYPE= or
+=TOPIC=; a type or topic that isn't in =*article-types*= or
+=*article-topics*=; text before the first heading; =SERIES= without =PART=;
+a series code with no series file; two series files with one code; a
+=:highlight= that isn't line numbers within its source block. An
+unknown keyword only warns.
+
+=homepage-layout= decides what the homepage shows (its docstring lists
+the plist it returns), and =keep-reading-articles= what follows an article
+outside a series.
+
+To add a topic or type, add it to =*article-topics*= or =*article-types*=
+with its two-letter code, then describe it in =WRITING.org= and, for a
+type, add a template in =content/magazine/templates/=.
+
+* The pages
+
+Every page is an =ac-sheet-page= (=sheet.lisp=): the grey sheet with the
+running header, nameplate and date strip, then the page's bands, then the
+running footer. A band is an =ac-band=:
+
+#+BEGIN_SRC lisp
+(ac-band :class "latest-band"
+         :side (list "Latest  ■  4 articles" "Archive")   ; gutter labels
+  ...content in the main column...)
+#+END_SRC
+
+Bands are placed on fixed rows of the sheet's grid by their class, in
+=magazine.css= under /The sheet/. A new kind of band needs a row there.
+Sections that start with a big black heading use =render-section-head=,
+whose =key= names the two bands it makes (=KEY-gap=, =KEY-head=).
+
+Components reused across pages:
+
+| Function                 | Where                                                   |
+|--------------------------+---------------------------------------------------------|
+| =render-article-brief=   | Latest, Keep reading, not found                         |
+| =render-book-brief=      | Keep reading, when an article names a book chapter      |
+| =render-book-ad=         | Beside the lead; =:compact t= beside an article         |
+| =render-index=, =render-index-cell= | The end of a series, and each archive month   |
+| =render-series-progress= | Series cards, the end of a series                       |
+| =render-headline=        | The lead and an article's lede, scaled to fit           |
+| =render-lede-row=        | The dek and byline under either headline                |
+| =render-end-band=        | Keep reading, the end of a series, not found            |
+| =render-hatch=           | Leftover space at the bottom of a column                |
+
+Text from org goes through =render-inlines= (=package.lisp=), which links a
+bare =[[slug]]= to that article. Magazine links come from =s:url=; the
+book's link is written out in =*book-href*=, because Shiso only knows where
+another module is mounted after that module has served a request.
+
+=joined= puts the =■= between facts in labels, so every label is spaced
+the same.
+
+** Series logos
+
+Each series code has a logo in =*series-logos*= (=logos.lisp=): a fill
+rule and one SVG path on a 48-unit grid, built from =path-rect=,
+=path-poly= and =path-bar=. The logo is filled with =currentColor=, so CSS
+sets its colour. A code without an entry gets a square.
+
+* The stylesheet
+
+=static/css/magazine.css= has five parts, in order:
+
+1. *Tokens*, on =.mag=: colours, the dot and hatch patterns, fonts, cell
+   padding (=--pad=), and the column ratios (=--cols-lead=, =--cols-index=,
+   =--cols-piece=). The narrow layout mostly works by changing =--pad=.
+2. *Base*: element defaults inside =.mag=.
+3. *Roles*: type and layout many components share. /Display/ (Science
+   Gothic in capitals), /captions/ and /labels/ (Construct Mono, tracked),
+   /summaries/ (Mohave), /tiles/ (cells divided by 1px white rules),
+   the /lead split/ (two thirds and one third), /cells/ (padded panels on
+   the sheet), and columns that end in a hatch. A component class is
+   added to a role's selector list, then its own rule sets only what
+   differs.
+4. *Components*, in page order: the sheet and its rows, furniture, header,
+   nameplate, strip, patterns, specs, buttons, section heads, series
+   marks, the lead, the book panel, briefs, series cards, Latest, the
+   article, contents, sections, code, tables, the end band, indexes, and
+   the contents strip.
+5. *Responsive* (1180px drops the gutters, 980px stacks the columns),
+   then the screen effects and view transitions.
+
+The =body::before= and =body::after= rules at the top are the site-wide
+film grain and scanlines.
+
+* Navigation and effects
+
+The body is =hx-boost="true"=: links within the magazine swap the body's
+contents instead of loading a page, and the preload extension fetches a
+page when its link is hovered. The book panel is =hx-boost="false"=, since
+its links leave the magazine.
+
+htmx swaps only the body's contents, so the sheet carries the body's class
+in =data-body-class=, and =magazine-fx.js= copies it to the body after
+each swap.
+
+=magazine-fx.js= also plays the hover flicker and the tear when an article
+or book link is clicked, then lets htmx (or the browser, for other sites)
+navigate. =magazine-toc.js= runs on article pages and is safe to run again
+after a swap.
+
+* Publishing
+
+The server publishes by itself: the first request after an org file
+changes writes every page before answering. To force it from the REPL:
+
+#+BEGIN_SRC lisp
+(magazine:publish)
+#+END_SRC
+
+This needs the server to have served a =/magazine= page first, so that
+=s:url= knows where the magazine is mounted; until then it signals an error
+rather than write pages with broken links.

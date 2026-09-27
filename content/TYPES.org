@@ -1,0 +1,68 @@
+#+title: Content Types and Examples
+
+* Informative
+** Introduction to Shiso :web:
+** Introduction to CLOG :gui:
+** Introduction to Native GUI development in Common Lisp :gui:
+
+** The Rules of Macro Hygiene :language:
+** How Some Classic Macros Are Built :language:
+
+** Advanced Techniques for Optimizing Code :advanced:language:
+
+* Opinion
+** Web Framework Showdown :web:
+** Shiso vs. Hunchentoot :web:
+** Shiso vs. Caveman2 :web:
+** Shiso vs. Utopian :web:
+
+** To LOOP or not to LOOP :language:
+
+* Shingeki
+Lisp vs. other languages for certain tasks or based on benchmarks.
+** Token Usage: Lisp vs. Python
+** Benchmark: Lisp vs. 
+
+* Community Highlight
+Highlight significant community projects that demonstrate good taste and
+craftmanship--AI or no AI.
+** Autolith
+** Mine
+** Transducers
+** Vend
+
+* Emacs
+Provide helpful information for using Emacs.
+** Guides
+** Package highlights
+* News
+Ignore non-Common Lisp news and updates.
+** Implementation Updates
+** Notable Application Updates
+** Notable Library Updates
+** Third-party Blog Posts from Common Lisp developers
+With author permission, post the full content of third-party blog posts about Common
+Lisp. Think Planet Lisp, but almightylisp.com is the central platform.
+** Emacs
+
+* Discussions
+Discord/IRC discussions, Mailing list discussions
+
+* Call to Duty
+Applications that should be written in Common Lisp.
+** Email client
+** Web browser
+** Browser for Development (replacing Polypane)
+** Image Optimizer
+** Chat Client (replacing Discord)
+** Operating System
+
+* Jobs 
+
+
+
+* Apps I want to make
+** Kid Games
+** Torah Reading
+** Photo order system
+** Android-MacOS file browser/transfer

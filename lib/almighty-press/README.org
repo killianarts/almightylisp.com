@@ -1,0 +1,140 @@
+#+TITLE: almighty-press
+
+Publish org files as web pages with almighty-html. It is the part of the
+Almighty Lisp magazine that isn't about the magazine: reading org, keeping
+content fresh while a server runs, dates, inline markup, and writing
+static pages. A blog, a changelog or a docs site can be built on it with a
+model file and a few components.
+
+It depends on =almighty-html= and =almighty-toki=, and nothing web-framework
+specific: pages are strings, and serving them is up to you.
+
+* What's in it
+
+Everything is exported from =almighty-press= (nickname =press=), and from
+the package of the file it lives in:
+
+| File          | Package                    | For                                                    |
+|---------------+----------------------------+--------------------------------------------------------|
+| =org.lisp=     | =almighty-press/org=       | Reading org: keywords, sections, blocks, inline markup |
+| =dates.lisp=   | =almighty-press/dates=     | Calendar dates and the ways a page prints them         |
+| =content.lisp= | =almighty-press/content=   | Collections that reload when their files change        |
+| =html.lisp=    | =almighty-press/html=      | Inline markup and title lines as almighty-html         |
+| =publish.lisp= | =almighty-press/publish=   | Writing pages to a directory                            |
+
+* Org
+
+=(press:parse-org text)= or =(press:read-org-file path)= returns a
+=document=:
+
+- =(press:document-keyword doc "title")= :: the value of =#+TITLE:=, or
+  NIL when it's missing or empty. A third argument is the default.
+- =(press:document-intro doc)= :: lines before the first heading that
+  aren't keywords, one string each. A series file uses these for its list
+  of parts; an article can reject them.
+- =(press:document-sections doc)= :: one =section= per top-level heading,
+  with =section-title=, =section-title-lines= (split at =\\=),
+  =section-id= (a slug, unique in the document) and =section-blocks=.
+
+Blocks are lists:
+
+| Org                              | Block                                                        |
+|----------------------------------+--------------------------------------------------------------|
+| paragraphs                       | =(:p "text")=                                                 |
+| =** Subhead=                     | =(:h "Subhead")=                                              |
+| =#+BEGIN_SRC lisp :buffer a.lisp= | =(:src :lang "lisp" :args (("buffer" . "a.lisp")) :lines (...) :results "..." )= |
+| =#+BEGIN_NOTE Label= (any name)  | =(:block "NOTE" "Label" ("paragraph" ...))=                   |
+| a table                          | =(:table header-or-nil rows)=                                 |
+
+=#+RESULTS:= right after a source block becomes its =:results=. Lines
+starting with =# = are comments. Anything malformed signals =press:org-error=
+with the line number.
+
+Inline markup stays in the text. =(press:parse-inlines text)= reads it:
+strings, =(:code "x")= for ==x==, and =(:link target inlines)= for
+=[[target][label]]=.
+
+Text helpers: =split-breaks=, =join-lines=, =split-words=, =slugify=,
+=truthy= (t, yes or true).
+
+* Dates
+
+A date is an =almighty-toki= timestamp at midnight UTC, and it always
+prints as the day it was written, wherever the server is.
+
+#+BEGIN_SRC lisp
+(press:parse-date "2026-09-24")            ; signals an error for anything but YYYY-MM-DD
+(press:today)                              ; today where the server runs
+(press:format-date date :weekday)          ; "Thursday 24 September 2026"
+(press:format-date date :long)             ; "24 September 2026"
+(press:format-date date :compact)          ; "24 Sep 2026"
+(press:format-date date :day-month)        ; "24 Sep"
+(press:format-date date :month)            ; "September 2026"
+(press:format-date date :month-id)         ; "2026-09", for #anchors
+(press:format-date date :iso)              ; "2026-09-24"
+(press:date> a b)                          ; for sorting newest first
+(press:same-month-p a b)
+#+END_SRC
+
+To add a style, add a line to =*formats*= in =dates.lisp=; the specs are
+=local-time:format-timestring='s.
+
+* Collections
+
+A collection watches some directories and loads them with a function you
+give it. Reading its items loads them the first time, and again whenever
+an =.org= file in those directories is added, removed or saved, so a
+running server always shows what's on disk.
+
+#+BEGIN_SRC lisp
+(defvar *posts*
+  (press:make-collection
+   :directories (list #p"content/posts/")
+   :load (lambda ()
+           (press:load-files (press:org-files #p"content/posts/") #'read-post))))
+
+(press:collection-items *posts*)   ; the posts, reloaded if a file changed
+(press:take-changes *posts*)       ; true once after each reload: publish again
+#+END_SRC
+
+=press:org-files= lists a directory's =.org= files in name order and takes
+an =:include= predicate. =press:load-files= calls a function on each file
+and names the file in any error it signals.
+
+* HTML
+
+#+BEGIN_SRC lisp
+(press:render-inlines "Use =loop= or read [[loop-basics][the basics]]."
+                      :href (lambda (target) (format nil "/posts/~a" target)))
+(press:render-lines '("The image" "is still" "running"))   ; lines with <br> between
+#+END_SRC
+
+=render-inlines= makes =<code class="verb">= and =<a class="inline-link">=;
+=:code-class= and =:link-class= change the classes, and =:href= turns a
+link's target into its URL.
+
+* Publishing
+
+#+BEGIN_SRC lisp
+(press:publish-pages #p"static/published/"
+                     (list (list "index" (render-index posts))
+                           (list "hello-world" (render-post post))))
+#+END_SRC
+
+This writes =index.html= and =hello-world.html= and deletes any other
+=.html= file in the directory, such as the page of a post you removed.
+
+* A site in four files
+
+The magazine at =src/modules/magazine/= is the full example. The shape of
+it, for a new site:
+
+1. *A model.* Structs for what you publish, a =parse-= function that turns
+   a =press:document= into one (checking the keywords you need), and a
+   collection that loads them all. See =model.lisp=.
+2. *Components.* Functions that turn your structs into almighty-html,
+   using =render-inlines= and =render-lines= for text from org, and a
+   =page-= function per page that returns =ah:render-to-string=.
+3. *Controllers.* For each request: =collection-items=, then the page. If
+   =take-changes= is true, publish first.
+4. *A publish function.* Every page as =(name html)= to =publish-pages=.

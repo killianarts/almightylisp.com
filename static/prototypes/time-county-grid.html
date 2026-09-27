@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Almighty Lisp — grid plate. Black-and-white masthead and hero, locked to a 12-column rule.">
+<title>Almighty Lisp — Grid Plate · Masthead &amp; Hero</title>
+<style>
+/* Almighty Lisp — GRID PLATE
+   Five faces, each with one job:
+     Science Gothic        nameplate and issue numerals
+     Rockwell              cover headline and lede
+     Avenir Next Condensed navigation, bars, side heads, queue
+     Bodoni 72 Smallcaps   motto, decks, bylines
+     Bitcount Grid Single  indices and the column ruler (regular weight)
+   Avenir Next Condensed and Rockwell are the system faces.
+   Bitcount and Science Gothic are the OFL files beside the other site fonts. */
+@font-face {
+  font-family: "Bitcount Grid Single";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../assets/fonts/BitcountGridSingle-Variable.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Science Gothic";
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 50% 200%;
+  font-display: swap;
+  src: url("../assets/fonts/ScienceGothic-Variable.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Bodoni 72 Smallcaps";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Bodoni 72 Smallcaps"),
+       url("/static/assets/fonts/Bodoni 72 Smallcaps Book.ttf") format("truetype");
+}
+:root {
+  --ink: #000;
+  --paper: #fff;
+  --rule: 1px;
+  --frame: 2px;
+  --science: "Science Gothic", "Arial Narrow", sans-serif;
+  --rockwell: Rockwell, "Rockwell Std", "American Typewriter", serif;
+  --avenir: "Avenir Next Condensed", "Avenir Next", "Arial Narrow", sans-serif;
+  --bodoni: "Bodoni 72 Smallcaps", "Bodoni 72 Smallcaps Book", Palatino, serif;
+  --bitcount: "Bitcount Grid Single", ui-monospace, monospace;
+  /* CRSV 0 is the roman cut. The font's default is 0.5, which is neither roman nor cursive. */
+  --bitcount-axes: "CRSV" 0, "ELSH" 0, "ELXP" 0, "slnt" 0, "wght" 400;
+  --science-axes: "CTRS" 0, "slnt" 0, "wdth" 100, "wght" 620;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--avenir);
+  font-size: 1rem;
+  line-height: 1.45;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: -3px; }
+b, strong { font-family: inherit; font-weight: 700; }
+
+.sheet {
+  width: min(88rem, calc(100% - 2.75rem));
+  margin: 1.15rem auto 2.5rem;
+}
+.caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0 0 0.85rem;
+  font-family: var(--bitcount);
+  font-weight: 400;
+  font-variation-settings: var(--bitcount-axes);
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.caption a { border-bottom: 1px solid var(--ink); }
+.caption a:hover { background: var(--ink); color: var(--paper); }
+
+.plate-wrap { position: relative; }
+.reg {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  z-index: 3;
+  pointer-events: none;
+}
+.reg::before, .reg::after {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+}
+.reg::before { left: 0; right: 0; top: 6px; height: 1px; }
+.reg::after { top: 0; bottom: 0; left: 6px; width: 1px; }
+.reg--tl { top: -7px; left: -7px; }
+.reg--tr { top: -7px; right: -7px; }
+.reg--bl { bottom: -7px; left: -7px; }
+.reg--br { bottom: -7px; right: -7px; }
+
+/* The plate. Gap color is the ink, so every shared edge is a hard rule. */
+.plate {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--rule);
+  background: var(--ink);
+  border: var(--frame) solid var(--ink);
+}
+
+.mast {
+  grid-column: 1 / -1;
+  grid-row: span 2;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+  background: var(--ink);
+}
+.name { grid-column: 1 / 7; grid-row: 1; }
+.folio { grid-column: 7 / 11; grid-row: 1; }
+.meta { grid-column: 11 / 13; grid-row: 1; }
+.nav {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: subgrid;
+  background: var(--ink);
+}
+.nav a { grid-column: span 2; }
+
+/* Four rows, shared across the three columns:
+   1 header bars (one track — their bottom rules meet)
+   2 first side story
+   3 second side story's bar
+   4 second side story
+   Lead and rail span every row below the header. */
+.hero {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: auto 1fr auto 1fr;
+  row-gap: 0;
+  background: var(--ink);
+}
+.lead { grid-column: span 6; grid-row: 1 / span 4; }
+.side { grid-column: span 4; grid-row: 1 / span 4; }
+.rail { grid-column: span 2; grid-row: 1 / span 4; }
+
+.index {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  background: var(--ink);
+}
+
+/* ── nameplate ──────────────────────────────────────────── */
+.name {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.85rem 1rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.85rem;
+  min-height: 13.5rem;
+  container-type: inline-size;
+}
+.kicker {
+  display: flex;
+  align-items: center;
+  margin: 0 -1rem;
+  padding: 0 1rem 0.55rem;
+  border-bottom: 1px solid var(--paper);
+  font-family: var(--bitcount);
+  font-weight: 400;
+  font-variation-settings: var(--bitcount-axes);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.lam {
+  display: block;
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-right: 0.55rem;
+  background: var(--paper);
+  color: var(--ink);
+  flex: none;
+}
+.name h1 {
+  font-family: var(--science);
+  font-weight: 620;
+  font-stretch: 100%;
+  font-variation-settings: var(--science-axes);
+  text-transform: uppercase;
+  font-size: 13cqi;
+  line-height: 0.8;
+  letter-spacing: 0.01em;
+}
+
+.folio {
+  background: var(--paper);
+  padding: 0.95rem 1rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 100%;
+}
+.motto {
+  font-family: var(--bodoni);
+  font-weight: 400;
+  font-size: clamp(1.25rem, 1.6vw, 1.6rem);
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+.folio__what {
+  font-family: var(--bodoni);
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  max-width: 28ch;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--ink);
+}
+.folio__path {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--ink);
+  font-family: var(--bitcount);
+  font-weight: 400;
+  font-variation-settings: var(--bitcount-axes);
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+}
+.folio__path:hover { background: var(--ink); color: var(--paper); }
+
+.meta {
+  background-color: var(--ink);
+  background-image: radial-gradient(circle, var(--paper) 0.85px, transparent 1.05px);
+  background-size: 11px 11px;
+  color: var(--paper);
+  padding: 0.8rem 0.7rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  gap: 0.45rem;
+  min-height: 100%;
+}
+.meta__k {
+  font-family: var(--bitcount);
+  font-weight: 400;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.meta__logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 157 / 57;
+  flex: 0 0 auto;
+  align-self: stretch;
+  object-fit: contain;
+  background: #000;
+}
+.meta__pitch {
+  font-family: var(--bodoni);
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  letter-spacing: 0.03em;
+  max-width: 16ch;
+}
+a.meta:hover {
+  background-color: var(--paper);
+  background-image: radial-gradient(circle, var(--ink) 0.85px, transparent 1.05px);
+  color: var(--ink);
+}
+a.meta:hover .meta__hash {
+  background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 5px);
+}
+a.meta:focus-visible { outline-color: var(--paper); }
+.meta__hash {
+  width: 100%;
+  height: 16px;
+  background: repeating-linear-gradient(90deg, var(--paper) 0 2px, transparent 2px 5px);
+}
+
+.nav a {
+  display: grid;
+  place-items: center;
+  min-height: 3.1rem;
+  padding: 0.55rem 0.4rem;
+  background: var(--paper);
+  font-family: var(--avenir);
+  font-weight: 600;
+  font-size: clamp(1.05rem, 1.25vw, 1.35rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-align: center;
+}
+.nav a:hover {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+.nav a[aria-current="page"] {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: inset 0 -3px 0 var(--ink);
+}
+.nav a[aria-current="page"]:hover {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+.nav a[aria-current="page"]:focus-visible,
+.name :focus-visible,
+.actions .primary:focus-visible,
+.meta :focus-visible {
+  outline-color: var(--paper);
+}
+
+/* ── hero ───────────────────────────────────────────────── */
+.lead {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+  background: var(--ink);
+  min-height: 32rem;
+}
+.lead__cols,
+.lead__content { grid-column: 1 / -1; grid-row: 1 / -1; }
+.lead__cols {
+  display: grid;
+  grid-template-columns: subgrid;
+  pointer-events: none;
+}
+.lead__cols span { background: var(--paper); }
+.lead__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+  min-height: 0;
+}
+.lead__rest {
+  grid-column: 1 / -1;
+  grid-row: 2 / span 3;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: minmax(8.5rem, 1fr) auto auto auto auto;
+  min-height: 0;
+}
+
+.bar,
+.story__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--avenir);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.bar { grid-column: 1 / -1; grid-row: 1; }
+.bar__idx {
+  font-family: var(--bitcount);
+  font-weight: 400;
+  font-variation-settings: var(--bitcount-axes);
+  font-size: 1.35rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.crop {
+  grid-column: 1 / -1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.15rem 1rem 1.2rem;
+  min-height: 9.5rem;
+  container-type: inline-size;
+  min-width: 0;
+}
+.crop__c {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid var(--ink);
+}
+.crop__c--tl { top: 0.55rem; left: 0.55rem; border-top-width: var(--frame); border-left-width: var(--frame); }
+.crop__c--tr { top: 0.55rem; right: 0.55rem; border-top-width: var(--frame); border-right-width: var(--frame); }
+.crop__c--bl { bottom: 0.55rem; left: 0.55rem; border-bottom-width: var(--frame); border-left-width: var(--frame); }
+.crop__c--br { bottom: 0.55rem; right: 0.55rem; border-bottom-width: var(--frame); border-right-width: var(--frame); }
+.crop h2 {
+  font-family: var(--rockwell);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(2rem, 8.6cqi, 4.5rem);
+  line-height: 0.86;
+  letter-spacing: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.08em;
+}
+.crop h2 span {
+  background: var(--paper);
+  padding: 0.04em 0.16em 0.06em;
+  box-shadow: 0.18em 0 0 var(--paper), -0.08em 0 0 var(--paper);
+}
+
+.dek {
+  grid-column: 1 / -1;
+  background: var(--paper);
+  padding: 0.85rem 0.95rem 0.35rem;
+  border-top: 1px solid var(--ink);
+  font-family: var(--bodoni);
+  font-weight: 400;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  max-width: none;
+}
+.lede {
+  grid-column: 1 / -1;
+  background: var(--paper);
+  margin: 0;
+  padding: 0.45rem 0.95rem 0.95rem;
+  font-family: var(--rockwell);
+  font-weight: 400;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  max-width: none;
+}
+.lede::first-letter {
+  font-family: var(--rockwell);
+  font-weight: 700;
+  float: left;
+  font-size: 3.15rem;
+  line-height: 0.72;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.14em 0.16em 0.08em;
+  margin: 0.12em 0.38em 0 0;
+}
+.by {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  border-top: 1px solid var(--ink);
+  font-family: var(--bodoni);
+  font-weight: 400;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+.by span { background: var(--paper); padding: 0.55rem 0.8rem; }
+.by span:nth-child(1) { grid-column: span 3; }
+.by span:nth-child(2) { grid-column: span 2; }
+.by span:nth-child(3) { grid-column: span 1; text-align: right; }
+
+.actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  border-top: 1px solid var(--ink);
+}
+.actions a {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 3.15rem;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--avenir);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  background: var(--paper);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.actions .primary {
+  grid-column: span 4;
+  background: var(--ink);
+  color: var(--paper);
+}
+.actions .secondary { grid-column: span 2; }
+.actions a:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.actions .primary:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.corner {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  width: 11px;
+  height: 11px;
+}
+
+/* side stack — header row is the hero's first track; bodies share the 1fr rows */
+.side {
+  display: grid;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+  background: var(--ink);
+  min-height: 0;
+}
+.story {
+  display: grid;
+  grid-template-rows: subgrid;
+  background: var(--paper);
+  min-height: 0;
+}
+.story--top { grid-row: 1 / span 2; }
+.story--hatch { grid-row: 3 / span 2; border-top: 1px solid var(--ink); }
+.story__bar { grid-row: 1; }
+.story__rest {
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.story__body {
+  padding: 0.85rem 0.8rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  flex: 1;
+}
+.story h2 {
+  font-family: var(--avenir);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(1.25rem, 1.55vw, 1.7rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+}
+.story .dek {
+  padding: 0.65rem 0 0;
+  border-top: 1px dashed var(--ink);
+  background: transparent;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.story__by {
+  margin-top: auto;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px dotted var(--ink);
+  font-family: var(--bodoni);
+  font-weight: 400;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+.story--hatch .story__body {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 6px,
+    rgba(0, 0, 0, 0.16) 6px 7px
+  );
+}
+.story:hover { background: var(--ink); color: var(--paper); }
+.story:hover .story__bar,
+.story:hover .story__by,
+.story:hover .dek { border-color: var(--paper); }
+.story:hover .story__body { background-image: none; }
+
+/* queue */
+.rail {
+  display: grid;
+  grid-template-rows: subgrid;
+  background: var(--paper);
+  min-height: 0;
+}
+.rail__rest {
+  grid-row: 2 / span 3;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.rail__list {
+  flex: 1;
+  background-image: radial-gradient(circle, var(--ink) 0.85px, transparent 1px);
+  background-size: 14px 14px;
+  background-position: 7px 8px;
+}
+.rail li { background: var(--paper); }
+.rail li {
+  display: grid;
+  grid-template-columns: 1.7rem 1fr;
+  gap: 0.45rem;
+  align-items: start;
+  padding: 0.65rem 0.65rem 0.6rem;
+  border-bottom: 1px dotted var(--ink);
+}
+.rail__n {
+  font-family: var(--bitcount);
+  font-weight: 400;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+.rail a {
+  display: block;
+  font-family: var(--avenir);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 1.02rem;
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+}
+.rail small {
+  display: block;
+  margin-bottom: 0.22rem;
+  font-family: var(--bitcount);
+  font-weight: 400;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.rail li:hover .rail__n { background: var(--ink); color: var(--paper); }
+.rail__foot {
+  margin-top: auto;
+  padding: 0.5rem 0.7rem;
+  border-top: 1px solid var(--ink);
+  font-family: var(--bitcount);
+  font-weight: 400;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* column ruler */
+.col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.08rem;
+  min-height: 2.7rem;
+  padding: 0.45rem 0.15rem 0.3rem;
+  background: var(--paper);
+}
+.col::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 7px;
+  background: var(--ink);
+}
+.col i,
+.col b {
+  font-family: var(--bitcount);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.col b {
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.caption,
+.kicker,
+.folio__path,
+.meta__k,
+.bar__idx,
+.rail__n,
+.rail small,
+.rail__foot,
+.col i,
+.col b {
+  font-variation-settings: var(--bitcount-axes);
+}
+
+@media (max-width: 900px) {
+  .sheet { width: min(100% - 1.4rem, 88rem); margin-top: 0.75rem; }
+  .plate,
+  .mast,
+  .hero,
+  .nav,
+  .index,
+  .lead,
+  .lead__cols {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    grid-template-rows: none;
+  }
+  .plate, .mast, .hero, .nav, .side, .index { gap: var(--rule); background: var(--ink); }
+  .name, .folio, .meta, .lead, .side, .rail, .nav a, .story, .col {
+    grid-column: auto;
+    grid-row: auto;
+    width: auto;
+  }
+  .lead { display: block; background: var(--paper); min-height: 0; }
+  .lead__cols { display: none; }
+  .lead__content,
+  .lead__rest,
+  .rail__rest,
+  .story__rest {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    grid-column: auto;
+    grid-row: auto;
+    grid-template-columns: none;
+    grid-template-rows: none;
+  }
+  .story { display: flex; flex: 1; }
+  .story--top,
+  .story--hatch,
+  .bar,
+  .story__bar { grid-row: auto; grid-column: auto; }
+  .story--hatch { border-top: 0; }
+  .side, .rail { display: flex; flex-direction: column; }
+  .bar, .crop, .dek, .lede, .by, .actions { grid-column: auto; }
+  .crop h2 span { background: none; padding: 0; box-shadow: none; }
+  .nav { display: grid; grid-template-columns: 1fr 1fr; }
+  .index { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .plate, .mast, .hero, .name, .folio, .meta, .lead, .side, .rail, .nav, .index, .crop, .story {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .name { min-height: 0; }
+  .name h1 { font-size: 15cqi; }
+
+  .by, .actions { display: grid; grid-template-columns: 1fr; }
+  .by span:nth-child(1),
+  .by span:nth-child(2),
+  .by span:nth-child(3),
+  .actions .primary,
+  .actions .secondary {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+  .bar__cols { display: none; }
+  .folio__price b { flex: none; }
+  .meta__n { font-size: 3.2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <p class="caption">
+      <span>Almighty Lisp · Online</span>
+      <span>12 col · 1px rule · Black / white</span>
+    </p>
+
+    <div class="plate-wrap">
+      <span class="reg reg--tl" aria-hidden="true"></span>
+      <span class="reg reg--tr" aria-hidden="true"></span>
+      <span class="reg reg--bl" aria-hidden="true"></span>
+      <span class="reg reg--br" aria-hidden="true"></span>
+
+      <div class="plate">
+        <header class="mast">
+          <div class="name">
+            <p class="kicker"><svg class="lam" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 3.2 L6.2 20.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+              <path d="M7.4 11.6 L17.8 20.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+            </svg> The magazine</p>
+            <h1>Almighty<br>Lisp</h1>
+          </div>
+
+          <div class="folio">
+            <p class="motto">“All the forms<br>fit to eval.”</p>
+            <p class="folio__what">A magazine for professional Common Lisp programmers.</p>
+            <a class="folio__path" href="/book/essentials">/book/essentials</a>
+          </div>
+
+          <a class="meta" href="/book/essentials">
+            <span class="meta__k">The book</span>
+            <img class="meta__logo" src="/static/assets/images/the-essentials.png" width="157" height="57" alt="Lisp &amp; Emacs Essentials">
+            <p class="meta__pitch">The language and the editor, in one manual.</p>
+            <div class="meta__hash" aria-hidden="true"></div>
+          </a>
+
+          <nav class="nav" aria-label="Sections">
+            <a href="#lead" aria-current="page">Mission</a>
+            <a href="#lisp">Lisp</a>
+            <a href="#emacs">Emacs</a>
+            <a href="#queue">Briefs</a>
+            <a href="#lead">Crew</a>
+            <a href="/book/essentials">Manual</a>
+          </nav>
+        </header>
+
+        <main class="hero">
+          <article class="lead" id="lead">
+            <div class="lead__cols" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="lead__content">
+              <p class="bar">
+                <span class="bar__idx">01</span>
+                <span>Language</span>
+                <span class="bar__cols">Cols 01–06</span>
+              </p>
+              <div class="lead__rest">
+              <div class="crop">
+                <span class="crop__c crop__c--tl" aria-hidden="true"></span>
+                <span class="crop__c crop__c--tr" aria-hidden="true"></span>
+                <span class="crop__c crop__c--bl" aria-hidden="true"></span>
+                <span class="crop__c crop__c--br" aria-hidden="true"></span>
+                <h2>
+                  <span>The Image Is</span>
+                  <span>Still Running</span>
+                </h2>
+              </div>
+              <p class="dek">How Common Lisp’s long-lived world outlasted restart-culture tooling, and why professionals walk back into the REPL with Doom Emacs as the flight deck.</p>
+              <p class="lede">Compile a definition into a world that does not die when you save. Redefine it while the process still runs. Restarts are the debugger’s checklist, not an apology dialog. Other books teach the language and strand you with the editor. This manual refuses the split.</p>
+              <p class="by">
+                <span>By <b>Micah Killian</b></span>
+                <span>Essentials</span>
+                <span>18 min</span>
+              </p>
+              <div class="actions">
+                <a class="primary" href="/book/essentials">
+                  Read Essentials
+                  <svg class="corner" viewBox="0 0 13 13" aria-hidden="true">
+                    <path d="M0 0.5H12V12.5" fill="none" stroke="currentColor" stroke-width="1.25"></path>
+                  </svg>
+                </a>
+                <a class="secondary" href="/book/essentials">Open the manual</a>
+              </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="side">
+            <article class="story story--top">
+              <p class="story__bar"><span class="bar__idx">02</span><span>Profile / Editor</span></p>
+              <div class="story__rest">
+                <div class="story__body">
+                  <h2>Over the Emacs Wall, Without a Second Apprenticeship</h2>
+                  <p class="dek">Survival Mode first. Keybindings when they earn their keep. Stickers and restarts once the image is warm.</p>
+                </div>
+                <p class="story__by">The Desk</p>
+              </div>
+            </article>
+            <article class="story story--hatch">
+              <p class="story__bar"><span class="bar__idx">03</span><span>Jeremiad / Tooling</span></p>
+              <div class="story__rest">
+                <div class="story__body">
+                  <h2>The Industry Is Too Restarted</h2>
+                  <p class="dek">Reflections on an uncool half-century of killing the process to fix a bug.</p>
+                </div>
+                <p class="story__by">A Tired Image</p>
+              </div>
+            </article>
+          </div>
+
+          <aside class="rail" id="queue" aria-label="More top stories">
+            <p class="bar"><span class="bar__idx">04</span><span>The Queue</span></p>
+            <div class="rail__rest">
+            <ol class="rail__list">
+              <li>
+                <span class="rail__n">01</span>
+                <a href="/book/essentials" id="lisp"><small>Lisp</small>CLOS for people who already ship objects</a>
+              </li>
+              <li>
+                <span class="rail__n">02</span>
+                <a href="/book/essentials" id="emacs"><small>Emacs</small>A Doom install that doesn’t strand you</a>
+              </li>
+              <li>
+                <span class="rail__n">03</span>
+                <a href="/book/essentials"><small>Manual</small>Money that refuses floats</a>
+              </li>
+              <li>
+                <span class="rail__n">04</span>
+                <a href="/book/essentials"><small>Deploy</small>Binaries, web paths, the last mile</a>
+              </li>
+              <li>
+                <span class="rail__n">05</span>
+                <a href="/book/essentials"><small>Ideas</small>Macros, when they earn their keep</a>
+              </li>
+            </ol>
+            <p class="rail__foot">On the site</p>
+            </div>
+          </aside>
+        </main>
+
+        <div class="index" aria-hidden="true">
+          <span class="col"><i>01</i><b>Lead</b></span>
+          <span class="col"><i>02</i></span>
+          <span class="col"><i>03</i></span>
+          <span class="col"><i>04</i></span>
+          <span class="col"><i>05</i></span>
+          <span class="col"><i>06</i></span>
+          <span class="col"><i>07</i><b>Side</b></span>
+          <span class="col"><i>08</i></span>
+          <span class="col"><i>09</i></span>
+          <span class="col"><i>10</i></span>
+          <span class="col"><i>11</i><b>Rail</b></span>
+          <span class="col"><i>12</i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

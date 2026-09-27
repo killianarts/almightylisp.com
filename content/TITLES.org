@@ -1,0 +1,33 @@
+#+title: Content Titles
+
+
+* Informative
+** Introduction to Shiso :web:
+** Introduction to CLOG :gui:
+** Introduction to Native GUI development in Common Lisp :gui:
+
+** The Rules of Macro Hygiene :language:
+** How Some Classic Macros Are Built :language:
+
+** Advanced Techniques for Optimizing Code :advanced:language:
+
+* Opinion 
+** Web Framework Showdown :web:
+** Shiso vs. Hunchentoot :web:
+** Shiso vs. Caveman2 :web:
+** Shiso vs. Utopian :web:
+* Community Highlight
+Highlight significant community projects that demonstrate good taste and
+craftmanship--AI or no AI.
+** Autolith
+** Mine
+* Emacs 
+* News
+SBCL updates, New/Updated Repos
+
+* Special Series
+History, people
+
+* Discussions
+Discord/IRC discussions, Mailing list discussions 
+
