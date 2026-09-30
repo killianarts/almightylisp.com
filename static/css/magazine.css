@@ -1780,19 +1780,20 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
 }
 
 /* WebKit runs that filter too slowly (see magazine-fx.js): there the text
-   splits instead, into the colours the filter gives. The filter moves the
-   red image one way (A) and the blue the other (B), and the green stays
-   near the text. On the sheet, dark text leaves cyan (A) and yellow (B)
-   ghosts, blue and red (A2, B2) where they overlap the text, and goes
-   magenta; light text on black leaves red and blue ghosts, yellow and
-   cyan where they overlap, and goes green. The overlaps are shadows 0.6 as
-   far out: at half, the text hid most of them. */
+   and images keep their colour and leave ghosts, in the colours the filter
+   gives. The filter moves the red image one way (A) and the blue the other
+   (B). On the sheet, dark text leaves cyan (A) and yellow (B) ghosts, blue
+   and red (A2, B2) where they overlap the text; light text on black leaves
+   red and blue ghosts, yellow and cyan where they overlap. The overlaps are
+   shadows 0.6 as far out: at half, the text hid most of them. Green (G)
+   goes at right angles to the split, where the others leave it room.
+   Display P3, since this is only for Safari: brighter than sRGB can go. */
 .fx-lite .sheet.fx-torn {
-    --fx-a: rgb(0 229 229);
-    --fx-a2: rgb(30 60 220);
-    --fx-b: rgb(229 229 0);
-    --fx-b2: rgb(220 20 40);
-    --fx-core: rgb(229 0 229);
+    --fx-a: color(display-p3 0 0.95 1);
+    --fx-a2: color(display-p3 0.1 0.3 1);
+    --fx-b: color(display-p3 1 0.93 0);
+    --fx-b2: color(display-p3 1 0.05 0.15);
+    --fx-g: color(display-p3 0 0.85 0.3);
     filter: none;
     will-change: transform;
 }
@@ -1801,19 +1802,19 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
     .neo-cta, .neo-button.secondary, .series-strip, .series-bar, .series-stamp.ink,
     .series-tag.filled, .part-new, .src-tag, .end-label.dark, .contents-row.current,
     .index-cell.current, .toc-cell.is-current, .piece-number) {
-    --fx-a: rgb(255 40 40);
-    --fx-a2: rgb(255 230 40);
-    --fx-b: rgb(50 90 255);
-    --fx-b2: rgb(40 230 255);
-    --fx-core: rgb(40 255 90);
+    --fx-a: color(display-p3 1 0.15 0.15);
+    --fx-a2: color(display-p3 1 0.95 0.1);
+    --fx-b: color(display-p3 0.2 0.4 1);
+    --fx-b2: color(display-p3 0.1 0.95 1);
+    --fx-g: color(display-p3 0.15 1 0.35);
 }
 
 .fx-lite .sheet.fx-torn .neo-button.primary {
-    --fx-a: rgb(0 229 229);
-    --fx-a2: rgb(30 60 220);
-    --fx-b: rgb(229 229 0);
-    --fx-b2: rgb(220 20 40);
-    --fx-core: rgb(229 0 229);
+    --fx-a: color(display-p3 0 0.95 1);
+    --fx-a2: color(display-p3 0.1 0.3 1);
+    --fx-b: color(display-p3 1 0.93 0);
+    --fx-b2: color(display-p3 1 0.05 0.15);
+    --fx-g: color(display-p3 0 0.85 0.3);
 }
 
 .fx-lite .sheet.fx-torn[style*="--fx-rx"] * {
@@ -1821,10 +1822,9 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
         calc(var(--fx-rx) * 0.6) calc(var(--fx-ry) * 0.6) 0 var(--fx-a2),
         calc(var(--fx-bx) * 0.6) calc(var(--fx-by) * 0.6) 0 var(--fx-b2),
         var(--fx-rx) var(--fx-ry) 0 var(--fx-a),
-        var(--fx-bx) var(--fx-by) 0 var(--fx-b);
+        var(--fx-bx) var(--fx-by) 0 var(--fx-b),
+        calc(var(--fx-ry) * -0.5) calc(var(--fx-rx) * 0.5) 0 var(--fx-g);
 }
-
-.fx-lite .sheet.fx-torn.fx-tint * { color: var(--fx-core); }
 
 /* The tear: copies of the page in bands that slide (see buildTear in
    magazine-fx.js). The layer has .mag for the page's tokens, but none of
@@ -1856,7 +1856,8 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
         drop-shadow(calc(var(--fx-rx) * 0.6) calc(var(--fx-ry) * 0.6) 0 var(--fx-a2))
         drop-shadow(calc(var(--fx-bx) * 0.6) calc(var(--fx-by) * 0.6) 0 var(--fx-b2))
         drop-shadow(var(--fx-rx) var(--fx-ry) 0 var(--fx-a))
-        drop-shadow(var(--fx-bx) var(--fx-by) 0 var(--fx-b));
+        drop-shadow(var(--fx-bx) var(--fx-by) 0 var(--fx-b))
+        drop-shadow(calc(var(--fx-ry) * -0.5) calc(var(--fx-rx) * 0.5) 0 var(--fx-g));
 }
 
 /* While the page tears, the gaps it leaves are black. */

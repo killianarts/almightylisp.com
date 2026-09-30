@@ -252,10 +252,8 @@
     });
   }
 
-  // WebKit: the split is these properties on the sheet, and the tint is on
-  // while the images are far enough apart to show it.
+  // WebKit: the split is these properties on the sheet.
   var SPLIT_PROPS = ["--fx-rx", "--fx-ry", "--fx-bx", "--fx-by"];
-  var TINT_FROM = 4;  // px
 
   // Move the red, green and blue images apart: the filter's offsets, or
   // (WebKit) the text's shadows.
@@ -276,12 +274,10 @@
     [rx, ry, bx, by].forEach(function (v, i) {
       sheet.style.setProperty(SPLIT_PROPS[i], v.toFixed(1) + "px");
     });
-    sheet.classList.toggle("fx-tint", Math.hypot(rx - bx, ry - by) >= 2 * TINT_FROM);
   }
 
   function clearSplit(s) {
     SPLIT_PROPS.forEach(function (p) { s.style.removeProperty(p); });
-    s.classList.remove("fx-tint");
   }
 
   // Peak strengths, reached on the first frame and eased out from there.
@@ -363,7 +359,7 @@
         "left:" + -TEAR_PAD + "px;width:calc(100% + " + 2 * TEAR_PAD + "px)";
       var copy = sheet.cloneNode(true);
       copy.removeAttribute("id");
-      copy.classList.remove("fx-torn", "fx-tint");
+      copy.classList.remove("fx-torn");
       Array.prototype.forEach.call(copy.querySelectorAll("[id]"), function (el) {
         el.removeAttribute("id");
       });
@@ -734,14 +730,12 @@
       var s = sheet;
       if (!s || !s.classList.contains("fx-torn")) return;
       var style = s.getAttribute("style") || "";
-      var tint = s.classList.contains("fx-tint");
       s.classList.remove("fx-torn");
       s.style.transform = "";
       clearSplit(s);
       Promise.resolve().then(function () {
         if (playing && s.isConnected) {
           s.classList.add("fx-torn");
-          s.classList.toggle("fx-tint", tint);
           s.setAttribute("style", style);
         }
       });
