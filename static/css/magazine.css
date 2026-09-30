@@ -1779,51 +1779,54 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
     will-change: transform, filter;
 }
 
-/* WebKit runs that filter too slowly (see magazine-fx.js): there the text
-   and images keep their colour and leave ghosts, in the colours the filter
-   gives. The filter moves the red image one way (A) and the blue the other
-   (B). On the sheet, dark text leaves cyan (A) and yellow (B) ghosts, blue
-   and red (A2, B2) where they overlap the text; light text on black leaves
-   red and blue ghosts, yellow and cyan where they overlap. The overlaps are
-   shadows 0.6 as far out: at half, the text hid most of them. Green (G)
-   goes at right angles to the split, where the others leave it room.
-   Display P3, since this is only for Safari: brighter than sRGB can go. */
+/* WebKit runs that filter too slowly (see magazine-fx.js). There the split
+   is three copies of the page over it, each tinted to one channel by a
+   multiplied layer and added back together (see buildSplit). */
 .fx-lite .sheet.fx-torn {
-    --fx-a: color(display-p3 0 0.95 1);
-    --fx-a2: color(display-p3 0.1 0.3 1);
-    --fx-b: color(display-p3 1 0.93 0);
-    --fx-b2: color(display-p3 1 0.05 0.15);
-    --fx-g: color(display-p3 0 0.85 0.3);
     filter: none;
+    will-change: auto;
+}
+
+.mag.fx-rgb {
+    position: fixed;
+    inset: 0;
+    z-index: 8999;
+    overflow: hidden;
+    pointer-events: none;
+    isolation: isolate;
+    background: #000;
+}
+
+.mag.fx-rgb::before,
+.mag.fx-rgb::after { display: none; }
+
+.fx-rgb-copy {
+    position: absolute;
+    isolation: isolate;
+    mix-blend-mode: plus-lighter;
     will-change: transform;
 }
 
-.fx-lite .sheet.fx-torn :is(.head-band > .section-head, .book-ad, .book-strip,
-    .neo-cta, .neo-button.secondary, .series-strip, .series-bar, .series-stamp.ink,
-    .series-tag.filled, .part-new, .src-tag, .end-label.dark, .contents-row.current,
-    .index-cell.current, .toc-cell.is-current, .piece-number) {
-    --fx-a: color(display-p3 1 0.15 0.15);
-    --fx-a2: color(display-p3 1 0.95 0.1);
-    --fx-b: color(display-p3 0.2 0.4 1);
-    --fx-b2: color(display-p3 0.1 0.95 1);
-    --fx-g: color(display-p3 0.15 1 0.35);
+.fx-rgb-copy::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: multiply;
 }
 
-.fx-lite .sheet.fx-torn .neo-button.primary {
-    --fx-a: color(display-p3 0 0.95 1);
-    --fx-a2: color(display-p3 0.1 0.3 1);
-    --fx-b: color(display-p3 1 0.93 0);
-    --fx-b2: color(display-p3 1 0.05 0.15);
-    --fx-g: color(display-p3 0 0.85 0.3);
-}
+/* Rec. 2020's primaries are past the screen's gamut, so they come out as
+   its own pure primaries; sRGB's aren't pure on a wide-gamut screen, and
+   are only there for browsers without Rec. 2020. */
+.fx-rgb-copy.r::after { background: rgb(255 0 0); background: color(rec2020 1 0 0); }
+.fx-rgb-copy.g::after { background: rgb(0 255 0); background: color(rec2020 0 1 0); }
+.fx-rgb-copy.b::after { background: rgb(0 0 255); background: color(rec2020 0 0 1); }
 
-.fx-lite .sheet.fx-torn[style*="--fx-rx"] * {
-    text-shadow:
-        calc(var(--fx-rx) * 0.6) calc(var(--fx-ry) * 0.6) 0 var(--fx-a2),
-        calc(var(--fx-bx) * 0.6) calc(var(--fx-by) * 0.6) 0 var(--fx-b2),
-        var(--fx-rx) var(--fx-ry) 0 var(--fx-a),
-        var(--fx-bx) var(--fx-by) 0 var(--fx-b),
-        calc(var(--fx-ry) * -0.5) calc(var(--fx-rx) * 0.5) 0 var(--fx-g);
+/* Nothing in a copy gets a layer of its own: the tint would mix with
+   everything under it, not just the copy. */
+.fx-rgb-copy * {
+    animation: none !important;
+    transition: none !important;
+    will-change: auto !important;
 }
 
 /* The tear: copies of the page in bands that slide (see buildTear in
@@ -1847,17 +1850,6 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
     overflow: hidden;
     background: #000;
     will-change: transform;
-}
-
-/* Images split the same way, as shadows of their shapes. (The second
-   shadow also shadows the first, which leaves a third, fainter ghost.) */
-.fx-lite .sheet.fx-torn[style*="--fx-rx"] :is(img, svg) {
-    filter:
-        drop-shadow(calc(var(--fx-rx) * 0.6) calc(var(--fx-ry) * 0.6) 0 var(--fx-a2))
-        drop-shadow(calc(var(--fx-bx) * 0.6) calc(var(--fx-by) * 0.6) 0 var(--fx-b2))
-        drop-shadow(var(--fx-rx) var(--fx-ry) 0 var(--fx-a))
-        drop-shadow(var(--fx-bx) var(--fx-by) 0 var(--fx-b))
-        drop-shadow(calc(var(--fx-ry) * -0.5) calc(var(--fx-rx) * 0.5) 0 var(--fx-g));
 }
 
 /* While the page tears, the gaps it leaves are black. */

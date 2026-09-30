@@ -180,9 +180,12 @@ each swap.
 =magazine-fx.js= also plays the hover flicker and the tear when an article
 or book link is clicked, then lets htmx (or the browser, for other sites)
 navigate. Safari (and every browser on iOS) runs the tear's SVG filter
-on the CPU, far too slowly, so there the text splits into red and cyan
-shadows instead (=.fx-lite= in =magazine.css=). =magazine-toc.js= runs on article pages and is safe to run again
-after a swap.
+on the CPU, far too slowly, so there the page is copied instead: three
+copies tinted red, green and blue and added back together make the split,
+and more copies in sliding bands make the tear (=buildSplit= and
+=buildTear= in =magazine-fx.js=, =.fx-rgb= and =.fx-tear= in
+=magazine.css=). =magazine-toc.js= runs on article pages and is safe to
+run again after a swap.
 
 =magazine-fonts.js= runs first, in =<head>=. Once the page's stylesheets
 and scripts are in, it loads the fonts itself and holds them back until they
