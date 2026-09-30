@@ -50,6 +50,8 @@ Outside this directory:
 |-------------------------------+----------------------------------------------------------------|
 | =static/css/magazine.css=     | All the magazine's styles; see [[*The stylesheet][The stylesheet]]                |
 | =static/js/magazine-fx.js=    | htmx setup and the screen effects                              |
+| =static/js/magazine-fonts.js= | Loads the fonts and switches them in together                  |
+| =static/css/magazine-fonts.css= | The same fonts as =@font-face=, for browsers without JavaScript |
 | =static/js/magazine-toc.js=   | The contents strip that pins to the top of an article          |
 | =static/assets/images/magazine/= | Logos, the typemark, patterns                               |
 | =content/magazine/=           | Articles, a folder per series, =templates/=, =WRITING.org=     |
@@ -177,8 +179,17 @@ each swap.
 
 =magazine-fx.js= also plays the hover flicker and the tear when an article
 or book link is clicked, then lets htmx (or the browser, for other sites)
-navigate. =magazine-toc.js= runs on article pages and is safe to run again
+navigate. Safari (and every browser on iOS) runs the tear's SVG filter
+on the CPU, far too slowly, so there the text splits into red and cyan
+shadows instead (=.fx-lite= in =magazine.css=). =magazine-toc.js= runs on article pages and is safe to run again
 after a swap.
+
+=magazine-fonts.js= runs first, in =<head>=. Once the page's stylesheets
+and scripts are in, it loads the fonts itself and holds them back until they
+have all arrived. If that takes longer than a
+moment the page shows in fallback fonts meanwhile, and the switch happens
+under the arrival effect (=MagazineFx.arrive= in =magazine-fx.js=). Add a
+font to its =FONTS= list, and to =magazine-fonts.css=.
 
 * Publishing
 

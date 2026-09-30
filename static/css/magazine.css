@@ -1,33 +1,14 @@
 @layer reset, base, components, modules, utilities;
 
 @import url('resets.css') layer(reset);
-@import url('fonts.css') layer(base);
-@import url('components/package.css') layer(components);
 
 @layer modules;
 
 @layer utilities;
-@font-face {
-    font-family: "Science Gothic";
-    src: url("/static/assets/fonts/ScienceGothic-Variable.ttf") format("truetype");
-    font-weight: 100 900;
-    font-stretch: 50% 200%;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Construct Mono";
-    src: url("/static/assets/fonts/ConstructMono.otf") format("opentype");
-    font-weight: 400;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Berkeley Mono";
-    src: url("/static/assets/fonts/BerkeleyMono-Regular.ttf") format("truetype");
-    font-weight: 400;
-    font-display: swap;
-}
+/* Fonts are loaded by js/magazine-fonts.js (css/magazine-fonts.css without
+   JavaScript). While they may still come from the cache, the sheet stays
+   hidden for a moment, so it isn't drawn in fallback fonts first. */
+.fonts-pending .sheet { visibility: hidden; }
 
 .mag {
     /* colour. black and white, with greys for secondary text. */
@@ -1796,6 +1777,86 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
 .sheet.fx-torn {
     filter: url(#fx-aberration);
     will-change: transform, filter;
+}
+
+/* WebKit runs that filter too slowly (see magazine-fx.js): there the text
+   splits instead, into the colours the filter gives. The filter moves the
+   red image one way (A) and the blue the other (B), and the green stays
+   near the text. On the sheet, dark text leaves cyan (A) and yellow (B)
+   ghosts, blue and red (A2, B2) where they overlap the text, and goes
+   magenta; light text on black leaves red and blue ghosts, yellow and
+   cyan where they overlap, and goes green. The overlaps are shadows 0.6 as
+   far out: at half, the text hid most of them. */
+.fx-lite .sheet.fx-torn {
+    --fx-a: rgb(0 229 229);
+    --fx-a2: rgb(30 60 220);
+    --fx-b: rgb(229 229 0);
+    --fx-b2: rgb(220 20 40);
+    --fx-core: rgb(229 0 229);
+    filter: none;
+    will-change: transform;
+}
+
+.fx-lite .sheet.fx-torn :is(.head-band > .section-head, .book-ad, .book-strip,
+    .neo-cta, .neo-button.secondary, .series-strip, .series-bar, .series-stamp.ink,
+    .series-tag.filled, .part-new, .src-tag, .end-label.dark, .contents-row.current,
+    .index-cell.current, .toc-cell.is-current, .piece-number) {
+    --fx-a: rgb(255 40 40);
+    --fx-a2: rgb(255 230 40);
+    --fx-b: rgb(50 90 255);
+    --fx-b2: rgb(40 230 255);
+    --fx-core: rgb(40 255 90);
+}
+
+.fx-lite .sheet.fx-torn .neo-button.primary {
+    --fx-a: rgb(0 229 229);
+    --fx-a2: rgb(30 60 220);
+    --fx-b: rgb(229 229 0);
+    --fx-b2: rgb(220 20 40);
+    --fx-core: rgb(229 0 229);
+}
+
+.fx-lite .sheet.fx-torn[style*="--fx-rx"] * {
+    text-shadow:
+        calc(var(--fx-rx) * 0.6) calc(var(--fx-ry) * 0.6) 0 var(--fx-a2),
+        calc(var(--fx-bx) * 0.6) calc(var(--fx-by) * 0.6) 0 var(--fx-b2),
+        var(--fx-rx) var(--fx-ry) 0 var(--fx-a),
+        var(--fx-bx) var(--fx-by) 0 var(--fx-b);
+}
+
+.fx-lite .sheet.fx-torn.fx-tint * { color: var(--fx-core); }
+
+/* The tear: copies of the page in bands that slide (see buildTear in
+   magazine-fx.js). The layer has .mag for the page's tokens, but none of
+   its background or overlays. A band is painted once and after that only
+   moved: off screen when it isn't tearing. */
+.mag.fx-tear {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    overflow: hidden;
+    pointer-events: none;
+    background: none;
+}
+
+.mag.fx-tear::before,
+.mag.fx-tear::after { display: none; }
+
+.fx-tear-band {
+    position: absolute;
+    overflow: hidden;
+    background: #000;
+    will-change: transform;
+}
+
+/* Images split the same way, as shadows of their shapes. (The second
+   shadow also shadows the first, which leaves a third, fainter ghost.) */
+.fx-lite .sheet.fx-torn[style*="--fx-rx"] :is(img, svg) {
+    filter:
+        drop-shadow(calc(var(--fx-rx) * 0.6) calc(var(--fx-ry) * 0.6) 0 var(--fx-a2))
+        drop-shadow(calc(var(--fx-bx) * 0.6) calc(var(--fx-by) * 0.6) 0 var(--fx-b2))
+        drop-shadow(var(--fx-rx) var(--fx-ry) 0 var(--fx-a))
+        drop-shadow(var(--fx-bx) var(--fx-by) 0 var(--fx-b));
 }
 
 /* While the page tears, the gaps it leaves are black. */

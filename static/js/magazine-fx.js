@@ -4,10 +4,12 @@
 // .fx-flicker in magazine.css).
 //
 // Click on a book button or an article link: the page splits into its colour
-// channels and tears sideways (an SVG filter on the visible part of .sheet),
+// channels and tears sideways (an SVG filter on the visible part of .sheet;
+// in Safari, which can't run it fast enough, the text splits instead),
 // while a WebGL overlay adds tear bars, scanlines and noise and then switches
 // the screen off like a CRT. The next page settles in with a shorter version
-// of the same thing.
+// of the same thing. The shorter version also plays when the fonts finish
+// loading after the page has been drawn (see magazine-fonts.js).
 //
 // Magazine links are boosted by htmx: the page is fetched while the effect
 // plays, and swapped in once the screen is off. Other boosted navigations
@@ -176,10 +178,36 @@
     return urls;
   }
 
+  // WebKit (Safari, and every browser on iOS) runs SVG filters on the CPU,
+  // at full resolution, whenever they change. Measured in Safari at
+  // 1440x900 on a Retina screen, the filter below takes the effect from
+  // about 55fps to 2-10fps, with stalls of up to 1.7s. There the page
+  // doesn't go through the filter at all: its text splits instead, into two
+  // shadows and a tint in the colours the filter would give on that
+  // background (see .fx-lite in magazine.css). Each extra shadow costs as
+  // much as the first: four took Safari down to 25fps. The tear is copies
+  // of the page in bands (see buildTear).
+  var SVG_FILTER = navigator.vendor !== "Apple Computer, Inc.";
+  if (!SVG_FILTER) root.classList.add("fx-lite");
+
+  // Redrawing every text-shadow on the page takes Safari about 45ms, so
+  // before the tear the split and the bands (below) hold for at least this
+  // many frames, and change on the same frame: out of step, they left few
+  // frames free. In the tear the bands move alone, and the split holds
+  // longer (setTear).
+  var LITE_EVERY = 3;
+  var liteFrame = -LITE_EVERY;
+
+  function liteDue(frame) {
+    if (frame - liteFrame < LITE_EVERY) return false;
+    liteFrame = frame;
+    return true;
+  }
+
   var svg = null, filterEl, image, displace, offR, offG, offB, strips, tearMaps;
 
   function ensureFilter() {
-    if (svg) return;
+    if (svg || !SVG_FILTER) return;
     strips = makeStrips(6);
     tearMaps = makeTearMaps(8);
     var ns = "http://www.w3.org/2000/svg";
@@ -213,6 +241,7 @@
   // Limit the filter to the part of the page on screen: filtering the
   // whole article would cost a lot more and show nothing extra.
   function placeFilter() {
+    if (!SVG_FILTER) return;
     var box = sheet.getBoundingClientRect();
     var x = -box.left, y = -box.top, w = window.innerWidth, h = window.innerHeight;
     [filterEl, image].forEach(function (el) {
@@ -223,39 +252,81 @@
     });
   }
 
+  // WebKit: the split is these properties on the sheet, and the tint is on
+  // while the images are far enough apart to show it.
+  var SPLIT_PROPS = ["--fx-rx", "--fx-ry", "--fx-bx", "--fx-by"];
+  var TINT_FROM = 4;  // px
+
+  // Move the red, green and blue images apart: the filter's offsets, or
+  // (WebKit) the text's shadows.
+  // Each image also moves along splitSlope, so they part at an angle; RY
+  // and BY add a little jitter to that.
+  function setSplit(rx, ry, gx, bx, by) {
+    ry += rx * splitSlope;
+    by += bx * splitSlope;
+    if (SVG_FILTER) {
+      offR.setAttribute("dx", rx.toFixed(1));
+      offR.setAttribute("dy", ry.toFixed(1));
+      offG.setAttribute("dx", gx.toFixed(1));
+      offG.setAttribute("dy", (gx * splitSlope).toFixed(1));
+      offB.setAttribute("dx", bx.toFixed(1));
+      offB.setAttribute("dy", by.toFixed(1));
+      return;
+    }
+    [rx, ry, bx, by].forEach(function (v, i) {
+      sheet.style.setProperty(SPLIT_PROPS[i], v.toFixed(1) + "px");
+    });
+    sheet.classList.toggle("fx-tint", Math.hypot(rx - bx, ry - by) >= 2 * TINT_FROM);
+  }
+
+  function clearSplit(s) {
+    SPLIT_PROPS.forEach(function (p) { s.style.removeProperty(p); });
+    s.classList.remove("fx-tint");
+  }
+
   // Peak strengths, reached on the first frame and eased out from there.
   var SPLIT = 30;     // px between the red and blue images
   var TEAR = 150;     // px the torn bands can slide
   var JITTER = 14;    // px the whole page shakes
   var SKEW = 1.5;     // degrees
   var splitDir = 1;   // which way red goes; fixed for one effect
+  var splitSlope = 0; // and at what angle: tan of 15-35 degrees, up or down
 
   function setFilter(amount, frame) {
     var wobble = 0.8 + Math.random() * 0.4;
     var split = amount * SPLIT * wobble;
-    image.setAttribute("href", strips[frame % strips.length]);
-    displace.setAttribute("scale", (amount * TEAR * (0.6 + Math.random() * 0.8)).toFixed(1));
-    offR.setAttribute("dx", (splitDir * split).toFixed(1));
-    offR.setAttribute("dy", (amount * (Math.random() * 6 - 3)).toFixed(1));
-    offG.setAttribute("dx", (splitDir * split * 0.12).toFixed(1));
-    offB.setAttribute("dx", (-splitDir * split * 0.85).toFixed(1));
-    offB.setAttribute("dy", (amount * (Math.random() * 4 - 2)).toFixed(1));
+    if (SVG_FILTER) {
+      image.setAttribute("href", strips[frame % strips.length]);
+      displace.setAttribute("scale", (amount * TEAR * (0.6 + Math.random() * 0.8)).toFixed(1));
+    }
+    if (SVG_FILTER || liteDue(frame)) {
+      if (!SVG_FILTER) setBands(0.35, amount * TEAR, 0);
+      setSplit(splitDir * split, amount * (Math.random() * 6 - 3), splitDir * split * 0.12,
+               -splitDir * split * 0.85, amount * (Math.random() * 4 - 2));
+    }
     var jitter = amount * JITTER * (Math.random() * 2 - 1);
     var skew = amount * SKEW * (Math.random() * 2 - 1);
     sheet.style.transform = "translate3d(" + jitter.toFixed(1) + "px,0,0) skewX(" + skew.toFixed(2) + "deg)";
   }
 
+  var TEAR_SPLIT_EVERY = 4;
+  var tearCalls = 0;
+
   // The page coming apart. K runs from about 0.55 to 1 over the tear.
-  function setTear(k) {
-    image.setAttribute("href", tearMaps[Math.floor(Math.random() * tearMaps.length)]);
-    displace.setAttribute("scale", Math.round(k * (300 + Math.random() * 500)));
-    var dir = Math.random() < 0.5 ? -1 : 1;
-    var split = 8 + Math.random() * 36 * k;
-    offR.setAttribute("dx", (dir * split).toFixed(1));
-    offR.setAttribute("dy", (Math.random() * 8 - 4).toFixed(1));
-    offG.setAttribute("dx", ((Math.random() * 2 - 1) * 6 * k).toFixed(1));
-    offB.setAttribute("dx", (-dir * split * 0.9).toFixed(1));
-    offB.setAttribute("dy", (Math.random() * 8 - 4).toFixed(1));
+  function setTear(k, frame) {
+    if (SVG_FILTER) {
+      image.setAttribute("href", tearMaps[Math.floor(Math.random() * tearMaps.length)]);
+      displace.setAttribute("scale", Math.round(k * (300 + Math.random() * 500)));
+    }
+    // WebKit: the bands move on every call; the split, the slow part, holds
+    // for TEAR_SPLIT_EVERY of them.
+    if (!SVG_FILTER) setBands(0.55, k * (300 + Math.random() * 500), 30 * k);
+    if (SVG_FILTER || tearCalls++ % TEAR_SPLIT_EVERY === 0) {
+      var dir = Math.random() < 0.5 ? -1 : 1;
+      var split = 8 + Math.random() * 36 * k;
+      setSplit(dir * split, Math.random() * 8 - 4, (Math.random() * 2 - 1) * 6 * k,
+               -dir * split * 0.9, Math.random() * 8 - 4);
+    }
     var jumpX = (Math.random() * 2 - 1) * 40 * k;
     // now and then the picture loses vertical hold
     var jumpY = Math.random() < 0.25 ? (Math.random() * 2 - 1) * 28 * k : 0;
@@ -263,10 +334,85 @@
     sheet.style.transform = "translate3d(" + jumpX.toFixed(1) + "px," + jumpY.toFixed(1) + "px,0) skewX(" + skew.toFixed(2) + "deg)";
   }
 
+  // WebKit's tear: copies of the page, each seen through a band of the
+  // window, that slide sideways. A band is wider than the window by PAD on
+  // each side, black past the page, so sliding it opens a black gap as the
+  // filter's tear does. A band is only ever moved, never redrawn, and one
+  // that's out of the tear is moved off screen, not hidden: in Safari,
+  // moving bands to new rows cost half the frames, and hiding and showing
+  // them (opacity, clip-path) cost 40-60ms a time, where moving them costs
+  // next to nothing. They're built and painted on the first frame (70-90ms).
+  var TEAR_BANDS = 12;
+  var TEAR_PAD = 480;   // px; also the furthest a band slides
+  var tearLayer = null, tearBands = [];
+
+  function buildTear() {
+    removeTear();
+    sheet.style.transform = "";
+    var box = sheet.getBoundingClientRect();
+    var h = window.innerHeight;
+    // .mag for the page's tokens and base styles; see .fx-tear in magazine.css.
+    tearLayer = document.createElement("div");
+    tearLayer.className = "mag fx-tear";
+    tearLayer.setAttribute("aria-hidden", "true");
+    for (var i = 0; i < TEAR_BANDS; i++) {
+      var bh = 6 + Math.random() * 60, y = Math.random() * (h - bh);
+      var band = document.createElement("div");
+      band.className = "fx-tear-band";
+      band.style.cssText = "top:" + y.toFixed(0) + "px;height:" + bh.toFixed(0) + "px;" +
+        "left:" + -TEAR_PAD + "px;width:calc(100% + " + 2 * TEAR_PAD + "px)";
+      var copy = sheet.cloneNode(true);
+      copy.removeAttribute("id");
+      copy.classList.remove("fx-torn", "fx-tint");
+      Array.prototype.forEach.call(copy.querySelectorAll("[id]"), function (el) {
+        el.removeAttribute("id");
+      });
+      copy.inert = true;
+      copy.style.cssText = "position:absolute;margin:0;left:" + (box.left + TEAR_PAD) + "px;" +
+        "top:" + (box.top - y) + "px;width:" + box.width + "px";
+      parkBand(band);
+      band.appendChild(copy);
+      tearLayer.appendChild(band);
+      tearBands.push(band);
+    }
+    root.appendChild(tearLayer);
+  }
+
+  function moveBand(band, dx, dy) {
+    band.style.transform = "translate3d(" + dx.toFixed(0) + "px," + dy.toFixed(0) + "px,0)";
+  }
+
+  // Off screen, to the right, by the band's own width and then some.
+  function parkBand(band) {
+    moveBand(band, window.innerWidth + 3 * TEAR_PAD, 0);
+  }
+
+  // Tear SHARE of the bands, slid up to REACH px (and now and then SLIP px
+  // up or down), and park the rest.
+  function setBands(share, reach, slip) {
+    if (!tearLayer) return;
+    tearBands.forEach(function (band) {
+      if (Math.random() >= share) { parkBand(band); return; }
+      var dx = (Math.random() < 0.5 ? -1 : 1) * Math.min(TEAR_PAD, reach * (0.25 + 0.75 * Math.random()));
+      var dy = Math.random() < 0.2 ? (Math.random() * 2 - 1) * slip : 0;
+      moveBand(band, dx, dy);
+    });
+  }
+
+  function removeTear() {
+    if (tearLayer) tearLayer.remove();
+    tearLayer = null;
+    tearBands = [];
+  }
+
   function clearFilter() {
+    removeTear();
     if (!sheet) return;
     sheet.classList.remove("fx-torn");
     sheet.style.transform = "";
+    clearSplit(sheet);
+    liteFrame = -LITE_EVERY;
+    tearCalls = 0;
   }
 
   // ---------------------------------------------------- overlay (WebGL)
@@ -412,6 +558,8 @@
     if (sheet) {
       ensureFilter();
       placeFilter();
+      if (!SVG_FILTER) buildTear();
+      tearCalls = 0;
       sheet.classList.add("fx-torn");
     }
     var hasGL = ensureGL();
@@ -422,6 +570,7 @@
     }
     var seed = Math.random() * 100;
     splitDir = Math.random() < 0.5 ? -1 : 1;
+    splitSlope = (Math.random() < 0.5 ? -1 : 1) * Math.tan((15 + Math.random() * 20) * Math.PI / 180);
     var start = performance.now();
     var frame = 0;
 
@@ -448,7 +597,7 @@
           : Math.max(0, 1 - (t - BREAK) / 0.12);
         root.classList.add("fx-broken");
         // each broken state holds for two frames, like a signal catching
-        if (sheet && frame % 2 === 0) setTear(Math.max(tear, 0.55));
+        if (sheet && frame % 2 === 0) setTear(Math.max(tear, 0.55), frame);
       }
       if (hasGL) drawOverlay(t, mode, seed, tear);
       frame++;
@@ -584,13 +733,16 @@
     document.addEventListener("htmx:beforeHistorySave", function () {
       var s = sheet;
       if (!s || !s.classList.contains("fx-torn")) return;
-      var transform = s.style.transform;
+      var style = s.getAttribute("style") || "";
+      var tint = s.classList.contains("fx-tint");
       s.classList.remove("fx-torn");
       s.style.transform = "";
+      clearSplit(s);
       Promise.resolve().then(function () {
         if (playing && s.isConnected) {
           s.classList.add("fx-torn");
-          s.style.transform = transform;
+          s.classList.toggle("fx-tint", tint);
+          s.setAttribute("style", style);
         }
       });
     });
@@ -641,6 +793,12 @@
     sessionStorage.removeItem(ARRIVE_KEY);
     if (stamp && Date.now() - stamp < 5000) play(1, ARRIVE_MS);
   } catch (e) {}
+
+  // The fonts switching in (magazine-fonts.js): settle in over the switch.
+  // An effect already playing covers it on its own.
+  window.MagazineFx = {
+    arrive: function () { if (!playing) play(1, ARRIVE_MS); }
+  };
 
   // Build the overlay while the browser is idle, so the first click is quick.
   var idle = window.requestIdleCallback || function (fn) { setTimeout(fn, 400); };

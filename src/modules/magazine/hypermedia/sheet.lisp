@@ -18,10 +18,14 @@
        (meta :name "description" :content description)
        (link :rel "icon" :type "image/png" :sizes "32x32"
          :href (asset "assets/images/favicon/favicon-32x32.png"))
-       (link :rel "preconnect" :href "https://fonts.googleapis.com")
-       (link :rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin t)
-       (link :rel "stylesheet"
-         :href "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow+Semi+Condensed:wght@400;600&family=Mohave:wght@400;500&display=swap")
+       ;; Loads the fonts once the page is up, and switches them in once
+       ;; they're all here. Not deferred: it hides the sheet for a moment
+       ;; before the first paint (see magazine-fonts.js).
+       (script :src (asset "js/magazine-fonts.js"))
+       (noscript (link :rel "stylesheet" :href (asset "css/magazine-fonts.css")))
+       ;; magazine.css imports resets.css; fetch it alongside, not after.
+       ;; The same URL as the import, so it's one download.
+       (link :rel "preload" :as "style" :href "/static/css/resets.css")
        (link :rel "stylesheet" :href (asset "css/magazine.css"))
        ;; htmx boosts magazine links into in-page swaps; magazine-fx.js
        ;; configures it, so it has to load first.

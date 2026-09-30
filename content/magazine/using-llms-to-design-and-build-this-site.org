@@ -144,3 +144,10 @@ visible where there are large blocks of black, meaning anything I want to bring
 attention to just needs to have a lot of black surrounding it. Readers right now
 won't even notice the noise because the text is too small. It adds a bit of life
 and texture without distracting the reader.
+
+As I was adding polish to the design, I wanted to add a bit more character with
+some Japanese characters. I realized that I actually want to use several more
+fonts in the future, but fonts are huge (especially Japanese ones), so I wanted
+to find some way to gracefully load fonts while also letting readers get reading
+right away. I wondered if we could play that chromatic aberration animation
+between the time the font loads and the time it's rendered. With 
