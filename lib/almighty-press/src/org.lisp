@@ -27,9 +27,13 @@
 ;;;   #+BEGIN_NAME label        any other block: (:block "NAME" "label" ("paragraph" ...))
 ;;;   | a | b |                 a table: (:table header-or-nil rows); a |---| line
 ;;;                             after the first row makes it the header
+;;;   - item, + item            a list: (:list :ul items); 1. item or 1) item make
+;;;                             it (:list :ol items). An item is (paragraphs
+;;;                             sublists): lines indented under the bullet continue
+;;;                             it, and a deeper bullet starts a list inside it
 ;;;   # comment                 skipped
 ;;;
-;;; Inline markup is left in the text; PARSE-INLINES reads =code= and
+;;; Inline markup is left in the text; PARSE-INLINES reads emphasis and
 ;;; [[target][label]] links out of it.
 
 (define-condition org-error (simple-error)
@@ -305,6 +309,86 @@ lines as paragraphs split on blank lines."
       (flush)
       (values (list :block name label (nreverse paragraphs)) (1+ i)))))
 
+;;; Lists
+
+(defun indent-of (line)
+  (or (position-if-not (lambda (ch) (member ch '(#\Space #\Tab))) line) (length line)))
+
+(defun list-item-line (line)
+  "For a list item's first line, its indent, :UL or :OL, and the text after
+the bullet; otherwise NIL. Bullets are -, + and a number with . or ) after
+it, each followed by a space."
+  (let* ((indent (indent-of line))
+         (n (length line))
+         (digits-end (or (position-if-not #'digit-char-p line :start indent) n)))
+    (flet ((item (kind after)
+             (when (or (= after n) (char= (char line after) #\Space))
+               (values indent kind (string-trim '(#\Space #\Tab) (subseq line after))))))
+      (cond
+        ((>= indent n) nil)
+        ((member (char line indent) '(#\- #\+))
+         (item :ul (1+ indent)))
+        ((and (> digits-end indent) (< digits-end n)
+              (member (char line digits-end) '(#\. #\))))
+         (item :ol (1+ digits-end)))))))
+
+(defun read-list (lines i)
+  "The list starting at line I, and the index after it. Items are bullets at
+the first one's indent; one blank line may separate them, two end the list.
+A heading, directive or table ends it too, as does a line that is neither a
+bullet nor indented under one."
+  (let ((n (length lines))
+        (base (list-item-line (aref lines i)))
+        (kind (nth-value 1 (list-item-line (aref lines i))))
+        (items nil))
+    (labels ((line (j) (aref lines j))
+             (ends-list-p (line)
+               (or (heading-line line) (directive-p line) (table-line-p line)))
+             (next-inside-p (j)
+               "After a blank line at J-1: does the list go on at J?"
+               (and (< j n)
+                    (not (blank-p (line j)))
+                    (not (ends-list-p (line j)))
+                    (> (indent-of (line j)) base)))
+             (item-here-p (j)
+               (and (< j n) (eql (list-item-line (line j)) base))))
+      (loop while (item-here-p i)
+            do (let ((paragraphs nil)
+                     (buffer (list (nth-value 2 (list-item-line (line i)))))
+                     (sublists nil))
+                 (flet ((flush ()
+                          (when buffer
+                            (push (join-lines (nreverse buffer)) paragraphs)
+                            (setf buffer nil))))
+                   (incf i)
+                   (loop while (< i n)
+                         for line = (line i)
+                         do (cond
+                              ((blank-p line)
+                               (flush)
+                               (if (next-inside-p (1+ i))
+                                   (incf i)
+                                   (return)))
+                              ((ends-list-p line) (return))
+                              ((<= (indent-of line) base) (return))
+                              ((let ((trimmed (string-left-trim '(#\Space #\Tab) line)))
+                                 (or (directive-p trimmed) (table-line-p trimmed)))
+                               (fail (1+ i) "Blocks and tables can't go inside a list item."))
+                              ((list-item-line line)
+                               (flush)
+                               (multiple-value-bind (sublist next) (read-list lines i)
+                                 (push sublist sublists)
+                                 (setf i next)))
+                              (t
+                               (push (string-trim '(#\Space #\Tab) line) buffer)
+                               (incf i))))
+                   (flush)
+                   (push (list (nreverse paragraphs) (nreverse sublists)) items)))
+               ;; A single blank line may separate items.
+               (when (and (< (1+ i) n) (blank-p (line i)) (item-here-p (1+ i)))
+                 (incf i)))
+      (values (list :list kind (nreverse items)) i))))
+
 ;;; Documents
 
 (defun assign-ids (sections)
@@ -369,6 +453,9 @@ when the text doesn't fit the shape described at the top of this file."
                   (multiple-value-bind (name value) (parse-directive line)
                     (setf (gethash name keywords) value))
                   (incf i))
+                 ((and section (list-item-line line))
+                  (flush-paragraph)
+                  (multiple-value-call #'add (read-list lines i)))
                  ((table-line-p line)
                   (flush-paragraph)
                   (need-section "A table")
@@ -387,8 +474,8 @@ when the text doesn't fit the shape described at the top of this file."
                        (push (list :h (join-lines (split-breaks title))) blocks))))
                   (incf i))
                  (section
-                  (push line paragraph)
-                  (incf i))
+                   (push line paragraph)
+                   (incf i))
                  (t
                   (push line intro)
                   (incf i))))
@@ -402,10 +489,51 @@ when the text doesn't fit the shape described at the top of this file."
   (parse-org (uiop:read-file-string pathname :external-format :utf-8)))
 
 ;;; Inline markup
+;;;
+;;; Org's emphasis: *bold*, /italic/, _underline_, +strike+, =verbatim= and
+;;; ~code~. As in Org, a marker only counts at a word's edge: the opening one
+;;; after a space, the start, or an opening bracket or quote, with no space
+;;; just inside it; the closing one before a space, punctuation or the end.
+;;; So 2*3*4 and a/b/c stay as written.
+
+(defparameter *emphasis*
+  '((#\* . :bold) (#\/ . :italic) (#\_ . :underline) (#\+ . :strike)
+    (#\= . :code) (#\~ . :code))
+  "Emphasis markers and what they make. :code's contents are literal.")
+
+(defun emphasis-pre-p (text i)
+  "May an emphasis marker at I open? Only at the start or after these."
+  (or (zerop i)
+      (member (char text (1- i)) '(#\Space #\Tab #\Newline #\- #\( #\{ #\' #\" #\[))))
+
+(defun emphasis-post-p (text i)
+  "May an emphasis marker end just before I? Only at the end or before these."
+  (or (>= i (length text))
+      (member (char text i) '(#\Space #\Tab #\Newline #\- #\. #\, #\; #\: #\! #\?
+                              #\' #\" #\) #\} #\[ #\] #\\))))
+
+(defun blank-char-p (char)
+  )
+
+(defun emphasis-end (text i)
+  "If an emphasis span opens at I, the index of its closing marker."
+  (let ((marker (char text i))
+        (n (length text)))
+    (when (and (assoc marker *emphasis*)
+               (emphasis-pre-p text i)
+               (< (1+ i) n)
+               (not (blank-char-p (char text (1+ i)))))
+      (loop for j = (position marker text :start (+ i 2)) then (position marker text :start (1+ j))
+            while j
+            when (and (not (blank-char-p (char text (1- j))))
+                      (emphasis-post-p text (1+ j)))
+              return j))))
 
 (defun parse-inlines (text)
-  "TEXT as a list of strings, (:code \"text\") for =text=, and
-(:link \"target\" inlines) for [[target][label]] or [[target]]."
+  "TEXT as a list of strings and elements: (:code \"text\") for =text= or
+~text~; (:bold inlines), (:italic inlines), (:underline inlines) and
+(:strike inlines) for *, /, _ and +; and (:link \"target\" inlines) for
+[[target][label]] or [[target]]."
   (when (and text (plusp (length text)))
     (let ((out nil)
           (i 0)
@@ -415,17 +543,21 @@ when the text doesn't fit the shape described at the top of this file."
                (when (< start end)
                  (push (subseq text start end) out))))
         (loop while (< i n)
-              do (let ((code-end (and (char= (char text i) #\=)
-                                      (position #\= text :start (1+ i))))
+              do (let ((emphasis-end (emphasis-end text i))
                        (link-end (and (< (1+ i) n)
                                       (string= "[[" text :start2 i :end2 (+ i 2))
                                       (search "]]" text :start2 (+ i 2)))))
                    (cond
-                     (code-end
-                      (flush i)
-                      (push (list :code (subseq text (1+ i) code-end)) out)
-                      (setf i (1+ code-end)
-                            start i))
+                     (emphasis-end
+                      (let ((kind (cdr (assoc (char text i) *emphasis*)))
+                            (body (subseq text (1+ i) emphasis-end)))
+                        (flush i)
+                        (push (if (eq kind :code)
+                                  (list :code body)
+                                  (list kind (parse-inlines body)))
+                              out)
+                        (setf i (1+ emphasis-end)
+                              start i)))
                      (link-end
                       (let* ((body (subseq text (+ i 2) link-end))
                              (sep (search "][" body))

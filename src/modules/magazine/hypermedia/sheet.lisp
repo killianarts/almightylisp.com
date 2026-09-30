@@ -21,7 +21,7 @@
        (link :rel "preconnect" :href "https://fonts.googleapis.com")
        (link :rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin t)
        (link :rel "stylesheet"
-         :href "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow+Semi+Condensed:wght@400;600&family=Mohave:wght@400;500&family=IBM+Plex+Sans+JP:wght@700&display=swap")
+         :href "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow+Semi+Condensed:wght@400;600&family=Mohave:wght@400;500&display=swap")
        (link :rel "stylesheet" :href (asset "css/magazine.css"))
        ;; htmx boosts magazine links into in-page swaps; magazine-fx.js
        ;; configures it, so it has to load first.
@@ -72,11 +72,36 @@ the header's centre in Japanese. SCRIPTS go after the sheet."
      (span :class "vrule r4"))))
 
 (defun render-side-labels (left right)
-  "Vertical labels in the two gutters, centred on the band they sit in."
-  (ah:</>
-   (<>
-     (span :class "side-label left" :aria-hidden t (string-upcase left))
-     (span :class "side-label right" :aria-hidden t (string-upcase right)))))
+  "Vertical labels in the two gutters, centred on the band they sit in. LEFT
+can be a list (text jp), with JP the name of a Japanese label (see
+render-jp) set upright below the text."
+  (destructuring-bind (text &optional jp) (if (listp left) left (list left))
+    (ah:</>
+     (<>
+       (if jp
+           (ah:</>
+            (span :class "side-label left has-jp" :aria-hidden t
+              (span (string-upcase text))
+              (render-jp jp)))
+           (ah:</> (span :class "side-label left" :aria-hidden t (string-upcase text))))
+       (span :class "side-label right" :aria-hidden t (string-upcase right))))))
+
+;;; Japanese labels are set in a pixel face the site doesn't load, so each is
+;;; an SVG of its outlines, exported from Figma (Homepage (v22)).
+
+(defparameter *jp-labels*
+  '(("almighty" "オールマイティ" 102 13)
+    ("tatakawanakereba-katenai" "タタカワナケレバカテナイ" 149 11)
+    ("series" "シリーズ" 56 16)
+    ("briefing" "ブリーフィング" 99 16)
+    ("omona-series" "おもなシリーズ" 15 116))
+  "Name, text, width and height of each SVG in images/magazine/jp/.")
+
+(defun render-jp (name &key class)
+  (destructuring-bind (text width height) (rest (assoc name *jp-labels* :test #'string=))
+    (ah:</>
+     (img :class (ah:clsx "jp" class) :src (image-src (format nil "jp/~a.svg" name))
+       :alt text :lang "ja" :width (princ-to-string width) :height (princ-to-string height)))))
 
 (defun render-sep ()
   (ah:</> (span :class "sep" :aria-hidden t "■")))
@@ -87,9 +112,9 @@ the header's centre in Japanese. SCRIPTS go after the sheet."
      (div :class "running-row"
        (span "System Loaded Successfully")
        (render-sep)
-       (span :class (ah:clsx "running-center" "jp") "オールマイティ" )
+       (render-jp "almighty" :class "running-center")
        (render-sep)
-       (span "Image Status: Reading Input")))))
+       (span :class "running-status" "Image Status: Reading Input")))))
 
 (defun render-running-footer ()
   (ah:</>
@@ -97,9 +122,9 @@ the header's centre in Japanese. SCRIPTS go after the sheet."
      (div :class "running-row"
        (span "© 2026 Almighty Lisp")
        (render-sep)
-       (span "No build step  /  Absolutely no Rust  ////////")
+       (span "No build step  /  Absolutely (( No )) Rust")
        (render-sep)
-       (span :class "barcode" :aria-hidden t)))))
+       (render-jp "tatakawanakereba-katenai")))))
 
 (defun render-nameplate ()
   (ah:</>
@@ -114,14 +139,17 @@ the header's centre in Japanese. SCRIPTS go after the sheet."
   (ah:</>
    (ac-band :class "strip-band"
      (div :class "strip"
-       (div :class "strip-cell start" "Since 2026")
-       (div :class "strip-cell mid" (press:format-date (press:today) :weekday))
-       (div :class "strip-cell end" (a :href *book-href* "Become almighty"))))))
+       (div :class "strip-cell start" "Welcome Back")
+       (div :class "strip-cell mid"
+         (span :class "date-long" (press:format-date (press:today) :weekday))
+         (span :class "date-short" (press:format-date (press:today) :short-weekday)))
+       (div :class "strip-cell end" (a :href *book-href* "Become Almighty"))))))
 
-(defun render-section-head (key title meta &key action action-href)
+(defun render-section-head (key title meta &key jp action action-href)
   "A grey gap band, then the section name set large on a black band with a
 hazard strip in the left gutter. KEY names the section; its bands' classes
-place them on the sheet's rows."
+place them on the sheet's rows. JP, a Japanese label (see render-jp), sits
+above META."
   (ah:</>
    (<>
      (div :class (format nil "band gap-band ~a-gap" key) :aria-hidden t)
@@ -129,7 +157,12 @@ place them on the sheet's rows."
        (span :class "hazard" :aria-hidden t)
        (h2 :class "section-head"
          (span :class "section-title" title)
-         (span :class "section-meta" meta)
+         (if jp
+             (ah:</>
+              (span :class "section-tag"
+                (render-jp jp)
+                (span :class "section-meta" meta)))
+             (ah:</> (span :class "section-meta" meta)))
          (when action
            (ah:</> (a :class "section-action" :href action-href action))))))))
 

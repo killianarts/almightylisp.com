@@ -6,12 +6,12 @@
 #+TYPE: Opinion
 #+DRAFT: t
 # #+RELATED: other-article-slug another-slug
-# #+SERIES: CND
 # #+PART: 1
 
 # Opinion: Argue one position. Claim first, then the case, then the best objection, then what to do.
 # See WRITING.org for the header and markup. Copy this file to
-# content/magazine/your-slug.org, then replace these sections.
+# content/magazine/your-slug.org, or into a series' folder with #+PART,
+# then replace these sections.
 # Delete #+DRAFT: t when it's ready.
 
 * The claim

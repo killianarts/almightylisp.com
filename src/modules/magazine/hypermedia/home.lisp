@@ -15,7 +15,7 @@
        (render-spec (list (list "By" (model:article-author article))
                           (list "Serial" (model:article-code article))
                           (if (eq extra :cta)
-                              (list "Status" "Activated")
+                              (list "Status" "[Activated]")
                               (list "Activated" (date-text (model:article-date article)))))
                     :class "spec byline-spec")
        (if (eq extra :cta)
@@ -45,11 +45,12 @@
   (let ((lead-series (when lead (model:article-series-of lead series))))
     (list (cond ((null lead) "Almighty Lisp")
                 ((and lead-series (eq lead-series featured))
-                 (joined "Featured series" (model:series-code lead-series)
-                         (part-of lead lead-series)))
-                (t (joined "Lead" (model:article-code lead)
+                 (list (format nil "  ■  ~a" (joined (model:series-code lead-series)
+                                                     (part-of lead lead-series)))
+                       "omona-series"))
+                (t (joined "Latest Brief" (model:article-code lead)
                            (date-text (model:article-date lead)))))
-          (joined "Advertisement" "Lisp & Emacs Essentials"))))
+          (joined "Flight Manual" "Lisp & Emacs Essentials"))))
 
 (defun render-series-section (running featured)
   (ah:</>
@@ -57,7 +58,8 @@
      (render-section-head "series" "Series"
                           (joined (format nil "~d running" (length running))
                                   (when featured
-                                    (format nil "~a featured" (model:series-code featured)))))
+                                    (format nil "~a featured" (model:series-code featured))))
+                          :jp "series")
      (ac-band :class "series-band"
        :side (list (joined "Series" (format nil "~d running" (length running)))
                    (apply #'joined (mapcar #'model:series-code running)))
@@ -119,10 +121,10 @@
         (since (getf layout :since)))
     (ah:</>
      (<>
-       (render-section-head "latest" "Latest" "Newest first"
-                            :action "Full archive  >>>" :action-href (archive-href))
+       (render-section-head "latest" "Briefs" "Newest first" :jp "briefing"
+                                                             :action "Full archive  >>>" :action-href (archive-href))
        (ac-band :class "latest-band"
-         :side (list (joined "Latest" (format nil "~d articles" (length (getf layout :latest))))
+         :side (list (joined "Latest" (format nil "~d briefs" (length (getf layout :latest))))
                      (joined "Archive" (when since
                                          (format nil "Since ~a" (press:format-date since :month)))))
          (div :class (ah:clsx "latest-grid" (unless column "no-archive"))
@@ -146,4 +148,5 @@
         (when (getf layout :latest)
           (render-latest-section layout series))
         (when (getf layout :series)
-          (render-series-section (getf layout :series) featured)))))))
+          (render-series-section (getf layout :series) featured))
+        (render-book-band))))))

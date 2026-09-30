@@ -14,6 +14,7 @@
 (defparameter *formats*
   '((:iso        (:year "-" (:month 2) "-" (:day 2)))       ; 2026-09-24
     (:weekday    (:long-weekday " " :day " " :long-month " " :year)) ; Thursday 24 September 2026
+    (:short-weekday (:short-weekday " " :day " " :short-month " " :year)) ; Thu 24 Sep 2026
     (:long       (:day " " :long-month " " :year))          ; 24 September 2026
     (:compact    ((:day 2) " " :short-month " " :year))     ; 24 Sep 2026
     (:day-month  ((:day 2) " " :short-month))               ; 24 Sep

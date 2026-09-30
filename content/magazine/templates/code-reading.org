@@ -6,12 +6,12 @@
 #+TYPE: Code reading
 #+DRAFT: t
 # #+RELATED: other-article-slug another-slug
-# #+SERIES: CND
 # #+PART: 1
 
 # Code reading: A guided walk through existing source, usually someone else's.
 # See WRITING.org for the header and markup. Copy this file to
-# content/magazine/your-slug.org, then replace these sections.
+# content/magazine/your-slug.org, or into a series' folder with #+PART,
+# then replace these sections.
 # Delete #+DRAFT: t when it's ready.
 
 * What we're reading

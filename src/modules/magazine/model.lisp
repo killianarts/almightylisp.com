@@ -19,7 +19,7 @@
    ;; Parsing, for tests and tools
    #:parse-article #:parse-series #:*article-types* #:*article-topics*
    ;; Places
-   #:content-directory #:series-directory #:publish-directory))
+   #:content-directory #:series-directories #:publish-directory))
 
 (in-package #:magazine/model)
 
@@ -28,15 +28,15 @@
 ;;; content/magazine/WRITING.org is the writers' guide: every keyword, type
 ;;; and topic, with examples. In short:
 ;;;
-;;; One file in content/magazine/ is one article, and its filename is the slug.
-;;; Keywords before the first heading:
+;;; One file in content/magazine/, or in a series' folder there, is one
+;;; article, and its filename is the slug. Keywords before the first heading:
 ;;;
 ;;;   #+TITLE: The image\\is still\\running     required; \\ breaks the headline
 ;;;   #+SUBTITLE: the dek under the headline
 ;;;   #+AUTHOR: Micah Killian
-;;;   #+DATE: 2026-09-24                        required, YYYY-MM-DD
-;;;   #+TYPE: Opinion                           required, one of *article-types*
-;;;   #+TOPIC: Lisp                             required, one of *article-topics*
+;;;   #+DATE: 2026-09-24                        required unless a draft; YYYY-MM-DD
+;;;   #+TYPE: Opinion                           required unless a draft; *article-types*
+;;;   #+TOPIC: Lisp                             required unless a draft; *article-topics*
 ;;;   #+CODE: CL-OP-26924                       optional; normally generated
 ;;;   #+SLUG: other-slug                        optional; normally the filename
 ;;;   #+HOME: lead                              make this the homepage lead
@@ -45,8 +45,7 @@
 ;;;   #+BOOK_TITLE: The LOOP Macro
 ;;;   #+BOOK_SUMMARY: dek for the book card
 ;;;   #+BOOK_HREF: /book/essentials/the-loop-macro
-;;;   #+SERIES: CND                             the CODE of a series file
-;;;   #+PART: 1                                 required with SERIES
+;;;   #+PART: 1                                 required in a series' folder, and only there
 ;;;   #+DRAFT: t                                not published
 ;;;
 ;;; The body is sections (* headings) of paragraphs, ** subheads, source
@@ -54,18 +53,18 @@
 ;;; margin notes; see almighty-press/org for the syntax. Files named with a
 ;;; leading capital, like WRITING.org, are not articles.
 ;;;
-;;; One file in content/magazine/series/ is one series:
+;;; A folder in content/magazine/ is a series (except templates/). Its
+;;; series.org has the series' keywords and nothing else:
 ;;;
 ;;;   #+CODE: CND                               three letters; picks the logo
 ;;;   #+TITLE: The condition system, bottom up
 ;;;   #+SUMMARY: one or two sentences for the series card
 ;;;   #+FEATURED: t                             at most one series; shown first
 ;;;
-;;;   1. Signals are not exceptions             planned parts, in order
-;;;   2. Handlers that don't unwind
-;;;
-;;; An article joins a series with #+SERIES and #+PART. Its own title replaces
-;;; the planned one; planned parts with no article yet are shown as queued.
+;;; Every other file in the folder is a part, numbered by its #+PART. A part
+;;; that isn't written yet is a draft with only #+TITLE, #+PART and
+;;; #+DRAFT: t; the series shows it as queued. So a part's title is only
+;;; ever in its own file.
 
 (defstruct article
   title-lines title subtitle author date type topic code slug lead related
@@ -73,11 +72,12 @@
   sections draft pathname series part)
 
 (defstruct series
-  code title summary featured planned
-  ;; Filled in by LINK-SERIES once the articles are loaded: a list of PART
-  ;; structs, how many parts there are, and how many have an article.
+  code title summary featured
+  ;; Filled in by READ-SERIES from the folder's articles: a list of PART
+  ;; structs, how many parts there are, and how many are published.
   parts total published)
 
+;; A part's ARTICLE is NIL while it is a draft.
 (defstruct part
   number title article)
 
@@ -97,8 +97,17 @@
 (defun content-directory ()
   (merge-pathnames "content/magazine/" (project-root)))
 
-(defun series-directory ()
-  (merge-pathnames "content/magazine/series/" (project-root)))
+(defparameter *not-series* '("templates")
+  "Folders in content/magazine/ that aren't series.")
+
+(defun series-directories ()
+  "The series' folders in content/magazine/, by name."
+  (sort (remove-if (lambda (directory)
+                     (let ((name (car (last (pathname-directory directory)))))
+                       (or (char= (char name 0) #\.)
+                           (member name *not-series* :test #'string=))))
+                   (uiop:subdirectories (content-directory)))
+        #'string< :key #'namestring))
 
 (defun publish-directory ()
   (merge-pathnames "static/magazine/published/" (project-root)))
@@ -110,7 +119,8 @@
 (defparameter *article-topics*
   '(("Lisp" "CL")
     ("Emacs" "EM")
-    ("Tooling" "TL"))
+    ("Tooling" "TL")
+    ("Industry" "IN"))
   "Allowed values of #+TOPIC, with their serial codes.")
 
 (defparameter *article-types*
@@ -131,7 +141,7 @@
 (defparameter *article-keywords*
   '("TITLE" "SUBTITLE" "AUTHOR" "DATE" "TYPE" "TOPIC" "CODE" "SLUG" "HOME"
     "RELATED" "BOOK_CHAPTER" "BOOK_TITLE" "BOOK_SUMMARY" "BOOK_HREF"
-    "SERIES" "PART" "DRAFT")
+    "PART" "DRAFT")
   "Keywords an article may use. Others get a warning, to catch typos.")
 
 (defun choice (keyword text table)
@@ -172,41 +182,54 @@
 paragraphs), and a source block gets :highlight, a list of line numbers."
   (case (first block)
     (:block
-     (destructuring-bind (name label paragraphs) (rest block)
-       (unless (string= name "NOTE")
-         (error "#+BEGIN_~a isn't used in articles; use #+BEGIN_NOTE or #+BEGIN_SRC." name))
-       (list :note (if (plusp (length label)) label "Note") paragraphs)))
+        (destructuring-bind (name label paragraphs) (rest block)
+          (unless (string= name "NOTE")
+            (error "#+BEGIN_~a isn't used in articles; use #+BEGIN_NOTE or #+BEGIN_SRC." name))
+          (list :note (if (plusp (length label)) label "Note") paragraphs)))
     (:src
      (list* :src :highlight (highlighted-lines block) (rest block)))
     (t block)))
 
-(defun parse-article (text &key slug pathname)
-  "The article in TEXT, an org document. SLUG is used unless #+SLUG is given."
+(defun parse-article (text &key slug pathname series)
+  "The article in TEXT, an org document. SLUG is used unless #+SLUG is given.
+SERIES is the code of the series whose folder it is in, if any. A draft
+needs only #+TITLE (and #+PART in a series), so a queued part can be one."
   (let* ((document (press:parse-org text))
-         (keyword (lambda (name) (press:document-keyword document name))))
+         (keyword (lambda (name) (press:document-keyword document name)))
+         (draft (press:truthy (funcall keyword "DRAFT"))))
     (flet ((value (name) (funcall keyword name))
            (required (name)
-             (or (funcall keyword name) (error "#+~a is required." name))))
+             (or (funcall keyword name) (error "#+~a is required." name)))
+           (unless-draft (name)
+             (or (funcall keyword name)
+                 (unless draft (error "#+~a is required, unless #+DRAFT: t." name)))))
       (when (press:document-intro document)
         (error "Text before the first heading: ~s" (first (press:document-intro document))))
       (loop for (old . new) in '(("KIND" . "TYPE") ("CATEGORY" . "TOPIC"))
             when (value old) do (error "#+~a is now #+~a." old new))
+      (when (value "SERIES")
+        (error "#+SERIES is gone: move the file into the series' folder, which says which series it's in."))
       (loop for name being the hash-keys of (press:document-keywords document)
             unless (member name *article-keywords* :test #'string=)
               do (warn "~a: #+~a isn't an article keyword; it is ignored."
                        (or pathname slug) name))
       (let* ((title-lines (press:split-breaks (required "TITLE")))
              (slug (or (value "SLUG") slug))
-             (date (press:parse-date (required "DATE")))
-             (type (choice "TYPE" (required "TYPE") *article-types*))
-             (topic (choice "TOPIC" (required "TOPIC") *article-topics*))
+             (date (let ((text (unless-draft "DATE"))) (and text (press:parse-date text))))
+             (type (let ((text (unless-draft "TYPE"))) (and text (choice "TYPE" text *article-types*))))
+             (topic (let ((text (unless-draft "TOPIC"))) (and text (choice "TOPIC" text *article-topics*))))
+             (part (value "PART"))
              (home (value "HOME")))
         (unless (safe-slug-p slug)
           (error "Slug ~s must be letters, digits and hyphens, and not archive or index." slug))
         (when (and home (string-not-equal home "lead"))
           (error "#+HOME can only be lead; got ~s." home))
-        (when (and (value "SERIES") (not (value "PART")))
-          (error "#+PART is required with #+SERIES."))
+        (cond ((and series (not part))
+               (error "#+PART is required in a series' folder."))
+              ((and part (not series))
+               (error "#+PART is only for articles in a series' folder."))
+              ((and part (not (ignore-errors (plusp (parse-integer part)))))
+               (error "#+PART must be a number from 1; got ~s." part)))
         (dolist (section (press:document-sections document))
           (setf (press:section-blocks section)
                 (mapcar #'article-block (press:section-blocks section))))
@@ -219,7 +242,8 @@ paragraphs), and a source block gets :highlight, a list of line numbers."
          :type type
          :topic topic
          ;; #+CODE overrides the generated serial, for the rare exception.
-         :code (if (value "CODE") (string-upcase (value "CODE")) (make-serial topic type date))
+         :code (cond ((value "CODE") (string-upcase (value "CODE")))
+                     ((and topic type date) (make-serial topic type date)))
          :slug slug
          :lead (and home t)
          :related (press:split-words (or (value "RELATED") ""))
@@ -228,9 +252,9 @@ paragraphs), and a source block gets :highlight, a list of line numbers."
          :book-summary (or (value "BOOK_SUMMARY") "")
          :book-href (or (value "BOOK_HREF") "/book/essentials")
          :sections (press:document-sections document)
-         :draft (press:truthy (value "DRAFT"))
-         :series (when (value "SERIES") (string-upcase (value "SERIES")))
-         :part (when (value "PART") (parse-integer (value "PART")))
+         :draft draft
+         :series series
+         :part (and part (parse-integer part))
          :pathname pathname)))))
 
 (defun article-file-p (file)
@@ -253,89 +277,102 @@ first by slug keeps it; the others get B, C, ... and a warning."
                   (article-slug article) code new)
             (setf (article-code article) new)))))))
 
-(defun load-articles ()
-  "Published articles, newest first."
-  (let ((articles (press:load-files
-                   (press:org-files (content-directory) :include #'article-file-p)
-                   (lambda (file)
-                     (parse-article (uiop:read-file-string file :external-format :utf-8)
-                                    :slug (pathname-name file) :pathname file)))))
-    (sort (disambiguate-serials (remove-if #'article-draft articles))
-          #'press:date> :key #'article-date)))
+(defun read-article (file &optional series)
+  (parse-article (uiop:read-file-string file :external-format :utf-8)
+                 :slug (pathname-name file) :pathname file :series series))
+
+(defun read-articles (directory &optional series)
+  "Every article in DIRECTORY, drafts included."
+  (press:load-files (press:org-files directory :include #'article-file-p)
+                    (lambda (file) (read-article file series))))
 
 ;;; Series
 
-(defun planned-part-title (line)
-  "The title from a planned-part line: \"1. Title\", \"1) Title\", or \"- Title\"."
-  (let* ((text (string-left-trim '(#\Space #\Tab) line))
-         (digits (position-if-not #'digit-char-p text)))
-    (cond
-      ((and (plusp (length text)) (char= (char text 0) #\-))
-       (string-trim '(#\Space #\Tab) (subseq text 1)))
-      ((and digits (plusp digits) (member (char text digits) '(#\. #\))))
-       (string-trim '(#\Space #\Tab) (subseq text (1+ digits))))
-      (t nil))))
-
 (defun parse-series (text)
-  "The series in TEXT: keywords, then its planned parts, one a line."
+  "The series in TEXT, a series.org: keywords only."
   (let* ((document (press:parse-org text))
          (code (press:document-keyword document "CODE"))
          (title (press:document-keyword document "TITLE")))
     (when (press:document-sections document)
-      (error "A series file has no headings, only keywords and planned parts."))
+      (error "series.org has no headings, only the series' keywords."))
+    (when (press:document-intro document)
+      (error "series.org lists no parts; each part is a file in the folder, a draft if it isn't written yet. Found ~s."
+             (first (press:document-intro document))))
     (unless code (error "#+CODE is required."))
     (unless title (error "#+TITLE is required."))
     (make-series
      :code (string-upcase code)
      :title title
      :summary (press:document-keyword document "SUMMARY" "")
-     :featured (press:truthy (press:document-keyword document "FEATURED"))
-     :planned (loop for line in (press:document-intro document)
-                    for title = (planned-part-title line)
-                    unless title
-                      do (error "Expected a numbered part, got ~s." line)
-                    collect title))))
+     :featured (press:truthy (press:document-keyword document "FEATURED")))))
 
-(defun load-series ()
-  (let ((series (press:load-files (press:org-files (series-directory))
-                                  (lambda (file)
-                                    (parse-series (uiop:read-file-string
-                                                   file :external-format :utf-8))))))
-    (loop for (one . more) on series
-          when (find (series-code one) more :key #'series-code :test #'string=)
-            do (error "Two series files use the code ~a." (series-code one)))
-    series))
+(defun series-article-file-p (file)
+  (and (article-file-p file) (string/= (pathname-name file) "series")))
 
-(defun link-series (series articles)
-  "Check each article's series exists, and fill in every series' parts."
-  (dolist (article articles)
-    (when (and (article-series article)
-               (not (find-series (article-series article) series)))
-      (error "~a names #+SERIES ~a, but no file in ~a has that code."
-             (article-pathname article) (article-series article) (series-directory))))
-  (dolist (one series series)
-    (let* ((members (remove (series-code one) articles :key #'article-series :test-not #'equal))
-           (total (max (length (series-planned one))
-                       (reduce #'max members :key #'article-part :initial-value 0))))
-      (setf (series-parts one)
-            (loop for n from 1 to total
-                  for article = (find n members :key #'article-part)
-                  collect (make-part :number n
-                                     :article article
-                                     :title (if article
-                                                (article-title article)
-                                                (or (nth (1- n) (series-planned one)) "Untitled"))))
-            (series-total one) total
-            (series-published one) (count-if #'part-article (series-parts one))))))
+(defun read-series (directory)
+  "The series in DIRECTORY, and its parts' articles, drafts included."
+  (let ((file (merge-pathnames "series.org" directory)))
+    (unless (probe-file file)
+      (error "~a has no series.org. Every folder in ~a is a series, except ~{~a/~^, ~}."
+             (uiop:native-namestring directory) (uiop:native-namestring (content-directory))
+             *not-series*))
+    (let* ((series (car (press:load-files
+                         (list file)
+                         (lambda (file) (parse-series (uiop:read-file-string file :external-format :utf-8))))))
+           (members (press:load-files
+                     (press:org-files directory :include #'series-article-file-p)
+                     (lambda (file) (read-article file (series-code series))))))
+      (setf (series-parts series) (series-parts-of series members directory)
+            (series-total series) (length (series-parts series))
+            (series-published series) (count-if #'part-article (series-parts series)))
+      (values series members))))
+
+(defun series-parts-of (series members directory)
+  "SERIES' parts, 1 to the highest #+PART, each linked to its article unless
+it is a draft. Every number needs exactly one file."
+  (let ((total (reduce #'max members :key #'article-part :initial-value 0)))
+    (loop for n from 1 to total
+          for files = (remove n members :key #'article-part :test-not #'eql)
+          do (cond ((null files)
+                    (error "~a in ~a has no part ~d. Add a draft for it: #+TITLE, #+PART: ~d and #+DRAFT: t."
+                           (series-code series) (uiop:native-namestring directory) n n))
+                   ((rest files)
+                    (error "~{~a~^ and ~} are both part ~d of ~a."
+                           (mapcar #'article-slug files) n (series-code series))))
+          collect (let ((article (first files)))
+                    (make-part :number n
+                               :title (article-title article)
+                               :article (unless (article-draft article) article))))))
+
+;;; Loading everything
+
+(defun check-unique (items key message)
+  "Signal MESSAGE, a format control given the clashing value, if two ITEMS share a KEY."
+  (loop for (one . more) on items
+        when (find (funcall key one) more :key key :test #'equal)
+          do (error message (funcall key one))))
+
+(defun load-magazine ()
+  "(articles series): published articles newest first, and every series."
+  (let ((articles (read-articles (content-directory)))
+        (series nil))
+    (dolist (directory (series-directories))
+      (multiple-value-bind (one members) (read-series directory)
+        (push one series)
+        (setf articles (append articles members))))
+    (check-unique series #'series-code "Two series use the code ~a.")
+    (check-unique articles #'article-slug
+                  "Two articles have the slug ~a, so they'd share a URL. Rename one file, or give it #+SLUG.")
+    (list (sort (disambiguate-serials (remove-if #'article-draft articles))
+                #'press:date> :key #'article-date)
+          (nreverse series))))
 
 ;;; The loaded magazine
 
 (defvar *magazine*
-  (press:make-collection
-   :directories (list (content-directory) (series-directory))
-   :load (lambda ()
-           (let ((articles (load-articles)))
-             (list articles (link-series (load-series) articles))))))
+  (press:make-collection :directories (list (content-directory))
+                         :recursive t
+                         :load #'load-magazine))
 
 (defun magazine-articles ()
   "Every published article, newest first."

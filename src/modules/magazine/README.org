@@ -13,8 +13,8 @@ changing the code.
    =routes.lisp=: =/magazine=, =/magazine/archive=, =/magazine/:slug=.
 2. The controller asks the model for the articles and series. The model
    (=model.lisp=) keeps them in an =almighty-press= collection, which reads
-   =content/magazine/*.org= and =content/magazine/series/*.org= again
-   whenever one of them changes.
+   =content/magazine/= and its series' folders again whenever a file there
+   changes.
 3. If they did change, the controller first writes every page to
    =static/magazine/published/= (=publish.lisp=).
 4. A =page-= function (=hypermedia/=) renders the page with almighty-html,
@@ -35,7 +35,7 @@ used for another site.
 | =hypermedia/sheet.lisp=       | The document and the sheet: bands, gutters, header, footer, strip  |
 | =hypermedia/logos.lisp=       | Series logos, drawn as SVG paths                                   |
 | =hypermedia/cards.lisp=       | Briefs, the book panel, series cards and progress, indexes         |
-| =hypermedia/blocks.lisp=      | An article's body: prose, code, tables, margin notes; headline size |
+| =hypermedia/blocks.lisp=      | An article's body: prose, lists, code, tables, margin notes; headline size |
 | =hypermedia/home.lisp=        | The homepage                                                       |
 | =hypermedia/article.lisp=     | The article page                                                   |
 | =hypermedia/archive.lisp=     | The archive and the not-found page                                 |
@@ -52,28 +52,37 @@ Outside this directory:
 | =static/js/magazine-fx.js=    | htmx setup and the screen effects                              |
 | =static/js/magazine-toc.js=   | The contents strip that pins to the top of an article          |
 | =static/assets/images/magazine/= | Logos, the typemark, patterns                               |
-| =content/magazine/=           | Articles, =series/=, =templates/=, and =WRITING.org=           |
+| =content/magazine/=           | Articles, a folder per series, =templates/=, =WRITING.org=     |
 
 * The model
 
 =model.lisp= turns org into three structs:
 
-- =article= :: one file in =content/magazine/=. Its =sections= are
-  almighty-press sections whose blocks are press's, except that
-  =#+BEGIN_NOTE= becomes =(:note label paragraphs)= and a source block gets
-  =:highlight=, its highlighted line numbers. Its =code= (serial) is
-  made from the topic, type and date unless =#+CODE= is given.
-- =series= :: one file in =content/magazine/series/=: keywords, then the
-  planned parts, one a line.
-- =part= :: a series' part: a number, a title, and its article once one
-  exists. =link-series= fills in every series' parts after loading.
+- =article= :: one file in =content/magazine/= or a series' folder. Its
+  =sections= are almighty-press sections whose blocks are press's, except
+  that =#+BEGIN_NOTE= becomes =(:note label paragraphs)= and a source block
+  gets =:highlight=, its highlighted line numbers. Its =code= (serial) is
+  made from the topic, type and date unless =#+CODE= is given. Its =series=
+  is the code of the folder it's in.
+- =series= :: a folder in =content/magazine/= (except those in
+  =*not-series*=, i.e. =templates/=): its =series.org= holds the keywords,
+  and its other files are the parts.
+- =part= :: a series' part: a number, a title, and its article, or NIL
+  while the part is a draft. =read-series= builds them from the folder, so
+  a part's title and number come only from its own file.
 
-Checks that stop a file loading: missing =TITLE=, =DATE=, =TYPE= or
-=TOPIC=; a type or topic that isn't in =*article-types*= or
-=*article-topics*=; text before the first heading; =SERIES= without =PART=;
-a series code with no series file; two series files with one code; a
-=:highlight= that isn't line numbers within its source block. An
-unknown keyword only warns.
+=load-magazine= reads it all: the standalone articles, then each series'
+folder. Drafts are read, so a queued part has a title, but only published
+articles are returned.
+
+Checks that stop the magazine loading: missing =TITLE=; missing =DATE=,
+=TYPE= or =TOPIC= outside a draft; a type or topic that isn't in
+=*article-types*= or =*article-topics*=; text before the first heading;
+=#+SERIES=, which the folder replaced; =#+PART= outside a series' folder,
+or missing inside one; a series with a missing or repeated part number; a
+folder with no =series.org=; a =series.org= that lists parts; two series
+with one code; two articles with one slug; a =:highlight= that isn't line
+numbers within its source block. An unknown keyword only warns.
 
 =homepage-layout= decides what the homepage shows (its docstring lists
 the plist it returns), and =keep-reading-articles= what follows an article

@@ -2,6 +2,7 @@
 #+SUBTITLE: Doom already wires Emacs, Evil, and the Lisp tools. The setup that lasts is the one that leaves Doom's modules alone until you know which default is actually in your way.
 #+AUTHOR: Micah Killian
 #+DATE: 2026-09-15
+#+DRAFT: t
 #+TYPE: How-to
 #+TOPIC: Emacs
 #+SERIES: EMX

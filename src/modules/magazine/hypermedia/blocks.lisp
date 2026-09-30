@@ -54,20 +54,40 @@ below a perforation. Each is left out when it isn't given."
        (tbody
          (mapcar (lambda (row) (ah:</> (tr (cells :td row)))) rows))))))
 
+(defun render-list (block)
+  "A (:list kind items) block. An item's first paragraph is its text; any
+more are set as paragraphs under it, then its sublists."
+  (destructuring-bind (kind items) (rest block)
+    (let ((rendered (mapcar (lambda (item)
+                              (destructuring-bind (paragraphs sublists) item
+                                (ah:</>
+                                 (li
+                                   (render-inlines (first paragraphs))
+                                   (mapcar (lambda (more) (ah:</> (p (render-inlines more))))
+                                           (rest paragraphs))
+                                   (mapcar #'render-list sublists)))))
+                            items)))
+      (if (eq kind :ol)
+          (ah:</> (ol :class "prose-list" rendered))
+          (ah:</> (ul :class "prose-list" rendered))))))
+
 (defun render-block (block)
-  "A block in a section's text column. Notes go in the margin instead."
+  "A block in a section's text column. A note is also set here, under the
+paragraph before it, for the screens that have no margin column."
   (ecase (first block)
     (:p (ah:</> (p :class "prose" (render-inlines (second block)))))
     (:h (ah:</> (h3 :class "subhead" (second block))))
     (:src (render-src block))
     (:table (render-table (second block) (third block)))
-    (:note nil)))
+    (:list (render-list block))
+    (:note (render-margin-note block :inline t))))
 
-(defun render-margin-note (note)
+(defun render-margin-note (note &key inline)
   "A #+BEGIN_NOTE block. A note labelled Syntax is set in the code face."
   (destructuring-bind (label paragraphs) (rest note)
     (ah:</>
-     (aside :class (ah:clsx "margin-note" (when (string-equal label "Syntax") "syntax"))
+     (aside :class (ah:clsx "margin-note" (when inline "inline-note")
+                            (when (string-equal label "Syntax") "syntax"))
        (p :class "margin-note-label" label)
        (mapcar (lambda (paragraph)
                  (ah:</> (p :class "margin-note-body" (render-inlines paragraph))))
@@ -77,10 +97,14 @@ below a perforation. Each is left out when it isn't given."
 ;;;
 ;;; A lead headline is set at up to 136px in a 902px box, which holds about
 ;;; nine uppercase characters a line. Longer titles step down in size until
-;;; they wrap to four lines or fewer and no single word is wider than the box.
+;;; they wrap to *headline-lines* lines or fewer and no single word is wider
+;;; than the box. The box grows with the headline; only this sets the limit.
 
-(defparameter *headline-chars* 9.2
+(defparameter *headline-chars* 10
   "Uppercase characters that fit on one headline line at full size.")
+
+(defparameter *headline-lines* 4
+  "The most lines a headline may take before it is set smaller.")
 
 (defun wrapped-line-count (lines capacity)
   "Lines the title takes when each author line is wrapped greedily at CAPACITY."
@@ -97,7 +121,7 @@ below a perforation. Each is left out when it isn't given."
     (loop for scale from 1.0 downto 0.5 by 0.05
           for capacity = (/ *headline-chars* scale)
           when (and (<= longest capacity)
-                    (<= (wrapped-line-count lines capacity) 4))
+                    (<= (wrapped-line-count lines capacity) *headline-lines*))
             return scale
           finally (return 0.5))))
 

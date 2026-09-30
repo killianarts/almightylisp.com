@@ -1,14 +1,15 @@
 #+TITLE: Writing for Almighty Lisp
 
 This folder is the magazine. Each =.org= file here with a lowercase name is
-one article (this guide's capital W keeps it out), and
-=series/= holds one file per series. This guide covers everything a file
+one article (this guide's capital W keeps it out), and every folder is a
+series, holding its parts (see [[*Series][Series]]). This guide covers everything a file
 can contain. =templates/= has a starting file for every article type.
 
 * Quick start
 
 1. Pick a type (see [[*Choosing a type][Choosing a type]]) and copy its template:
    : cp templates/how-to.org my-article-slug.org
+   (For a part of a series, copy it into the series' folder instead.)
    The file name becomes the URL: =/magazine/my-article-slug=. Use
    lowercase letters, digits and hyphens.
 2. Fill in the header. Leave =#+DRAFT: t= in while you write; the site
@@ -22,25 +23,24 @@ can contain. =templates/= has a starting file for every article type.
 
 Every article starts with these lines, before its first heading.
 
-| Line            | Needed?  | What it does                                                          |
-|-----------------+----------+-----------------------------------------------------------------------|
-| =#+TITLE:=      | Required | The headline everywhere. =\\= forces a line break in big headlines.     |
-| =#+SUBTITLE:=   | Required | The dek: under the headline, on cards, and in search results.         |
-| =#+AUTHOR:=     | Required | The byline.                                                           |
-| =#+DATE:=       | Required | =YYYY-MM-DD=. Sets the order on the homepage and the serial.          |
-| =#+TOPIC:=      | Required | What it's about: Lisp, Emacs or Tooling. See [[*Topics][Topics]].                   |
-| =#+TYPE:=       | Required | What kind of piece it is. See [[*Types][Types]].                                 |
-| =#+RELATED:=    | Optional | Slugs for the Keep reading cards, in order. Others fill empty slots.  |
-| =#+SERIES:=     | Optional | A series code, e.g. =CND=. Needs =#+PART:= too. See [[*Series][Series]].            |
-| =#+PART:=       | Optional | The article's number in its series.                                   |
+| Line              | Needed?  | What it does                                                           |
+|-------------------+----------+------------------------------------------------------------------------|
+| =#+TITLE:=        | Required | The headline everywhere. =\\= forces a line break in big headlines.    |
+| =#+SUBTITLE:=     | Required | The dek: under the headline, on cards, and in search results.          |
+| =#+AUTHOR:=       | Required | The byline.                                                            |
+| =#+DATE:=         | Required | =YYYY-MM-DD=. Sets the order on the homepage and the serial.           |
+| =#+TOPIC:=        | Required | What it's about: Lisp, Emacs, Tooling or Industry. See [[*Topics][Topics]].         |
+| =#+TYPE:=         | Required | What kind of piece it is. See [[*Types][Types]].                                   |
+| =#+RELATED:=      | Optional | Slugs for the Keep reading cards, in order. Others fill empty slots.   |
+| =#+PART:=         | In a series | The article's number in its series; only in a series' folder. See [[*Series][Series]]. |
 | =#+BOOK_CHAPTER:= | Optional | With the next three, adds a card for the book chapter this relates to. |
-| =#+BOOK_TITLE:= | Optional | The chapter's title on that card.                                     |
-| =#+BOOK_SUMMARY:= | Optional | One sentence about the chapter.                                      |
-| =#+BOOK_HREF:=  | Optional | Where the card links, e.g. =/book/essentials/the-loop-macro=.         |
-| =#+HOME: lead=  | Optional | Forces this article into the homepage lead instead of the newest one. |
-| =#+SLUG:=       | Optional | A URL other than the file name.                                       |
-| =#+CODE:=       | Optional | Overrides the generated serial. You should almost never need it.     |
-| =#+DRAFT: t=    | Optional | Keeps the article off the site.                                      |
+| =#+BOOK_TITLE:=   | Optional | The chapter's title on that card.                                      |
+| =#+BOOK_SUMMARY:= | Optional | One sentence about the chapter.                                        |
+| =#+BOOK_HREF:=    | Optional | Where the card links, e.g. =/book/essentials/the-loop-macro=.          |
+| =#+HOME: lead=    | Optional | Forces this article into the homepage lead instead of the newest one.  |
+| =#+SLUG:=         | Optional | A URL other than the file name.                                        |
+| =#+CODE:=         | Optional | Overrides the generated serial. You should almost never need it.       |
+| =#+DRAFT: t=      | Optional | Keeps the article off the site. A draft needs only =#+TITLE:= (and =#+PART:= in a series). |
 
 Writing the title and dek:
 
@@ -66,11 +66,12 @@ second (by file name) gets a =B= on the end, and the site warns about it.
 
 * Topics
 
-| Topic   | Code | For                                                      |
-|---------+------+----------------------------------------------------------|
-| Lisp    | CL   | Common Lisp: the language, its libraries, its ideas      |
-| Emacs   | EM   | Emacs, Sly, and editing Lisp                              |
-| Tooling | TL   | Building, shipping and running Lisp programs             |
+| Topic    | Code | For                                                 |
+|----------+------+-----------------------------------------------------|
+| Lisp     | CL   | Common Lisp: the language, its libraries, its ideas |
+| Emacs    | EM   | Emacs, Sly, and editing Lisp                        |
+| Tooling  | TL   | Building, shipping and running Lisp programs        |
+| Industry | IN   | Talking about the industry, trends, etc.            |
 
 To add a topic, add a line to =*article-topics*= in
 =src/modules/magazine/model.lisp=. Types are in =*article-types*= in the
@@ -174,30 +175,53 @@ question as the heading and a direct answer first.
 
 * Series
 
-A series is a set of numbered parts. It needs a file in =series/= (copy
-=templates/series.org=):
+A series is a folder of numbered parts. Everything about the series is in
+that folder, and everything about a part is in the part's own file:
+
+#+BEGIN_EXAMPLE
+building-my-first-native-app/
+  series.org                     the series: code, title, summary
+  why-native.org                 #+PART: 1
+  the-event-loop.org             #+PART: 2
+  temperature-converter.org      #+PART: 3, still a #+DRAFT
+#+END_EXAMPLE
+
+=series.org= (copy =templates/series.org=) has the series' keywords and
+nothing else:
 
 #+BEGIN_EXAMPLE
 #+CODE: CND
 #+TITLE: The condition system, bottom up
 #+SUMMARY: One or two sentences for the series card.
 #+FEATURED: t
-
-1. Signals are not exceptions
-2. Handlers that don't unwind
 #+END_EXAMPLE
 
 - =CODE= is three letters. It picks the series logo, drawn in
   =src/modules/magazine/hypermedia/logos.lisp=; a code without one gets a
   plain square until it is drawn.
-- The numbered lines are the planned parts. Parts with no article yet
-  appear as "Queued".
 - =FEATURED: t= puts the series first on the homepage, and gives the lead
   a banner when the lead is part of it. Feature one series at a time.
+- The folder's name is yours to choose; it isn't in any URL.
 
-An article joins with =#+SERIES: CND= and =#+PART: 1=. Its own title
-replaces the planned one. From part 2 on, the article opens with a recap
-of the part before it, taken from that part's dek.
+Every other file in the folder is a part, and needs =#+PART:=. The folder
+is what puts it in the series, so there is no =#+SERIES:=.
+
+To plan a part before writing it, add a draft with just its title and
+number. The series card shows it as "Queued", and it gets no page:
+
+#+BEGIN_EXAMPLE
+#+TITLE: Restarts are just functions
+#+PART: 3
+#+DRAFT: t
+#+END_EXAMPLE
+
+When you write it, fill in the rest of the header and the body in that
+same file. Its title and number are only ever in that file, so to rename
+a part, change its =#+TITLE:=. Every number from 1 up needs exactly one
+file. From part 2 on, a part opens with a recap of the part before it,
+taken from that part's dek.
+
+The homepage shows a series once its first part is published.
 
 * The body
 
@@ -222,10 +246,21 @@ More text.
 ** Inline markup
 
 #+BEGIN_EXAMPLE
-Wrap code in equals signs: =loop= or =:collect x=.
+Wrap code in equals signs: =loop= or =:collect x=, or tildes: ~(car x)~.
+Emphasis: *bold*, /italic/, _underlined_ and +struck out+.
 Link to an article by its slug: [[to-loop-or-not-to-loop][To LOOP or not]].
 Link elsewhere with a path or URL: [[/book/essentials][the book]].
 #+END_EXAMPLE
+
+As in Org, markers only count at the edges of words, so =2*3*4= and
+=and/or= stay as written. The text inside can't start or end with a
+space. Emphasis can nest (=*bold with /italic/ inside*=); code can't,
+because its contents are shown as written.
+
+A code span ends at the first marker followed by a space or punctuation.
+=(>= a b)= in equals signs ends early, at =>==, so use tildes for code
+like that: ~(>= a b)~. For the same reason, write a special variable in
+prose as code, =*scores*=, or it becomes bold.
 
 ** Margin notes
 
@@ -235,7 +270,9 @@ Put the cursor on any =loop= form and press =C-c C-m=.
 #+END_NOTE
 #+END_EXAMPLE
 
-Notes sit in the right-hand column next to their section. The word after
+Notes sit in the right-hand column next to their section. On phones and
+tablets there is no such column, so a note is set under the paragraph
+before it: put it after the paragraph it belongs to. The word after
 =BEGIN_NOTE= is the note's label. A note labelled =Syntax= is set in the
 code font, for grammar summaries.
 
@@ -265,6 +302,23 @@ code font, for grammar summaries.
 
 The row before the =|---|= line is the header.
 
+** Lists
+
+#+BEGIN_EXAMPLE
+Programmers had roughly two options:
+
+1. Make a web application. It runs everywhere, but slowly
+   and at the user's expense.
+2. Make a native application.
+   - More work.
+   - Better for the user.
+#+END_EXAMPLE
+
+Bullets are =-= or =+=; =1.= or =1)= numbers the list. Indent a line under
+its bullet to continue the item, and indent a bullet further to start a list
+inside it. A blank line between items is fine; two blank lines end the list.
+Code blocks and tables can't go inside an item: end the list first.
+
 * When the site rejects a file
 
 The site reads every file again when one changes. If an article or series
@@ -285,6 +339,5 @@ is ignored with a warning in the server log.
 - [ ] Every section heading is short enough to read in the contents strip.
 - [ ] Every code block runs, and its =#+RESULTS:= is what it really returns.
 - [ ] =RELATED= points at articles a reader of this one would want next.
-- [ ] In a series: =SERIES= and =PART= are set, and the series file lists
-      the part.
+- [ ] In a series: the file is in the series' folder and =PART= is right.
 - [ ] =#+DRAFT: t= is gone.

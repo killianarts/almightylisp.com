@@ -45,14 +45,23 @@ Blocks are lists:
 | =#+BEGIN_SRC lisp :buffer a.lisp= | =(:src :lang "lisp" :args (("buffer" . "a.lisp")) :lines (...) :results "..." )= |
 | =#+BEGIN_NOTE Label= (any name)  | =(:block "NOTE" "Label" ("paragraph" ...))=                   |
 | a table                          | =(:table header-or-nil rows)=                                 |
+| =- item=, =+ item=               | =(:list :ul ((paragraphs sublists) ...))=                    |
+| =1. item=, =1) item=             | =(:list :ol ((paragraphs sublists) ...))=                    |
+
+In a list, lines indented under a bullet continue its item, a blank line
+followed by more indented text starts another paragraph in it, and a deeper
+bullet starts a list inside it. One blank line may separate items; two end
+the list.
 
 =#+RESULTS:= right after a source block becomes its =:results=. Lines
 starting with =# = are comments. Anything malformed signals =press:org-error=
 with the line number.
 
-Inline markup stays in the text. =(press:parse-inlines text)= reads it:
-strings, =(:code "x")= for ==x==, and =(:link target inlines)= for
-=[[target][label]]=.
+Inline markup stays in the text. =(press:parse-inlines text)= reads it,
+with Org's rules for where emphasis markers count: strings, =(:code "x")=
+for ~=x=~ or =~x~=, =(:bold inlines)=, =(:italic inlines)=,
+=(:underline inlines)= and =(:strike inlines)= for =*=, =/=, =_= and =+=,
+and =(:link target inlines)= for =[[target][label]]=.
 
 Text helpers: =split-breaks=, =join-lines=, =split-words=, =slugify=,
 =truthy= (t, yes or true).
@@ -66,6 +75,7 @@ prints as the day it was written, wherever the server is.
 (press:parse-date "2026-09-24")            ; signals an error for anything but YYYY-MM-DD
 (press:today)                              ; today where the server runs
 (press:format-date date :weekday)          ; "Thursday 24 September 2026"
+(press:format-date date :short-weekday)    ; "Thu 24 Sep 2026"
 (press:format-date date :long)             ; "24 September 2026"
 (press:format-date date :compact)          ; "24 Sep 2026"
 (press:format-date date :day-month)        ; "24 Sep"
@@ -98,7 +108,9 @@ running server always shows what's on disk.
 #+END_SRC
 
 =press:org-files= lists a directory's =.org= files in name order and takes
-an =:include= predicate. =press:load-files= calls a function on each file
+an =:include= predicate, and =:recursive t= to include subdirectories.
+=make-collection= takes =:recursive t= too, to watch subdirectories, so a
+folder added later is noticed. =press:load-files= calls a function on each file
 and names the file in any error it signals.
 
 * HTML
@@ -109,7 +121,8 @@ and names the file in any error it signals.
 (press:render-lines '("The image" "is still" "running"))   ; lines with <br> between
 #+END_SRC
 
-=render-inlines= makes =<code class="verb">= and =<a class="inline-link">=;
+=render-inlines= makes =<code class="verb">=, =<strong>=, =<em>=,
+=<span class="underline">=, =<del>= and =<a class="inline-link">=;
 =:code-class= and =:link-class= change the classes, and =:href= turns a
 link's target into its URL.
 

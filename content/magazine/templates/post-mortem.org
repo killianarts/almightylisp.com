@@ -6,12 +6,12 @@
 #+TYPE: Post-mortem
 #+DRAFT: t
 # #+RELATED: other-article-slug another-slug
-# #+SERIES: CND
 # #+PART: 1
 
 # Post-mortem: One failure traced to its cause, and what changed so it can't happen again.
 # See WRITING.org for the header and markup. Copy this file to
-# content/magazine/your-slug.org, then replace these sections.
+# content/magazine/your-slug.org, or into a series' folder with #+PART,
+# then replace these sections.
 # Delete #+DRAFT: t when it's ready.
 
 * The symptom

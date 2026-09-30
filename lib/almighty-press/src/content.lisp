@@ -9,16 +9,21 @@
 ;;;
 ;;; A collection is a set of directories and a function that loads them. Its
 ;;; items are loaded on first use and again whenever a file in one of the
-;;; directories is added, removed or saved, so a running server always shows
-;;; what is on disk. TAKE-CHANGES says, once, that a reload happened: the cue
+;;; directories (or, with :RECURSIVE, their subdirectories) is added, removed
+;;; or saved, so a running server always shows what is on disk. TAKE-CHANGES says, once, that a reload happened: the cue
 ;;; to write the static pages again.
 
-(defun org-files (directory &key (include (constantly t)))
-  "The .org files directly in DIRECTORY, sorted by name, for which INCLUDE is true."
-  (sort (remove-if-not include
-                       (directory (merge-pathnames "*.org" (uiop:ensure-directory-pathname directory))))
-        #'string<
-        :key #'namestring))
+(defun org-files (directory &key (include (constantly t)) recursive)
+  "The .org files in DIRECTORY, sorted by name, for which INCLUDE is true.
+With RECURSIVE, those in its subdirectories too."
+  (let ((directory (uiop:ensure-directory-pathname directory)))
+    (sort (remove-if-not include
+                         (append (directory (merge-pathnames "*.org" directory))
+                                 (when recursive
+                                   (mapcan (lambda (sub) (org-files sub :recursive t))
+                                           (uiop:subdirectories directory)))))
+          #'string<
+          :key #'namestring)))
 
 (defun load-files (files function)
   "FUNCTION called on each of FILES, collected. An error while loading one
@@ -29,19 +34,20 @@ names the file."
                 (error "Cannot read ~a: ~a" (uiop:native-namestring file) condition))))
           files))
 
-(defstruct (collection (:constructor make-collection (&key directories load)))
-  "DIRECTORIES are watched; LOAD is called with no arguments to read them."
-  directories load %items stamp changed)
+(defstruct (collection (:constructor make-collection (&key directories recursive load)))
+  "DIRECTORIES are watched, and with RECURSIVE their subdirectories; LOAD is
+called with no arguments to read them."
+  directories recursive load %items stamp changed)
 
-(defun stamp (directories)
+(defun stamp (directories recursive)
   (loop for directory in directories
-        for files = (org-files directory)
+        for files = (org-files directory :recursive recursive)
         collect (mapcar #'namestring files)
         collect (mapcar #'file-write-date files)))
 
 (defun collection-items (collection)
   "What LOAD returned, loaded again first when the files have changed."
-  (let ((stamp (stamp (collection-directories collection))))
+  (let ((stamp (stamp (collection-directories collection) (collection-recursive collection))))
     (unless (equal stamp (collection-stamp collection))
       (setf (collection-%items collection) (funcall (collection-load collection))
             (collection-stamp collection) stamp

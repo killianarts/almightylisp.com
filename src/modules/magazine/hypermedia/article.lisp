@@ -169,7 +169,7 @@
       :top (ah:</>
             (<>
               (render-series-stamp (model:series-code series))
-              (span (format nil "Series of ~d" (model:series-total series)))))
+              (span (format nil "[Series of ~d]" (model:series-total series)))))
       :name (model:series-title series)
       :body (ah:</>
              (<>
@@ -213,4 +213,5 @@
         (when sections (render-toc-strip article in-series))
         (if in-series
             (render-series-end article in-series)
-            (render-keep-reading article articles series)))))))
+            (render-keep-reading article articles series))
+        (render-book-band))))))

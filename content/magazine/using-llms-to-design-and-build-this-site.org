@@ -1,0 +1,146 @@
+#+title: Using LLMs To Design And Build This Site
+#+SUBTITLE: LLMs are a force multiplier. We are often exposed to the multiplied forces of lazy or even malicious LLM users, but I believe that thoughtful and tasteful use can render both good design and good code that the builder can be proud of. This article will talk about how I built almightylisp.com using LLMs.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-09-29
+#+TOPIC: Lisp
+#+TYPE: Case study
+#+DRAFT: nil
+
+* A Cool Language Deserves Cool Resources
+This website in its current form has been a long-term goal of mine. One of the
+challenges that Common Lisp faces to gain adoption is the lack of "energy":
+There is an ecosystem, there are users, and there are plenty of resources for
+learning, but _project_ a sense of dynamism, growth, or excitement for the
+language.
+
+That's not surprising. Common Lisp doesn't typically attract a young audience
+that cares about the future of a programming language. Young people want to
+learn useful skills that will be both marketable and socially acceptable. The
+typical Lisp user is usually either a graybeard or academic getting paid to
+write CL already or a rouge coder looking to experiment who finds Lisp a good
+medium. The typical Lisper isn't concerned with social cues or money, only the
+utility that the language provides. Who cares what [[https://common-lisp.net][Common-Lisp.net]] looks like?
+
+And that's fine. The big brains don't need fancy GUIs. Why does a [[https://local-time.common-lisp.dev/manual.html][manual for a
+vital library]] even need CSS, really? In fact, fancy graphics might even be a
+counter-indicator of quality for the big brains. What deficiencies in coding
+skill or code quality are being hidden with all this marketing mumbojumbo, pal?
+
+Of course, even if the typical Common Lisp user would /like/ for everything
+Common Lisp resource to have a website as nice as, say, [[https://elixir-lang.org/][Elixir's website]] or
+[[https://nextjs.org/][Next.js's website]] or even just [[https://norvig.github.io/paip-lisp/#/][PAIP's website]], they are almost certainly not the
+ones with either the skills or motivation to make it happen. Obviously, it's a
+lot of work--logo designers, web designers, illustration designers, animation
+designers, front-end and back-end engineers, etc. get paid good money to make
+those websites look great.
+
+...well, for now at least...
+
+But times are changing. LLMs empower the motivated user to actually make great
+things. They enable users to become Almighty.
+
+
+* Concept: A Propaganda Outlet For Common Lisp
+I believe Lisp is great, other people should use it, and I want to make a
+resource for Lisp users that feels cool and modern without sacrificing
+utility to the reader. More and more these days people will simply ask LLMs to
+do everything for them, and so they may never read this site. But for /new/
+people considering Lisp, this website should serve as an important source of
+both knowledge and *energy*. When they come to this site, they should leave
+feeling *excited*. While the knowledge and help that Almighty Lisp provides will
+be high quality, the knowledge and help are /secondary/ to the mission is
+getting people excited to use Lisp.
+
+Lisp already has smart, capable programmers who've already written excellent
+learning resources (see: [[https://www.cs.cmu.edu/~dst/LispBook/book.pdf][Touretzky]], [[https://norvig.github.io/paip-lisp/#/][Norvig]], [[https://lispcookbook.github.io/cl-cookbook/][The Cookbook]], etc.). But it's time
+for a renewal of that knowledge and a source of excitement.
+
+* Design Iteration
+It took some time for me to get to the current design. The original Almighty
+Lisp landing page was built by me, with only some small LLM generated bits here
+and there. I built the CSS design system based on the Doom Emacs themes ([[https://almightylisp.gumroad.com/l/almighty-themes-pack-1][1]] and
+[[https://almightylisp.gumroad.com/l/almighty-themes-pack-2][2]]) I made, also by hand, with only a bit of support from LLMs. I originally
+thought about expanding upon the design, but after creating the [[https://almightylisp.gumroad.com/l/almighty-lisp-lisp-and-emacs-essentials-ebook][eBook]] and
+publishing the [[https://www.amazon.com/dp/B0HL586JWT][Hardcover]] and making a monochrome theme for the [[https://almightylisp.com/book/essentials][Almighty Lisp:
+Lisp & Emacs Essentials]] web book, I started to see the aesthetic and utilitarian
+appeal of black and white and everything in between.
+
+To start with, though, I asked LLMs to brainstorm some different designs right
+in code. At first, I left the task very broad: Make a magazine design for
+Almighty Lisp. It reused theme elements from the existing website and
+made...something. It wasn't very good, though. You can view it at [[https://almightylisp.com/static/prototypes/magazine.html][here]].
+
+I had a few sites that I thought might be good as references: [[https://www.countyhighway.com/][County
+Highway's newspaper]] and [[https://time.com/][Time magazine]]. Time is mostly a source of compositional
+ideas that I've since abandoned. County Highway is more interesting, though,
+because of it's tasteful use of typography. It uses 7 (!) fonts that elevate the
+otherwise plain composition into something really enjoyable to read and look at.
+
+Some other more "designy" inspirations came from the incredible designers at
+[[https://brasshands.com/][Brass Hands]] and the amazing work by Mike at [[https://creativemints.com/][Creative Mints]]. Their use of
+typography, grids, and lines are phenomenal; their illustrations are badass;
+their logos are next level; the texture and flavor of their work glows with the
+reascendant frontier American spirit. Even with the help of LLMs my design
+couldn't even come close to theirs either in spirit or quality--but I tried to
+capture as much as possible while keeping the readability of the site intact.
+
+I had LLMs make separate "magazine" prototypes mixing and matching County
+Highway with Time with a splash of Brass Hands decorative flare and conciseness,
+using Creative Mint's more spread out grid work + Almighty Lisp, etc. You can
+see some examples [[https://almightylisp.com/static/prototypes/time-county.html][here]], [[https://almightylisp.com/static/prototypes/time-county-print.html][here]], [[https://almightylisp.com/static/prototypes/time-county-grid.html][here]], and [[https://almightylisp.com/static/prototypes/grid-masthead-hero.html][here]].
+
+You can see in the last one the beginnings of the current design, but it's still
+pretty lame. I had the LLM copy the design into Figma and initially modified it,
+asking the LLM to create some patterns and components. I messed around with the
+logo--which I had also been working on separately without LLM help for a
+while--and logotype. I wanted something big and bold like the typography on the
+book cover, but something a bit more futuristic and techie.
+
+After iterating on the same frames, I decided it would be better to preserve a
+history of changes (as I would usually do if I were working by myself anyway),
+so I started having the LLM duplicate and version each iteration we made.
+
+* Feature Building
+After getting to a design that I basically liked, I asked the LLM to implement
+the design, taking into account the different features that were depicted in the
+design: A hero with integrated book advertisement or article TOC, three column
+article view with notes, series labels with part numbers and planned future
+series articles, series codes/labels/logos, etc. We iterated a lot on the core
+features as I was writing the first few articles.
+
+I asked specifically that we make a static site generator so that I could write
+in Org files, upload them, and have them up and lightning fast to load. I'm
+still considering making a backend system with a GUI for doing bulk editing
+(project-level search and replace in Emacs is good but not so elegant for the
+purpose of editing multiple articles the way I want), but I'm going to flex the
+current system for a while before adding such features.
+
+I built this site using a web framework I built with LLMs I call Shiso. It's a
+framework inspired by Django. I'll talk about it in a later article, but the
+point is that in addition to the functionality on this site, I've also built
+the more foundational structure that it sits in.
+
+* Being Ambitious With Design and Features
+
+Once the design was 80% complete, it was time to start getting ambitious with
+the polish. I dug in, made edits to the code to play around with design elements
+and content, played with the design in Figma and had the LLM add my changes to
+the live site, etc.
+
+One decision I made with the design was to eschew color and embrace my black and
+white period, but I couldn't help myself--I needed /just a teeny tiny bit/ of
+color. But how and where?
+
+I've seen people making very elaborate animations with Opus 5.5, and it had so
+far served me well in the creation of this design, so I decided to try something
+I've never considered before because it would have been too beyond my skill set:
+I asked Opus to add a chromatic aberration shader animation when clicking on
+certain links on the site. It's short, covers up some of the loading time, and
+adds just a tiny bit of color.
+
+Additionally, I added the same scanlines and noise effects I used for the Lisp &
+Emacs Essentials book, with the noise tuned up a bit. The noise is really only
+visible where there are large blocks of black, meaning anything I want to bring
+attention to just needs to have a lot of black surrounding it. Readers right now
+won't even notice the noise because the text is too small. It adds a bit of life
+and texture without distracting the reader.

@@ -56,19 +56,39 @@
 pitch and the spec list. htmx leaves its links alone: they leave the magazine."
   (ah:</>
    (aside :class (ah:clsx "book-ad" (when compact "compact"))
-          :aria-label "Lisp & Emacs Essentials" :hx-boost "false"
-     (p :class "book-ad-label" "The book")
+     :aria-label "Lisp & Emacs Essentials" :hx-boost "false"
+     (p :class "book-ad-label" "The Book (your eyes only)")
      (img :class "book-ad-logo" :src (image-src "essentials-logo.svg") :alt "Lisp & Emacs Essentials"
        :width "156" :height "69")
      (unless compact
        (ah:</>
         (<>
-          (p :class "book-ad-pitch"
-            "Common Lisp is the most powerful programming language in history. Emacs is the most powerful text editor in history. Master the essentials of both.")
+          (div :class "book-ad-pitch"
+            (p "Common Lisp is a language optimized for ultimate adaptability. It’s a generalist’s secret weapon; a programming language that isn’t a master at anything, but is quite capable at doing everything.")
+            (p "With the rise of LLMs and a rapidly changing software industry, it’s easy to feel anxious about your own future as a software developer.")
+            (p "But you don’t need to worry. You need to adapt. Common Lisp is an almighty programming language that enables and even summons its users to become almighty. The macros are waiting. The REPL is loaded. The buffers and windows are at your command.")
+            (p "Be not defeated by the rapidly shifting winds of code and craft. Embrace the piercing light of destiny, beaming from the flaming horizon over an effervescent ocean of functions, classes, and parentheses. Become Almighty."))
           (render-spec *book-specs* :class "spec book-spec"))))
      (div :class "book-ad-actions"
        (a :class "neo-button primary" :href *book-href* "Start reading")
        (a :class "neo-button secondary" :href *hardcover-href* "Purchase hardcover")))))
+
+;;; The book band closes a narrow page. Where the panel has no column of its
+;;; own, this replaces it: the logo and a line, then both buttons.
+
+(defun render-book-band ()
+  (ah:</>
+   (ac-band :class "book-band"
+     (aside :class "book-strip" :aria-label "Lisp & Emacs Essentials" :hx-boost "false"
+       (div :class "book-strip-copy"
+         (img :class "book-ad-logo" :src (image-src "essentials-logo.svg") :alt "Lisp & Emacs Essentials"
+           :width "156" :height "69")
+         (p :class "book-strip-line"
+           (span :class "book-ad-label" "The Book (your eyes only)")
+           (span :class "book-strip-text" "Be not defeated by the rapidly shifting winds of code and craft. Become Almighty.")))
+       (div :class "book-ad-actions"
+         (a :class "neo-button primary" :href *book-href* "Start reading")
+         (a :class "neo-button secondary" :href *hardcover-href* "Purchase hardcover"))))))
 
 ;;; Series progress
 
@@ -202,7 +222,6 @@ are INDEX-CELLs. An odd cell out is paired with hatching."
   (ah:</>
    (section :class (ah:clsx "index" class) :id id
      (div :class "index-head"
-       (p :class "index-top" top)
        (h2 :class "index-name" name)
        body)
      (div :class "index-cells" :style (format nil "--rows: ~d" (ceiling (length cells) 2))

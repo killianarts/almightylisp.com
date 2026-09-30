@@ -2,6 +2,7 @@
 #+SUBTITLE: loop is a small language with its own grammar, built into Common Lisp. Some programmers write every iteration with it and some refuse to. The better question is which loops it makes clearer, and which it makes worse.
 #+AUTHOR: Micah Killian
 #+DATE: 2026-09-21
+#+DRAFT: t
 #+TYPE: Explanation
 #+TOPIC: Lisp
 #+RELATED: an-error-that-waits-for-you-to-decide handling-money-without-floating-point
@@ -79,7 +80,7 @@ Dividing integers in Common Lisp gives an exact ratio, not a truncated integer o
 
 Now change the job: total the scores of the honours students only. The obvious edit is to indent a =:sum= under the =:when=.
 
-#+BEGIN_SRC lisp :highlight 4
+#+BEGIN_SRC lisp :highlight 3 4
 (loop :for (name . score) :in *scores*
       :when (>= score 90)
         :collect name :into honours
