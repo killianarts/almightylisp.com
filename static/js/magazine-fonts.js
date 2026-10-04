@@ -32,6 +32,8 @@
     { family: "Construct Mono", file: "ConstructMono.otf", wait: true },
     { family: "Mohave", file: "Mohave-latin.woff2", wait: true,
       weight: "300 700", unicodeRange: LATIN },
+    // Japanese labels: in the running header, so on every page.
+    { family: "KKM Analog TV", file: "kkm_analogtv_v2-vert.ttf", wait: true },
     { family: "Mohave", file: "Mohave-latin-ext.woff2",
       weight: "300 700", unicodeRange: LATIN_EXT },
     // Code blocks, further down an article.
@@ -89,6 +91,9 @@
       return f.load().then(function () { return f; }, function () { return null; });
     })).then(function (loaded) {
       loaded.forEach(function (f) { if (f) document.fonts.add(f); });
+      // Justified text was measured in the fallback fonts.
+      // (magazine-justify.js is deferred too.)
+      if (window.MagazineJustify) window.MagazineJustify.refresh();
       if (holding) {
         // Not drawn yet: nothing to cover.
         release();

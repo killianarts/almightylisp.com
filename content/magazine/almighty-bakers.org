@@ -1,0 +1,187 @@
+#+title: Almighty Bakers
+#+subtitle: I feel anxious and sweaty about my future as a software developer. How about you? But perhaps we could learn a lesson from an unlikely group of hard working young men: Victorian bakers.
+
+#+date: 2026-10-02
+#+type: Opinion
+#+topic: Industry
+
+* Bread Wasn't Always Easy
+Do you own a bread machine? You know, one of those things that pour flour and
+water into and out comes a steaming hot loaf of crackly-soft bread? I do. I'm
+just got the bread machine going right now. But I haven't turned it on in a
+while, maybe a month or two. How about you? When was the last time you used your
+bread machine?
+
+Bread machines are a modern marvel. Literally anybody with this petite device
+can have freshly baked bread ready in just a few hours with almost no work at
+all.
+
+But baking a loaf of bread wasn't always so easy. It was hard--really
+hard if you were trying to make a living as a baker. In fact, baking was *deadly*.
+
+#+begin_note
+I'm about to tell you in writing about the history of bakers in the Victorian
+era, but I watched [[https://www.youtube.com/watch?v=yf8rxJk4QzQ][the original short documentary]] on the subject on Youtube
+through the [[https://www.youtube.com/@TastingHistory][Tasting History channel]].
+#+end_note
+
+* Making Breakfast Rolls For a Nation Was Deadly
+What of the most deadly jobs in Victorian era London was the job of baker.
+
+The bakers of London had an important job: providing fresh bread for the early
+morning breakfast crowd *every single morning*. While at the time
+industrialization was already affecting other industries, it had yet to come to
+baking. Bakers needed to begin preparing bread early in the morning so that it
+would be ready for breakfast. Waking up at 3AM in the basement "kitchen" owned
+by the guy who bought the building and converted it for use as a bakery, bakers
+would get to work beating the hell out of the dough. Groups of sweaty men would
+punch and stomp (yes, with their feet) on the dough for hours everyday from
+early morning until evening--with little time to rest--in their hot
+kitchen-dungeon. It really was back breaking labor.
+
+And why exactly? If you've ever made bread yourself, you'll know that kneeding
+dough can be arduous, but it doesn't feel like slave labor. Why did these strong
+young men have to work so hard? Because flour at the time was mixed with all
+kinds of non-flour fillers to save money and make the flour whiter, but they
+also disrupted the process of the dough turning firm and elastic--preventing the
+dough from rising as a result. Thus the bakers had to work extra hard and extra
+long kneeding and pour their sweat into the dough to counteract the negative
+effects of their very poor quality ingredients.
+
+But that wasn't the worst of it. Bakers were commonly inflicted with the
+condition called Baker's Lung. What the H is Baker's Lung you ask?
+
+Your fancy bread machine or kitchen oven is powered by electricity. Bakers
+didn't have electricity. Can you guess what they had? You guessed it: *Coal*.
+Not the charcoal you use to barbecue a nice boneless chicken thigh or a
+hamburger, *coal*, as in the stuff that is burned by modern power plants to
+power entire cities. The same coal that children used to dig out of mines. The
+ovens in the baker's kitchen-dungeon were filled with coal. Bakers had to scrape
+a layer of coal off the bottom of their freshly baked rolls before packing them
+up and setting off to deliver the bread to customers themselves.
+
+#+begin_note
+Baker's Lung wasn't the only illness bakers were inflicted with. Their working
+(and often sleeping) conditions were so poor that seizures, heart conditions,
+bloody noses, skin diseases, etc. Bakers were truly "sickly" laborers.
+#+end_note
+
+* Here Come The Machines To Steal Their Jobs
+Given the rather unpleasant nature of their work, you might think they would be
+overjoyed to have a machine to do the hardest part of their job for
+them--kneeding the dough--but you would be wrong.
+
+When machines for mixing and kneeding the dough were introduced, the primary
+concern that bakers had was: *What about our careers?* You see, being a baker
+had been one of only a couple dozen lifetime career paths available from ancient
+times. Sure, the decline of agricultural life and the rise of city-living had
+4x'd their traditional workload, it's true, but at least it was good-paying work
+(it was not). Sure, they worked more than 100 hours a week, but at least they
+were assured a bright future as the baker foreman one day (they were not). If
+the machines could do all the kneeding--the most time-consuming and
+labor-intensive part of the job--what the H was going to happen to their futures
+as bakers?
+
+That was, of course, not an entirely unfounded fear. After all, the machines
+were large and expensive, meaning only rich capital owners would even have a
+chance at benefiting from them. Was there even a future for bakers if they
+weren't making bread in a factory with heavy equipment automation?
+
+#+begin_note
+The bakers were concerned about their future livelihood, but others were concerned
+about how short and hard the lives of bakers was. Because some people attributed
+the grueling life bakers lead to the demand for breakfast rolls, some people
+campaigned to get people to stop buying the rolls so that bakers could live a
+more humane life.
+#+end_note
+
+* The Rest Is History
+You could be forgiven for not being as concerned about the future of bread
+making as the Victorian era bakers were. We live in the future they feared: Men
+aren't paid slave wages to kneed and bake loaves or rolls of white bread in
+toxic urban bread mines.
+
+Instead, Japanese high school girls work part-time baking dozens of varieties of
+different luxurious breads, pastries, and other baked delights invented since
+the Victorian era. They do so in full view of their customers, in a clean,
+delicious, heavenly environment using dozens of different hand and power tools
+assisting them. Some may even go on to become Almighty Bakers who own their own
+business baking high-quality, luxury breads that customers line up outside the
+building to buy. Sure, here in rural Japan the competition in the baking
+business is fierce--not only do all the supermarkets and convenience stores sell
+literally dozens of different baked goods, but there are also specialty chain
+bakeries and even fellow small-business owners pumping out carbohydrate rich
+bubbles of the Gods. But the customers have tons of money and a taste for all
+foods massaged, inflated, and packed with sugars and fats. If you can market
+your bakery well, you can make a living at it.
+
+And of course, if you want freshly baked bread without doing any work or even
+leaving your house, you can buy a cheap bread machine and bake bread literally
+in your sleep.
+
+* This Article Is Not About Bread
+Software engineers are worried that all the engineering involved with building
+software is going to be replaced by LLMs doing all the work. Some are worried
+that LLMs replacing human coders will result in poor code, others are worried
+the code will be too good. In any case, what are software engineers going to do
+now? Is software engineering no longer going to be a viable career path? What do
+we do with all these programmers who won't be programming anymore? Do we just
+stop teaching the fundamentals and work at a higher level of abstraction? Or do
+we resist the Genie's Temptation and continue hand-coding to maintain and grow
+our skills while the frontier labs rug-pull everybody else with higher prices
+and fewer tokens?
+
+Obviously, bread baking and software development are different things, but if we
+observe what happened to baking, we'll notice that there are way more bakers
+around the world than perhaps at any time in history. People love those
+carbohydrate-rich morsels. On the other hand, people aren't so much in love with
+software--it's more of an abusive relationship.
+
+Baking is still around, but it has changed significantly. It's easier, safer,
+and the variety of baked goods is incredible. Yes, the people with the factories
+pumping out hot steamy loaves are the ones making the most money, but you can
+make a very fine living simply making cakes. Cakes! If you have niche artistic
+skills coupled with baking ability you have the potential of making a living.
+
+On the other hand, if you make baking a living, it's probably less about baking
+and more about running a business--paperwork, taxes, hiring and firing,
+marketing, sales, adapting to trends, responding to new government regulations,
+market research, etc. similar to running a restaurant or a photography studio.
+
+Will software engineering follow this trend? Will the model producers be the big
+winners sitting on piles of money because they have a near-monopoly on a tool
+software developers are forced to use, while software developers are relegated
+to becoming meat-proxies for different models and harnesses? Or will the skill
+of software engineering adapt in a different way from baking--with software
+engineering itself requiring a different set of skills, but still a viable
+career unto itself, rather than one skill of many necessary to make a living?
+Can the autists and anti-social nerds stay in their cubicles or work from home,
+or do they have to put on a suit and tie and level up from Software Engineer to
+Small Business Owner?
+
+My prediction is that there will be a messy, relatively quick transition to a
+more complex market of software builders and users. Just as with all other
+industries like baking, there will be some people that stick to the Old Ways,
+others who Keep Up With The Times, and a new generation of builders that grow up
+in the new world who find new ways to combine Machine Intelligence with their
+unique interests and skills. Some people will be paid highly for their
+specialized, Old Fashioned coding skills; some will be paid to be ambitious and
+good with model prompting to produce good code; others will become generalists
+and use their unique skill stack and interest stack to produce creative and
+interesting products and experiences we can't even imagine right now; and still
+others will enter entirely new markets or industries that didn't exist prior to
+LLMs. In short, I think there are many opportunities for software engineers of
+varying capabilities to make their way in this new world.
+
+And, of course, I believe Almighty Common Lisp will be a powerful tool in this
+new world.
+
+I think it's important to learn a lesson from the Victorian era bakers: We need
+to be more open to possibilities, and more optimistic about our future. It won't
+be easy, but I believe that we will look back at our time as software engineers
+the same way we look back on the bakers who, without quality ingredients, machines, or
+safe working conditions baking the same limited kinds of bread for 100 hours a
+week, worried that machines were going to /steal their jobs/ instead of
+/liberate them from their slavish, inhumane conditions/. Instead of being
+paralyzed by fear of the future, they could have been plotting their rise as
+Almighty Bakers.

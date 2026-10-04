@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Link Pulse Lab</title>
+<!--
+  Test page for a "live" look for article links: the links that play the
+  screen effect when clicked (see isArticleLink in static/js/magazine-fx.js).
+  Run serve.py here and open http://127.0.0.1:5090/fx-lab/pulse.html.
+
+  The link stays as it is today (a.inline-link). What marks it is a pulse of
+  the click effect's colour split: a red fringe on one side of the letters
+  and a cyan one on the other, easing in and out. It is a text-shadow, so
+  nothing is laid over the page and nothing flashes: the text stays black.
+
+  Each section sets the same paragraph with one pulse. The paragraph has two
+  article links (a.live), a link to another site and plain underlined text,
+  to tell the three apart. Nothing here needs hover. It plays whatever the
+  reduced-motion setting, like the click effect.
+-->
+<link rel="stylesheet" href="/static/css/magazine-fonts.css">
+<link rel="stylesheet" href="/static/css/magazine.css">
+<style>
+  .lab {
+    /* Set by the panel. */
+    --spread: 1.2px;
+    --blur: 0px;
+    --alpha: 0.8;
+    --period: 3.2s;
+
+    max-width: 46em;
+    margin: 0 auto;
+    padding: 48px 24px 220px;
+  }
+  .lab h1 {
+    font-family: var(--disp);
+    font-variation-settings: var(--disp-axes);
+    font-weight: 500;
+    font-size: 34px;
+    text-transform: uppercase;
+  }
+  .lab-note, .lab-k, .lab-panel {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+  }
+  .lab-note { margin-top: 8px !important; }
+  .lab section {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ink);
+  }
+  .lab-k { margin-bottom: 14px !important; text-transform: uppercase; }
+  .lab-k b { color: var(--ink); font-weight: 400; }
+  .lab-dark {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .mag .lab-dark a.inline-link { color: var(--paper); }
+
+  .lab-panel {
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    z-index: 10000;
+    display: grid;
+    grid-template-columns: auto 130px 3.5em;
+    gap: 6px 10px;
+    align-items: center;
+    padding: 12px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  .lab-panel input { width: 100%; }
+
+  /* The pulse ------------------------------------------------------------ */
+
+  /* At rest the fringes are there but clear, so the pulse eases between
+     two shadows of the same shape. --at is where the fringes are at the
+     top of the pulse. */
+  .lab {
+    --rest: 0 0 0 rgb(255 0 60 / 0), 0 0 0 rgb(0 200 255 / 0);
+    --peak: calc(var(--spread) * -1) 0 var(--blur) rgb(255 0 60 / var(--alpha)),
+            var(--spread) 0 var(--blur) rgb(0 200 255 / var(--alpha));
+  }
+
+  /* --d is set per link by the script below, so links don't pulse together. */
+  .pulse {
+    text-shadow: var(--rest);
+    animation: var(--pulse) var(--period) ease-in-out var(--d, 0s) infinite;
+  }
+
+  /* 1. Breath: in and out, slowly, with a rest between. */
+  [data-pulse="breath"] { --pulse: breath; }
+  @keyframes breath {
+    0%, 45%, 100% { text-shadow: var(--rest); }
+    72% { text-shadow: var(--peak); }
+  }
+
+  /* 2. Halo: the same, out of focus, so it reads as a glow round the link
+     more than an edge on the letters. */
+  [data-pulse="halo"] {
+    --pulse: breath;
+    --peak: calc(var(--spread) * -2) 0 calc(var(--blur) + 3px) rgb(255 0 60 / var(--alpha)),
+            calc(var(--spread) * 2) 0 calc(var(--blur) + 3px) rgb(0 200 255 / var(--alpha));
+  }
+
+  /* 3. Beat: two quick pulses and a long rest. */
+  [data-pulse="beat"] { --pulse: beat; }
+  @keyframes beat {
+    0%, 36%, 100% { text-shadow: var(--rest); }
+    7%  { text-shadow: var(--peak); }
+    15% { text-shadow: var(--rest); }
+    22% { text-shadow: var(--peak); }
+  }
+
+  /* 4. Wave: the pulse runs along the link, a letter at a time. The script
+     wraps each letter (.pulse is on the letters, not the link); --i is its
+     place in the link. */
+  [data-pulse="wave"] { --pulse: wave; }
+  [data-pulse="wave"] .pulse {
+    animation-delay: calc(var(--d, 0s) + var(--i) * 45ms);
+  }
+  @keyframes wave {
+    0%, 26%, 100% { text-shadow: var(--rest); }
+    11% { text-shadow: var(--peak); }
+  }
+
+  /* Hover, where there is one: the split holds. */
+  .mag a.live:hover, .mag a.live:hover .pulse {
+    animation: none;
+    text-shadow: var(--peak);
+  }
+</style>
+</head>
+<body class="mag">
+<main class="lab">
+  <h1>Link pulse</h1>
+  <p class="lab-note">A pulse of colour split on the article links. They pulse on their own; hover holds it.</p>
+
+  <template id="sample">
+    <p class="prose">In the last part, <a class="inline-link live" href="/magazine/a-gift-to-my-father">A Gift To My Father</a>, I said why. This one is about how: <span class="underline">you decide the way UIs are built</span>, which is what LispWorks does with their <a class="inline-link" href="https://www.lispworks.com/products/capi.html">CAPI GUI toolkit</a>. The argument for it is in <a class="inline-link live" href="/magazine/why-build-native-instead-of-web-applications">Why Build Native Instead Of Web Applications, a title long enough to wrap onto a second line</a>.</p>
+    <p class="prose lab-dark">On black: <a class="inline-link live" href="/magazine/opening-a-window">Opening A Window</a> next to <span class="underline">underlined text</span>.</p>
+  </template>
+
+  <section data-pulse="breath">
+    <p class="lab-k"><b>1. Breath</b> / the fringe eases in and out</p>
+  </section>
+  <section data-pulse="halo">
+    <p class="lab-k"><b>2. Halo</b> / the same, wider and out of focus</p>
+  </section>
+  <section data-pulse="beat">
+    <p class="lab-k"><b>3. Beat</b> / two quick pulses, then a rest</p>
+  </section>
+  <section data-pulse="wave">
+    <p class="lab-k"><b>4. Wave</b> / the pulse runs along the link</p>
+  </section>
+</main>
+
+<div class="lab-panel">
+  <label for="c-spread">Spread</label><input id="c-spread" data-unit="px" type="range" min="0.3" max="4" step="0.1" value="1.2"><output></output>
+  <label for="c-blur">Blur</label><input id="c-blur" data-unit="px" type="range" min="0" max="6" step="0.5" value="0"><output></output>
+  <label for="c-alpha">Strength</label><input id="c-alpha" data-unit="" type="range" min="0.1" max="1" step="0.05" value="0.8"><output></output>
+  <label for="c-period">Period</label><input id="c-period" data-unit="s" type="range" min="1" max="8" step="0.1" value="3.2"><output></output>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var lab = document.querySelector(".lab");
+
+  // The same paragraph in every section.
+  var sample = document.getElementById("sample");
+  document.querySelectorAll(".lab section").forEach(function (section) {
+    section.appendChild(sample.content.cloneNode(true));
+    section.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function (e) { e.preventDefault(); });
+    });
+  });
+
+  // Each link on its own clock. In the wave the letters pulse, not the
+  // link: spaces stay as they are, so the link still wraps between words.
+  document.querySelectorAll("a.live").forEach(function (a) {
+    a.style.setProperty("--d", (-Math.random() * 8).toFixed(2) + "s");
+    if (!a.closest('[data-pulse="wave"]')) {
+      a.classList.add("pulse");
+      return;
+    }
+    var text = a.textContent;
+    a.setAttribute("aria-label", text);
+    a.textContent = "";
+    Array.prototype.forEach.call(text, function (ch, i) {
+      if (ch === " ") {
+        a.appendChild(document.createTextNode(ch));
+        return;
+      }
+      var span = document.createElement("span");
+      span.className = "pulse";
+      span.setAttribute("aria-hidden", "true");
+      span.style.setProperty("--i", i);
+      span.textContent = ch;
+      a.appendChild(span);
+    });
+  });
+
+  ["spread", "blur", "alpha", "period"].forEach(function (name) {
+    var input = document.getElementById("c-" + name);
+    var out = input.nextElementSibling;
+    function read() {
+      var value = input.value + input.dataset.unit;
+      lab.style.setProperty("--" + name, value);
+      out.textContent = value;
+    }
+    input.addEventListener("input", read);
+    read();
+  });
+})();
+</script>
+</body>
+</html>

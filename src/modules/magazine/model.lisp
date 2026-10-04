@@ -120,7 +120,9 @@
   '(("Lisp" "CL")
     ("Emacs" "EM")
     ("Tooling" "TL")
-    ("Industry" "IN"))
+    ("Industry" "IN")
+    ("Native Development" "ND")
+    ("Web Development" "WD"))
   "Allowed values of #+TOPIC, with their serial codes.")
 
 (defparameter *article-types*

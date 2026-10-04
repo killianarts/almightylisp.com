@@ -1,10 +1,27 @@
+// Effects test page variant: ripple, staged
+//
+// The Safari (WebKit) split with the Chrome filter's ripple added: a second
+// set of red, green and blue copies, shown through soft random stripes and
+// slid sideways, with the stripes sliding up and down each frame so other
+// rows tear. The second set is added a colour a frame from the third frame,
+// and each colour's first copy gets its mask as its second arrives.
+//
+// Measured in Safari (1440x900, Retina), 30 September 2026: leave 30-35fps,
+// arrive 29-30fps, with 42-82ms frames as each colour is added. Without the
+// ripple (the live version): leave 41-46fps, arrive 40-47fps.
+(function () {
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "/fx-lab/ripple.css";
+  document.head.appendChild(link);
+})();
+
 // Magazine screen effects.
 //
 // Hover on a book button: a quick CRT flicker over the whole window (CSS,
 // .fx-flicker in magazine.css).
 //
-// Click on a book button, an article link or a link to another site: the
-// page splits into its colour
+// Click on a book button or an article link: the page splits into its colour
 // channels and tears sideways (an SVG filter on the visible part of .sheet;
 // in Safari, which can't run it fast enough, copies of the page instead),
 // while a WebGL overlay adds tear bars, scanlines and noise and then switches
@@ -15,41 +32,15 @@
 // Magazine links are boosted by htmx: the page is fetched while the effect
 // plays, and swapped in once the screen is off. Other boosted navigations
 // (the nameplate, the archive) use a view transition instead. The book
-// buttons and links to other sites leave the magazine, so they do a normal
-// page load after the effect.
-//
-// A link in the text, to an article or to another site: every ten seconds
-// or so, a small version of the click's first stage, on the link alone: its
-// colours swell apart, then let go in a split and a tear. It marks the link
-// as one, and as one that plays the effect, without a hover (a phone has
-// none).
+// buttons leave the magazine, so they do a normal page load after the effect.
 //
 // The effect's own elements hang off <html>, not <body>, so htmx never swaps
-// them out or saves them in its history snapshots. (A link's pulse puts
-// copies in its paragraph in Safari; they're gone before a page is saved.)
+// them out or saves them in its history snapshots.
 //
-// Everything runs only while an effect is playing, but for a twice-a-second
-// check for links due a pulse. The effects play whatever the reduced-motion
-// setting: they are part of the site's look.
+// Everything runs only while an effect is playing. The effects play whatever
+// the reduced-motion setting: they are part of the site's look.
 (function () {
   "use strict";
-
-  // The effects test page (dev/fx-lab/, served locally by its serve.py)
-  // loads the page with ?fx-lab=NAME to try dev/fx-lab/NAME.js, another
-  // version of this file, in its place, after the distortion maps the
-  // versions share (distortions.js). Only on this machine.
-  var lab = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) &&
-    /[?&]fx-lab=([a-z0-9-]+)/.exec(location.search);
-  if (lab && !window.MagazineFxLab) {
-    window.MagazineFxLab = lab[1];
-    ["distortions", lab[1]].forEach(function (name) {
-      var script = document.createElement("script");
-      script.src = "/fx-lab/" + name + ".js";
-      script.async = false; // in order
-      document.head.appendChild(script);
-    });
-    return;
-  }
 
   // Leaving: a hit of colour split, then the picture tears apart, then the
   // CRT switch-off. HIT and BREAK are where each stage ends, as fractions.
@@ -76,16 +67,6 @@
     if (a.origin !== location.origin) return false;
     return /^\/magazine\/[a-z0-9-]+\/?$/.test(a.pathname) &&
            !/^\/magazine\/archive\/?$/.test(a.pathname);
-  }
-
-  // Another site's page. Not mail or phone links, which leave nothing.
-  function isOutsideLink(a) {
-    return /^https?:$/.test(a.protocol) && a.origin !== location.origin;
-  }
-
-  // The links that play the effect when clicked.
-  function playsEffect(a) {
-    return isBookButton(a) || isArticleLink(a) || isOutsideLink(a);
   }
 
   function isPlainClick(e, a) {
@@ -149,19 +130,18 @@
   // ------------------------------------------------- page filter (SVG)
 
   // Displacement strips: a few columns of random horizontal bands, made
-  // once. Swapping between them each frame makes the tears jump. A strip is
-  // ROWS high, its bands up to BAND rows, and SHARE of them are torn.
-  function makeStrips(count, rows, band, share) {
+  // once. Swapping between them each frame makes the tears jump.
+  function makeStrips(count) {
     var urls = [];
     var canvas = document.createElement("canvas");
     canvas.width = 2;
-    canvas.height = rows;
+    canvas.height = 96;
     var ctx = canvas.getContext("2d");
     for (var s = 0; s < count; s++) {
       var y = 0;
       while (y < canvas.height) {
-        var h = 1 + Math.floor(Math.random() * band);
-        var torn = Math.random() < share;
+        var h = 1 + Math.floor(Math.random() * 9);
+        var torn = Math.random() < 0.3;
         var dx = torn ? Math.floor(Math.random() * 255) : 128;
         ctx.fillStyle = "rgb(" + dx + ",128,128)";
         ctx.fillRect(0, y, 2, h);
@@ -246,7 +226,7 @@
 
   function ensureFilter() {
     if (svg || !SVG_FILTER) return;
-    strips = makeStrips(6, 96, 9, 0.3);
+    strips = makeStrips(6);
     tearMaps = makeTearMaps(8);
     var ns = "http://www.w3.org/2000/svg";
     svg = document.createElementNS(ns, "svg");
@@ -301,29 +281,85 @@
   // they come out as its own pure primaries. The tint is inside each copy
   // (see .fx-rgb in magazine.css), and nothing in a copy may get a layer of
   // its own, or the tint mixes with everything under it.
-  var RGB_PAD = 80;     // px each copy reaches past the window, for the shake
-  var rgbLayer = null, rgbCopies = [];
+  //
+  // The ripple (the filter's displacement strips) is a second set of three,
+  // shown through stripes (a mask) where the first set shows the rest, and
+  // slid sideways. A new mask each frame cost Safari 90ms a frame, so the
+  // stripes are made once, and instead slide up and down with the copies
+  // moved back by as much: the page stays, and other rows are torn. The
+  // second set is added a colour a frame from RIPPLE_FRAME, not with the
+  // first: all three at once took 120-160ms. (Each colour's pair of masks
+  // adds up to the whole, so a colour can go striped on its own.)
+  var RGB_PAD = 80;         // px each copy reaches past the window, for the shake
+  var RIPPLE_MARGIN = 120;  // px the stripes slide up or down
+  var RIPPLE_FRAME = 2;
+  var RIPPLE_SHARE = 0.3;   // of the rows that tear
+  var rgbLayer = null, rgbCopies = [], rgbBox = null, rgbBg = "", rgbMasks = null;
   var rgbOffsets = [[0, 0], [0, 0], [0, 0]];
   var shake = "";
+  var rippleShift = 0, rippleSlide = 0;
 
   function buildSplit() {
     removeSplit();
     sheet.style.transform = "";
-    var box = sheet.getBoundingClientRect();
-    var bg = getComputedStyle(document.body).backgroundColor;
+    rgbBox = sheet.getBoundingClientRect();
+    rgbBg = getComputedStyle(document.body).backgroundColor;
     // .mag for the page's tokens and base styles.
     rgbLayer = document.createElement("div");
     rgbLayer.className = "mag fx-rgb";
     rgbLayer.setAttribute("aria-hidden", "true");
-    ["r", "g", "b"].forEach(function (channel) {
-      var holder = document.createElement("div");
-      holder.className = "fx-rgb-copy " + channel;
-      holder.style.cssText = "inset:" + -RGB_PAD + "px;background-color:" + bg;
-      holder.appendChild(copySheet(box.left + RGB_PAD, box.top + RGB_PAD, box.width));
-      rgbLayer.appendChild(holder);
-      rgbCopies.push(holder);
-    });
+    addCopies(0);
     root.appendChild(rgbLayer);
+  }
+
+  // One set of red, green and blue copies (or just CHANNEL's). Each is in a
+  // slice of the layer that the stripes are on.
+  function addCopies(set, channel) {
+    ["r", "g", "b"].forEach(function (name, i) {
+      if (channel !== undefined && channel !== i) return;
+      var slice = document.createElement("div");
+      slice.className = "fx-rgb-slice";
+      slice.style.cssText = "top:" + -RIPPLE_MARGIN + "px;bottom:" + -RIPPLE_MARGIN + "px";
+      var holder = document.createElement("div");
+      holder.className = "fx-rgb-copy " + name;
+      var inset = RIPPLE_MARGIN - RGB_PAD;
+      holder.style.cssText = "top:" + inset + "px;bottom:" + inset + "px;left:" + -RGB_PAD +
+        "px;right:" + -RGB_PAD + "px;background-color:" + rgbBg;
+      holder.appendChild(copySheet(rgbBox.left + RGB_PAD, rgbBox.top + RGB_PAD, rgbBox.width));
+      slice.appendChild(holder);
+      rgbLayer.appendChild(slice);
+      rgbCopies.push({ slice: slice, holder: holder, channel: i, set: set });
+    });
+  }
+
+  // Random rows, as a pair of masks: the rows that tear, and the rest. The
+  // edges are soft, as the filter's are, and each pair adds up to the whole.
+  function stripes() {
+    var torn = [], rest = [], y = 0, soft = 0.2;
+    while (y < 100) {
+      var h = 0.8 + Math.random() * 5, end = Math.min(100, y + h);
+      var on = Math.random() < RIPPLE_SHARE ? 1 : 0;
+      [[torn, on], [rest, 1 - on]].forEach(function (m) {
+        m[0].push("rgb(0 0 0 / " + m[1] + ") " + (y + soft).toFixed(2) + "%",
+                  "rgb(0 0 0 / " + m[1] + ") " + (end - soft).toFixed(2) + "%");
+      });
+      y = end;
+    }
+    return ["linear-gradient(" + torn.join(",") + ")", "linear-gradient(" + rest.join(",") + ")"];
+  }
+
+  // CHANNEL's second copy, and its stripes.
+  function addRipple(channel) {
+    if (!rgbLayer) return;
+    if (!rgbMasks) rgbMasks = stripes();
+    addCopies(1, channel);
+    rgbCopies.forEach(function (copy) {
+      if (copy.channel !== channel) return;
+      var m = copy.set ? rgbMasks[0] : rgbMasks[1];
+      copy.slice.style.webkitMaskImage = m;
+      copy.slice.style.maskImage = m;
+    });
+    placeCopies();
   }
 
   function removeSplit() {
@@ -332,14 +368,25 @@
     rgbCopies = [];
     rgbOffsets = [[0, 0], [0, 0], [0, 0]];
     shake = "";
+    rippleShift = rippleSlide = 0;
+    rgbMasks = null;
   }
 
-  // The copies' offsets, plus the shake.
+  // The copies' offsets, plus the ripple and the shake.
   function placeCopies() {
-    rgbCopies.forEach(function (copy, i) {
-      copy.style.transform = "translate3d(" + rgbOffsets[i][0].toFixed(1) + "px," +
-        rgbOffsets[i][1].toFixed(1) + "px,0) " + shake;
+    rgbCopies.forEach(function (copy) {
+      var off = rgbOffsets[copy.channel];
+      var x = off[0] + (copy.set ? rippleShift : 0);
+      copy.slice.style.transform = "translate3d(0," + rippleSlide.toFixed(0) + "px,0)";
+      copy.holder.style.transform = "translate3d(" + x.toFixed(1) + "px," +
+        (off[1] - rippleSlide).toFixed(1) + "px,0) " + shake;
     });
+  }
+
+  // Tear the striped rows up to REACH px sideways, and pick other rows.
+  function setRipple(reach) {
+    rippleShift = (Math.random() * 2 - 1) * reach;
+    rippleSlide = (Math.random() * 2 - 1) * RIPPLE_MARGIN;
   }
 
   // Move the red, green and blue images apart: the filter's offsets, or
@@ -388,7 +435,11 @@
       image.setAttribute("href", strips[frame % strips.length]);
       displace.setAttribute("scale", (amount * TEAR * (0.6 + Math.random() * 0.8)).toFixed(1));
     }
-    if (!SVG_FILTER && liteDue(frame)) setBands(0.35, amount * TEAR, 0);
+    if (!SVG_FILTER) {
+      if (liteDue(frame)) setBands(0.35, amount * TEAR, 0);
+      // the filter's strips shift up to half its scale either way
+      setRipple(amount * TEAR * 0.5 * (0.6 + Math.random() * 0.8));
+    }
     setSplit(splitDir * split, amount * (Math.random() * 6 - 3), splitDir * split * 0.12,
              -splitDir * split * 0.85, amount * (Math.random() * 4 - 2));
     setShake(amount * JITTER * (Math.random() * 2 - 1), 0, amount * SKEW * (Math.random() * 2 - 1));
@@ -400,7 +451,10 @@
       image.setAttribute("href", tearMaps[Math.floor(Math.random() * tearMaps.length)]);
       displace.setAttribute("scale", Math.round(k * (300 + Math.random() * 500)));
     }
-    if (!SVG_FILTER) setBands(0.55, k * (300 + Math.random() * 500), 30 * k);
+    if (!SVG_FILTER) {
+      setBands(0.55, k * (300 + Math.random() * 500), 30 * k);
+      setRipple(k * 120);
+    }
     var dir = Math.random() < 0.5 ? -1 : 1;
     var split = 8 + Math.random() * 36 * k;
     setSplit(dir * split, Math.random() * 8 - 4, (Math.random() * 2 - 1) * 6 * k,
@@ -634,287 +688,9 @@
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  // -------------------------------------------------------- link pulse
-
-  // A link in the text that plays the effect when clicked (an article, or
-  // another site) pulses on its own: the click's split and tear, on the
-  // link alone. A pulse swells (the colours drift apart,
-  // smoothly) and then lets go (the split at its widest and a tear, easing
-  // out in steps, as the click's first stage does).
-  var LINK_SPLIT = 5;       // px the colours part, at most
-  var LINK_TEAR = 5;        // px a band slides, at most
-  var LINK_EVERY = 10000;   // ms from one pulse of a link to its next, give or take
-  var LINK_MS = 1500;
-  var LINK_SWELL = 0.65;    // how much of the pulse is the swell
-  var LINK_CHECK = 500;     // ms between looks for links that are due
-
-  var pulses = new WeakMap(); // link -> when its next pulse is due
-  var pulsing = [];           // the pulses playing now
-
-  function pulseLinks() {
-    return Array.prototype.filter.call(document.querySelectorAll("a.inline-link"), function (a) {
-      return playsEffect(a) && !isSamePage(a);
-    });
-  }
-
-  function onScreen(a) {
-    var r = a.getBoundingClientRect();
-    return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
-  }
-
-  // Chrome: a filter on the link, as the page's (ensureFilter), but made
-  // from the link's shape, not its colours. The page is opaque, so its
-  // channels can be pulled out of its colours; a link is text on nothing.
-  // The three copies are its shape in cyan, magenta and yellow, multiplied
-  // (where all three overlap, the text is black again); for light text, in
-  // the red, green and blue of its colour, screened. One filter for each
-  // text colour: links pulsing at once share it, and move as one.
-  var linkSvg = null, linkStrips = null, linkFilters = {};
-
-  function linkTint(r, g, b, result) {
-    return '<feColorMatrix in="torn" type="matrix" values="' +
-      "0 0 0 0 " + r + "  0 0 0 0 " + g + "  0 0 0 0 " + b + '  0 0 0 1 0" result="' + result + '"/>';
-  }
-
-  function linkFilter(rgb, light) {
-    var key = rgb.join("-");
-    if (linkFilters[key]) return linkFilters[key];
-    var ns = "http://www.w3.org/2000/svg";
-    if (!linkSvg) {
-      // coarser than the page's strips: one is stretched over a link
-      linkStrips = makeStrips(8, 16, 3, 0.35);
-      linkSvg = document.createElementNS(ns, "svg");
-      linkSvg.setAttribute("aria-hidden", "true");
-      linkSvg.setAttribute("width", "0");
-      linkSvg.setAttribute("height", "0");
-      linkSvg.style.position = "absolute";
-      root.appendChild(linkSvg);
-    }
-    var id = "fx-link-" + key;
-    var mode = light ? "screen" : "multiply";
-    var holder = document.createElementNS(ns, "g");
-    // The filter reaches past the link's box, for what slides out of it.
-    holder.innerHTML =
-      '<filter id="' + id + '" x="-15%" y="-35%" width="130%" height="170%" color-interpolation-filters="sRGB">' +
-        '<feImage preserveAspectRatio="none" result="map"/>' +
-        '<feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G" result="torn"/>' +
-        (light
-          ? linkTint(rgb[0] / 255, 0, 0, "c1") + linkTint(0, rgb[1] / 255, 0, "c2") + linkTint(0, 0, rgb[2] / 255, "c3")
-          : linkTint(0, 1, 1, "c1") + linkTint(1, 0, 1, "c2") + linkTint(1, 1, 0, "c3")) +
-        '<feOffset in="c1" dx="0" dy="0" result="o1"/>' +
-        '<feOffset in="c2" dx="0" dy="0" result="o2"/>' +
-        '<feOffset in="c3" dx="0" dy="0" result="o3"/>' +
-        '<feBlend in="o1" in2="o2" mode="' + mode + '" result="o12"/>' +
-        '<feBlend in="o12" in2="o3" mode="' + mode + '"/>' +
-      "</filter>";
-    linkSvg.appendChild(holder);
-    var image = holder.querySelector("feImage");
-    image.setAttribute("href", linkStrips[0]); // Safari drops a filter with no image
-    return (linkFilters[key] = {
-      id: id,
-      image: image,
-      displace: holder.querySelector("feDisplacementMap"),
-      offsets: holder.querySelectorAll("feOffset")
-    });
-  }
-
-  // WebKit: the filter is fast enough on something as small as a link, but
-  // its colours come out faded: a filter works in sRGB, whose cyan, magenta
-  // and yellow fall short of what a wide-gamut screen can show. So, as for
-  // the page (buildSplit, buildTear), copies: each line of the link is cut
-  // into bands, and a band is a window onto three copies of the link's
-  // whole paragraph, laid exactly over it, so their lines break where its
-  // do. Everything in a copy is clear but the link, which is in one ink,
-  // from Rec. 2020 (see .fx-rgb-copy in magazine.css). Moving a copy splits
-  // the colours; moving a band tears the link. The copies mix with each
-  // other inside a band, and the band with the page (multiply; for light
-  // text, plus-lighter).
-  //
-  // The bands go inside the paragraph, so every rule that styles it styles
-  // them, and are made when a pulse starts and removed when it ends: at
-  // rest there is nothing extra in the page. Neither a band nor a copy may
-  // get a layer of its own (will-change): in Safari the inks then stop
-  // mixing, and the top one, yellow, paints the whole link.
-  var LINK_PAD = 48;  // px a band reaches past the paragraph's sides
-  var LINK_LIP = 3;   // and past the top and bottom of a line of the link
-
-  function linkInk(r, g, b) {
-    return "color(rec2020 " + r.toFixed(3) + " " + g.toFixed(3) + " " + b.toFixed(3) + ")";
-  }
-
-  // The nearest box the link's lines are set in.
-  function blockOf(a) {
-    var el = a.parentElement;
-    while (el.parentElement && getComputedStyle(el).display.indexOf("inline") === 0) {
-      el = el.parentElement;
-    }
-    return el;
-  }
-
-  function buildLinkBands(a, rgb, light) {
-    var box = blockOf(a);
-    var at = box.getBoundingClientRect();
-    // Where the box is, from what the bands are placed against: the box
-    // itself if it's positioned, or else what it is placed against.
-    var own = getComputedStyle(box).position !== "static";
-    var left = own ? -box.clientLeft : box.offsetLeft;
-    var top = own ? -box.clientTop : box.offsetTop;
-    var blend = light ? "light" : "ink";
-    var inks = light
-      ? [linkInk(rgb[0] / 255, 0, 0), linkInk(0, rgb[1] / 255, 0), linkInk(0, 0, rgb[2] / 255)]
-      : [linkInk(0, 1, 1), linkInk(1, 0, 1), linkInk(1, 1, 0)];
-
-    // The rows to cut at, in px down from the top of the box.
-    var rows = [];
-    Array.prototype.forEach.call(a.getClientRects(), function (r) {
-      var y = Math.round(r.top - at.top) - LINK_LIP;
-      var end = Math.round(r.bottom - at.top) + LINK_LIP;
-      while (y < end) {
-        var h = 3 + Math.floor(Math.random() * 6);
-        if (end - y - h < 3) h = end - y; // no slivers
-        rows.push([y, h]);
-        y += h;
-      }
-    });
-
-    a.setAttribute("data-fx-link", "");
-    var bands = rows.map(function (row) {
-      var band = document.createElement("div");
-      band.className = "fx-link-band " + blend;
-      band.setAttribute("aria-hidden", "true");
-      band.inert = true;
-      band.style.left = (left - LINK_PAD) + "px";
-      band.style.top = (top + row[0]) + "px";
-      band.style.width = (box.offsetWidth + LINK_PAD * 2) + "px";
-      band.style.height = row[1] + "px";
-      var copies = inks.map(function (colour) {
-        var copy = box.cloneNode(true);
-        copy.removeAttribute("id");
-        Array.prototype.forEach.call(copy.querySelectorAll("[id]"), function (el) {
-          el.removeAttribute("id");
-        });
-        copy.classList.add("fx-link-copy", blend);
-        copy.style.setProperty("--fx-link-ink", colour);
-        copy.style.left = LINK_PAD + "px";
-        copy.style.top = -row[0] + "px";
-        copy.style.width = box.offsetWidth + "px";
-        copy.style.height = box.offsetHeight + "px";
-        band.appendChild(copy);
-        return copy;
-      });
-      return { el: band, copies: copies };
-    });
-    a.removeAttribute("data-fx-link");
-    bands.forEach(function (band) { box.appendChild(band.el); });
-    a.style.color = "transparent"; // the copies stand in for it
-    return bands;
-  }
-
-  function startLink(a, now) {
-    var rgb = (getComputedStyle(a).color.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number);
-    var light = rgb[0] * 0.3 + rgb[1] * 0.59 + rgb[2] * 0.11 > 128;
-    var pulse = {
-      a: a,
-      start: now,
-      frame: 0,
-      dir: Math.random() < 0.5 ? -1 : 1, // which way the first copy goes
-      filter: SVG_FILTER ? linkFilter(rgb, light) : null,
-      bands: SVG_FILTER ? null : buildLinkBands(a, rgb, light)
-    };
-    if (pulse.filter) a.style.filter = "url(#" + pulse.filter.id + ")";
-    pulsing.push(pulse);
-    if (pulsing.length === 1) requestAnimationFrame(stepLinks);
-  }
-
-  function endLink(pulse) {
-    pulse.a.style.filter = "";
-    pulse.a.style.color = "";
-    if (!pulse.a.getAttribute("style")) pulse.a.removeAttribute("style");
-    if (pulse.bands) pulse.bands.forEach(function (band) { band.el.remove(); });
-    pulses.set(pulse.a, performance.now() + LINK_EVERY * (0.6 + Math.random() * 0.8));
-  }
-
-  // Before the page is torn, saved, or laid out again.
-  function stopLinks() {
-    pulsing.forEach(endLink);
-    pulsing = [];
-  }
-
-  // Where a pulse's three copies are (each [dx, dy], in px), and how far
-  // its bands slide. TEAR is the filter's scale: a band slides up to half
-  // of it either way. About a third of the bands slide, as in the strips.
-  function setLink(pulse, places, tear) {
-    var filter = pulse.filter, bands = pulse.bands;
-    if (filter) {
-      places.forEach(function (at, i) {
-        filter.offsets[i].setAttribute("dx", at[0].toFixed(2));
-        filter.offsets[i].setAttribute("dy", at[1].toFixed(2));
-      });
-      filter.image.setAttribute("href", linkStrips[pulse.frame % linkStrips.length]);
-      filter.displace.setAttribute("scale", tear.toFixed(1));
-      return;
-    }
-    bands.forEach(function (band) {
-      places.forEach(function (at, i) {
-        band.copies[i].style.transform =
-          "translate(" + at[0].toFixed(2) + "px," + at[1].toFixed(2) + "px)";
-      });
-      var dx = tear && Math.random() < 0.35 ? (Math.random() - 0.5) * tear : 0;
-      band.el.style.transform = dx ? "translateX(" + dx.toFixed(1) + "px)" : "";
-    });
-  }
-
-  function stepLinks(now) {
-    pulsing = pulsing.filter(function (pulse) {
-      var t = (now - pulse.start) / LINK_MS;
-      // Hovered, the link is white on a black box (.inline-link:hover), and
-      // the split would ink in the whole box, or hide the text.
-      if (t >= 1 || !pulse.a.isConnected || pulse.a.matches(":hover")) {
-        endLink(pulse);
-        return false;
-      }
-      var frame = pulse.frame++;
-      if (t < LINK_SWELL) {
-        var u = t / LINK_SWELL;
-        var swell = pulse.dir * 0.55 * u * u * LINK_SPLIT;
-        setLink(pulse, [[swell, 0], [swell * 0.12, 0], [-swell * 0.85, 0]], 0);
-        return true;
-      }
-      // letting go: as setFilter, with every third frame held
-      if (frame % 3 === 2) return true;
-      var amount = Math.pow(1 - (t - LINK_SWELL) / (1 - LINK_SWELL), 2.4);
-      var split = pulse.dir * amount * LINK_SPLIT * (0.8 + Math.random() * 0.4);
-      var lift = amount * (Math.random() * 1.2 - 0.6);
-      setLink(pulse, [[split, lift], [split * 0.12, 0], [-split * 0.85, -lift]],
-              amount * LINK_TEAR * 2 * (0.6 + Math.random() * 0.8));
-      return true;
-    });
-    if (pulsing.length) requestAnimationFrame(stepLinks);
-  }
-
-  // Start the pulses that are due, on the links in the window. A link seen
-  // for the first time waits a while, so a page's links don't all go off
-  // together; one that comes due off screen goes soon after it scrolls in.
-  function checkLinks(first) {
-    if (playing || document.hidden) return;
-    var now = performance.now();
-    pulseLinks().forEach(function (a) {
-      if (!pulses.has(a)) pulses.set(a, first === true ? 0 : now + Math.random() * LINK_EVERY);
-      if (now < pulses.get(a) || a.matches(":hover")) return;
-      if (pulsing.some(function (pulse) { return pulse.a === a; })) return;
-      if (onScreen(a)) startLink(a, now);
-      else pulses.set(a, now + Math.random() * 1500);
-    });
-  }
-
-  setInterval(checkLinks, LINK_CHECK);
-  // The bands are placed for the page as it is when they are made.
-  window.addEventListener("resize", stopLinks);
-
   // ---------------------------------------------------------- playback
 
   function play(mode, duration, done) {
-    stopLinks();
     playing = true;
     var id = ++run;
     if (sheet && sheet !== document.querySelector(".sheet")) clearFilter();
@@ -943,7 +719,12 @@
 
     function step(now) {
       if (id !== run) return; // a newer effect has taken over
-      if (!SVG_FILTER) growTear();
+      if (!SVG_FILTER) {
+        // the ripple's copies, then the tear's, a few a frame
+        var c = frame - RIPPLE_FRAME;
+        if (c >= 0 && c < 3) addRipple(c);
+        else growTear();
+      }
       var t = Math.min(1, (now - start) / duration);
       // the page tears hardest early on, and eases off as the overlay takes over
       // Ease-out: full strength on the first frame, falling fast and then
@@ -986,8 +767,8 @@
     if (canvas) canvas.classList.remove("is-on");
   }
 
-  // A normal page load after the effect: the book buttons, links to other
-  // sites, or everything when htmx isn't there.
+  // A normal page load after the effect: the book buttons, or everything
+  // when htmx isn't there.
   function leaveTo(a) {
     var href = a.href, here = a.origin === location.origin;
     play(0, LEAVE_MS, function () {
@@ -1034,7 +815,7 @@
   document.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href]");
     if (!a || e.defaultPrevented || playing) return;
-    if (!playsEffect(a)) return;
+    if (!(isBookButton(a) || isArticleLink(a))) return;
     if (!isPlainClick(e, a) || isSamePage(a)) return;
     if (isArticleLink(a) && isBoosted(a)) {
       leaveBoosted(a); // htmx does the fetch and the swap
@@ -1099,7 +880,6 @@
     // htmx saves the page it's leaving just before the swap, mid-effect.
     // Save it clean.
     document.addEventListener("htmx:beforeHistorySave", function () {
-      stopLinks();
       var s = sheet;
       if (!s || !s.classList.contains("fx-torn")) return;
       var style = s.getAttribute("style") || "";
@@ -1129,7 +909,7 @@
     if (isBookButton(a)) {
       if (!a.contains(e.relatedTarget)) hoverFlicker();
       prefetch(a);
-    } else if (isOutsideLink(a) || (isArticleLink(a) && !isBoosted(a))) {
+    } else if (isArticleLink(a) && !isBoosted(a)) {
       prefetch(a);
     }
   });
@@ -1143,14 +923,14 @@
 
   // Touch screens have no hover: warm up on the first touch instead.
   document.addEventListener("touchstart", function (e) {
-    var a = e.target.closest && e.target.closest("a[href]");
-    if (a && (isBookButton(a) || isOutsideLink(a))) prefetch(a);
+    var a = e.target.closest && e.target.closest("a.neo-button");
+    if (a) prefetch(a);
   }, { passive: true });
 
   // Coming back with the back button restores the page as it was left:
   // mid-effect. Put it straight.
   window.addEventListener("pageshow", function (e) {
-    if (e.persisted) { leaving = null; stopLinks(); finish(); }
+    if (e.persisted) { leaving = null; finish(); }
   });
 
   // Arriving from an effect on the last page: settle in.
@@ -1164,15 +944,8 @@
   // An effect already playing covers it on its own.
   window.MagazineFx = {
     arrive: function () { if (!playing) play(1, ARRIVE_MS); },
-    // For the test page: an effect without going anywhere. MODE is 0 to
-    // leave, 1 to arrive.
     play: function (mode) {
       if (!playing) play(mode, mode ? ARRIVE_MS : LEAVE_MS, mode ? null : finish);
-    },
-    // And every link in the text due its pulse now.
-    pulse: function () {
-      pulses = new WeakMap();
-      checkLinks(true);
     }
   };
 

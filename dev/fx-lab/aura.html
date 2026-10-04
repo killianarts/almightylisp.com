@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Link Aura Lab</title>
+<!--
+  Test page for a "live" look for article links: the links that play the
+  screen effect when clicked (see isArticleLink in static/js/magazine-fx.js).
+  Run serve.py here and open http://127.0.0.1:5090/fx-lab/aura.html.
+
+  The link itself stays as it is today (a.inline-link). What marks it is
+  electricity drawn around it, on small canvases laid over the page: one for
+  each line of the link, so a wrapped link gets one per line. The canvases
+  sit in the document, not the window, so they scroll with the text and
+  never lag behind it.
+
+  Each section sets the same paragraph in one mode. The paragraph has two
+  article links (a.live), a link to another site and plain underlined text,
+  to tell the three apart. Nothing here needs hover: hover and touch only
+  turn it up. It plays whatever the reduced-motion setting, like the click
+  effect.
+-->
+<link rel="stylesheet" href="/static/css/magazine-fonts.css">
+<link rel="stylesheet" href="/static/css/magazine.css">
+<style>
+  .lab {
+    max-width: 46em;
+    margin: 0 auto;
+    padding: 48px 24px 220px;
+  }
+  .lab h1 {
+    font-family: var(--disp);
+    font-variation-settings: var(--disp-axes);
+    font-weight: 500;
+    font-size: 34px;
+    text-transform: uppercase;
+  }
+  .lab-note, .lab-k, .lab-panel {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+  }
+  .lab-note { margin-top: 8px !important; }
+  .lab section {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ink);
+  }
+  .lab-k { margin-bottom: 14px !important; text-transform: uppercase; }
+  .lab-k b { color: var(--ink); font-weight: 400; }
+  .lab-dark {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .mag .lab-dark a.inline-link { color: var(--paper); }
+
+  .lab-panel {
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    z-index: 10000;
+    display: grid;
+    grid-template-columns: auto 130px 3em;
+    gap: 6px 10px;
+    align-items: center;
+    padding: 12px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  .lab-panel select { grid-column: 2 / 4; font: inherit; }
+  .lab-panel input { width: 100%; }
+
+  /* The canvases. Above the text, but nothing in them takes a click. */
+  .aura-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+  .aura-layer canvas { position: absolute; }
+</style>
+</head>
+<body class="mag">
+<main class="lab">
+  <h1>Link aura</h1>
+  <p class="lab-note">Electricity around the article links. They move on their own; hover or touch turns them up.</p>
+
+  <template id="sample">
+    <p class="prose">In the last part, <a class="inline-link live" href="/magazine/a-gift-to-my-father">A Gift To My Father</a>, I said why. This one is about how: <span class="underline">you decide the way UIs are built</span>, which is what LispWorks does with their <a class="inline-link" href="https://www.lispworks.com/products/capi.html">CAPI GUI toolkit</a>. The argument for it is in <a class="inline-link live" href="/magazine/why-build-native-instead-of-web-applications">Why Build Native Instead Of Web Applications, a title long enough to wrap onto a second line</a>.</p>
+    <p class="prose lab-dark">On black: <a class="inline-link live" href="/magazine/opening-a-window">Opening A Window</a> next to <span class="underline">underlined text</span>.</p>
+  </template>
+
+  <section data-mode="arc">
+    <p class="lab-k"><b>1. Arc</b> / bolts crawl round the link and throw off branches</p>
+  </section>
+  <section data-mode="static">
+    <p class="lab-k"><b>2. Static</b> / a fizz of sparks standing off the link</p>
+  </section>
+  <section data-mode="both">
+    <p class="lab-k"><b>3. Both</b> / arcs over a thin fizz</p>
+  </section>
+</main>
+
+<div class="lab-panel">
+  <label for="c-power">Power</label><input id="c-power" type="range" min="0.3" max="2.5" step="0.1" value="1"><output></output>
+  <label for="c-reach">Reach</label><input id="c-reach" type="range" min="2" max="14" step="1" value="6"><output></output>
+  <label for="c-rest">Rest</label><input id="c-rest" type="range" min="0" max="3" step="0.1" value="1"><output></output>
+  <label for="c-fps">Frames/s</label><input id="c-fps" type="range" min="8" max="60" step="1" value="24"><output></output>
+  <label for="c-colour">Colour</label>
+  <select id="c-colour">
+    <option value="ink">Text colour</option>
+    <option value="white">White</option>
+    <option value="split">Colour split</option>
+  </select>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // The same paragraph in every section.
+  var sample = document.getElementById("sample");
+  document.querySelectorAll(".lab section").forEach(function (section) {
+    section.appendChild(sample.content.cloneNode(true));
+    section.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function (e) { e.preventDefault(); });
+    });
+  });
+
+  // ------------------------------------------------------------- settings
+
+  var set = { power: 1, reach: 6, rest: 1, fps: 24, colour: "ink" };
+  ["power", "reach", "rest", "fps", "colour"].forEach(function (name) {
+    var input = document.getElementById("c-" + name);
+    var out = input.nextElementSibling;
+    function read() {
+      set[name] = input.type === "range" ? +input.value : input.value;
+      if (out && out.tagName === "OUTPUT") out.textContent = input.value;
+    }
+    input.addEventListener("input", read);
+    read();
+  });
+
+  // -------------------------------------------------------------- drawing
+
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var MARGIN = 30;  // room round a line of the link for the canvas, CSS px
+  var PAD = 1;      // how far off the link's box the arcs run
+  var STEP = 3;     // distance between points on the box's outline
+
+  var layer = document.createElement("div");
+  layer.className = "aura-layer";
+  layer.setAttribute("aria-hidden", "true");
+  document.body.appendChild(layer);
+
+  function rand(lo, hi) { return lo + Math.random() * (hi - lo); }
+
+  // A lightning-shaped run of n + 1 offsets, pinned to 0 at both ends:
+  // each half is displaced by less than the whole (midpoint displacement).
+  function fractal(n, rough) {
+    var a = new Float32Array(n + 1);
+    (function split(lo, hi, amp) {
+      if (hi - lo < 2) return;
+      var mid = (lo + hi) >> 1;
+      a[mid] = (a[lo] + a[hi]) / 2 + rand(-1, 1) * amp;
+      split(lo, mid, amp * rough);
+      split(mid, hi, amp * rough);
+    })(0, n, 1);
+    return a;
+  }
+
+  // The outline of a w by h box at (x, y), as points STEP apart going
+  // clockwise, each with the direction pointing away from the box.
+  function outline(x, y, w, h) {
+    var pts = [];
+    function side(x0, y0, dx, dy, len, nx, ny) {
+      for (var d = 0; d < len; d += STEP) {
+        pts.push({ x: x0 + dx * d, y: y0 + dy * d, nx: nx, ny: ny });
+      }
+    }
+    side(x, y, 1, 0, w, 0, -1);
+    side(x + w, y, 0, 1, h, 1, 0);
+    side(x + w, y + h, -1, 0, w, 0, 1);
+    side(x, y + h, 0, -1, h, -1, 0);
+    return pts;
+  }
+
+  function newRunner(pts) {
+    return {
+      at: Math.floor(rand(0, pts.length)),
+      len: Math.floor(rand(8, 26)),
+      speed: (Math.random() < 0.5 ? -1 : 1) * rand(1, 4),
+      on: 0,
+      off: Math.floor(rand(0, 30))
+    };
+  }
+
+  // A bolt along the outline, from the runner's place.
+  function boltPath(path, pts, runner) {
+    var n = runner.len, N = pts.length;
+    var offs = fractal(n, 0.6);
+    var amp = set.reach * 0.55;
+    for (var k = 0; k <= n; k++) {
+      var p = pts[((Math.round(runner.at) + k) % N + N) % N];
+      var d = offs[k] * amp + Math.sin(Math.PI * k / n) * amp * 0.5;
+      if (d < 0) d *= 0.3; // mostly away from the text, not over it
+      var x = p.x + p.nx * d, y = p.y + p.ny * d;
+      if (k === 0) path.moveTo(x, y); else path.lineTo(x, y);
+    }
+  }
+
+  // A branch leaping off the outline.
+  function branchPath(path, p) {
+    var len = set.reach * rand(0.9, 1.9);
+    var segs = 5;
+    var offs = fractal(segs, 0.7);
+    var lean = rand(-0.6, 0.6);
+    var tx = -p.ny, ty = p.nx;
+    for (var k = 0; k <= segs; k++) {
+      var d = len * k / segs;
+      var side = offs[k] * len * 0.3 + lean * d;
+      var x = p.x + p.nx * d + tx * side, y = p.y + p.ny * d + ty * side;
+      if (k === 0) path.moveTo(x, y); else path.lineTo(x, y);
+    }
+  }
+
+  // A spark standing off the outline.
+  function sparkPath(path, p) {
+    var d0 = rand(0, set.reach * 0.6);
+    var len = rand(0.6, set.reach * 0.5);
+    var skew = rand(-0.5, 0.5);
+    var tx = -p.ny, ty = p.nx;
+    path.moveTo(p.x + p.nx * d0, p.y + p.ny * d0);
+    path.lineTo(p.x + p.nx * (d0 + len) + tx * skew * len,
+                p.y + p.ny * (d0 + len) + ty * skew * len);
+  }
+
+  function stroke(ctx, path, colour, alpha, width) {
+    ctx.lineWidth = width;
+    if (set.colour === "split") {
+      ctx.globalAlpha = alpha * 0.9;
+      ctx.strokeStyle = "rgb(255 0 60)";
+      ctx.translate(-1, 0); ctx.stroke(path);
+      ctx.strokeStyle = "rgb(0 200 255)";
+      ctx.translate(2, 0); ctx.stroke(path);
+      ctx.translate(-1, 0);
+    }
+    ctx.strokeStyle = set.colour === "white" ? "#fff" : colour;
+    ctx.globalAlpha = alpha * 0.14;
+    ctx.lineWidth = width * 3.5;
+    ctx.stroke(path);  // a soft edge
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = width;
+    ctx.stroke(path);
+  }
+
+  // ---------------------------------------------------------------- links
+
+  function Aura(a) {
+    this.a = a;
+    this.mode = a.closest("[data-mode]").dataset.mode;
+    this.boxes = [];
+    this.seen = false;
+    this.hot = 0; // ticks left of hover or touch
+    this.hover = false;
+    var self = this;
+    a.addEventListener("pointerenter", function () { self.hover = true; });
+    a.addEventListener("pointerleave", function () { self.hover = false; });
+    a.addEventListener("pointerdown", function () { self.hot = 18; });
+  }
+
+  // One canvas over each line of the link.
+  Aura.prototype.layout = function () {
+    this.boxes.forEach(function (box) { box.canvas.remove(); });
+    this.colour = getComputedStyle(this.a).color;
+    var rects = this.a.getClientRects();
+    this.boxes = Array.prototype.map.call(rects, function (r) {
+      var canvas = document.createElement("canvas");
+      var w = r.width + MARGIN * 2, h = r.height + MARGIN * 2;
+      canvas.width = Math.round(w * DPR);
+      canvas.height = Math.round(h * DPR);
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      canvas.style.left = (r.left + window.scrollX - MARGIN) + "px";
+      canvas.style.top = (r.top + window.scrollY - MARGIN) + "px";
+      layer.appendChild(canvas);
+      var ctx = canvas.getContext("2d");
+      ctx.scale(DPR, DPR);
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      var pts = outline(MARGIN - PAD, MARGIN - PAD, r.width + PAD * 2, r.height + PAD * 2);
+      var count = Math.max(1, Math.round((r.width + r.height) / 90));
+      var runners = [];
+      for (var i = 0; i < count + 2; i++) runners.push(newRunner(pts));
+      return { canvas: canvas, ctx: ctx, w: w, h: h, pts: pts, runners: runners, count: count };
+    });
+  };
+
+  Aura.prototype.tick = function () {
+    var hot = this.hover || this.hot > 0;
+    if (this.hot > 0) this.hot--;
+    var power = set.power * (hot ? 1.8 : 1);
+    var colour = this.colour;
+    var mode = this.mode;
+
+    this.boxes.forEach(function (box) {
+      var ctx = box.ctx, pts = box.pts;
+      ctx.clearRect(0, 0, box.w, box.h);
+
+      if (mode !== "static") {
+        // The last two runners only join in when the link is hot.
+        var live = hot ? box.runners.length : box.count;
+        for (var i = 0; i < live; i++) {
+          var r = box.runners[i];
+          if (r.on <= 0) {
+            if (hot) r.off = 0;
+            if (r.off-- > 0) continue;
+            var fresh = newRunner(pts);
+            r.at = fresh.at; r.len = fresh.len; r.speed = fresh.speed;
+            r.on = Math.floor(rand(8, 26));
+            r.off = Math.floor(rand(6, 44) * set.rest / set.power);
+          }
+          r.on--;
+          r.at += r.speed;
+          if (Math.random() < 0.2) continue; // a dropped frame: the crackle
+          var bolt = new Path2D();
+          boltPath(bolt, pts, r);
+          stroke(ctx, bolt, colour, rand(0.55, 0.95), 1);
+          if (Math.random() < 0.22 * power) {
+            var branch = new Path2D();
+            var N = pts.length;
+            var from = ((Math.round(r.at) + Math.floor(rand(0, r.len))) % N + N) % N;
+            branchPath(branch, pts[from]);
+            stroke(ctx, branch, colour, rand(0.4, 0.8), 0.8);
+          }
+        }
+      }
+
+      if (mode !== "arc") {
+        var share = mode === "both" ? 0.35 : 1;
+        var sparks = Math.round(pts.length * STEP / 26 * power * share * rand(0.4, 1.4));
+        var fizz = new Path2D();
+        for (var s = 0; s < sparks; s++) {
+          sparkPath(fizz, pts[Math.floor(rand(0, pts.length))]);
+        }
+        stroke(ctx, fizz, colour, rand(0.45, 0.85), 0.9);
+      }
+    });
+  };
+
+  var auras = Array.prototype.map.call(document.querySelectorAll("a.live"), function (a) {
+    return new Aura(a);
+  });
+
+  function layoutAll() { auras.forEach(function (aura) { aura.layout(); }); }
+
+  // Only the links in the window are drawn.
+  var watch = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      auras.forEach(function (aura) {
+        if (aura.a === entry.target) aura.seen = entry.isIntersecting;
+      });
+    });
+  }, { rootMargin: "40px" });
+  auras.forEach(function (aura) { watch.observe(aura.a); });
+
+  // The text moves when the window is resized and when the fonts come in.
+  layoutAll();
+  new ResizeObserver(layoutAll).observe(document.querySelector(".lab"));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutAll);
+
+  var last = 0;
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (now - last < 1000 / set.fps) return;
+    last = now;
+    auras.forEach(function (aura) { if (aura.seen) aura.tick(); });
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

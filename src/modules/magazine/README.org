@@ -53,6 +53,8 @@ Outside this directory:
 | =static/js/magazine-fonts.js= | Loads the fonts and switches them in together                  |
 | =static/css/magazine-fonts.css= | The same fonts as =@font-face=, for browsers without JavaScript |
 | =static/js/magazine-toc.js=   | The contents strip that pins to the top of an article          |
+| =static/js/magazine-justify.js= | Justifies article paragraphs and the book panel's pitch      |
+| =static/js/pretext-0.0.9.min.js= | Pretext, which measures the text for it                     |
 | =static/assets/images/magazine/= | Logos, the typemark, patterns                               |
 | =content/magazine/=           | Articles, a folder per series, =templates/=, =WRITING.org=     |
 
@@ -184,15 +186,58 @@ on the CPU, far too slowly, so there the page is copied instead: three
 copies tinted red, green and blue and added back together make the split,
 and more copies in sliding bands make the tear (=buildSplit= and
 =buildTear= in =magazine-fx.js=, =.fx-rgb= and =.fx-tear= in
-=magazine.css=). =magazine-toc.js= runs on article pages and is safe to
-run again after a swap.
+=magazine.css=; see =ABERRATION-ANIMATION-DETAILS.org= for how both are
+made and why). =magazine-toc.js= runs on article pages and is safe to run
+again after a swap.
+
+=dev/fx-lab/= is a test page for the effects: it plays them in a frame,
+in the live version or another kept there (a whole copy of
+=magazine-fx.js=, loaded for =?fx-lab=NAME=), and times them. It keeps the
+ripple versions of Safari's split, set aside for costing about 10fps. It's
+outside =static/=, so the site never serves it: run
+=python3 dev/fx-lab/serve.py= (with the dev server up) and open
+http://127.0.0.1:5090/fx-lab/.
 
 =magazine-fonts.js= runs first, in =<head>=. Once the page's stylesheets
 and scripts are in, it loads the fonts itself and holds them back until they
 have all arrived. If that takes longer than a
 moment the page shows in fallback fonts meanwhile, and the switch happens
 under the arrival effect (=MagazineFx.arrive= in =magazine-fx.js=). Add a
-font to its =FONTS= list, and to =magazine-fonts.css=.
+font to its =FONTS= list, and to =magazine-fonts.css=. The details are in
+[[file:FONT-LOADING-DETAILS.org][FONT-LOADING-DETAILS.org]].
+
+* Justified text
+
+Article paragraphs (=.prose=), the lead's dek (=.neo-dek=) and the book
+panel's pitch are justified by
+=magazine-justify.js=. It picks the line breaks for a paragraph as a whole,
+so the spaces come out even, where the browser's own justifying fills one
+line at a time. [[https://github.com/chenglou/pretext][Pretext]] measures the words on a canvas; the script then
+wraps each line's text in a =.just-line= span that can't wrap, and the
+browser stretches the lines (=.just= in =magazine.css=). Links, emphasis
+and code are left as they are, and copied text has no line breaks in it.
+
+It runs again when a column changes width, when the fonts switch in
+(=magazine-fonts.js= calls =MagazineJustify.refresh=) and after an htmx
+swap. The browser justifies a paragraph itself, hyphenating it
+(=text-align: justify= and =hyphens: auto= in =magazine.css=), without
+JavaScript, in a column under =MIN_SPACES= wide (phones: the script
+doesn't hyphenate, so its narrow columns would be full of holes), or if
+the paragraph holds anything but text in plain inline elements. Lists and
+margin notes aren't justified; add them to =SELECTOR= and to that rule.
+
+Pretext is written in TypeScript, but its npm package ships compiled
+JavaScript. =pretext-0.0.9.min.js= is that, bundled into one file that
+defines =window.Pretext=. To take a newer version:
+
+#+begin_src sh
+npm pack @chenglou/pretext && tar xzf chenglou-pretext-*.tgz
+npx esbuild package/dist/layout.js --bundle --format=iife --global-name=Pretext \
+    --minify --target=es2020 --outfile=static/js/pretext-VERSION.min.js
+#+end_src
+
+Keep the licence line at the top of the file, and change the name in
+=hypermedia/sheet.lisp=.
 
 * Publishing
 

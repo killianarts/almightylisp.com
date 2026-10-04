@@ -30,7 +30,8 @@
     --hatch: repeating-linear-gradient(135deg, var(--hairline) 0 1px, var(--sheet) 1px 5.657px);
 
     /* type. science gothic for display, construct mono for labels, mohave
-     for reading, avenir for article prose, berkeley mono for code. */
+     for reading, avenir for article prose, berkeley mono for code, kkm
+     analog tv for japanese labels. */
     --disp: "science gothic", "arial narrow", impact, sans-serif;
     --disp-axes: "wdth" 100, "ctrs" 0, "slnt" 0;
     --mono: "construct mono", ui-monospace, monospace;
@@ -38,6 +39,7 @@
     --sans: "avenir next", avenir, "helvetica neue", helvetica, arial, sans-serif;
     --cond: "avenir next condensed", "avenir next", "barlow condensed", "arial narrow", sans-serif;
     --code: "berkeley mono", "construct mono", ui-monospace, monospace;
+    --jp: "kkm analog tv", "hiragino kaku gothic pron", "yu gothic", meiryo, sans-serif;
 
     /* space. cells are padded by the figma grid's 32px, less the rule. */
     --pad: 31.68px;
@@ -334,7 +336,7 @@
     transform: none;
 }
 
-.band > .side-label.has-jp > span {
+.band > .side-label.has-jp > span:not(.jp) {
     writing-mode: vertical-rl;
     transform: rotate(180deg);
 }
@@ -357,8 +359,38 @@
 
 .running .sep { font-size: 9px; }
 
-/* Japanese labels are SVGs of their outlines (see render-jp). */
-.jp { display: block; flex: none; }
+/* Japanese labels (see render-jp), in a pixel face: 11 pixels to the em, so
+   sizes that keep them sharp are few. The margin takes back the tracking
+   after the last character. */
+.jp {
+    display: block;
+    flex: none;
+    margin-inline-end: -0.14em;
+    font-family: var(--jp);
+    font-size: 13px;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: none;
+    white-space: nowrap;
+}
+
+.running.bottom .jp { font-size: 11px; }
+
+.section-tag > .jp {
+    margin-inline-end: -0.1em;
+    color: var(--on-ink);
+    line-height: 16px;
+    letter-spacing: 0.1em;
+}
+
+/* Down the gutter, each character upright. */
+.side-label > .jp {
+    margin-inline-end: -0.12em;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+}
 
 /* Nameplate. */
 
@@ -1183,6 +1215,23 @@ a.contents-row:hover .contents-t { text-decoration: underline; }
     line-height: 1.6;
 }
 
+/* Justified text. The browser justifies it, hyphenating to keep the spaces
+   down; that's what narrow columns (phones) get. In wider ones
+   js/magazine-justify.js chooses the breaks: each line's text is in a span
+   that can't wrap, so the lines break where the script chose, and the
+   browser only stretches them to the measure. */
+.prose, .book-ad-pitch p, .neo-dek {
+    text-align: justify;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+.just { -webkit-hyphens: manual; hyphens: manual; }
+.just-line { white-space: nowrap; }
+/* The dek is as wide as its text, up to its room in the row. Lines that
+   can't wrap would have it shrink to the longest of them, and then not
+   give way as the row narrows. */
+.neo-dek.just { width: 100%; min-width: 0; }
+
 /* Lists in article text, set like its paragraphs. */
 .prose-list {
     max-width: 40em;
@@ -1828,6 +1877,40 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
     transition: none !important;
     will-change: auto !important;
 }
+
+/* An article link's pulse (see "link pulse" in magazine-fx.js). In WebKit
+   the link's lines are cut into bands, each a window onto three copies of
+   the link's paragraph, with everything in them clear but the link, which
+   is in one ink. The copies mix with each other inside a band, and the band
+   with the page. Neither gets a layer of its own (will-change): in Safari
+   the inks then stop mixing. */
+.fx-link-band {
+    position: absolute;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.fx-link-copy {
+    position: absolute;
+    margin: 0 !important;
+}
+
+.fx-link-band.ink, .fx-link-copy.ink { mix-blend-mode: multiply; }
+.fx-link-band.light, .fx-link-copy.light { mix-blend-mode: plus-lighter; }
+
+.fx-link-copy, .fx-link-copy * {
+    color: transparent !important;
+    background: none !important;
+    border-color: transparent !important;
+    text-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+}
+
+.mag .fx-link-copy [data-fx-link],
+.mag .fx-link-copy [data-fx-link] * { color: var(--fx-link-ink) !important; }
 
 /* The tear: copies of the page in bands that slide (see buildTear in
    magazine-fx.js). The layer has .mag for the page's tokens, but none of

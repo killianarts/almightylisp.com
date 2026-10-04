@@ -1,5 +1,5 @@
-#+title: Using LLMs To Design And Build This Site
-#+SUBTITLE: LLMs are a force multiplier. We are often exposed to the multiplied forces of lazy or even malicious LLM users, but I believe that thoughtful and tasteful use can render both good design and good code that the builder can be proud of. This article will talk about how I built almightylisp.com using LLMs.
+#+title: Using Machine Intelligence To Design And Build This Site
+#+SUBTITLE: LLMs are a force multiplier. We are often exposed to the multiplied forces of lazy or even malicious LLM users, but I believe that thoughtful and tasteful use can render both good design and good code that the builder can be proud of. This article will talk about how I built almightylisp.com using Machine Intelligence.
 #+AUTHOR: Micah Killian
 #+DATE: 2026-09-29
 #+TOPIC: Lisp
@@ -36,8 +36,8 @@ those websites look great.
 
 ...well, for now at least...
 
-But times are changing. LLMs empower the motivated user to actually make great
-things. They enable users to become Almighty.
+But times are changing. Machine Intelligence empowers the motivated user to
+actually make great things. It enables users to become Almighty.
 
 
 * Concept: A Propaganda Outlet For Common Lisp
@@ -63,7 +63,7 @@ and there. I built the CSS design system based on the Doom Emacs themes ([[https
 thought about expanding upon the design, but after creating the [[https://almightylisp.gumroad.com/l/almighty-lisp-lisp-and-emacs-essentials-ebook][eBook]] and
 publishing the [[https://www.amazon.com/dp/B0HL586JWT][Hardcover]] and making a monochrome theme for the [[https://almightylisp.com/book/essentials][Almighty Lisp:
 Lisp & Emacs Essentials]] web book, I started to see the aesthetic and utilitarian
-appeal of black and white and everything in between.
+appeal of black and white and every color in between.
 
 To start with, though, I asked LLMs to brainstorm some different designs right
 in code. At first, I left the task very broad: Make a magazine design for
@@ -120,7 +120,7 @@ framework inspired by Django. I'll talk about it in a later article, but the
 point is that in addition to the functionality on this site, I've also built
 the more foundational structure that it sits in.
 
-* Being Ambitious With Design and Features
+* My Almighty Powers Grow Stronger
 
 Once the design was 80% complete, it was time to start getting ambitious with
 the polish. I dug in, made edits to the code to play around with design elements
@@ -150,4 +150,56 @@ some Japanese characters. I realized that I actually want to use several more
 fonts in the future, but fonts are huge (especially Japanese ones), so I wanted
 to find some way to gracefully load fonts while also letting readers get reading
 right away. I wondered if we could play that chromatic aberration animation
-between the time the font loads and the time it's rendered. With 
+between the time the font loads and the time it's rendered.
+
+While testing the font-load animation, I opened the site in Safari and found
+that the animation was broken--the FPS close to 5FPS. So I got the LLM to make a
+new animation for Safari, but it was inferior to the original. The original uses
+an SVG filter to create a wavy effect. The first Safari iteration had bad colors
+and still had poor performance. However, I essentially followed its suggestions
+for continuing to increase the animation's performance. After we got the
+performance better, we worked on the colors and finally got something that looks
+good.
+
+I could not have done the animation work myself. I would have been satisfied
+with just the scanlines and noise (which I could have figured out on my own).
+But the LLM was a force multiplier that I believe I have used tastefully to add
+character to the site while also making it feel better (hiding page load times
+and acknowledging the long font load times explicitly).
+
+About those Japanese fonts: Opus 5.5 one-shot an upgrade of the free font I
+downloaded--adding the ability of the font to properly render when
+=text-orientation: upright= in CSS was set. Something I wouldn't have even
+considered until I saw the model's capabilities with animation.
+
+This is how we go from average to Almighty--ambitious, thoughtful use of LLMs
+with an eye for quality over quantity.
+
+* Lessons Learned
+Just to summarize:
+
+- I made a professional, design-studio-level design--iterated via a hybrid
+  by-hand-by-prompt method in both code and Figma.
+- I made a static site generator catered to my needs.
+- I made a cool animation--conducting performance checks and refactoring to
+  ensure it worked properly for as many users as possible.
+- I modified a Japanese font to suit my design's needs.
+  
+I think the most important lesson is to be more ambitious much earlier in a
+project. Machine Intelligence can trivially create tools to help in the design and
+implementation process--exploration and iteration with those tools is powerful.
+When using ready-made assets of any kind, we should start with the knowledge
+that we can likely modify them trivially for our needs.
+
+To enable ambition, we need to be able to /imagine/ what is possible. To expand
+the range of possibilities we can imagine, I think playing with Machine
+Intelligence to explore both its capabilities, but more importantly, to
+explore ourselves and upgrade ourselves will be essential.
+
+I also think increasing our familiarity with a wider range of human activities,
+beyond just our immediate interests, will be an important part of our continued
+education and the education we give to our children. Humans are copying
+machines, just like the models. But while they need to train their weights, we
+need to train our souls.
+
+The man who can imagine more will have more.

@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Effects Lab</title>
+<!--
+  Effects test page. Plays the magazine's screen effects in a frame, in the
+  live version (static/js/magazine-fx.js) or another saved here, and times
+  them. Run serve.py here and open http://127.0.0.1:5090/fx-lab/ (it isn't
+  under static/, so the site never serves it). A version is NAME.js in this
+  folder: a whole copy of magazine-fx.js, with MagazineFx.play (see the live
+  one). The page in the frame loads it for ?fx-lab=NAME. Add one to
+  VERSIONS below.
+
+  Each browser runs one of two paths: Chrome the SVG filter, Safari copies
+  of the page. Path picks either, in any browser (?fx-path=filter or
+  ?fx-path=copies; see SVG_FILTER in magazine-fx.js). The versions differ
+  only in the copies path.
+-->
+<style>
+  :root {
+    --bg: #e5e5e5;
+    --panel: #f4f4f4;
+    --ink: #111;
+    --muted: #666;
+    --line: #c8c8c8;
+    --accent: #111;
+    --accent-ink: #f4f4f4;
+    --good: #1a7f37;
+    --warn: #b35900;
+    --bad: #c62828;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161616;
+      --panel: #202020;
+      --ink: #eee;
+      --muted: #999;
+      --line: #3a3a3a;
+      --accent: #eee;
+      --accent-ink: #161616;
+      --good: #4cc36b;
+      --warn: #f0a040;
+      --bad: #ff6b6b;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161616;
+    --panel: #202020;
+    --ink: #eee;
+    --muted: #999;
+    --line: #3a3a3a;
+    --accent: #eee;
+    --accent-ink: #161616;
+    --good: #4cc36b;
+    --warn: #f0a040;
+    --bad: #ff6b6b;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    background: var(--bg);
+    color: var(--ink);
+    font: 13px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  aside {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    overflow-y: auto;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+  }
+  h1 { margin: 0; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+  h2 { margin: 0 0 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .group { display: flex; flex-direction: column; gap: 6px; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  button, select {
+    font: inherit;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+  button:hover, select:hover { border-color: var(--ink); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .version { text-align: left; width: 100%; }
+  .segmented { gap: 0; }
+  .segmented button { flex: 1; }
+  .segmented button + button { border-left: 0; }
+  .segmented button[aria-pressed="true"],
+  .version[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .version small { display: block; opacity: 0.7; font-size: 11px; }
+  select { width: 100%; }
+  .note { margin: 0; font-size: 11px; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  th, td { padding: 3px 4px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+  th:nth-child(2), td:nth-child(2) { padding-left: 8px; }
+  th { color: var(--muted); font-weight: 600; }
+  .good { color: var(--good); }
+  .warn { color: var(--warn); }
+  .bad { color: var(--bad); }
+  td.frames { font-size: 10px; color: var(--muted); text-align: left; white-space: normal; word-break: break-word; }
+  table { table-layout: fixed; }
+  th:first-child, td:first-child { width: 34%; overflow: hidden; text-overflow: ellipsis; }
+  main { position: relative; min-width: 0; }
+  iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+  #status { min-height: 1.4em; }
+  @media (max-width: 760px) {
+    body { grid-template-columns: 1fr; grid-template-rows: auto 70vh; }
+    aside { border-right: 0; border-bottom: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<aside>
+  <h1>Effects Lab</h1>
+
+  <div class="group">
+    <h2>Version</h2>
+    <div id="versions" class="group"></div>
+  </div>
+
+  <div class="group">
+    <h2>Path</h2>
+    <div id="paths" class="row segmented">
+      <button data-path="">Auto</button>
+      <button data-path="filter">Filter</button>
+      <button data-path="copies">Copies</button>
+    </div>
+    <p class="note">Filter is Chrome's (the SVG filter), Copies is Safari's (copies of the page). Auto is this browser's own: <span id="own"></span>.</p>
+  </div>
+
+  <div class="group">
+    <h2>Distortion</h2>
+    <select id="style">
+      <option value="classic">Classic (the live maps)</option>
+      <option value="blocks">Blocks: datamosh</option>
+      <option value="shatter">Shatter: a burst from a point</option>
+      <option value="smear">Smear: tracking streaks</option>
+      <option value="liquid">Liquid: flowing waves</option>
+    </select>
+    <p class="note">The filter's displacement maps (distortions.js), for Distortions and Hybrid. Distortions only uses them on the filter path.</p>
+  </div>
+
+  <div class="group">
+    <h2>Page</h2>
+    <select id="page">
+      <option value="/magazine">Magazine home</option>
+      <option value="/magazine/using-llms-to-design-and-build-this-site">Article: Using LLMs…</option>
+      <option value="/magazine/why-build-native-instead-of-web-applications">Article: Why build native…</option>
+    </select>
+  </div>
+
+  <div class="group">
+    <h2>Play</h2>
+    <div class="row">
+      <button class="primary" data-mode="1">Arrive</button>
+      <button class="primary" data-mode="0">Leave</button>
+    </div>
+    <div class="row">
+      <button data-mode="1" data-runs="5">Arrive ×5</button>
+      <button data-mode="0" data-runs="5">Leave ×5</button>
+    </div>
+    <p class="note">Leave plays in place and comes back, instead of going anywhere. Each run reloads the page first, so none starts with the copies already painted.</p>
+    <div id="status" class="note"></div>
+  </div>
+
+  <div class="group">
+    <h2>Results</h2>
+    <table>
+      <thead><tr><th>Version</th><th>Effect</th><th>fps</th><th>median</th><th>max</th><th>&gt;25ms</th></tr></thead>
+      <tbody id="results"></tbody>
+    </table>
+    <div class="row">
+      <button id="clear">Clear</button>
+    </div>
+    <p class="note" id="browser"></p>
+  </div>
+</aside>
+<main>
+  <iframe id="frame" title="Magazine page under test"></iframe>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // name: the file here (null for the live version).
+  var VERSIONS = [
+    { name: null, title: "Live", note: "magazine-fx.js as the site runs it" },
+    { name: "ripple-staged", title: "Ripple, staged", note: "copies + ripple, a colour a frame" },
+    { name: "ripple-premask", title: "Ripple, premasked", note: "stripes on from the first frame" },
+    { name: "hybrid", title: "Hybrid", note: "copies + Chrome's displacement filter", styles: true },
+    { name: "styles", title: "Distortions", note: "live, with the distortion below", styles: true }
+  ];
+  var DURATION = { 0: 650, 1: 260 };   // LEAVE_MS and ARRIVE_MS
+  var TAIL = 120;                      // ms timed past the end
+  var SLOW = 25;                       // ms: a frame that shows
+
+  var frame = document.getElementById("frame");
+  var pageSelect = document.getElementById("page");
+  var styleSelect = document.getElementById("style");
+  var status = document.getElementById("status");
+  var results = document.getElementById("results");
+  var current = null;
+  var path = "";     // "", "filter" or "copies"
+  var busy = false;
+
+  var webkit = navigator.vendor === "Apple Computer, Inc.";
+  var own = webkit ? "copies" : "filter";
+  document.getElementById("own").textContent = own;
+  document.getElementById("browser").textContent =
+    (webkit ? "Safari (WebKit)" : "Not Safari") + ": Auto runs " + own +
+    ". The versions differ only with copies.";
+
+  try { current = localStorage.getItem("fx-lab-version") || null; } catch (e) {}
+  try { path = localStorage.getItem("fx-lab-path") || ""; } catch (e) {}
+  try { var style = localStorage.getItem("fx-lab-style"); if (style) styleSelect.value = style; } catch (e) {}
+
+  styleSelect.addEventListener("change", function () {
+    try { localStorage.setItem("fx-lab-style", styleSelect.value); } catch (e) {}
+    if (!busy) load();
+  });
+
+  function usesStyles(name) {
+    for (var i = 0; i < VERSIONS.length; i++) if (VERSIONS[i].name === name) return !!VERSIONS[i].styles;
+    return false;
+  }
+
+  var pathBox = document.getElementById("paths");
+  Array.prototype.forEach.call(pathBox.children, function (b) {
+    b.addEventListener("click", function () {
+      if (busy) return;
+      path = b.dataset.path;
+      try { localStorage.setItem("fx-lab-path", path); } catch (e) {}
+      markPath();
+      load();
+    });
+  });
+
+  function markPath() {
+    Array.prototype.forEach.call(pathBox.children, function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.path === path));
+    });
+  }
+  try { var page = localStorage.getItem("fx-lab-page"); if (page) pageSelect.value = page; } catch (e) {}
+
+  var versionBox = document.getElementById("versions");
+  VERSIONS.forEach(function (v) {
+    var b = document.createElement("button");
+    b.className = "version";
+    b.dataset.name = v.name || "";
+    b.innerHTML = "";
+    b.appendChild(document.createTextNode(v.title));
+    var small = document.createElement("small");
+    small.textContent = v.note;
+    b.appendChild(small);
+    b.addEventListener("click", function () {
+      if (busy) return;
+      current = v.name;
+      try { localStorage.setItem("fx-lab-version", v.name || ""); } catch (e) {}
+      markVersion();
+      load();
+    });
+    versionBox.appendChild(b);
+  });
+
+  function markVersion() {
+    Array.prototype.forEach.call(versionBox.children, function (b) {
+      b.setAttribute("aria-pressed", String((b.dataset.name || null) === current));
+    });
+  }
+
+  function titleOf(name) {
+    for (var i = 0; i < VERSIONS.length; i++) if (VERSIONS[i].name === name) return VERSIONS[i].title;
+    return name;
+  }
+
+  function src() {
+    var query = [];
+    if (current) query.push("fx-lab=" + current);
+    if (path) query.push("fx-path=" + path);
+    if (usesStyles(current) && styleSelect.value !== "classic") query.push("fx-style=" + styleSelect.value);
+    return pageSelect.value + (query.length ? "?" + query.join("&") : "");
+  }
+
+  // The path the page in the frame is actually running.
+  function ranPath(win) {
+    return win.document.documentElement.classList.contains("fx-lite") ? "copies" : "filter";
+  }
+
+  // Load the page and wait for its effects script (deferred, or loaded by
+  // it for a version) and fonts.
+  function load() {
+    return new Promise(function (resolve, reject) {
+      status.textContent = "Loading…";
+      frame.onload = function () {
+        var win = frame.contentWindow, tries = 0;
+        (function ready() {
+          var fx = win.MagazineFx;
+          if (fx && fx.play && (!current || win.MagazineFxLab === current)) {
+            win.document.fonts.ready.then(function () {
+              setTimeout(function () { status.textContent = "Ready."; resolve(win); }, 400);
+            });
+          } else if (++tries > 100) {
+            status.textContent = "The page's effects didn't load. Is this version's file there, and the site running?";
+            reject(new Error("no MagazineFx.play"));
+          } else {
+            setTimeout(ready, 50);
+          }
+        })();
+      };
+      frame.src = src();
+    });
+  }
+
+  pageSelect.addEventListener("change", function () {
+    try { localStorage.setItem("fx-lab-page", pageSelect.value); } catch (e) {}
+    if (!busy) load();
+  });
+
+  // One effect, timed by the frame's own requestAnimationFrame.
+  function time(win, mode) {
+    return new Promise(function (resolve) {
+      var frames = [], last = null, start = null;
+      function tick(t) {
+        if (last !== null) frames.push(t - last);
+        if (start === null) { start = t; win.MagazineFx.play(mode); }
+        last = t;
+        if (t - start < DURATION[mode] + TAIL) win.requestAnimationFrame(tick);
+        else resolve(frames);
+      }
+      win.requestAnimationFrame(tick);
+    });
+  }
+
+  function summarise(frames) {
+    var sorted = frames.slice().sort(function (a, b) { return a - b; });
+    var total = frames.reduce(function (a, b) { return a + b; }, 0);
+    return {
+      fps: 1000 * frames.length / total,
+      median: sorted[Math.floor(sorted.length / 2)],
+      max: sorted[sorted.length - 1],
+      slow: frames.filter(function (f) { return f > SLOW; }).length,
+      count: frames.length,
+      frames: frames
+    };
+  }
+
+  function grade(fps) { return fps >= 50 ? "good" : fps >= 35 ? "warn" : "bad"; }
+
+  function addRow(version, ran, mode, s, label) {
+    var tr = document.createElement("tr");
+    var name = titleOf(version) + " · " + ran + (usesStyles(version) ? " · " + styleSelect.value : "");
+    [name, (mode ? "arrive" : "leave") + (label || ""),
+     s.fps.toFixed(1), s.median.toFixed(0), s.max.toFixed(0), s.slow + "/" + s.count
+    ].forEach(function (text, i) {
+      var td = document.createElement("td");
+      td.textContent = text;
+      if (i === 2) td.className = grade(s.fps);
+      tr.appendChild(td);
+    });
+    tr.title = "frames (ms): " + s.frames.map(function (f) { return Math.round(f); }).join(" ");
+    results.insertBefore(tr, results.firstChild);
+    if (s.frames.length) {
+      var fr = document.createElement("tr");
+      var td = document.createElement("td");
+      td.colSpan = 6;
+      td.className = "frames";
+      td.textContent = s.frames.map(function (f) { return Math.round(f); }).join(" ");
+      fr.appendChild(td);
+      results.insertBefore(fr, tr.nextSibling);
+    }
+  }
+
+  function setBusy(on) {
+    busy = on;
+    Array.prototype.forEach.call(document.querySelectorAll("button, select"), function (el) {
+      el.disabled = on;
+    });
+  }
+
+  function run(mode, runs) {
+    setBusy(true);
+    var all = [], fps = [], ran = "";
+    var chain = Promise.resolve();
+    for (var i = 0; i < runs; i++) {
+      chain = chain.then(function () { return load(); }).then(function (win) {
+        status.textContent = "Playing " + (fps.length + 1) + " of " + runs + "…";
+        ran = ranPath(win);
+        return time(win, mode);
+      }).then(function (frames) {
+        var s = summarise(frames);
+        all = all.concat(frames);
+        fps.push(s.fps);
+        addRow(current, ran, mode, s, runs > 1 ? " " + fps.length : "");
+      });
+    }
+    chain.then(function () {
+      if (runs > 1) {
+        var s = summarise(all);
+        s.fps = fps.reduce(function (a, b) { return a + b; }, 0) / fps.length;
+        s.frames = [];
+        addRow(current, ran, mode, s, " avg");
+      }
+      status.textContent = "Done.";
+    }, function (e) {
+      status.textContent = status.textContent || String(e);
+    }).then(function () { setBusy(false); });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("button[data-mode]"), function (b) {
+    b.addEventListener("click", function () {
+      if (!busy) run(Number(b.dataset.mode), Number(b.dataset.runs || 1));
+    });
+  });
+
+  document.getElementById("clear").addEventListener("click", function () {
+    results.textContent = "";
+  });
+
+  markVersion();
+  markPath();
+  load();
+})();
+</script>
+</body>
+</html>

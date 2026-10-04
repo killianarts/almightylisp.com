@@ -1,0 +1,411 @@
+#+title: The aberration animation
+#+subtitle: How the magazine's screen effect is made in Chrome and in Safari, and why there are two
+
+The magazine has one screen effect, in two sizes. Clicking an article link
+or a book button plays the long one, *leaving*: the page splits into its
+colour channels, tears apart, and switches off like a CRT. The next page
+plays the short one, *arriving*: it starts split and settles. Arriving also
+plays when the web fonts finish loading after the page has been drawn (see
+=static/js/magazine-fonts.js=).
+
+The effect is built two different ways. Chrome, and every other browser
+that isn't Safari, puts the page through an SVG filter. Safari can't run that filter fast enough, so there
+the page is copied, and the copies are tinted and moved instead. Everything
+here is in =static/js/magazine-fx.js= and the "Click" section of
+=static/css/magazine.css=, unless it says otherwise.
+
+* Why there are two
+
+The first version was the SVG filter alone, and it is still what Chrome
+runs. In Safari it was unusable:
+
+| Effect  | Safari, with the SVG filter | Safari, without it |
+|---------+-----------------------------+--------------------|
+| Leave   | about 2fps                  | about 55fps        |
+| Arrive  | about 9fps                  | about 55fps        |
+| Stalls  | up to 1.7s                  | none               |
+
+(Safari at 1440x900 on a Retina screen. All the Safari numbers here are
+from that setup, measured on 30 September 2026.)
+
+The reason is where the filter runs. Chrome runs SVG filters on the GPU.
+WebKit, the engine under Safari and under every browser on iOS, runs them
+on the CPU, at full resolution, and runs them again whenever anything about
+them changes. The effect changes the filter every frame, so Safari filters
+the whole visible page, at twice its size on a Retina screen, sixty times a
+second, on the CPU.
+
+The filter is already limited to the part of the page on screen, and it
+still has to run every frame. The only fast things in Safari are the ones
+its compositor does without redrawing anything: moving, scaling and fading layers it has
+already painted, and blending them. So Safari's version is built entirely
+from those.
+
+The script picks the path once, when it loads:
+
+#+begin_src js
+var SVG_FILTER = navigator.vendor !== "Apple Computer, Inc.";
+if (!SVG_FILTER) root.classList.add("fx-lite");
+#+end_src
+
+=navigator.vendor= is "Apple Computer, Inc." in Safari and in every iOS
+browser (they all have to use WebKit), and "Google Inc." or empty
+elsewhere. Feature detection can't answer this one: Safari supports the
+filter, it just can't run it quickly.
+
+* What both versions share
+
+** The timeline
+
+Leaving takes =LEAVE_MS= (650ms) in three stages, set as fractions of that:
+
+| Stage      | From  | To    | What happens                                        |
+|------------+-------+-------+-----------------------------------------------------|
+| Hit        | 0     | =HIT= (0.28)   | The full colour split, easing out (but not all the way) |
+| Tear       | =HIT= | =BREAK= (0.71) | The page comes apart, getting worse                      |
+| Switch-off | =BREAK= | 1   | The tear fades under the CRT switch-off              |
+
+Arriving takes =ARRIVE_MS= (260ms): the split at full strength on the first
+frame, easing out (=(1 - t)^3=).
+
+Both stutter on purpose. During the hit, every third frame holds still (the
+signal dropping out); during the tear, each broken state holds for two
+frames (the signal catching). In Safari the stutter also hides some of the
+cost of the frames that do change.
+
+** The split
+
+Three images of the page, red, green and blue, move apart. Red goes one
+way and blue the other (=splitDir=, random per effect); green stays close
+to the page (0.12 of red's distance). They part at an angle, not straight
+sideways: =splitSlope= is the tangent of a random 15-35 degrees, up or
+down, fixed for the effect, and each image's vertical offset follows its
+horizontal one along it, plus a little jitter. Peak distance between red
+and blue is =SPLIT= (30px).
+
+Where the images overlap they add back up to the page, so black stays black
+and white stays white. Where they don't, the colours show, and mix with
+each other: on the light sheet, dark text gets cyan, yellow and magenta
+fringes, with red, blue and green where two overlap; white text on the
+black bands gets red, green and blue ones.
+
+** The shake
+
+The whole picture jumps sideways and skews (=JITTER= 14px, =SKEW= 1.5
+degrees, scaled by the effect's strength), and in the tear jumps further
+(40px), skews more (3 degrees), and now and then loses vertical hold (up to
+28px up or down, a quarter of the time). In Chrome the sheet moves; in
+Safari the copies do (=setShake=).
+
+** The overlay (WebGL)
+
+Over the page, both versions draw the same WebGL overlay: a canvas
+(=.fx-canvas=, z-index 9001) with one fragment shader (=FRAG=). It draws:
+
+- torn rows of red or cyan fringe;
+- scanlines and grain;
+- in the tear: blocks of static, bright seams, a rolling dark bar, and
+  white flashes;
+- leaving: the CRT switch-off, the picture collapsing to a bright
+  horizontal line and then to the sheet colour.
+
+The overlay runs fine everywhere, Safari included: it's one small draw
+call a frame, at CSS-pixel resolution (=sizeCanvas= doesn't scale it up
+for Retina, since bands and grain don't need it). It never sees the page:
+browsers don't let a page draw its own HTML into a WebGL texture, which is
+why the split and tear can't be done in the shader too.
+
+** The rest
+
+- During the tear, =html.fx-broken= turns the page background black, so
+  torn-away parts show black.
+- Magazine links are boosted by htmx: the next page is fetched while the
+  effect plays and swapped in once the screen is off. Book buttons leave
+  the site and do a normal page load after the effect.
+- All the effect's elements hang off =<html>=, not =<body>=, so htmx never
+  swaps them out or saves them in a history snapshot.
+
+* Chrome: the SVG filter
+
+The page goes through one SVG filter, =#fx-aberration=, built once
+(=ensureFilter=) and applied to the sheet by =.sheet.fx-torn= in the CSS.
+Each frame changes its attributes.
+
+#+begin_example
+feImage (a displacement map)            -> map
+feDisplacementMap (page, map, scale)    -> torn
+feColorMatrix (keep red)   -> feOffset (red's split offset)   -> rs
+feColorMatrix (keep green) -> feOffset (green's split offset) -> gs
+feColorMatrix (keep blue)  -> feOffset (blue's split offset)  -> bs
+feBlend screen (rs, gs) -> feBlend screen (with bs)           -> the picture
+#+end_example
+
+1. *The tear.* =feDisplacementMap= moves each pixel of the page by the
+   colour of the map at that point: red for sideways, green for up and
+   down, 128 for nowhere. The map is a tiny canvas image (=feImage=,
+   stretched over the window).
+   - During the hit and while arriving, the maps are =makeStrips=: 2x96
+     pixels of horizontal bands 1-9 pixels tall, 30% of them pushed a
+     random distance sideways. A new one each frame, at a scale of up to
+     =TEAR= (150px), makes rows of the page jump against each other. The
+     map is stretched and smoothly interpolated, so the band edges come out
+     soft, and the whole reads as a ripple.
+   - During the tear, the maps are =makeTearMaps=: 160x120, each row left
+     alone, thrown hundreds of pixels sideways, smeared into a streak (a
+     gradient across the row), or slipped up or down in a block, at a scale
+     of 300-800px. Pixels pulled from off screen come out empty, so the
+     black background shows through.
+2. *The split.* Three =feColorMatrix= primitives pull the torn page apart
+   into its red, green and blue channels, three =feOffset= primitives move
+   them apart (=setSplit= sets their =dx= and =dy=), and two =feBlend=
+   primitives in =screen= mode add them back together.
+3. *The region.* The filter covers only the part of the page on screen
+   (=placeFilter=), not the whole article: filtering what can't be seen
+   would cost more and show nothing.
+
+The filter's rows each move independently, and that fine ripple is the one
+thing Safari's version doesn't have.
+
+* Safari: copies of the page
+
+In Safari, =.fx-lite .sheet.fx-torn= turns the filter off, and the effect is
+built from copies of the sheet, made when it starts (=copySheet=: a deep
+clone, ids removed, =inert=, positioned exactly over the original). Each
+copy is painted once, when it first appears, and after that only moved
+with =transform=, which Safari's compositor does without redrawing.
+
+** The split: three copies, added together
+
+=buildSplit= makes a layer (=.fx-rgb=, fixed over the window, z-index
+8999, black) with three copies of the sheet in it, one per channel
+(=.fx-rgb-copy.r=, =.g=, =.b=). Each copy reaches =RGB_PAD= (80px) past the
+window on every side, so the shake doesn't show its edges.
+
+1. *Tint.* Each copy is tinted to one channel by an =::after= the size of
+   the copy, filled with pure red, green or blue, in =mix-blend-mode:
+   multiply=. Multiplying by pure red keeps the red channel and drops the
+   other two.
+2. *Add.* The copies are blended with =mix-blend-mode: plus-lighter=, which
+   adds them, over the layer's black. Red plus green plus blue is the page
+   again.
+3. *Move.* =setSplit= stores each channel's offset, and =placeCopies= sets
+   each copy's =transform= to its offset plus the shake. That is all a
+   frame does.
+
+This is the same arithmetic as the filter (separate the channels, offset
+them, add them back), done by the compositor on layers it already has.
+Chrome's filter moves the channels of one image; Safari moves three images
+that each hold one channel.
+
+Two things had to be right for it to work.
+
+*** The primaries are Rec. 2020
+
+Safari blends layers in the screen's own colour space, not in sRGB. On a
+wide-gamut screen, sRGB's pure red isn't pure there: it has some green and
+blue in it. So the first attempts, tinted with =rgb(255 0 0)= and so on,
+didn't add back up to the page. Black came out maroon, the background came
+out white, and the fringes came out lime, purple and brown. Display P3's
+primaries were closer but still not pure on the screen tested.
+
+Rec. 2020's primaries are outside any ordinary screen's gamut, so Safari
+clips them to the screen's own pure primaries. Measured on the screen they
+were tested on, =color(rec2020 1 0 0)= came out as exactly (255, 0, 0), and
+the same for green and blue, at every brightness. So the tints are:
+
+#+begin_src css
+.fx-rgb-copy.r::after { background: rgb(255 0 0); background: color(rec2020 1 0 0); }
+#+end_src
+
+with sRGB as a fallback for browsers without =rec2020= (without it, the
+copies would add up untinted and flash white). Lined up, the three copies
+match the page to within a few levels.
+
+This was only verified on one screen. Rec. 2020 should come out as pure
+primaries on any screen, since every one is narrower, but other screens
+haven't been measured.
+
+*** Nothing in a copy gets its own layer
+
+The tint has to blend with its own copy and nothing else. Safari's
+compositor can't keep a blend inside a group of layers: if anything inside
+a copy got a compositing layer of its own, the tint would mix with
+everything under it, and the copies would come out wrong. So:
+
+#+begin_src css
+.fx-rgb-copy * {
+    animation: none !important;
+    transition: none !important;
+    will-change: auto !important;
+}
+#+end_src
+
+Each copy is painted as one flat image, tint included, and the compositor
+only moves and adds those.
+
+** The tear: copies in bands
+
+=buildTear= makes a second layer (=.fx-tear=, z-index 9000, over the
+split) for 12 bands (=TEAR_BANDS=). Each band is a strip of the window,
+6-66px tall at a random height, holding its own copy of the sheet lined up
+with the page. A band is =TEAR_PAD= (480px) wider than the window on each
+side, and black past the page, so sliding it sideways opens a black gap,
+as the filter's tear does.
+
+=setBands= tears a share of the bands each update (35% during the hit, 55%
+in the tear), sliding each up to the given reach (up to =TEAR_PAD=), and
+now and then up or down. During the hit the bands change at most every
+third frame (=liteDue=); in the tear, every update.
+
+Three choices here came from measuring:
+
+- *Bands that aren't tearing are moved off screen, not hidden.* Hiding and
+  showing them with =opacity= or =clip-path= cost 40-60ms each time;
+  moving costs next to nothing.
+- *They're parked just past the window's edge* (=parkBand=), not far away.
+  Parked far off, Safari threw away their painted pixels and painted them
+  again every time they came back (45-58ms frames). Just past the edge, it
+  keeps them (20-30ms).
+- *They're added three a frame* (=growTear=, =TEAR_PER_FRAME=), over the
+  first four frames, not all at once. Each band is a whole copy of the page
+  for Safari to lay out, about 4ms each: twelve on the first frame, with the
+  split's three, made it take 70-100ms.
+
+The torn bands are plain copies of the page, not split ones, so torn
+strips show the page in its own colours among the coloured fringes. Chrome
+splits the torn page too. Splitting the bands would take three copies
+each.
+
+* How they look different
+
+- *Chrome* has the ripple: during the hit, many thin rows of the page
+  shift against each other, with soft edges. Its tear smears rows into
+  streaks and slips blocks up and down.
+- *Safari* has no ripple. Its split is the whole page moving at once, and
+  its tear is 12 hard-edged strips sliding sideways over black.
+- The split itself looks the same in both: same colours, same angle, the
+  same mixing where colours overlap.
+
+There's an argument that Safari's is the better look: cleaner, chunkier
+breaks. Chrome could run it too (=plus-lighter= and =rec2020= work there),
+but that hasn't been measured, and Chrome's filter is already smooth.
+
+* Performance
+
+Safari, 1440x900, Retina:
+
+| Version                         | Leave     | Arrive    |
+|---------------------------------+-----------+-----------|
+| SVG filter (as Chrome)          | about 2fps | about 9fps |
+| Text shadows (an earlier Safari version, below) | 28-31fps | 30-37fps |
+| Copies, as now                  | 41-46fps  | 40-47fps  |
+
+With the tear's bands hidden, the copies alone run at a steady 60fps after
+the first frame. What's left to cost:
+
+- *The first frames.* Building and painting the split's three copies takes
+  about 50ms on the first frame, and painting them for the first time about
+  70ms on the second.
+- *New bands.* A band's first appearance costs a frame of up to about 60ms,
+  once or twice per effect.
+- *Band moves.* 20-30ms frames when several bands move at once.
+
+* What was tried and set aside
+
+In the order it was tried, for Safari.
+
+- *Splitting the text, not the page.* Two =text-shadow= ghosts on every
+  element, in the colours the filter would give on that background, and
+  the text tinted. It ran at 45-53fps alone, but every change of the
+  shadows made Safari redraw the text of the whole page (about 45ms), so
+  the split could only change every third frame. Images got the same
+  ghosts with =drop-shadow=. It was tuned a long way (an angle, separate
+  palettes for the light sheet and the black bands, four and then five
+  colours, Display P3 colours), but the colours couldn't overlap and mix,
+  which is what the filter's look depends on. Replaced by the copies.
+- *Tinting copies with =screen=.* Each copy screened with cyan, magenta or
+  yellow, then the copies multiplied. It looked right for the first half
+  second and then went wrong: the compositor can't keep a blend inside a
+  group, so the tints mixed with everything under them. Replaced by
+  multiply-then-add, with nothing composited inside a copy.
+- *sRGB and Display P3 primaries.* Not pure in the screen's colour space;
+  see above.
+- *Building the copies before the click.* While the pointer rested on a
+  link, the copies were built and kept lined up under the page, so the
+  click would only have to move them. The first frames were no quicker
+  (48-107ms), because the cost is Safari laying out and painting them when
+  they appear, and the copies showed through the page. Removed.
+- *The ripple.* A second set of three copies, shown through soft random
+  stripes (a CSS mask) where the first set showed the rest, and slid
+  sideways: Chrome's ripple, closely. Changing the mask each frame cost
+  90ms a frame, so the stripes stayed the same and slid up and down
+  instead, with the copies moved back by as much (other rows tear, the page
+  stays put). That ran at 60fps once built, but building it cost about
+  10fps over the effect: leave 30-36fps, arrive 22-40fps. Set aside for
+  performance. Both versions are kept in =dev/fx-lab/= (below).
+
+* Testing
+
+=dev/fx-lab/= is a test page that plays the effect in a frame, in the live
+version or a saved one, and times it frame by frame. It's outside
+=static/=, so the site never serves it:
+
+#+begin_src sh
+python3 dev/fx-lab/serve.py   # with the dev server up on :5002
+#+end_src
+
+then open http://127.0.0.1:5090/fx-lab/. =serve.py= serves the test page
+and passes everything else through to the dev server, so the test page and
+the magazine pages in its frame share an origin. A saved version is
+=dev/fx-lab/NAME.js=, a whole copy of =magazine-fx.js=, which the live
+script loads in its own place for =?fx-lab=NAME= (only on localhost). The
+two ripple versions are there: =ripple-staged= adds the second set a
+colour a frame; =ripple-premask= has the stripes on from the first frame.
+=hybrid= is Safari's version in every browser with Chrome's displacement
+(no colour split) as an SVG filter over the split's copies: the ripple
+and smeared tear on Safari's split. In Safari it costs what the filter
+always costs there (leave 21fps, arrive 35fps, five runs each, against
+51fps and 45fps for the live version).
+
+The filter's displacement maps come in styles, in =distortions.js= (after
+a set of monochrome glitch textures,
+https://x.com/nexgridco/status/2105251311943893116): /classic/ (the live
+maps), /blocks/ (datamosh: rectangles shifted or stretched as one), /shatter/
+(wedges around a point pulled toward it, so they streak outward),
+/smear/ (tracking: rows where one pixel's colour drags across) and
+/liquid/ (rows shifted by layered sine waves, flowing frame to frame). The
+=styles= version is the live effect with the style picked in the test
+page's Distortion menu (=?fx-style=NAME=); =hybrid= uses it too. The live
+script loads =distortions.js= ahead of any version it's asked for.
+
+Path runs either version of the effect in any browser: Filter (Chrome's)
+or Copies (Safari's), or Auto, the browser's own. It's =?fx-path=filter=
+or =?fx-path=copies= on the page (only on localhost), which overrides the
+=navigator.vendor= test. So Safari's filter stalls can be seen again in
+Safari (an arrive at about 6fps, with a frame of over a second), and
+Safari's copies tried in Chrome. The saved versions only differ in the
+copies path.
+
+Things learnt measuring in Safari:
+
+- *Time it in the page.* Frame times from =requestAnimationFrame= show
+  the stalls, frame by frame; that's what the test page records.
+- *Safari stops drawing hidden windows.* If the display sleeps or the
+  window is covered, =requestAnimationFrame= stops and screenshots go
+  blank or stale. Check =document.visibilityState=.
+- *Safari's screenshots are in the screen's colour space* (tagged with its
+  ICC profile), not sRGB. Convert them before comparing colours.
+- *Moving layers is cheap; anything that makes Safari repaint is not.* A
+  version that measures 60fps should still be checked in a screenshot: some
+  broken versions also ran at 60fps, because they weren't drawing anything.
+
+* Files
+
+- =static/js/magazine-fx.js=: both versions, the overlay, and when they
+  play.
+- =static/css/magazine.css=: =.sheet.fx-torn= (the filter),
+  =.fx-lite= (turning it off in Safari), =.fx-rgb= (the split's copies),
+  =.fx-tear= (the bands), =.fx-canvas= (the overlay), =.fx-broken=.
+- =static/js/magazine-fonts.js=: plays the arriving effect over the font
+  switch.
+- =dev/fx-lab/=: the test page and the set-aside versions.

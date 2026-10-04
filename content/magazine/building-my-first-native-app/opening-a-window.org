@@ -1,3 +1,175 @@
 #+TITLE: Opening a Window
+#+subtitle: Before getting started with the non-UI code of my application, I couldn't help but dip my toes into the GUI side first. In doing so, I learned that there is something that web developers take for granted that you quickly learn is /your/ job when making a native application: an open window. 
+#+date: 2026-10-02
+#+author: Micah Killian
+#+type: Tutorial
+#+topic: Native Development
 #+PART: 3
-#+DRAFT: t
+
+* What do you mean by "native" application?
+When first setting out to make this native application for my father, I thought
+it would good to first learn how to open a window in MacOS from Common Lisp
+since I'd never done it before. But straight from the beginning, I was faced
+with answering the question: *What kind of native application?*
+
+In the beginning, I am fine with creating something that is only usable on
+MacOS--LLMs these days seem quite capable of translating from one environment to
+another anyhow. But ultimately, I want to make a *cross-platform* application
+usable on Windows, MacOS, and even Linux. To achieve that, what will my final
+architecture(s) look like?
+
+You see, there isn't just one way to build a native GUI application. There are
+actually roughly three architectures to choose from:
+
+1. Ported native: Use the operating system's API to build the UI--porting the
+   UI to other operating systems.
+2. Cross-platform native: Use a framework like KDE, GTK, etc. to build
+   the UI.
+3. Custom native: Use a /custom/ UI framework that you port to the platforms you
+   wish to support.
+
+The choice is especially important when you want to build a cross-platform
+application because of the strengths and weaknesses of each approach.
+
+** Ported Native
+Strengths:
+- Looks and feels familiar; fits in with the OS's other applications.
+- Likely popular with lots of help online.
+- Lots of examples to learn from.
+- Known to work.
+- Well supported.
+
+However, there are some important weaknesses especially when you want to build
+something cross-platform:
+- Probably has an old API with lots of backwards compatibility-related cruft you
+  need to deal with.
+- You have to build the UI once per platform you want to build for; maintainence
+  means keeping all those UIs in-sync.
+
+The "true" path is a complicated and time/token intensive venture.
+
+And in reality, some of the pros might be overstated. MS Office applications
+look nothing like Notepad or the Start Menu; MacOS infamously has multiple
+border radiuses and the "style" is routinely "updated" ala liquid glass which
+you don't just get automatically in your application and may not even like;
+building directly in Objective-C or C++ is much more well-supported than
+building in Common Lisp; Look and feel in Linux isn't standardized--you
+application will only look and feel familiar on a per GUI framework basis.
+
+But again, the weaknesses are also a bit overblown. While you may initially need
+to write for several platforms, you can create a framework wrapping the platform
+APIs so that you can still code once and run anywhere. That is, in fact what
+LispWorks does with their [[https://www.lispworks.com/products/capi.html][CAPI GUI toolkit]].
+
+So although intuitively the ported path would seem like the path to a "pure" native
+application, the reality is far dirtier.
+
+** Cross-platform native
+The cross-platform approach means using something like KDE, GTK, etc. to make
+the GUI. Since those toolkits work on multiple platforms, you get cross-platform
+support for free. The main strength of this approad is that you build once, then
+your application works on multiple platforms; no need for OS-specific code.
+
+The weaknesses are that it will feel alien, and potentially cheap/retro.
+Typically you would also be limited by what Common Lisp libraries exist for
+those toolkits. If the GTK ones are more mature, but you like KDE more, then
+you have a conundrum.
+
+** Custom native
+In this approach, you need to actually do the work of drawing the pixels on the
+screen. Instead of using an OS API or cross-platform toolkit, you make your
+/own/ toolkit, creating the API for building interfaces the way you like. This
+approach has some significant strengths and weaknesses.
+
+Strengths:
+- You don't have to learn how other people draw pixels, work with text, style,
+  etc. _You decide the way UIs are built._
+- Your application won't be a Windows or MacOS application, nor will it be a GTK
+  application--it will be _your_ application.
+
+The strengths mean maximum ownership and control. Of course, you can imagine the
+weaknesses:
+- You don't get to benefit from the work of others at all--you are on your own.
+- Lots of work, requires a knowledge of doing pixel-drawing.
+- Won't fit in anywhere. Completely unique, but alien.
+
+This is the approach used in some rather complex software like Photoshop,
+JetBrains IDEs, etc.
+
+Notably, the Zen code editor uses this approach with their own custom toolkit
+called [[https://gpui.rs/][GPUI]]. This toolkit has an API that will look familiar to front-end
+developers. From their homepage:
+
+#+begin_src rust
+impl Render for HelloWorld {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .flex()
+            .flex_col()
+            .gap_3()
+            .bg(rgb(0x505050))
+            .size(px(500.0))
+            .justify_center()
+            .items_center()
+            .shadow_lg()
+            .border_1()
+            .border_color(rgb(0x0000ff))
+            .text_xl()
+            .text_color(rgb(0xffffff))
+            .child(format!("Hello, {}!", &self.text))
+            .child(
+                div()
+                    .flex()
+                    .gap_2()
+                    .child(div().size_8().bg(gpui::red()))
+                    .child(div().size_8().bg(gpui::green()))
+                    .child(div().size_8().bg(gpui::blue()))
+                    .child(div().size_8().bg(gpui::yellow()))
+                    .child(div().size_8().bg(gpui::black()))
+                    .child(div().size_8().bg(gpui::white())),
+            )
+    }
+}
+#+end_src
+
+This has a distinctly Tailwind flavor to it.
+
+Given that we have a large surplus population of front-end and fullstack
+developers who I believe will be redirected towards building native UIs, there
+is a strong possibility that this approach will be the ascendant one for the
+next decade. The largest variable is whether said developers will even be
+/looking/ at the code, in which case web-like API will mean less to them than
+other factors (speed and efficiency).
+
+* Starting Small, Think Big
+So the question is: for my first application, where do I begin?
+
+The correct approach I believe is to start with the easiest thing possible,
+learn the native paradigm, and then adapt as I learn and gain experience. That
+means for now I will be making a native MacOS application.
+
+For native MacOS development, there are two options:
+
+1. Build with [[https://ccl.clozure.com/][Clozure CL]]. It includes a special API for working with Objective-C
+   in Common Lisp.
+2. Build with [[https://github.com/byulparan/cl-nextstep][cl-nextstep]]. Less mature, but allows me to write
+   cross-implementation compatible code instead of code specific for Clozure.
+
+Because LLMs are so good at converting code from one framework/language to
+another, and because I don't plan on making this the final architecture choice
+for this application, the choice isn't very important. For fun, I am going to
+use Clozure.
+
+However, given the capabilities of the latest LLMs, in the future I will try
+making a custom GUI framework. Whether I go with a web-like API or something
+else is something to decide later.
+
+* Finally, opening a window with Clozure CL
+After doing the research to come to this conclusion, it's time to actually open
+a window. To get started, we need to gain access to Clozure's Cocoa API. 
+
+#+begin_note
+Cocoa is the native application framework created by Apple for making MacOS
+applications. 
+#+end_note
+

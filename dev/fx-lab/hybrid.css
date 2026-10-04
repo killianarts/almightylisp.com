@@ -1,0 +1,5 @@
+/* Effects test page: the hybrid variant's extra rule (see hybrid.js). The
+   displacement filter on the split's copies pulls pixels from off screen,
+   so the real sheet under them is hidden while the effect plays. The
+   copies are clones without .fx-torn, so they still show. */
+.fx-lite .sheet.fx-torn { visibility: hidden; }

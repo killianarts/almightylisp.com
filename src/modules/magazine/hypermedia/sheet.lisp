@@ -31,7 +31,10 @@
        ;; configures it, so it has to load first.
        (script :src (asset "js/htmx-2.0.11.min.js") :defer t)
        (script :src (asset "js/htmx-ext-preload-2.1.2.js") :defer t)
-       (script :src (asset "js/magazine-fx.js") :defer t))
+       (script :src (asset "js/magazine-fx.js") :defer t)
+       ;; Justified text: Pretext measures it, magazine-justify.js sets it.
+       (script :src (asset "js/pretext-0.0.9.min.js") :defer t)
+       (script :src (asset "js/magazine-justify.js") :defer t))
      (body :class body-class :hx-boost "true" :hx-ext "preload"
        children
        (script :src (asset "js/highlight-lisp.js"))
@@ -90,22 +93,20 @@ render-jp) set upright below the text."
            (ah:</> (span :class "side-label left" :aria-hidden t (string-upcase text))))
        (span :class "side-label right" :aria-hidden t (string-upcase right))))))
 
-;;; Japanese labels are set in a pixel face the site doesn't load, so each is
-;;; an SVG of its outlines, exported from Figma (Homepage (v22)).
+;;; Japanese labels are set in KKM Analog TV, a pixel face (see .jp in
+;;; magazine.css).
 
 (defparameter *jp-labels*
-  '(("almighty" "オールマイティ" 102 13)
-    ("tatakawanakereba-katenai" "タタカワナケレバカテナイ" 149 11)
-    ("series" "シリーズ" 56 16)
-    ("briefing" "ブリーフィング" 99 16)
-    ("omona-series" "おもなシリーズ" 15 116))
-  "Name, text, width and height of each SVG in images/magazine/jp/.")
+  '(("almighty" "オールマイティ")
+    ("tatakawanakereba-katenai" "タタカワナケレバカテナイ")
+    ("series" "シリーズ")
+    ("briefing" "ブリーフィング")
+    ("omona-series" "おもなシリーズ"))
+  "Name and text of each Japanese label.")
 
 (defun render-jp (name &key class)
-  (destructuring-bind (text width height) (rest (assoc name *jp-labels* :test #'string=))
-    (ah:</>
-     (img :class (ah:clsx "jp" class) :src (image-src (format nil "jp/~a.svg" name))
-       :alt text :lang "ja" :width (princ-to-string width) :height (princ-to-string height)))))
+  (let ((text (second (assoc name *jp-labels* :test #'string=))))
+    (ah:</> (span :class (ah:clsx "jp" class) :lang "ja" text))))
 
 (defun render-sep ()
   (ah:</> (span :class "sep" :aria-hidden t "■")))

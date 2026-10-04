@@ -1,3 +1,98 @@
 #+title: A Gift To My Father
+#+subtitle: After deciding to learn native application development, the question is: What to build? For my first real application, I will make a gift for my father to encode religious rules into Almighty Common Lisp to leave a lasting legacy.
+#+author: Micah Killian
+#+date: 2026-10-01
+#+type: Case Study
+#+topic: Native Development
 #+PART: 2
-#+DRAFT: t
+
+
+* A Bible Reading Search Application
+My father is a Rabbi who has run the website [[https://betemunah.org][Betemunah.org]] for many years. I
+think it actually started as an AOL page--I think he even still uses his AOL
+email account to this day. He and a friend did a very long research project
+to rediscover an old schedule for Bible readings.
+
+* Annual vs. Triennial Cycle Readings
+Mainstream Orthodox Jews read the entire first five books of the Bible--called
+the Torah--once a year. The reading, called a Seder, is distributed weekly and
+done when Jews meet for worship on the Sabbath.
+
+In addition to reading from the Torah, they also have readings from other
+passages in the Bible--they call the Tanach. These readings have some connection
+to the Torah readings, hence why they're read together. On top of that, anybody
+doing serious studying will also read material outside of the Bible, such as the
+Talmud and what not.
+
+And you must be /serious/ to even consider doing all this reading because it is
+*a lot*. Typically men studying to become Rabbis are the only ones capable of
+dedicating the time to do all that reading.
+
+This Annual Cycle of reading the Torah is not the only one. In fact, it's the
+newer of the cycles. Previously, Jews read the Torah using a Triennial cycle
+where they read the full Torah over the course of three years. This cycle is
+still used today by Conservative Jews. It has the advantage that it allows more
+people to study together without people getting left behind by the grueling pace
+seen in the Annual Cycle.
+
+There is a problem that my father and his friend found with the Triennial Cycle,
+however: it doesn't make a lot of sense. Readings from various parts of the
+Bible need to be coherent with the Torah readings, but my father and his friend
+believed that they also need to be coherent with the /festival/ readings.
+
+Jewish festivals have their own dedicated readings, whether you use the Annual
+or Triennial cycles. Getting readings to stay in-sync with the festival readings
+is important for understanding the full meaning of the readings since there is
+considerable context left out of the written words of the Bible, but still
+intended to be understood. Jews call this context the Oral Torah because it was
+originally banned from being written down and was passed down orally.
+
+* A Coherent Triennial Reading Cycle
+Over many years, my father and his friend rediscovered what they believe to the
+true original "Triennial" reading cycle--a 3 1/2 year reading cycle or what they
+call a Septennial Cycle because it is read in full twice every seven years. It
+took so long because records about the cycle a sparse and rare, and because the
+Hebrew calendar's rules are extremely complicated. That forced the discovery of
+a reading cycle that both is coherent both thematically by itself but also
+adheres to rules for the calendar.
+
+* Passing On The Knowledge
+The trouble is that my father's friend has passed away. My father is growing
+older and is the only one with a direct knowledge of the complex rules for
+calculating the readings and how/why they were derived. He can create a chart
+for a full Septennial cycle, but he has yet to be able to reliably teach others
+how to do so. If nothing changes, it is possible that the discoveries he and his
+friend made will be lost.
+
+So the question is: if there are indeed rules, can't they simply be codified and
+passed on as software, making them accessible to anybody far into the future?
+
+I believe so, and so I have set out to build an application that does just
+that--written in Almighty Common Lisp, of course.
+
+* Goal: Web and Native Applications 
+My plan is to build both a web and native version of an application that has
+the following features:
+
+1. Hebrew <-> Gregorian Date conversion.
+2. Sabbath start/end times.
+3. Reading search for any given date/Sabbath.
+4. Chart generation.
+5. Commentary/extra reading suggestions.
+
+As I wrote in [[why-build-native-instead-of-web-applications][the previous article in this series]], I believe native application
+development is going to be the trend going forward thanks to the power of LLMs.
+The advantage specifically for this project is that a native application in Lisp
+should (theoretically) be useable forever. You don't need to connect to a server
+(still maintained, right?). Just open the executable. If you need an executable
+for your new architecture, just install a working Lisp implementation and build
+the executable. Common Lisp is especially well suited to creating applications
+intended to be "forever" applications because Lisp doesn't (and is unlikely to)
+change. As long as implementations have maintainers updating them and adding new
+CPU architectures and OSes, you will have usable software.
+
+However, for the sake of convenience, I will also make a web application that my
+father can link to his website so that anybody can try it out before downloading
+the native app. My father already has charts on his website providing the
+readings, so this will simply be a long-term upgrade to support his work.
+

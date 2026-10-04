@@ -1,0 +1,18 @@
+/* Effects test page: the ripple variants' extra rules (see ripple-staged.js
+   and ripple-premask.js). A slice holds one copy, and carries the ripple's
+   stripes (a mask) and the blend, in place of the blend on .fx-rgb-copy in
+   magazine.css. The mask can't go on the copy: on a moving layer, Safari
+   redraws it every frame. */
+.fx-rgb-slice {
+    position: absolute;
+    left: 0;
+    right: 0;
+    mix-blend-mode: plus-lighter;
+    will-change: transform;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
+.fx-rgb-copy { mix-blend-mode: normal; }

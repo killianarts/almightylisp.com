@@ -1,0 +1,332 @@
+#+title: Font loading
+#+subtitle: How the magazine's fonts load, and how the switch to them is hidden under the arrival effect
+
+The magazine is set in web fonts: Science Gothic for display, Construct Mono
+for labels, Mohave for reading, KKM Analog TV for the Japanese labels. A
+page that uses web fonts the ordinary way draws in fallback fonts first and
+then changes, one font at a time, as each file arrives. The text jumps two
+or three times.
+
+Here the fonts change once, all together, and the change happens under the
+screen effect that plays when a page arrives (see
+[[file:ABERRATION-ANIMATION-DETAILS.org][ABERRATION-ANIMATION-DETAILS.org]]), so it reads as the picture settling in,
+not as the layout jumping. When the fonts are already in the browser's
+cache, nothing shows at all: the page's first paint is in the real fonts.
+
+The code is in these files:
+
+| File                              | What it does                                               |
+|-----------------------------------+------------------------------------------------------------|
+| =static/js/magazine-fonts.js=     | Loads the fonts, holds them back, switches them in         |
+| =static/js/magazine-fx.js=        | The arrival effect, as =MagazineFx.arrive=                 |
+| =static/css/magazine.css=         | One rule: hides the sheet while =fonts-pending= is set     |
+| =static/css/magazine-fonts.css=   | The same fonts as =@font-face= rules, without JavaScript   |
+| =hypermedia/sheet.lisp=           | The order of the scripts and stylesheets in =<head>=       |
+
+* The idea
+
+A font declared with =@font-face= is the browser's to load. It starts the
+download when it first finds text that needs the font, and it swaps the font
+in whenever the file arrives. The page can't hold that swap back or know the
+frame it lands on.
+
+The Font Loading API gives the page both. A =FontFace= made in JavaScript
+can be downloaded without being used: it only starts to apply to the page
+when it is added to =document.fonts=. So the script:
+
+1. makes a =FontFace= for each font, and doesn't add it;
+2. downloads them all;
+3. when the last one is in, adds them all in one go, and
+4. in the same task, starts the arrival effect.
+
+Step 3 is the switch. Because step 4 is in the same task, the first frame
+the browser draws in the new fonts is also the effect's first frame, which
+is its strongest: the page is split into its colours and shaken, and the
+change of typeface underneath can't be picked out.
+
+* The fonts
+
+=FONTS= lists the magazine's faces. The ones marked =wait= are the ones the
+switch waits for: everything on a page's first screen.
+
+#+begin_src js
+var FONTS = [
+  { family: "Science Gothic", file: "ScienceGothic-Variable.ttf", wait: true,
+    weight: "100 900", stretch: "50% 200%" },
+  { family: "Construct Mono", file: "ConstructMono.otf", wait: true },
+  { family: "Mohave", file: "Mohave-latin.woff2", wait: true,
+    weight: "300 700", unicodeRange: LATIN },
+  // Japanese labels: in the running header, so on every page.
+  { family: "KKM Analog TV", file: "kkm_analogtv_v2-vert.ttf", wait: true },
+  { family: "Mohave", file: "Mohave-latin-ext.woff2",
+    weight: "300 700", unicodeRange: LATIN_EXT },
+  // Code blocks, further down an article.
+  { family: "Berkeley Mono", file: "BerkeleyMono-Regular.ttf" },
+  // ...
+];
+#+end_src
+
+The rest aren't worth holding the switch for: they are for characters or
+blocks most first screens don't have. They are added to =document.fonts=
+straight away, and then behave as an =@font-face= rule would: the browser
+downloads one when the page first needs it, and swaps it in by itself.
+
+#+begin_src js
+var waiting = [];
+FONTS.forEach(function (font) {
+  var f = face(font);
+  if (font.wait) waiting.push(f);
+  else document.fonts.add(f);
+});
+#+end_src
+
+=face= makes the =FontFace=. Nothing is downloaded yet.
+
+#+begin_src js
+function face(font) {
+  var ext = font.file.slice(font.file.lastIndexOf(".") + 1);
+  return new FontFace(font.family,
+    "url(" + DIR + font.file + ") format(\"" + FORMATS[ext] + "\")",
+    { weight: font.weight || "400", stretch: font.stretch || "100%",
+      unicodeRange: font.unicodeRange || "U+0-10FFFF", display: "swap" });
+}
+#+end_src
+
+* Loading, and the switch
+
+=load= downloads the waiting faces and switches them in.
+
+#+begin_src js
+// A face that fails to load is left out; the page keeps its fallback.
+function load() {
+  Promise.all(waiting.map(function (f) {
+    return f.load().then(function () { return f; }, function () { return null; });
+  })).then(function (loaded) {
+    loaded.forEach(function (f) { if (f) document.fonts.add(f); });
+    if (holding) {
+      // Not drawn yet: nothing to cover.
+      release();
+      return;
+    }
+    // Same task as the switch: the effect's first frame is the first
+    // frame drawn in the new fonts. (magazine-fx.js is deferred, so by
+    // DOMContentLoaded it has run.)
+    if (window.MagazineFx) window.MagazineFx.arrive();
+  });
+}
+#+end_src
+
+Three things in it matter:
+
+- *Every load is caught.* A face that fails becomes =null= instead of
+  rejecting, so one missing file can't stop the others from switching in.
+  =Promise.all= then waits for the slowest font, and no longer.
+- *The adds are together.* The =forEach= adds every face in one task, with
+  no chance for the browser to draw between them. That's the single switch.
+- *The effect starts in that task too.* =MagazineFx.arrive()= sets the
+  effect up and asks for an animation frame. The browser hasn't drawn since
+  the fonts were added, so the next frame carries both.
+
+* When the downloads start
+
+The script is in =<head>= and not deferred, but it doesn't start the
+downloads there:
+
+#+begin_src js
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", load);
+} else {
+  load();
+}
+#+end_src
+
+Started at once, four font files would share the connection with the
+stylesheet and the scripts the first paint is waiting for, and hold the page
+up. By =DOMContentLoaded= those are in. (It also means =magazine-fx.js=,
+which is deferred, has run, so =window.MagazineFx= exists.)
+
+* The hold: when the fonts are already here
+
+On a second visit the fonts come from the cache in a few milliseconds. The
+page would still be drawn in fallback fonts first, for one frame, and then
+switch under an effect that has nothing to do with what the visitor did.
+
+So the script hides the sheet for a moment, to give cached fonts the chance
+to arrive before anything is drawn. This is why it runs in =<head>=, before
+the first paint.
+
+#+begin_src js
+// How long the page may stay hidden while fonts come from the cache. Past
+// this it shows in fallback fonts, and the switch gets the effect.
+var HOLD_MS = 100;
+
+var holding = true;
+root.classList.add("fonts-pending");
+
+function release() {
+  holding = false;
+  root.classList.remove("fonts-pending");
+}
+setTimeout(release, HOLD_MS);
+#+end_src
+
+#+begin_src css
+.fonts-pending .sheet { visibility: hidden; }
+#+end_src
+
+=holding= is what =load= looks at when the fonts arrive, and it decides
+between the two outcomes:
+
+| The fonts arrive      | =holding= | What happens                                                      |
+|-----------------------+-----------+-------------------------------------------------------------------|
+| within 100ms (cached) | true      | They're added, the sheet is shown. First paint is in the real fonts. No effect. |
+| later (downloading)   | false     | The sheet has been showing in fallback fonts. They're added and the effect plays over the switch. |
+
+The sheet is hidden with =visibility=, not =display=, so the layout is
+there and only the drawing waits. Only =.sheet= is hidden: the page's
+background is drawn at once.
+
+The timer can't leave the page hidden. It runs whatever happens to the
+fonts, so the longest the sheet waits is 100ms.
+
+* The effect's side
+
+=magazine-fx.js= gives the font script one function:
+
+#+begin_src js
+// The fonts switching in (magazine-fonts.js): settle in over the switch.
+// An effect already playing covers it on its own.
+window.MagazineFx = {
+  arrive: function () { if (!playing) play(1, ARRIVE_MS); },
+  // ...
+};
+#+end_src
+
+=play(1, ARRIVE_MS)= is the arriving effect: 260ms, starting fully split
+and settling. It is the same call the page makes when it arrives from a
+click on the last page.
+
+=if (!playing)= is for that case. A visitor who clicks an article link gets
+the leaving effect, the new page, and the arriving effect. If the fonts
+finish during any of that, the effect already on the screen hides the
+switch, and starting another would restart it.
+
+=play= sets the effect up at once (the filter, or Safari's copies, and the
+=fx-torn= class on the sheet) and draws its first frame in the next
+animation frame:
+
+#+begin_src js
+function play(mode, duration, done) {
+  playing = true;
+  // ... build the filter or the copies, mark the sheet ...
+  var start = performance.now();
+
+  function step(now) {
+    var t = Math.min(1, (now - start) / duration);
+    // Ease-out: full strength on the first frame, falling fast and then
+    // lingering.
+    var amount = mode === 0 ? Math.pow(1 - t, 2.4) : Math.pow(1 - t, 3);
+    if (mode === 1) {
+      if (sheet) setFilter(amount, frame);
+    }
+    // ...
+    if (t < 1) requestAnimationFrame(step);
+    else finish();
+  }
+  requestAnimationFrame(step);
+}
+#+end_src
+
+At =t = 0= the amount is 1: the effect is at full strength on the frame
+where the fonts change, and eases off from there.
+
+* The order in the page
+
+From =ac-magazine-document= in =hypermedia/sheet.lisp=:
+
+#+begin_src lisp
+;; Loads the fonts once the page is up, and switches them in once
+;; they're all here. Not deferred: it hides the sheet for a moment
+;; before the first paint (see magazine-fonts.js).
+(script :src (asset "js/magazine-fonts.js"))
+(noscript (link :rel "stylesheet" :href (asset "css/magazine-fonts.css")))
+(link :rel "preload" :as "style" :href "/static/css/resets.css")
+(link :rel "stylesheet" :href (asset "css/magazine.css"))
+(script :src (asset "js/htmx-2.0.11.min.js") :defer t)
+(script :src (asset "js/htmx-ext-preload-2.1.2.js") :defer t)
+(script :src (asset "js/magazine-fx.js") :defer t)
+#+end_src
+
+=magazine-fonts.js= is the one script that blocks the page, so it is kept
+small. Everything else is deferred.
+
+* A page load, in order
+
+A first visit, with nothing cached:
+
+1. =magazine-fonts.js= runs in =<head>=. It sets =fonts-pending=, starts the
+   100ms timer, and makes the faces.
+2. The stylesheet and the page arrive. The sheet is laid out but hidden.
+3. =DOMContentLoaded=: the deferred scripts have run, and =load= starts the
+   font downloads.
+4. 100ms after step 1, the timer shows the sheet, in fallback fonts.
+5. The last font arrives. The faces are added and =MagazineFx.arrive()= is
+   called.
+6. The next frame is in the real fonts, under the effect at full strength.
+   Over 260ms it settles.
+
+A later visit: steps 1 to 3 are the same, the fonts arrive from the cache
+before the timer, and step 5 shows the sheet in the real fonts with no
+effect.
+
+Links inside the magazine are swapped in by htmx, without a page load. The
+fonts are already in =document.fonts=, so the script has nothing more to do.
+
+* Without JavaScript, and old browsers
+
+=static/css/magazine-fonts.css= has the same fonts as plain =@font-face=
+rules with =font-display: swap=. It is used in two cases:
+
+- no JavaScript: the =<noscript>= link in =<head>=;
+- no Font Loading API: the script adds the stylesheet itself and stops.
+
+#+begin_src js
+// Too old for the Font Loading API: the ordinary stylesheet.
+if (!document.fonts || typeof FontFace !== "function" || typeof Promise !== "function") {
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "/static/css/magazine-fonts.css";
+  document.head.appendChild(link);
+  return;
+}
+#+end_src
+
+Either way the fonts load the ordinary way, each swapping in when it
+arrives, with no effect.
+
+The two lists have to be kept the same by hand.
+
+* Things to know
+
+- *Fonts installed on the machine skip all of this.* If the visitor has a
+  font of the same family name installed, the browser uses it from the first
+  paint, before the site's copy is added. On the machine this was written
+  on, Construct Mono and Berkeley Mono are installed, so they never appear
+  to load. KKM Analog TV is installed too, but under its Japanese name, so
+  the site's copy is the one used. To see what a visitor sees, turn the
+  fonts off in Font Book.
+- *A font that fails is silent.* The page keeps its fallback for that
+  family, and the others switch in as usual.
+- *The effect plays whatever the reduced-motion setting*, as all the
+  magazine's effects do.
+- *Pages without a sheet* (the archive) aren't hidden by =fonts-pending=,
+  since the rule is on =.sheet=. They get the overlay part of the effect
+  only.
+
+* Adding a font
+
+1. Put the file in =static/assets/fonts/=.
+2. Add it to =FONTS= in =magazine-fonts.js=. Mark it =wait= only if it is on
+   the first screen of most pages: every waited font delays the switch.
+3. Add the same face to =magazine-fonts.css=.
+4. Use the family name in =magazine.css= (the type tokens are on =.mag=).

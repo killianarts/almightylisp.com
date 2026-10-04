@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Links Lab</title>
+<!--
+  Test page for the "live" look of article links: the links that play the
+  screen effect when clicked (see isArticleLink in static/js/magazine-fx.js).
+  Run serve.py here and open http://127.0.0.1:5090/fx-lab/links.html.
+
+  Each section sets the same paragraph with one treatment. The paragraph has
+  an article link (a.live), a link to another site (a.inline-link, as it is
+  today) and plain underlined text (.underline), to tell the three apart.
+
+  The underline of a live link is drawn as a background, not a
+  text-decoration, so it can move. box-decoration-break: clone gives every
+  line of a wrapped link its own.
+-->
+<link rel="stylesheet" href="/static/css/magazine-fonts.css">
+<link rel="stylesheet" href="/static/css/magazine.css">
+<style>
+  .lab {
+    max-width: 46em;
+    margin: 0 auto;
+    padding: 48px 24px 120px;
+  }
+  .lab h1 {
+    font-family: var(--disp);
+    font-variation-settings: var(--disp-axes);
+    font-weight: 500;
+    font-size: 34px;
+    text-transform: uppercase;
+  }
+  .lab-note, .lab-k {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+  }
+  .lab-note { margin-top: 8px !important; }
+  .lab section {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ink);
+  }
+  .lab-k { margin-bottom: 14px !important; text-transform: uppercase; }
+  .lab-k b { color: var(--ink); font-weight: 400; }
+  .lab-dark {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Shared by every treatment ------------------------------------------- */
+
+  .mag a.live {
+    color: inherit;
+    padding-bottom: 4px;
+    background-repeat: repeat-x;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    /* Set per link by the script below, so links don't fire together. */
+    animation-duration: var(--t, 3s);
+    animation-delay: var(--d, 0s);
+    animation-iteration-count: infinite;
+  }
+
+  /* 1. Wire: the underline is a wire that crackles now and then. On hover
+     it doesn't stop. The jagged line is a tile, moved to a new place each
+     frame. It can't take currentColor, so there are two of it. */
+
+  .v-wire {
+    --jag-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='9'%3E%3Cpath d='M0 4.5H6L8 1.5 11 8 13 4.5H22L24 .5 26 7 28 2.5 30 4.5H37L38.500 2.5 40 4.5H44' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E");
+    --jag-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='9'%3E%3Cpath d='M0 4.5H6L8 1.5 11 8 13 4.5H22L24 .5 26 7 28 2.5 30 4.5H37L38.500 2.5 40 4.5H44' fill='none' stroke='%23e5e5e5' stroke-width='1.6'/%3E%3C/svg%3E");
+    --jag: var(--jag-ink);
+  }
+  .v-wire .lab-dark { --jag: var(--jag-paper); }
+  .v-wire a.live {
+    background-image: var(--jag), linear-gradient(currentColor, currentColor);
+    background-size: 0 0, 100% 2px;
+    background-position: 0 100%, 0 calc(100% - 3.5px);
+    animation-name: wire;
+    animation-timing-function: steps(1);
+  }
+  @keyframes wire {
+    0%, 100% { background-size: 0 0, 100% 2px; }
+    62%   { background-size: 44px 9px, 0 0; background-position: 0 100%, 0 0; }
+    65%   { background-size: 44px 9px, 0 0; background-position: -17px 100%, 0 0; }
+    68%   { background-size: 0 0, 100% 2px; }
+    71%   { background-size: 44px 9px, 0 0; background-position: -9px 100%, 0 0; }
+    74%   { background-size: 44px 9px, 0 0; background-position: -31px 100%, 0 0; }
+    77%   { background-size: 44px 9px, 0 0; background-position: -22px 100%, 0 0; }
+    80%   { background-size: 0 0, 100% 2px; }
+    86%   { background-size: 44px 9px, 0 0; background-position: -5px 100%, 0 0; }
+    89%   { background-size: 44px 9px, 0 0; background-position: -26px 100%, 0 0; }
+    92%   { background-size: 0 0, 100% 2px; }
+  }
+  @keyframes wire-hot {
+    0%  { background-position: 0 100%, 0 0; }
+    25% { background-position: -17px 100%, 0 0; }
+    50% { background-position: -31px 100%, 0 0; }
+    75% { background-position: -9px 100%, 0 0; }
+  }
+  .v-wire a.live:hover {
+    background-size: 44px 9px, 0 0;
+    animation: wire-hot 0.32s steps(1) infinite;
+  }
+
+  /* 2. Pulse: a bump of current runs down the line, in jumps. */
+
+  .v-pulse a.live {
+    background-image: linear-gradient(currentColor, currentColor),
+                      linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-size: 0 0, 100% 2px;
+    background-position: 0 100%, 0 100%;
+    animation-name: pulse;
+    animation-timing-function: steps(1);
+  }
+  @keyframes pulse {
+    0%  { background-size: 0 0, 100% 2px; background-position: 0 100%, 0 100%; }
+    55% { background-size: 12px 6px, 100% 2px; background-position: 0 100%, 0 100%;
+          animation-timing-function: steps(12); }
+    100% { background-size: 12px 6px, 100% 2px; background-position: 100% 100%, 0 100%; }
+  }
+  @keyframes pulse-hot {
+    from { background-position: 0 100%, 0 100%; }
+    to   { background-position: 100% 100%, 0 100%; }
+  }
+  .v-pulse a.live:hover {
+    background-size: 12px 6px, 100% 2px;
+    animation: pulse-hot 0.5s steps(9) infinite;
+  }
+
+  /* 3. Split: the underline carries the click effect's colour split, one
+     pixel of red above and of cyan below, and twitches wider. The only
+     colour on the page. On hover the text splits too. */
+
+  .v-split a.live {
+    --r: rgb(255 0 60);
+    --c: rgb(0 200 255);
+    background-image: linear-gradient(currentColor, currentColor),
+                      linear-gradient(var(--r), var(--r)),
+                      linear-gradient(var(--c), var(--c));
+    background-size: 100% 2px;
+    background-position: 0 calc(100% - 3px), 0 calc(100% - 4px), 0 calc(100% - 2px);
+    animation-name: split;
+    animation-timing-function: steps(1);
+  }
+  @keyframes split {
+    0%, 100% { background-position: 0 calc(100% - 3px), 0 calc(100% - 4px), 0 calc(100% - 2px); }
+    64% { background-position: 0 calc(100% - 3px), 0 calc(100% - 6px), 0 100%; }
+    68% { background-position: 0 calc(100% - 3px), 0 calc(100% - 1px), 0 calc(100% - 5px); }
+    72% { background-position: 0 calc(100% - 3px), 0 calc(100% - 4px), 0 calc(100% - 2px); }
+    78% { background-position: 0 calc(100% - 3px), 0 calc(100% - 5px), 0 calc(100% - 1px); }
+    82% { background-position: 0 calc(100% - 3px), 0 calc(100% - 6px), 0 100%; }
+    86% { background-position: 0 calc(100% - 3px), 0 calc(100% - 4px), 0 calc(100% - 2px); }
+  }
+  @keyframes split-hot {
+    0%  { text-shadow: -2px 0 var(--r), 2px 0 var(--c); }
+    35% { text-shadow: 1px 0 var(--r), -1px 0 var(--c); }
+    55% { text-shadow: -3px 0 var(--r), 3px 0 var(--c); }
+    80% { text-shadow: -1px 0 var(--r), 1px 0 var(--c); }
+  }
+  .v-split a.live:hover {
+    animation: split-hot 0.4s steps(1) infinite;
+  }
+
+  /* 4. Flow: the underline is dashed, and the dashes run along it all the
+     time. On hover they run faster. */
+
+  .v-flow a.live {
+    background-image: repeating-linear-gradient(90deg, currentColor 0 6px, transparent 6px 10px);
+    background-size: 10px 2px;
+    background-position: 0 calc(100% - 2px);
+    animation: flow 0.9s linear infinite;
+  }
+  @keyframes flow {
+    to { background-position: 10px calc(100% - 2px); }
+  }
+  .v-flow a.live:hover { animation-duration: 0.25s; }
+
+  /* No prefers-reduced-motion rule: like the click effect, these play
+     whatever the setting. They are what marks a link as one. */
+</style>
+</head>
+<body class="mag">
+<main class="lab">
+  <h1>Live links</h1>
+  <p class="lab-note">Article links, links to other sites and underlined text, in each treatment. The article links move on their own; hover only turns them up.</p>
+
+  <template id="sample">
+    <p class="prose">In the last part, <a class="live" href="/magazine/a-gift-to-my-father">A Gift To My Father</a>, I said why. This one is about how: <span class="underline">you decide the way UIs are built</span>, which is what LispWorks does with their <a class="inline-link" href="https://www.lispworks.com/products/capi.html">CAPI GUI toolkit</a>. The argument for it is in <a class="live" href="/magazine/why-build-native-instead-of-web-applications">Why Build Native Instead Of Web Applications, a title long enough to wrap onto a second line</a>.</p>
+    <p class="prose lab-dark">On black: <a class="live" href="/magazine/opening-a-window">Opening A Window</a> next to <span class="underline">underlined text</span>.</p>
+  </template>
+
+  <section class="v-today">
+    <p class="lab-k"><b>0. Today</b> / all three look alike until hover</p>
+  </section>
+  <section class="v-wire">
+    <p class="lab-k"><b>1. Wire</b> / crackles every couple of seconds</p>
+  </section>
+  <section class="v-pulse">
+    <p class="lab-k"><b>2. Pulse</b> / a bump of current runs down the line</p>
+  </section>
+  <section class="v-split">
+    <p class="lab-k"><b>3. Split</b> / the click effect's colour split, at rest in the underline</p>
+  </section>
+  <section class="v-flow">
+    <p class="lab-k"><b>4. Flow</b> / dashes that never stop</p>
+  </section>
+</main>
+<script>
+  // The same paragraph in every section. In "Today" the article links are
+  // plain inline links, as they are on the site.
+  var sample = document.getElementById("sample");
+  document.querySelectorAll(".lab section").forEach(function (section) {
+    section.appendChild(sample.content.cloneNode(true));
+    section.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function (e) { e.preventDefault(); });
+    });
+    if (section.classList.contains("v-today")) {
+      section.querySelectorAll("a.live").forEach(function (a) { a.className = "inline-link"; });
+    }
+  });
+  // Each link on its own clock, so they don't all fire at once.
+  document.querySelectorAll("a.live").forEach(function (a) {
+    var t = 2 + Math.random() * 1.5;
+    a.style.setProperty("--t", t.toFixed(2) + "s");
+    a.style.setProperty("--d", (-Math.random() * t).toFixed(2) + "s");
+  });
+</script>
+</body>
+</html>
