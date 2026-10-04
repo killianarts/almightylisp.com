@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gutter Patterns Lab</title>
+<!--
+  Test page for the pattern in the sheet's two edges (.edge in
+  static/css/magazine.css): the dots that are there today (var(--dots))
+  against the triangle fade from Figma (_Triangle Fade Tile) and dither
+  ramps like the one on the section heads. Each edge takes any of them, so
+  two can sit side by side, and every number of each can be changed.
+
+  Open this file in a browser for the mock sheet. For the live site, run
+  serve.py here and open http://127.0.0.1:5090/fx-lab/patterns.html: the
+  page in the frame gets the same rules, in a <style> added to it.
+
+  A pattern is one SVG tile, as a background image. The dots repeat both
+  ways. The triangles and the dither ramps repeat down the page only, in a
+  strip held against one side of the edge. The left edge's strip is the
+  right one's mirrored.
+
+  A dither ramp is a grid of cells, each on or off. A style gives every
+  cell a density, from nothing at one side of the strip to solid at the
+  other, some of them moving that down the page. A matrix decides which
+  cells of a density are on. The site's own ramp (dither-ramp-paper.svg)
+  is 4px cells on the 4x4 Bayer matrix, but fades into a corner, so it
+  doesn't repeat.
+
+  CSS, at the bottom of the panel, is what to paste into magazine.css.
+-->
+<style>
+  :root {
+    --bg: #e5e5e5;
+    --panel: #f4f4f4;
+    --ink: #111;
+    --muted: #666;
+    --line: #c8c8c8;
+    --accent: #111;
+    --accent-ink: #f4f4f4;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161616;
+      --panel: #202020;
+      --ink: #eee;
+      --muted: #999;
+      --line: #3a3a3a;
+      --accent: #eee;
+      --accent-ink: #161616;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161616;
+    --panel: #202020;
+    --ink: #eee;
+    --muted: #999;
+    --line: #3a3a3a;
+    --accent: #eee;
+    --accent-ink: #161616;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    background: var(--bg);
+    color: var(--ink);
+    font: 13px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  aside {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    overflow-y: auto;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+  }
+  h1 { margin: 0; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+  h2 { margin: 0 0 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .group { display: flex; flex-direction: column; gap: 6px; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  button, select, input[type="text"] {
+    font: inherit;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+  }
+  button, select { cursor: pointer; }
+  button:hover, select:hover { border-color: var(--ink); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  .segmented { gap: 0; flex-wrap: nowrap; }
+  .segmented button { flex: 1; padding: 6px 4px; }
+  .segmented button + button { border-left: 0; }
+  .segmented button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .note { margin: 0; font-size: 11px; color: var(--muted); }
+  .field { display: grid; grid-template-columns: 96px 1fr 44px; align-items: center; gap: 8px; }
+  .field > span:first-child { font-size: 11px; }
+  .field output { font-size: 11px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .field input[type="range"] { width: 100%; min-width: 0; accent-color: var(--ink); }
+  .field input[type="color"] { width: 100%; height: 24px; padding: 0; border: 1px solid var(--line); background: transparent; }
+  .field input[type="text"] { grid-column: 2 / -1; min-width: 0; padding: 4px 8px; }
+  .field .segmented, .field select { grid-column: 2 / -1; }
+  .field select { width: 100%; min-width: 0; padding: 4px 8px; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .tile { height: 72px; border: 1px solid var(--line); background-color: #fff; }
+  .tiles span { font-size: 11px; color: var(--muted); }
+  textarea {
+    width: 100%;
+    height: 150px;
+    resize: vertical;
+    font: 11px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 8px;
+    white-space: pre;
+  }
+  main { position: relative; min-width: 0; overflow: hidden; }
+  #mock, iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #mock { overflow: auto; background: #fff; }
+  iframe { border: 0; background: #fff; }
+  [hidden] { display: none !important; }
+
+  /* The mock sheet: the grid, rules and edges of .sheet in magazine.css,
+     with blocks standing in for the bands. Always black on white, like
+     the site. */
+  .sheet {
+    --ink: #000;
+    --paper: #e5e5e5;
+    --sheet: #fff;
+    position: relative;
+    display: grid;
+    grid-template-columns:
+        [full-start] minmax(72px, 1fr) 71px
+        [main-start] minmax(0, 1440px) [main-end]
+        71px minmax(72px, 1fr) [full-end];
+    grid-template-rows: repeat(13, auto);   /* one per band below */
+    min-height: 100%;
+    background: var(--sheet);
+    color: var(--ink);
+  }
+  .edge, .vrule { grid-row: 1 / -1; pointer-events: none; }
+  .edge.left { grid-column: 1; }
+  .edge.right { grid-column: 5; }
+  .vrule { z-index: 2; width: 1px; background: var(--paper); }
+  .vrule.r1 { grid-column: 2; }
+  .vrule.r2 { grid-column: 3; }
+  .vrule.r3 { grid-column: 4; }
+  .vrule.r4 { grid-column: 5; }
+  /* Bands take their rows by hand (see the script): placed automatically,
+     they would start below the full-height edges. */
+  .band { grid-column: full-start / full-end; display: grid; grid-template-columns: subgrid; border-bottom: 1px solid var(--paper); }
+  .band > .cell { grid-column: main-start / main-end; grid-row: 1; }
+  .band > .label {
+    grid-row: 1;
+    align-self: center;
+    justify-self: center;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    white-space: nowrap;
+  }
+  .band > .label.l { grid-column: 2; }
+  .band > .label.r { grid-column: 4; }
+  .cell.plate { height: 200px; display: grid; place-items: center; font: 900 clamp(24px, 6vw, 72px)/1 "science gothic", "arial narrow", impact, sans-serif; letter-spacing: 0.12em; }
+  .cell.strip { height: 39px; }
+  .cell.lead { height: 520px; display: grid; grid-template-columns: 2fr 1fr; gap: 1px; background: var(--paper); }
+  .cell.lead > :first-child { background: var(--sheet); }
+  .cell.lead > :last-child { background: var(--ink); }
+  .cell.gap { height: 48px; background: repeating-linear-gradient(135deg, #c9c9c9 0 1px, var(--sheet) 1px 5.657px); }
+  .cell.head { height: 100px; background: var(--ink); }
+  .cell.cards { height: 460px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--paper); }
+  .cell.cards > * { background: var(--sheet); }
+  .cell.cards > :first-child { background: var(--paper); }
+  .cell.foot { height: 212px; background: var(--ink); }
+  .cell.run { height: 50px; }
+
+  @media (max-width: 760px) {
+    body { grid-template-columns: 1fr; grid-template-rows: auto 70vh; }
+    aside { border-right: 0; border-bottom: 1px solid var(--line); }
+  }
+</style>
+<style id="pattern-rules"></style>
+</head>
+<body>
+<aside>
+  <h1>Gutter Patterns Lab</h1>
+
+  <div class="group">
+    <h2>Preview</h2>
+    <div id="target" class="row segmented">
+      <button data-v="mock">Mock sheet</button>
+      <button data-v="live">Live site</button>
+    </div>
+    <label class="field" id="path-field"><span>Page</span><input type="text" id="path" spellcheck="false"></label>
+    <p class="note" id="status"></p>
+  </div>
+
+  <div class="group">
+    <h2>Edges</h2>
+    <div class="field"><span>Left</span><div id="left" class="row segmented">
+      <button data-v="dots">Dots</button><button data-v="tri">Tri</button><button data-v="ramp">Dither</button><button data-v="none">None</button>
+    </div></div>
+    <div class="field"><span>Right</span><div id="right" class="row segmented">
+      <button data-v="dots">Dots</button><button data-v="tri">Tri</button><button data-v="ramp">Dither</button><button data-v="none">None</button>
+    </div></div>
+    <button id="swap">Swap left and right</button>
+  </div>
+
+  <div class="group">
+    <h2>Tiles (right edge)</h2>
+    <div class="tiles">
+      <div class="tile" id="tile-dots"></div>
+      <div class="tile" id="tile-tri"></div>
+      <div class="tile" id="tile-ramp"></div>
+      <span>Dots 4x</span><span>Triangles 4x</span><span>Dither 1x</span>
+    </div>
+  </div>
+
+  <div class="group" id="dots-controls">
+    <h2>Dots</h2>
+  </div>
+
+  <div class="group" id="tri-controls">
+    <h2>Triangles</h2>
+  </div>
+
+  <div class="group" id="ramp-controls">
+    <h2>Dither ramp</h2>
+  </div>
+
+  <div class="group">
+    <h2>CSS</h2>
+    <textarea id="css" readonly spellcheck="false"></textarea>
+    <div class="row">
+      <button id="copy">Copy CSS</button>
+      <button id="reset">Reset all</button>
+    </div>
+  </div>
+</aside>
+
+<main>
+  <div id="mock">
+    <div class="sheet">
+      <div class="edge left"></div>
+      <div class="edge right"></div>
+      <div class="vrule r1"></div><div class="vrule r2"></div><div class="vrule r3"></div><div class="vrule r4"></div>
+      <div class="band"><div class="cell run"></div></div>
+      <div class="band"><div class="cell plate">ALMIGHTY LISP</div></div>
+      <div class="band"><div class="cell strip"></div></div>
+      <div class="band"><span class="label l">MAC ■ PART 3 OF 6</span><div class="cell lead"><div></div><div></div></div><span class="label r">FLIGHT MANUAL ■ LISP &amp; EMACS ESSENTIALS</span></div>
+      <div class="band"><div class="cell gap"></div></div>
+      <div class="band"><div class="cell head"></div></div>
+      <div class="band"><span class="label l">SERIES ■ 3 RUNNING</span><div class="cell cards"><div></div><div></div><div></div></div><span class="label r">MAC ■ CND ■ EMX</span></div>
+      <div class="band"><div class="cell gap"></div></div>
+      <div class="band"><div class="cell head"></div></div>
+      <div class="band"><span class="label l">LATEST ■ 4 ARTICLES</span><div class="cell cards"><div></div><div></div><div></div></div><span class="label r">ARCHIVE ■ SINCE MARCH 2026</span></div>
+      <div class="band"><div class="cell gap"></div></div>
+      <div class="band"><span class="label l">BOOK ■ THEMES</span><div class="cell foot"></div></div>
+      <div class="band"><div class="cell run"></div></div>
+    </div>
+  </div>
+  <iframe id="frame" title="Site page under test" hidden></iframe>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // The site's dots are a 2px square every 12px, #4a4a4a. The triangles'
+  // defaults are the Figma tile's. The dither ramp's cell and matrix are
+  // the site's ramp's.
+  var DEFAULTS = {
+    target: "mock", path: "/magazine", left: "dots", right: "tri",
+    dPitch: 12, dSize: 2, dColor: "#4a4a4a", dShape: "square", dStagger: "off",
+    tSide: 16, tCols: 5, tMin: 0.2, tMax: 1, tSpacing: 1, tColor: "#000000",
+    tPoint: "out", tGrow: "out", tAnchor: "outer", tInset: 0,
+    rStyle: "linear", rMatrix: "bayer4", rCell: 4, rWidth: 72, rPeriod: 16, rAmp: 0.5,
+    rFrom: 0, rTo: 1, rCurve: 1, rGrow: "out", rAnchor: "outer", rInset: 0, rColor: "#000000"
+  };
+  var KEY = "pattern-lab";
+  var served = location.protocol === "http:" || location.protocol === "https:";
+  var state = load();
+
+  var CONTROLS = {
+    "dots-controls": [
+      { key: "dPitch", label: "Pitch", min: 4, max: 40, step: 1, unit: "px" },
+      { key: "dSize", label: "Dot size", min: 1, max: 12, step: 0.5, unit: "px" },
+      { key: "dShape", label: "Shape", options: [["square", "Square"], ["round", "Round"]] },
+      { key: "dStagger", label: "Stagger", options: [["off", "Off"], ["on", "On"]] },
+      { key: "dColor", label: "Colour", color: true }
+    ],
+    "tri-controls": [
+      { key: "tSide", label: "Size", min: 6, max: 48, step: 1, unit: "px" },
+      { key: "tCols", label: "Columns", min: 1, max: 12, step: 1, unit: "" },
+      { key: "tMin", label: "Smallest", min: 0.05, max: 1, step: 0.05, unit: "×" },
+      { key: "tMax", label: "Largest", min: 0.05, max: 1, step: 0.05, unit: "×" },
+      { key: "tSpacing", label: "Col. spacing", min: 0.5, max: 2, step: 0.05, unit: "×" },
+      { key: "tPoint", label: "Points", options: [["out", "Outward"], ["in", "Inward"]] },
+      { key: "tGrow", label: "Grows", options: [["out", "Outward"], ["in", "Inward"]] },
+      { key: "tAnchor", label: "Held to", options: [["outer", "Page edge"], ["inner", "Rule"]] },
+      { key: "tInset", label: "Inset", min: 0, max: 40, step: 1, unit: "px" },
+      { key: "tColor", label: "Colour", color: true }
+    ],
+    "ramp-controls": [
+      { key: "rStyle", label: "Style", select: true, options: [
+        ["linear", "Linear: a plain fade"],
+        ["zigzag", "Zigzag: a sawtooth front"],
+        ["wave", "Wave: a rolling front"],
+        ["diagonal", "Diagonal: slanted bands"],
+        ["valley", "Valley: both sides solid"],
+        ["ridge", "Ridge: solid down the middle"],
+        ["pulse", "Pulse: fades in and out"]] },
+      { key: "rMatrix", label: "Matrix", select: true, options: [
+        ["bayer2", "Bayer 2x2: coarse"],
+        ["bayer4", "Bayer 4x4: the site's"],
+        ["bayer8", "Bayer 8x8: fine"],
+        ["cluster", "Clustered: halftone dots"],
+        ["lines", "Lines: a line screen"],
+        ["noise", "Noise: scattered"]] },
+      { key: "rCell", label: "Cell", min: 1, max: 8, step: 1, unit: "px" },
+      { key: "rWidth", label: "Width", min: 16, max: 240, step: 4, unit: "px" },
+      { key: "rPeriod", label: "Period", min: 8, max: 64, step: 4, unit: "" },
+      { key: "rAmp", label: "Amplitude", min: 0, max: 1, step: 0.05, unit: "" },
+      { key: "rFrom", label: "Lightest", min: 0, max: 1, step: 0.05, unit: "" },
+      { key: "rTo", label: "Darkest", min: 0, max: 1, step: 0.05, unit: "" },
+      { key: "rCurve", label: "Curve", min: 0.3, max: 3, step: 0.1, unit: "" },
+      { key: "rGrow", label: "Grows", options: [["out", "Outward"], ["in", "Inward"]] },
+      { key: "rAnchor", label: "Held to", options: [["outer", "Page edge"], ["inner", "Rule"]] },
+      { key: "rInset", label: "Inset", min: 0, max: 40, step: 1, unit: "px" },
+      { key: "rColor", label: "Colour", color: true }
+    ]
+  };
+
+  function load() {
+    var s = {}, saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+    Object.keys(DEFAULTS).forEach(function (k) {
+      s[k] = typeof saved[k] === typeof DEFAULTS[k] ? saved[k] : DEFAULTS[k];
+    });
+    return s;
+  }
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function $(id) { return document.getElementById(id); }
+  function num(n) { return String(Math.round(n * 1000) / 1000); }
+
+  // An SVG as a CSS url(), escaped the way --dots is in magazine.css.
+  function dataUri(svg) {
+    return 'url("data:image/svg+xml,' +
+      svg.replace(/</g, "%3c").replace(/>/g, "%3e").replace(/#/g, "%23") + '")';
+  }
+
+  function svg(w, h, body) {
+    return "<svg xmlns='http://www.w3.org/2000/svg' width='" + num(w) + "' height='" + num(h) + "'>" + body + "</svg>";
+  }
+
+  function dotsTile() {
+    var p = state.dPitch, d = Math.min(state.dSize, p), staggered = state.dStagger === "on";
+    var size = staggered ? p * 2 : p;
+    function dot(x, y) {
+      return state.dShape === "round"
+        ? "<circle cx='" + num(x + d / 2) + "' cy='" + num(y + d / 2) + "' r='" + num(d / 2) + "'/>"
+        : "<rect x='" + num(x) + "' y='" + num(y) + "' width='" + num(d) + "' height='" + num(d) + "'/>";
+    }
+    var body = dot(0, 0);
+    if (staggered) body += dot(p, p);
+    return { w: size, h: size, uri: dataUri(svg(size, size, "<g fill='" + state.dColor + "'>" + body + "</g>")) };
+  }
+
+  // One period of the triangle fade, for the right edge (MIRROR for the
+  // left). Column 0 is nearest the page. Each column is one triangle, the
+  // odd columns half a triangle down, so the tile is one triangle high.
+  function triTile(mirror) {
+    var s = state.tSide, cols = state.tCols;
+    var step = s * Math.sqrt(3) / 2 * state.tSpacing, depth = s * Math.sqrt(3) / 2;
+    var w = step * (cols - 1) + depth, d = "";
+    for (var c = 0; c < cols; c++) {
+      var t = cols === 1 ? 1 : c / (cols - 1);
+      if (state.tGrow === "in") t = 1 - t;
+      var f = state.tMin + (state.tMax - state.tMin) * t;
+      var x0 = c * step, x1 = x0 + depth;
+      var base = state.tPoint === "out" ? x0 : x1, apex = state.tPoint === "out" ? x1 : x0;
+      var cx = base + (apex - base) / 3;
+      for (var k = -1; k <= 1; k++) {
+        var cy = (c % 2 ? 0 : s / 2) + k * s;
+        var pts = [[base, cy - s / 2], [base, cy + s / 2], [apex, cy]].map(function (q) {
+          var x = cx + (q[0] - cx) * f, y = cy + (q[1] - cy) * f;
+          return num(mirror ? w - x : x) + " " + num(y);
+        });
+        d += "M" + pts.join("L") + "Z";
+      }
+    }
+    return { w: w, h: s, uri: dataUri(svg(w, s, "<path fill='" + state.tColor + "' d='" + d + "'/>")) };
+  }
+
+  // Threshold matrices: thr(x, y) is how dense a cell's spot has to be
+  // before the cell is on, from 0 to 1. SIZE is the matrix's side.
+  function bayer(n) {
+    var m = [[0]];
+    for (var size = 1; size < n; size *= 2) {
+      var next = [];
+      for (var y = 0; y < size * 2; y++) {
+        next.push([]);
+        for (var x = 0; x < size * 2; x++) {
+          next[y].push(4 * m[y % size][x % size] + [[0, 2], [3, 1]][y < size ? 0 : 1][x < size ? 0 : 1]);
+        }
+      }
+      m = next;
+    }
+    return m;
+  }
+
+  var CLUSTER = [[12, 5, 6, 13], [4, 0, 1, 7], [11, 3, 2, 8], [15, 10, 9, 14]];
+  // Rows fill in one at a time, each from four cells spread along it.
+  var LINES = [0, 2, 1, 3].map(function (row) {
+    return [0, 2, 1, 3].map(function (cell) { return row * 4 + cell; });
+  });
+
+  function matrix(name) {
+    if (name === "noise") {
+      // The same scatter every time: a hash of the cell, 16 cells square.
+      return { size: 16, thr: function (x, y) {
+        var h = Math.sin((x % 16) * 127.1 + (y % 16) * 311.7) * 43758.5453;
+        return h - Math.floor(h);
+      } };
+    }
+    var m = name === "cluster" ? CLUSTER : name === "lines" ? LINES : bayer(Number(name.slice(5)));
+    var n = m.length;
+    return { size: n, thr: function (x, y) { return (m[y % n][x % n] + 0.5) / (n * n); } };
+  }
+
+  // Styles: how far along the ramp (0 to 1) a cell is. U runs across the
+  // strip, 0 at the page's side; PH down one period, 0 to 1; AMP is the
+  // Amplitude. MOVES marks the ones that change down the page.
+  var STYLES = {
+    linear: { at: function (u) { return u; } },
+    zigzag: { moves: true, at: function (u, ph, amp) { return u + amp * (0.5 - Math.abs(2 * ph - 1)); } },
+    wave: { moves: true, at: function (u, ph, amp) { return u + amp * 0.5 * Math.sin(2 * Math.PI * ph); } },
+    diagonal: { moves: true, at: function (u, ph) { var t = u + ph; return t - Math.floor(t); } },
+    valley: { at: function (u) { return Math.abs(2 * u - 1); } },
+    ridge: { at: function (u) { return 1 - Math.abs(2 * u - 1); } },
+    pulse: { moves: true, at: function (u, ph, amp) { return u * (1 - amp * (0.5 + 0.5 * Math.cos(2 * Math.PI * ph))); } }
+  };
+
+  function lcm(a, b) {
+    var x = a, y = b;
+    while (y) { var t = y; y = x % y; x = t; }
+    return a * b / x;
+  }
+
+  // One period of the dither ramp, for the right edge (MIRROR for the
+  // left). The tile is as tall as the matrix and the style's period both
+  // need to come round. Each run of cells that are on is one rectangle.
+  function rampTile(mirror) {
+    var cell = state.rCell, cols = Math.max(2, Math.round(state.rWidth / cell));
+    var m = matrix(state.rMatrix), style = STYLES[state.rStyle] || STYLES.linear;
+    var rows = style.moves ? lcm(m.size, state.rPeriod) : m.size;
+    var w = cols * cell, d = "";
+    for (var y = 0; y < rows; y++) {
+      var ph = (y % state.rPeriod) / state.rPeriod, start = -1;
+      for (var x = 0; x <= cols; x++) {
+        var on = false;
+        if (x < cols) {
+          var u = x / (cols - 1);
+          if (state.rGrow === "in") u = 1 - u;
+          var t = Math.pow(Math.min(1, Math.max(0, style.at(u, ph, state.rAmp))), state.rCurve);
+          on = state.rFrom + (state.rTo - state.rFrom) * t > m.thr(x, y);
+        }
+        if (on && start < 0) start = x;
+        if (!on && start >= 0) {
+          var len = (x - start) * cell, left = mirror ? w - start * cell - len : start * cell;
+          d += "M" + left + " " + y * cell + "h" + len + "v" + cell + "h-" + len + "z";
+          start = -1;
+        }
+      }
+    }
+    return { w: w, h: rows * cell, uri: dataUri(svg(w, rows * cell, "<path fill='" + state.rColor + "' d='" + d + "'/>")) };
+  }
+
+  // The declarations for one edge.
+  function edgeRule(side) {
+    var kind = state[side];
+    if (kind === "none") return ["background-image: none;"];
+    if (kind === "dots") {
+      return ["background-image: " + dotsTile().uri + ";",
+              "background-repeat: repeat;",
+              "background-position: center top;"];
+    }
+    // The strip sits against the page edge or against the rule. The left
+    // edge's page edge is its left, the right edge's its right.
+    var outer = side === "left" ? "left" : "right", inner = side === "left" ? "right" : "left";
+    var k = kind === "ramp" ? "r" : "t";
+    var tile = kind === "ramp" ? rampTile(side === "left") : triTile(side === "left");
+    var at = state[k + "Anchor"] === "outer" ? outer : inner;
+    return ["background-image: " + tile.uri + ";",
+            "background-repeat: repeat-y;",
+            "background-position: " + at + " " + num(state[k + "Inset"]) + "px top;"];
+  }
+
+  function rules(indent) {
+    return ["left", "right"].map(function (side) {
+      return ".edge." + side + " {\n" + edgeRule(side).map(function (l) { return indent + l; }).join("\n") + "\n}";
+    }).join("\n");
+  }
+
+  function render() {
+    var css = rules("    ");
+    $("pattern-rules").textContent = css;
+    $("css").value = css;
+    var dots = dotsTile(), tri = triTile(false), ramp = rampTile(false);
+    $("tile-dots").style.cssText = "background-image:" + dots.uri + ";background-size:" + num(dots.w * 4) + "px " + num(dots.h * 4) + "px;background-position:center top;";
+    $("tile-tri").style.cssText = "background-image:" + tri.uri + ";background-size:" + num(tri.w * 4) + "px " + num(tri.h * 4) + "px;background-repeat:repeat-y;background-position:right top;";
+    $("tile-ramp").style.cssText = "background-image:" + ramp.uri + ";background-repeat:repeat-y;background-position:right top;";
+    inject();
+    save();
+  }
+
+  // The live page gets the same rules, after its own so they win.
+  function inject() {
+    if (state.target !== "live") return;
+    var doc;
+    try { doc = $("frame").contentDocument; } catch (e) { doc = null; }
+    if (!doc || !doc.head) return;
+    var style = doc.getElementById("pattern-lab-rules");
+    if (!style) {
+      style = doc.createElement("style");
+      style.id = "pattern-lab-rules";
+      doc.head.appendChild(style);
+    }
+    style.textContent = $("pattern-rules").textContent;
+    var edges = doc.querySelectorAll(".edge").length;
+    $("status").textContent = edges ? "Live: " + doc.location.pathname : "This page has no .edge to draw on.";
+  }
+
+  function showTarget() {
+    var live = state.target === "live";
+    $("mock").hidden = live;
+    $("frame").hidden = !live;
+    $("path-field").hidden = !live;
+    if (!live) { $("status").textContent = served ? "" : "Opened as a file: the live site needs serve.py."; return; }
+    $("status").textContent = "Loading…";
+    if ($("frame").getAttribute("src") !== state.path) $("frame").src = state.path;
+    else inject();
+  }
+
+  function segmented(el, key, after) {
+    function mark() {
+      el.querySelectorAll("button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.dataset.v === state[key]));
+      });
+    }
+    el.addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b || b.disabled) return;
+      state[key] = b.dataset.v;
+      mark();
+      (after || render)();
+    });
+    mark();
+    return mark;
+  }
+
+  var refresh = [];
+
+  function build(groupId, specs) {
+    var group = $(groupId);
+    specs.forEach(function (spec) {
+      var field = document.createElement(spec.options && !spec.select ? "div" : "label");
+      field.className = "field";
+      var name = document.createElement("span");
+      name.textContent = spec.label;
+      field.appendChild(name);
+      if (spec.select) {
+        var select = document.createElement("select");
+        spec.options.forEach(function (o) {
+          var option = document.createElement("option");
+          option.value = o[0];
+          option.textContent = o[1];
+          select.appendChild(option);
+        });
+        var pick = function () { select.value = state[spec.key]; };
+        select.addEventListener("change", function () {
+          state[spec.key] = select.value;
+          render();
+        });
+        field.appendChild(select);
+        refresh.push(pick);
+        pick();
+      } else if (spec.options) {
+        var seg = document.createElement("div");
+        seg.className = "row segmented";
+        spec.options.forEach(function (o) {
+          var b = document.createElement("button");
+          b.dataset.v = o[0];
+          b.textContent = o[1];
+          seg.appendChild(b);
+        });
+        field.appendChild(seg);
+        refresh.push(segmented(seg, spec.key));
+      } else {
+        var input = document.createElement("input"), out = document.createElement("output");
+        input.type = spec.color ? "color" : "range";
+        if (!spec.color) { input.min = spec.min; input.max = spec.max; input.step = spec.step; }
+        var show = function () {
+          input.value = state[spec.key];
+          out.textContent = spec.color ? "" : num(state[spec.key]) + spec.unit;
+        };
+        input.addEventListener("input", function () {
+          state[spec.key] = spec.color ? input.value : Number(input.value);
+          show();
+          render();
+        });
+        field.appendChild(input);
+        field.appendChild(out);
+        refresh.push(show);
+        show();
+      }
+      group.appendChild(field);
+    });
+  }
+
+  document.querySelectorAll("#mock .band").forEach(function (band, i) {
+    band.style.gridRow = String(i + 1);
+  });
+
+  Object.keys(CONTROLS).forEach(function (id) { build(id, CONTROLS[id]); });
+  refresh.push(segmented($("left"), "left"));
+  refresh.push(segmented($("right"), "right"));
+  refresh.push(segmented($("target"), "target", function () { save(); showTarget(); }));
+
+  if (!served) {
+    state.target = "mock";
+    $("target").querySelector('[data-v="live"]').disabled = true;
+    refresh[refresh.length - 1]();
+  }
+
+  $("path").value = state.path;
+  $("path").addEventListener("change", function () {
+    state.path = $("path").value.trim() || DEFAULTS.path;
+    save();
+    showTarget();
+  });
+  $("frame").addEventListener("load", inject);
+
+  $("swap").addEventListener("click", function () {
+    var l = state.left;
+    state.left = state.right;
+    state.right = l;
+    refresh.forEach(function (f) { f(); });
+    render();
+  });
+
+  $("reset").addEventListener("click", function () {
+    var keep = { target: state.target, path: state.path };
+    state = Object.assign({}, DEFAULTS, keep);
+    refresh.forEach(function (f) { f(); });
+    render();
+  });
+
+  $("copy").addEventListener("click", function () {
+    var button = $("copy"), text = $("css").value;
+    function done() { button.textContent = "Copied"; setTimeout(function () { button.textContent = "Copy CSS"; }, 1200); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { $("css").select(); });
+    } else {
+      $("css").select();
+      document.execCommand("copy");
+      done();
+    }
+  });
+
+  render();
+  showTarget();
+})();
+</script>
+</body>
+</html>

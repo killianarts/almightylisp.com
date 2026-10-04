@@ -1,6 +1,7 @@
 #+title: Almighty Bakers
 #+subtitle: I feel anxious and sweaty about my future as a software developer. How about you? But perhaps we could learn a lesson from an unlikely group of hard working young men: Victorian bakers.
 
+#+author: Micah Killian
 #+date: 2026-10-02
 #+type: Opinion
 #+topic: Industry

@@ -27,7 +27,9 @@
 
     /* patterns (figma: neo / pattern). */
     --dots: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3e%3crect width='2' height='2' fill='%234a4a4a'/%3e%3c/svg%3e");
-    --hatch: repeating-linear-gradient(135deg, var(--hairline) 0 1px, var(--sheet) 1px 5.657px);
+    /* Tiled at 8px (one diagonal period on each axis): a single gradient
+       spanning a tall column loses precision and the lines thicken. */
+    --hatch: repeating-linear-gradient(135deg, var(--hairline) 0 1px, var(--sheet) 1px 5.657px) 0 0 / 8px 8px;
 
     /* type. science gothic for display, construct mono for labels, mohave
      for reading, avenir for article prose, berkeley mono for code, kkm
@@ -47,9 +49,13 @@
     --pad-narrow: 16px;
 
     /* column ratios of the 1440px main column. */
-    --cols-lead: minmax(0, 958fr) minmax(0, 479fr);     /* two thirds, one third */
+    /* the third is a length and one track takes the rest, so the rule
+       before it lands on the same subpixel in --cols-lead and --cols-piece
+       at every width; fr shares round differently from row to row. */
+    --third: calc((100% - 1px) / 3);
+    --cols-lead: minmax(0, 1fr) var(--third);           /* two thirds, one third */
     --cols-index: minmax(0, 479fr) minmax(0, 958fr);    /* one third, two thirds */
-    --cols-piece: minmax(0, 359fr) minmax(0, 599fr) minmax(0, 479fr);
+    --cols-piece: calc((100% - 2px) * 359 / 1437) minmax(0, 1fr) var(--third);
 
     /* Film-grain noise — tunable overlay drawn by body::before (currently off). */
     --noise-color: var(--paper);  /* grain tint (any color / theme var) */
@@ -296,6 +302,17 @@
 .edge.left { grid-column: 1; }
 .edge.right { grid-column: 5; }
 
+
+.edge.left {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='145.492' height='14'%3e%3cpath fill='%23252525' d='M136.803 -8.05L136.803 -5.95L138.622 -7ZM136.803 5.95L136.803 8.05L138.622 7ZM136.803 19.95L136.803 22.05L138.622 21ZM124.587 -15.209L124.587 -12.791L126.681 -14ZM124.587 -1.209L124.587 1.209L126.681 0ZM124.587 12.791L124.587 15.209L126.681 14ZM112.371 -8.368L112.371 -5.632L114.74 -7ZM112.371 5.632L112.371 8.368L114.74 7ZM112.371 19.632L112.371 22.368L114.74 21ZM100.155 -15.527L100.155 -12.473L102.8 -14ZM100.155 -1.527L100.155 1.527L102.8 0ZM100.155 12.473L100.155 15.527L102.8 14ZM87.938 -8.686L87.938 -5.314L90.859 -7ZM87.938 5.314L87.938 8.686L90.859 7ZM87.938 19.314L87.938 22.686L90.859 21ZM75.722 -15.845L75.722 -12.155L78.919 -14ZM75.722 -1.845L75.722 1.845L78.919 0ZM75.722 12.155L75.722 15.845L78.919 14ZM63.506 -9.005L63.506 -4.995L66.978 -7ZM63.506 4.995L63.506 9.005L66.978 7ZM63.506 18.995L63.506 23.005L66.978 21ZM51.29 -16.164L51.29 -11.836L55.037 -14ZM51.29 -2.164L51.29 2.164L55.037 0ZM51.29 11.836L51.29 16.164L55.037 14ZM39.073 -9.323L39.073 -4.677L43.097 -7ZM39.073 4.677L39.073 9.323L43.097 7ZM39.073 18.677L39.073 23.323L43.097 21ZM26.857 -16.482L26.857 -11.518L31.156 -14ZM26.857 -2.482L26.857 2.482L31.156 0ZM26.857 11.518L26.857 16.482L31.156 14ZM14.641 -9.641L14.641 -4.359L19.215 -7ZM14.641 4.359L14.641 9.641L19.215 7ZM14.641 18.359L14.641 23.641L19.215 21ZM2.425 -16.8L2.425 -11.2L7.275 -14ZM2.425 -2.8L2.425 2.8L7.275 0ZM2.425 11.2L2.425 16.8L7.275 14Z'/%3e%3c/svg%3e");
+    background-repeat: repeat-y;
+    background-position: left 0px top;
+}
+.edge.right {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='145.492' height='14'%3e%3cpath fill='%23252525' d='M8.689 -8.05L8.689 -5.95L6.87 -7ZM8.689 5.95L8.689 8.05L6.87 7ZM8.689 19.95L8.689 22.05L6.87 21ZM20.905 -15.209L20.905 -12.791L18.811 -14ZM20.905 -1.209L20.905 1.209L18.811 0ZM20.905 12.791L20.905 15.209L18.811 14ZM33.122 -8.368L33.122 -5.632L30.752 -7ZM33.122 5.632L33.122 8.368L30.752 7ZM33.122 19.632L33.122 22.368L30.752 21ZM45.338 -15.527L45.338 -12.473L42.692 -14ZM45.338 -1.527L45.338 1.527L42.692 0ZM45.338 12.473L45.338 15.527L42.692 14ZM57.554 -8.686L57.554 -5.314L54.633 -7ZM57.554 5.314L57.554 8.686L54.633 7ZM57.554 19.314L57.554 22.686L54.633 21ZM69.77 -15.845L69.77 -12.155L66.574 -14ZM69.77 -1.845L69.77 1.845L66.574 0ZM69.77 12.155L69.77 15.845L66.574 14ZM81.986 -9.005L81.986 -4.995L78.514 -7ZM81.986 4.995L81.986 9.005L78.514 7ZM81.986 18.995L81.986 23.005L78.514 21ZM94.203 -16.164L94.203 -11.836L90.455 -14ZM94.203 -2.164L94.203 2.164L90.455 0ZM94.203 11.836L94.203 16.164L90.455 14ZM106.419 -9.323L106.419 -4.677L102.396 -7ZM106.419 4.677L106.419 9.323L102.396 7ZM106.419 18.677L106.419 23.323L102.396 21ZM118.635 -16.482L118.635 -11.518L114.336 -14ZM118.635 -2.482L118.635 2.482L114.336 0ZM118.635 11.518L118.635 16.482L114.336 14ZM130.851 -9.641L130.851 -4.359L126.277 -7ZM130.851 4.359L130.851 9.641L126.277 7ZM130.851 18.359L130.851 23.641L126.277 21ZM143.067 -16.8L143.067 -11.2L138.218 -14ZM143.067 -2.8L143.067 2.8L138.218 0ZM143.067 11.2L143.067 16.8L138.218 14Z'/%3e%3c/svg%3e");
+    background-repeat: repeat-y;
+    background-position: right 0px top;
+}
 .vrule {
     z-index: 2;
     width: 1px;
@@ -868,12 +885,12 @@
 .neo-brief-dots {
     flex: 1 1 auto;
     height: 14px;
-    margin: 0 11px 0 28px;
+    margin-left: 15px;
+    margin-right: 15px;
     background-image: var(--dots);
 }
 
 .neo-brief-code {
-    padding-inline: 1ch;
     line-height: 1.2;
     color: var(--mid);
 }
@@ -1716,7 +1733,7 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
 
     /* Article: a section's number is a black square beside its title, and
      notes sit under the paragraph before them. */
-    .piece-head { flex-direction: row; align-items: center; gap: 14px; padding-bottom: 0; }
+    .piece-head { flex-direction: row; align-items: center; gap: 14px; padding-block: 1ch; }
     .piece-head > .hatch-fill, .piece-margin { display: none; }
     .piece-number {
         flex: 0 0 auto;
@@ -1736,7 +1753,7 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
         display: block;
         max-width: 620px;
         padding-left: 14px;
-        border-left: 2px solid var(--ink);
+        border-left: 1ch solid var(--ink);
     }
     .inline-note + .inline-note { padding-top: 0; border-top: 0; }
     .mag a.toc-article, .mag a.toc-cell:not(.is-current) { display: none; }
