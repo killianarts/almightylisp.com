@@ -148,5 +148,4 @@
         (when (getf layout :latest)
           (render-latest-section layout series))
         (when (getf layout :series)
-          (render-series-section (getf layout :series) featured))
-        (render-book-band))))))
+          (render-series-section (getf layout :series) featured)))))))

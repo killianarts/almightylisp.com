@@ -73,23 +73,6 @@ pitch and the spec list. htmx leaves its links alone: they leave the magazine."
        (a :class "neo-button primary" :href *book-href* "Start reading")
        (a :class "neo-button secondary" :href *hardcover-href* "Purchase hardcover")))))
 
-;;; The book band closes a narrow page. Where the panel has no column of its
-;;; own, this replaces it: the logo and a line, then both buttons.
-
-(defun render-book-band ()
-  (ah:</>
-   (ac-band :class "book-band"
-     (aside :class "book-strip" :aria-label "Lisp & Emacs Essentials" :hx-boost "false"
-       (div :class "book-strip-copy"
-         (img :class "book-ad-logo" :src (image-src "essentials-logo.svg") :alt "Lisp & Emacs Essentials"
-           :width "156" :height "69")
-         (p :class "book-strip-line"
-           (span :class "book-ad-label" "The Book (your eyes only)")
-           (span :class "book-strip-text" "Be not defeated by the rapidly shifting winds of code and craft. Become Almighty.")))
-       (div :class "book-ad-actions"
-         (a :class "neo-button primary" :href *book-href* "Start reading")
-         (a :class "neo-button secondary" :href *hardcover-href* "Purchase hardcover"))))))
-
 ;;; Series progress
 
 (defun render-meter (series)

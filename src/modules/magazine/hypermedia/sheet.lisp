@@ -44,7 +44,7 @@
                                          (description "A magazine about Common Lisp and Emacs.")
                                          page-class sheet-id scripts children)
   "A whole magazine page: the sheet with its running header, nameplate and
-strip, then CHILDREN, the page's own bands, then the running footer. JP sets
+strip, then CHILDREN, the page's own bands, then the footer. JP sets
 the header's centre in Japanese. SCRIPTS go after the sheet."
   (let ((body-class (ah:clsx "mag" page-class)))
     (ah:</>
@@ -57,6 +57,7 @@ the header's centre in Japanese. SCRIPTS go after the sheet."
          (render-nameplate)
          (render-strip)
          children
+         (render-site-footer)
          (render-running-footer))
        scripts))))
 
@@ -130,6 +131,39 @@ render-jp) set upright below the text."
        (span "No build step  /  Absolutely (( No )) Rust")
        (render-sep)
        (render-jp "tatakawanakereba-katenai")))))
+
+(defun render-site-footer ()
+  "The black band that closes every page: the colophon, the book and the theme
+packs. On a narrow page, which has no book panel, this is where the book is.
+htmx leaves the shop links alone: they leave the magazine."
+  (ah:</>
+   (<>
+     (div :class "band gap-band footer-gap" :aria-hidden t)
+     (ac-band :class "footer-band" :side (list (joined "Book" "Themes") "")
+       (div :class "site-footer"
+         (a :class "footer-colophon" :href (magazine-href)
+           (img :class "footer-mark" :src (image-src "almighty-logo.svg") :alt ""
+             :width "40" :height "42")
+           (img :class "footer-typemark" :src (image-src "almighty-lisp-typemark.svg")
+             :alt "Almighty Lisp" :width "377" :height "17"))
+         (section :class "footer-block footer-book" :aria-label "Lisp & Emacs Essentials"
+           :hx-boost "false"
+           (p :class "book-ad-label" "The Book (your eyes only)")
+           (img :class "book-ad-logo" :src (image-src "essentials-logo.svg")
+             :alt "Lisp & Emacs Essentials" :width "156" :height "69")
+           (div :class "footer-actions"
+             (a :class "neo-button primary" :href *book-href* "Read free online")
+             (a :class "neo-button secondary" :href *ebook-href* "Purchase ebook")
+             (a :class "neo-button secondary" :href *hardcover-href* "Purchase hardcover")))
+         (section :class "footer-block footer-themes" :aria-label "Theme packs"
+           :hx-boost "false"
+           (p :class "book-ad-label" (joined "Doom Emacs" "16 themes"))
+           (h2 :class "footer-title" "Theme Packs")
+           (render-spec *theme-packs* :class "spec book-spec")
+           (div :class "footer-actions"
+             (mapcar (lambda (pack)
+                       (ah:</> (a :class "neo-button secondary" :href (third pack) (first pack))))
+                     *theme-packs*))))))))
 
 (defun render-nameplate ()
   (ah:</>

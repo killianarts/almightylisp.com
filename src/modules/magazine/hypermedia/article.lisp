@@ -213,5 +213,4 @@
         (when sections (render-toc-strip article in-series))
         (if in-series
             (render-series-end article in-series)
-            (render-keep-reading article articles series))
-        (render-book-band))))))
+            (render-keep-reading article articles series)))))))

@@ -13,7 +13,7 @@
 ;;;
 ;;;   package.lisp    links, assets, small text helpers
 ;;;   sheet.lisp      the document and the sheet every page is set on: bands,
-;;;                   gutters and side labels, running header and footer
+;;;                   gutters and side labels, running header, the footer
 ;;;   logos.lisp      series logos and stamps
 ;;;   cards.lisp      briefs, the book panel, series cards and progress
 ;;;   blocks.lisp     an article's body: prose, code, tables, margin notes
@@ -43,6 +43,17 @@ right once that module has served a request.")
 
 (defparameter *hardcover-href* "https://www.amazon.com/dp/B0HL586JWT"
   "Where Purchase hardcover goes: the print edition's store page.")
+
+(defparameter *ebook-href*
+  "https://almightylisp.gumroad.com/l/almighty-lisp-lisp-and-emacs-essentials-ebook"
+  "Where Purchase ebook goes: the PDF's store page.")
+
+(defparameter *theme-packs*
+  '(("Theme Pack 1" "Lisp ■ Titan ■ Gear ■ Macro"
+     "https://almightylisp.gumroad.com/l/almighty-themes-pack-1")
+    ("Theme Pack 2" "Ena ■ Mikasa ■ Lisp-X ■ Saga"
+     "https://almightylisp.gumroad.com/l/almighty-themes-pack-2"))
+  "Name, themes and store page of each Doom Emacs theme pack.")
 
 (defun asset (path)
   "The URL of static/PATH, versioned so browsers fetch it again when it changes."

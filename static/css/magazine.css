@@ -178,7 +178,8 @@
 /* Display: Science Gothic in capitals. */
 .neo-headline, .section-title, .series-title, .featured-title, .featured-count,
 .index-name, .piece-number, .piece-name, .contents-t, .neo-brief-title,
-.index-cell-n, .index-cell-title, .arch-month-head, .toc-article-title {
+.index-cell-n, .index-cell-title, .arch-month-head, .toc-article-title,
+.footer-title {
     font-family: var(--disp);
     font-weight: 500;
     text-transform: uppercase;
@@ -258,7 +259,7 @@
         [full-start] minmax(72px, 1fr) 71px
         [main-start] minmax(0, 1440px) [main-end]
         71px minmax(72px, 1fr) [full-end];
-    grid-template-rows: repeat(11, auto) 1fr;
+    grid-template-rows: repeat(12, auto) 1fr;
     min-height: 100vh;
 }
 
@@ -272,8 +273,9 @@
 .latest-gap { grid-row: 8; }
 .latest-head { grid-row: 9; }
 .latest-band { grid-row: 10; }
-.book-band { grid-row: 11; }
-.running.bottom { grid-row: 12; align-self: start; }
+.footer-gap { grid-row: 11; }
+.footer-band { grid-row: 12; }
+.running.bottom { grid-row: 13; align-self: start; }
 
 .band {
     grid-column: full;
@@ -835,30 +837,65 @@
 
 .book-ad a:focus-visible { outline-color: var(--paper); }
 
-/* The book band and inline notes are for narrow pages; wide ones have the
-   book panel and the margin column. */
+/* Inline notes are for narrow pages; wide ones have the margin column. */
 
-.book-band, .inline-note, .date-short { display: none; }
+.inline-note, .date-short { display: none; }
 
-.book-strip {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px 32px;
-    padding: 20px var(--pad);
-    background:
-        url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
-        var(--ink);
+/* The footer (Figma: Footer band): the colophon, the book and the theme
+   packs, three black cells set like the book panel. Narrow pages have no
+   book panel, so this is where the book is. */
+
+.site-footer {
+    display: grid;
+    grid-template-columns: var(--third) minmax(0, 1fr) var(--third);
+    gap: 1px;
+    background: var(--muted);
     color: var(--on-ink);
 }
 
-.book-strip-copy { display: flex; align-items: center; gap: 20px; min-width: 0; }
+.footer-colophon, .footer-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: var(--pad) var(--pad) 30px;
+    background:
+        url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
+        var(--ink);
+}
 
-.book-strip-line { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.book-strip-text { font-family: var(--mohave); font-size: 17px; line-height: 1.3; }
-.book-strip .book-ad-actions { flex: 0 0 auto; flex-wrap: nowrap; margin-top: 0; }
-.book-strip .neo-button { flex: 0 0 auto; }
-.book-strip a:focus-visible { outline-color: var(--paper); }
+.footer-themes {
+    background:
+        url("/static/assets/images/magazine/Neo/Pattern/Neo/Pattern/Neo/Pattern/Dither%20ramp/Reversed.svg") right top / 224px 224px no-repeat,
+        url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
+        var(--ink);
+}
+
+/* The logo and typemark are drawn in black; inverted, they sit on it. */
+.footer-colophon { align-items: center; gap: 14px; }
+.footer-mark { filter: invert(1); }
+.footer-typemark { width: 377px; max-width: 100%; height: auto; filter: invert(0.9); }
+
+.footer-title {
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    color: var(--sheet);
+}
+
+.footer-themes .book-spec .spec-row dd { color: var(--sheet); }
+
+/* The first button takes a row; the rest share the next. */
+.footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.footer-actions .neo-button { flex: 1 1 0; min-width: 0; }
+.footer-actions .neo-button.primary { flex-basis: 100%; }
+
+.site-footer a:focus-visible { outline-color: var(--paper); }
 
 /* Briefs: the card an article, or a book chapter, is listed with. One in a
    series has a black strip across the top naming its part. */
@@ -1678,8 +1715,7 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
 /* 5. Responsive ------------------------------------------------------------ */
 
 /* Tablets (under 1180px): the gutters go, the columns stack, and the book
-   panel moves to a band at the foot of the page. Phones (under 700px) narrow
-   it further. */
+   moves into the footer. Phones (under 700px) narrow it further. */
 
 @media (max-width: 1179px) {
     .sheet {
@@ -1698,9 +1734,21 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
     .series-cards { grid-auto-flow: row; }
     .index-cells { grid-template-rows: none; grid-auto-flow: row; }
 
-    /* The book is a band at the foot of the page. */
+    /* The book is in the footer: one black panel, the colophon across the
+     top and the book beside the theme packs. */
     .neo-plate > .book-ad, .art-side > .book-ad { display: none; }
-    .book-band { display: grid; }
+    .footer-gap { display: none; }
+    .site-footer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 28px 32px;
+        padding: 24px var(--pad) 28px;
+        background:
+            url("/static/assets/images/magazine/Neo/Pattern/Neo/Pattern/Neo/Pattern/Dither%20ramp/Reversed.svg") right top / 224px 224px no-repeat,
+            url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
+            var(--ink);
+    }
+    .footer-colophon, .footer-block { padding: 0; background: none; }
+    .footer-colophon { grid-column: 1 / -1; }
 
     /* Header: one row of cells. */
     .running-row { justify-content: space-between; padding: 11px 16px; white-space: nowrap; }
@@ -1778,10 +1826,10 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
     .neo-dek { font-size: 18px; }
     .neo-lead-meta { max-width: none; }
 
-    /* The book band stacks: logo and line, then the buttons. */
-    .book-strip { flex-direction: column; align-items: stretch; }
-    .book-strip .book-ad-actions { flex-direction: column; }
-    .book-strip .neo-button { flex: 1 0 auto; }
+    /* The footer stacks, and so do the book's buttons. */
+    .site-footer { grid-template-columns: minmax(0, 1fr); }
+    .footer-typemark { width: 309px; }
+    .footer-book .neo-button { flex-basis: 100%; }
     .index-cells { grid-template-columns: minmax(0, 1fr); }
     .index-fill { display: none; }
 }
