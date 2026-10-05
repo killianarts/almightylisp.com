@@ -94,15 +94,17 @@ render-jp) set upright below the text."
            (ah:</> (span :class "side-label left" :aria-hidden t (string-upcase text))))
        (span :class "side-label right" :aria-hidden t (string-upcase right))))))
 
-;;; Japanese labels are set in KKM Analog TV, a pixel face (see .jp in
-;;; magazine.css).
+;;; Japanese labels are set in pixel faces (see .jp in magazine.css): JF Dot
+;;; M+Q 10 in the running header, the running footer and the gutters, KKM
+;;; Analog TV beside a section's name. The site's copy of JF Dot has only the
+;;; kanji listed in dev/jfdot-vert.py: add a new label's there.
 
 (defparameter *jp-labels*
   '(("almighty" "オールマイティ")
-    ("tatakawanakereba-katenai" "タタカワナケレバカテナイ")
+    ("tatakawanakereba-katenai" "戦わなければ勝てない")
     ("series" "シリーズ")
     ("briefing" "ブリーフィング")
-    ("omona-series" "おもなシリーズ"))
+    ("omona-series" "主なシリーズ"))
   "Name and text of each Japanese label.")
 
 (defun render-jp (name &key class)
@@ -142,7 +144,7 @@ htmx leaves the shop links alone: they leave the magazine."
      (ac-band :class "footer-band" :side (list (joined "Book" "Themes") "")
        (div :class "site-footer"
          (a :class "footer-colophon" :href (magazine-href)
-           (img :class "footer-mark" :src (image-src "almighty-logo.svg") :alt ""
+           (img :class "footer-mark" :src (image-src "almighty-logo-outline.png") :alt ""
              :width "40" :height "42")
            (img :class "footer-typemark" :src (image-src "almighty-lisp-typemark.svg")
              :alt "Almighty Lisp" :width "377" :height "17"))
@@ -184,14 +186,16 @@ htmx leaves the shop links alone: they leave the magazine."
          (span :class "date-short" (press:format-date (press:today) :short-weekday)))
        (div :class "strip-cell end" (a :href *book-href* "Become Almighty"))))))
 
-(defun render-section-head (key title meta &key jp action action-href)
+(defun render-section-head (key title meta &key jp action action-href (gap t))
   "A grey gap band, then the section name set large on a black band with a
 hazard strip in the left gutter. KEY names the section; its bands' classes
 place them on the sheet's rows. JP, a Japanese label (see render-jp), sits
-above META."
+above META. ACTION is a link when ACTION-HREF is given. Without GAP, the head
+sits against the band before it."
   (ah:</>
    (<>
-     (div :class (format nil "band gap-band ~a-gap" key) :aria-hidden t)
+     (when gap
+       (ah:</> (div :class (format nil "band gap-band ~a-gap" key) :aria-hidden t)))
      (div :class (format nil "band head-band ~a-head" key)
        (span :class "hazard" :aria-hidden t)
        (h2 :class "section-head"
@@ -202,17 +206,25 @@ above META."
                 (render-jp jp)
                 (span :class "section-meta" meta)))
              (ah:</> (span :class "section-meta" meta)))
-         (when action
-           (ah:</> (a :class "section-action" :href action-href action))))))))
+         (cond ((and action action-href)
+                (ah:</> (a :class "section-action" :href action-href action)))
+               (action (ah:</> (span :class "section-action" action)))))))))
 
-(defun render-end-band (label content &key dark folio)
-  "The band that closes an article: a label row over CONTENT."
+(defun render-end-transmission ()
+  "The line that closes an article's text, above its end head."
+  (ah:</>
+   (ac-band :class "transmission-band"
+     (p :class "end-transmission"
+       (span :class "spec-lead" :aria-hidden t)
+       (span :class "end-transmission-text" "End transmission")
+       (span :class "spec-lead" :aria-hidden t)))))
+
+(defun render-end-band (label content)
+  "The band that closes a page: CONTENT, under a row for LABEL when there is one."
   (ah:</>
    (ac-band :class "end-band"
      (div :class "end-block"
-       (p :class (ah:clsx "end-label" (when dark "dark"))
-         (if folio (ah:</> (span label)) label)
-         (when folio (ah:</> (span :class "end-folio" folio))))
+       (when label (ah:</> (p :class "end-label" label)))
        content))))
 
 (defun render-hatch ()

@@ -65,4 +65,12 @@ Applications that should be written in Common Lisp.
 ** Kid Games
 ** Torah Reading
 ** Photo order system
-** Android-MacOS file browser/transfer
+** DONE Android-MacOS file browser/transfer
+** MS Word replacement
+** MS Excel replacement
+** Web Browser
+** Dev Browser
+** Chat Client
+** Email Client
+** Image Optimizer
+** Operating System

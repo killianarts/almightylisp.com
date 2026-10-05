@@ -32,8 +32,8 @@
     --hatch: repeating-linear-gradient(135deg, var(--hairline) 0 1px, var(--sheet) 1px 5.657px) 0 0 / 8px 8px;
 
     /* type. science gothic for display, construct mono for labels, mohave
-     for reading, avenir for article prose, berkeley mono for code, kkm
-     analog tv for japanese labels. */
+     for reading, avenir for article prose, berkeley mono for code, jf dot
+     m+q 10 and kkm analog tv for japanese labels. */
     --disp: "science gothic", "arial narrow", impact, sans-serif;
     --disp-axes: "wdth" 100, "ctrs" 0, "slnt" 0;
     --mono: "construct mono", ui-monospace, monospace;
@@ -42,6 +42,7 @@
     --cond: "avenir next condensed", "avenir next", "barlow condensed", "arial narrow", sans-serif;
     --code: "berkeley mono", "construct mono", ui-monospace, monospace;
     --jp: "kkm analog tv", "hiragino kaku gothic pron", "yu gothic", meiryo, sans-serif;
+    --jp-dot: "jf dot m+q 10", "hiragino kaku gothic pron", "yu gothic", meiryo, sans-serif;
 
     /* space. cells are padded by the figma grid's 32px, less the rule. */
     --pad: 31.68px;
@@ -268,9 +269,9 @@
 .strip-band { grid-row: 3; }
 .plate-band, .art-head-band, .archive-gap, .missing-gap { grid-row: 4; }
 .series-gap, .pieces-band, .archive-head, .missing-head { grid-row: 5; }
-.series-head, .end-band, .archive-band { grid-row: 6; }
-.series-band { grid-row: 7; }
-.latest-gap { grid-row: 8; }
+.series-head, .transmission-band, .archive-band { grid-row: 6; }
+.series-band, .end-head { grid-row: 7; }
+.latest-gap, .end-band { grid-row: 8; }
 .latest-head { grid-row: 9; }
 .latest-band { grid-row: 10; }
 .footer-gap { grid-row: 11; }
@@ -378,9 +379,11 @@
 
 .running .sep { font-size: 9px; }
 
-/* Japanese labels (see render-jp), in a pixel face: 11 pixels to the em, so
-   sizes that keep them sharp are few. The margin takes back the tracking
-   after the last character. */
+/* Japanese labels (see render-jp), in pixel faces, so sizes that keep them
+   sharp are few. KKM Analog TV, 11 pixels to the em, is beside a section's
+   name; the running header, the running footer and the gutters are in JF Dot
+   M+Q 10, 10 pixels to the em. The margin takes back the tracking after the
+   last character. */
 .jp {
     display: block;
     flex: none;
@@ -393,6 +396,7 @@
     white-space: nowrap;
 }
 
+.running .jp, .side-label > .jp { font-family: var(--jp-dot); }
 .running.bottom .jp { font-size: 11px; }
 
 .section-tag > .jp {
@@ -669,7 +673,8 @@
     justify-content: space-between;
     align-items: flex-start;
 }
-.mag a.section-action { margin-left: auto; color: var(--paper); }
+.section-action { margin-left: auto; color: var(--on-ink); }
+.mag a.section-action { color: var(--paper); }
 .mag a.section-action:hover { text-decoration: underline; }
 
 /* Series marks: one logo per series (Figma: Neo / Series logo), filled
@@ -808,7 +813,7 @@
     gap: 10px;
     padding: var(--pad);
     background:
-        url("/static/assets/images/magazine/Neo/Pattern/Neo/Pattern/Neo/Pattern/Dither%20ramp/Reversed.svg") right top / 224px 224px no-repeat,
+        url("/static/assets/images/magazine/patterns/dither-fade-reversed.svg") right top / 336px 336px no-repeat,
         url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
         var(--ink);
     color: var(--on-ink);
@@ -865,14 +870,14 @@
 
 .footer-themes {
     background:
-        url("/static/assets/images/magazine/Neo/Pattern/Neo/Pattern/Neo/Pattern/Dither%20ramp/Reversed.svg") right top / 224px 224px no-repeat,
+        url("/static/assets/images/magazine/patterns/dither-fade-reversed.svg") right top / 336px 336px no-repeat,
         url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
         var(--ink);
 }
 
-/* The logo and typemark are drawn in black; inverted, they sit on it. */
+/* The logo is its white outline, exported from the design file. The
+   typemark is drawn in black; inverted, it sits on it. */
 .footer-colophon { align-items: center; gap: 14px; }
-.footer-mark { filter: invert(1); }
 .footer-typemark { width: 377px; max-width: 100%; height: auto; filter: invert(0.9); }
 
 .footer-title {
@@ -1503,7 +1508,38 @@ code.verb {
     line-height: 1.45;
 }
 
-/* End band: Keep reading, or the rest of the series. */
+/* End transmission (Figma: Neo / End transmission, Wide): closes an
+   article's text. Science Gothic at its widest, between dot leaders. */
+
+.end-transmission {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px var(--pad);
+    background: var(--sheet);
+    white-space: nowrap;
+}
+
+.end-transmission .spec-lead {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--mid);
+}
+
+/* 22.6em wide at this setting; it shrinks to fit a narrow page. */
+.end-transmission-text {
+    font-family: var(--disp);
+    font-weight: 900;
+    font-size: min(32px, calc((100vw - 2 * var(--pad)) / 22.6));
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-variation-settings: "wdth" 200, "ctrs" 0, "slnt" 0;
+}
+
+/* End band: under the end head, what to read next or the rest of the
+   series. A page that isn't an article labels it instead. */
 
 .end-block {
     display: flex;
@@ -1534,10 +1570,6 @@ code.verb {
     background: var(--paper);
 }
 
-.end-label.dark { background: var(--ink); color: var(--paper); }
-.end-folio { color: var(--on-ink); }
-.end-label:not(.dark) .end-folio { color: var(--mid); }
-.end-folio a:hover { text-decoration: underline; }
 
 .keep-briefs {
     display: grid;
@@ -1743,7 +1775,7 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
         gap: 28px 32px;
         padding: 24px var(--pad) 28px;
         background:
-            url("/static/assets/images/magazine/Neo/Pattern/Neo/Pattern/Neo/Pattern/Dither%20ramp/Reversed.svg") right top / 224px 224px no-repeat,
+            url("/static/assets/images/magazine/patterns/dither-fade-reversed.svg") right top / 336px 336px no-repeat,
             url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
             var(--ink);
     }
@@ -1825,6 +1857,10 @@ a.index-cell:hover .index-cell-title { text-decoration: underline; }
     .neo-brief-dots { margin-right: 12px; }
     .neo-dek { font-size: 18px; }
     .neo-lead-meta { max-width: none; }
+
+    /* End transmission has no room for its leaders. */
+    .end-transmission { justify-content: center; padding-block: 20px; }
+    .end-transmission .spec-lead { display: none; }
 
     /* The footer stacks, and so do the book's buttons. */
     .site-footer { grid-template-columns: minmax(0, 1fr); }

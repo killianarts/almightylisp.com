@@ -124,7 +124,7 @@ Components reused across pages:
 | =render-series-progress= | Series cards, the end of a series                       |
 | =render-headline=        | The lead and an article's lede, scaled to fit           |
 | =render-lede-row=        | The dek and byline under either headline                |
-| =render-end-band=        | Keep reading, the end of a series, not found            |
+| =render-end-band=        | Under an article's end head; not found                  |
 | =render-hatch=           | Leftover space at the bottom of a column                |
 
 Text from org goes through =render-inlines= (=package.lisp=), which links a

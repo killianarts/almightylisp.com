@@ -59,6 +59,17 @@
 /* KKM Analog TV Font 2.0 (c) Kosyokai, CC BY-SA: see
    assets/fonts/kkm_analogtv_v2-LICENSE.txt. Changed by dev/kkm-vert.py,
    which adds the forms vertical text needs (see dev/kkm-vert.html). */
+/* JF Dot M+Q 10 (c) M+ FONTS PROJECT, free to use, change and redistribute:
+   see assets/fonts/jf-dot-mplusq10-LICENSE.txt. Changed by
+   dev/jfdot-vert.py, which keeps a subset of the glyphs and adds the forms
+   vertical text needs (see dev/jfdot-vert.html). */
+@font-face {
+    font-family: "JF Dot M+Q 10";
+    src: url("/static/assets/fonts/jf-dot-mplusq10-vert.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+}
+
 @font-face {
     font-family: "KKM Analog TV";
     src: url("/static/assets/fonts/kkm_analogtv_v2-vert.ttf") format("truetype");

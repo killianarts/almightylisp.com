@@ -137,16 +137,30 @@
                         (span :class "strip-t" (model:section-title section))
                         (span :class "strip-bar"))))))))
 
-;;; The end band
+;;; The end of an article: End transmission, a black head, then the end band.
+;;; The head says what comes next: Continue when there is something to read
+;;; now, Standby when the next part isn't out, Complete after the last part.
+
+(defun render-article-end (title meta content &key jp action action-href)
+  (ah:</>
+   (<>
+     (render-end-transmission)
+     (render-section-head "end" title meta :jp jp :action action :action-href action-href
+                                           :gap nil)
+     (render-end-band nil content))))
 
 (defun render-keep-reading (article articles series)
-  (render-end-band
-   "Keep reading"
-   (ah:</>
-    (div :class "keep-briefs"
-      (when (model:article-book-title article) (render-book-brief article))
-      (mapcar (lambda (other) (render-article-brief other (model:article-series-of other series)))
-              (model:keep-reading-articles article articles))))))
+  (let ((book (model:article-book-title article))
+        (others (model:keep-reading-articles article articles)))
+    (render-article-end
+     "Continue..."
+     (format nil "~d brief~:p" (+ (if book 1 0) (length others)))
+     (ah:</>
+      (div :class "keep-briefs"
+        (when book (render-book-brief article))
+        (mapcar (lambda (other) (render-article-brief other (model:article-series-of other series)))
+                others)))
+     :jp "briefing" :action "Full archive  >>>" :action-href (archive-href))))
 
 (defun render-series-part-cell (part article series)
   (let ((other (model:part-article part))
@@ -161,10 +175,14 @@
                        :href (when (and other (not here)) (article-href other)))))
 
 (defun render-series-end (article series)
-  (let ((next (find (1+ (model:article-part article)) (model:series-parts series)
-                    :key #'model:part-number)))
-    (render-end-band
-     (joined "Series" (model:series-title series))
+  (let* ((next (find (1+ (model:article-part article)) (model:series-parts series)
+                     :key #'model:part-number))
+         (next-article (and next (model:part-article next))))
+    (render-article-end
+     (cond ((null next) "Complete")
+           (next-article "Continue...")
+           (t "Standby..."))
+     (part-of article series)
      (render-index
       :top (ah:</>
             (<>
@@ -177,10 +195,11 @@
                (render-series-progress series)))
       :cells (mapcar (lambda (part) (render-series-part-cell part article series))
                      (model:series-parts series)))
-     :dark t
-     :folio (cond ((null next) "Last part")
-                  ((model:part-article next) (format nil "Next: part ~d" (model:part-number next)))
-                  (t (format nil "Next: part ~d, queued" (model:part-number next)))))))
+     :jp "series"
+     :action (cond ((null next) "Last part")
+                   (next-article (format nil "Next: part ~d  >>>" (model:part-number next)))
+                   (t (format nil "Next: part ~d, queued" (model:part-number next))))
+     :action-href (when next-article (article-href next-article)))))
 
 (defun page-article (article articles series)
   (let ((in-series (model:article-series-of article series))

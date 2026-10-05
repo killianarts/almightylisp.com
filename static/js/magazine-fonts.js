@@ -33,6 +33,7 @@
     { family: "Mohave", file: "Mohave-latin.woff2", wait: true,
       weight: "300 700", unicodeRange: LATIN },
     // Japanese labels: in the running header, so on every page.
+    { family: "JF Dot M+Q 10", file: "jf-dot-mplusq10-vert.ttf", wait: true },
     { family: "KKM Analog TV", file: "kkm_analogtv_v2-vert.ttf", wait: true },
     { family: "Mohave", file: "Mohave-latin-ext.woff2",
       weight: "300 700", unicodeRange: LATIN_EXT },

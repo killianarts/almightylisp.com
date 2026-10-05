@@ -2,7 +2,7 @@
 #+subtitle: How the magazine's fonts load, and how the switch to them is hidden under the arrival effect
 
 The magazine is set in web fonts: Science Gothic for display, Construct Mono
-for labels, Mohave for reading, KKM Analog TV for the Japanese labels. A
+for labels, Mohave for reading, JF Dot M+Q 10 and KKM Analog TV for the Japanese labels. A
 page that uses web fonts the ordinary way draws in fallback fonts first and
 then changes, one font at a time, as each file arrives. The text jumps two
 or three times.
@@ -57,6 +57,7 @@ var FONTS = [
   { family: "Mohave", file: "Mohave-latin.woff2", wait: true,
     weight: "300 700", unicodeRange: LATIN },
   // Japanese labels: in the running header, so on every page.
+  { family: "JF Dot M+Q 10", file: "jf-dot-mplusq10-vert.ttf", wait: true },
   { family: "KKM Analog TV", file: "kkm_analogtv_v2-vert.ttf", wait: true },
   { family: "Mohave", file: "Mohave-latin-ext.woff2",
     weight: "300 700", unicodeRange: LATIN_EXT },
