@@ -7,6 +7,11 @@
 ;;; Each band spans the sheet, puts its content in the main column, and can
 ;;; carry a vertical label in each gutter. Bands are placed on fixed grid rows
 ;;; (see magazine.css), so the full-height rules and dots line up with them.
+;;;
+;;; The page's ornaments are two small parts (Figma: Homepage restyled · C1 ·
+;;; Landing): a gauge, a short bar part filled and part hatched, and a pair
+;;; of dots. They stand in the gutters beside a band, in section heads and in
+;;; the black panels.
 
 (ah:define-component ac-magazine-document (&key title description body-class children)
   (ah:</>
@@ -61,12 +66,64 @@ the header's centre in Japanese. SCRIPTS go after the sheet."
          (render-running-footer))
        scripts))))
 
-(ah:define-component ac-band (&key class side children)
-  "One band of the sheet. SIDE, a list (left right), labels the gutters."
+(ah:define-component ac-band (&key class side marks children)
+  "One band of the sheet. SIDE, a list (left right), labels the gutters; either
+can be NIL. MARKS draws the gutter marks (see render-gutter-marks): T for
+all of them, :FOOT for the gauge alone."
   (ah:</>
    (div :class (ah:clsx "band" class)
      children
-     (when side (render-side-labels (first side) (second side))))))
+     (when side (render-side-labels (first side) (second side)))
+     (when marks (render-gutter-marks :dots (not (eq marks :foot)))))))
+
+;;; Gauges and dot pairs
+
+(defun render-gauge (&key class)
+  (ah:</>
+   (span :class (ah:clsx "gauge" class) :aria-hidden t
+     (i :class "done")
+     (i :class "tick")
+     (i :class "rest"))))
+
+(defun render-dot-pair (&key alt class)
+  "Two dots, the first filled. ALT is the other pair: an open dot, then a dim one."
+  (ah:</>
+   (span :class (ah:clsx "dot-pair" (when alt "alt") class) :aria-hidden t
+     (i)
+     (i))))
+
+(defun render-dot-pairs (&key class)
+  "Both pairs side by side, for a panel's corner."
+  (ah:</>
+   (span :class class :aria-hidden t
+     (render-dot-pair)
+     (render-dot-pair :alt t))))
+
+(defvar *marked-bands* 0
+  "How many bands of the page being rendered have gutter marks so far, so the
+two kinds of dot pair change sides from one band to the next down the page.
+Each page function binds it around its render. Only ac-band counts: a
+component's body runs as the page is rendered, in page order, while a plain
+function called in a template runs earlier, as the template is built.")
+
+(defun render-marks (swap &key (dots t))
+  "The marks in the gutters beside a band, or a section of an article: a dot
+pair at the top of each, and a gauge at the foot of the right one. SWAP
+trades the two kinds of pair. Without DOTS, the gauge alone."
+  (ah:</>
+   (<>
+     (when dots
+       (ah:</>
+        (<>
+          (render-dot-pair :alt swap :class "gutter-mark left")
+          (render-dot-pair :alt (not swap) :class "gutter-mark right"))))
+     (render-gauge :class "gutter-mark foot"))))
+
+(defun render-gutter-marks (&key (dots t))
+  "The next band's marks, the pairs on the other sides from the band before."
+  (let ((swap (oddp *marked-bands*)))
+    (incf *marked-bands*)
+    (render-marks swap :dots dots)))
 
 (defun render-sheet-furniture ()
   "Gutter dots and column rules, running the sheet's full height."
@@ -82,29 +139,34 @@ the header's centre in Japanese. SCRIPTS go after the sheet."
 (defun render-side-labels (left right)
   "Vertical labels in the two gutters, centred on the band they sit in. LEFT
 can be a list (text jp), with JP the name of a Japanese label (see
-render-jp) set upright below the text."
-  (destructuring-bind (text &optional jp) (if (listp left) left (list left))
+render-jp) set upright below the text. A gutter whose label is NIL is bare."
+  (destructuring-bind (&optional text jp) (if (listp left) left (list left))
     (ah:</>
      (<>
-       (if jp
-           (ah:</>
-            (span :class "side-label left has-jp" :aria-hidden t
-              (span (string-upcase text))
-              (render-jp jp)))
-           (ah:</> (span :class "side-label left" :aria-hidden t (string-upcase text))))
-       (span :class "side-label right" :aria-hidden t (string-upcase right))))))
+       (cond (jp
+              (ah:</>
+               (span :class "side-label left has-jp" :aria-hidden t
+                 (span (string-upcase text))
+                 (render-jp jp))))
+             (text
+               (ah:</> (span :class "side-label left" :aria-hidden t (string-upcase text)))))
+       (when right
+         (ah:</> (span :class "side-label right" :aria-hidden t (string-upcase right))))))))
 
 ;;; Japanese labels are set in pixel faces (see .jp in magazine.css): JF Dot
 ;;; M+Q 10 in the running header, the running footer and the gutters, KKM
 ;;; Analog TV beside a section's name. The site's copy of JF Dot has only the
-;;; kanji listed in dev/jfdot-vert.py: add a new label's there.
+;;; kanji listed in dev/jfdot-vert.py: add a new label's there. The footer's
+;;; motto is in JF Dot Kappa 20 0213, and the site's copy of that has only the
+;;; motto's characters.
 
 (defparameter *jp-labels*
   '(("almighty" "オールマイティ")
     ("tatakawanakereba-katenai" "戦わなければ勝てない")
     ("series" "シリーズ")
     ("briefing" "ブリーフィング")
-    ("omona-series" "主なシリーズ"))
+    ("omona-series" "主なシリーズ")
+    ("shinzou-wo-sasageyou" "心臓を捧げよう"))
   "Name and text of each Japanese label.")
 
 (defun render-jp (name &key class)
@@ -130,33 +192,37 @@ render-jp) set upright below the text."
      (div :class "running-row"
        (span "© 2026 Almighty Lisp")
        (render-sep)
-       (span "No build step  /  Absolutely (( No )) Rust")
+       (span "Absolutely Insane / Absolutely (( No )) Rust")
        (render-sep)
        (render-jp "tatakawanakereba-katenai")))))
 
 (defun render-site-footer ()
   "The black band that closes every page: the colophon, the book and the theme
-packs. On a narrow page, which has no book panel, this is where the book is.
+packs. On a narrow page, which has no book band, this is where the book is.
 htmx leaves the shop links alone: they leave the magazine."
   (ah:</>
    (<>
      (div :class "band gap-band footer-gap" :aria-hidden t)
-     (ac-band :class "footer-band" :side (list (joined "Book" "Themes") "")
+     (ac-band :class "footer-band" :side (list (joined "Book" "Themes") nil) :marks t
        (div :class "site-footer"
          (a :class "footer-colophon" :href (magazine-href)
            (img :class "footer-mark" :src (image-src "almighty-logo-outline.png") :alt ""
              :width "40" :height "42")
            (img :class "footer-typemark" :src (image-src "almighty-lisp-typemark.svg")
-             :alt "Almighty Lisp" :width "377" :height "17"))
+             :alt "Almighty Lisp" :width "377" :height "17")
+           (render-dot-pairs :class "panel-corner")
+           (render-jp "shinzou-wo-sasageyou" :class "footer-motto"))
          (section :class "footer-block footer-book" :aria-label "Lisp & Emacs Essentials"
            :hx-boost "false"
            (p :class "book-ad-label" "The Book (your eyes only)")
            (img :class "book-ad-logo" :src (image-src "essentials-logo.svg")
              :alt "Lisp & Emacs Essentials" :width "156" :height "69")
+           (render-gauge :class "footer-gauge")
            (div :class "footer-actions"
              (a :class "neo-button primary" :href *book-href* "Read free online")
-             (a :class "neo-button secondary" :href *ebook-href* "Purchase ebook")
-             (a :class "neo-button secondary" :href *hardcover-href* "Purchase hardcover")))
+             (a :class "neo-button secondary" :href *ebook-href* "Buy ebook")
+             (a :class "neo-button secondary" :href *hardcover-href* "Buy hardcover"))
+           (render-dot-pairs :class "panel-corner"))
          (section :class "footer-block footer-themes" :aria-label "Theme packs"
            :hx-boost "false"
            (p :class "book-ad-label" (joined "Doom Emacs" "16 themes"))
@@ -165,7 +231,8 @@ htmx leaves the shop links alone: they leave the magazine."
            (div :class "footer-actions"
              (mapcar (lambda (pack)
                        (ah:</> (a :class "neo-button secondary" :href (third pack) (first pack))))
-                     *theme-packs*))))))))
+                     *theme-packs*))
+           (render-dot-pairs :class "panel-corner")))))))
 
 (defun render-nameplate ()
   (ah:</>
@@ -187,28 +254,38 @@ htmx leaves the shop links alone: they leave the magazine."
        (div :class "strip-cell end" (a :href *book-href* "Become Almighty"))))))
 
 (defun render-section-head (key title meta &key jp action action-href (gap t))
-  "A grey gap band, then the section name set large on a black band with a
-hazard strip in the left gutter. KEY names the section; its bands' classes
-place them on the sheet's rows. JP, a Japanese label (see render-jp), sits
-above META. ACTION is a link when ACTION-HREF is given. Without GAP, the head
-sits against the band before it."
+  "A grey gap band, then the section name set large on a black band. KEY names
+the section; its bands' classes place them on the sheet's rows. After the
+name comes META and a rule (a gauge and two dot pairs); with JP, a Japanese
+label (see render-jp), the label stands over the rule and META is not
+shown. ACTION is a link when ACTION-HREF is given. Without GAP, the head sits
+against the band before it."
   (ah:</>
    (<>
      (when gap
        (ah:</> (div :class (format nil "band gap-band ~a-gap" key) :aria-hidden t)))
-     (div :class (format nil "band head-band ~a-head" key)
-       (span :class "hazard" :aria-hidden t)
+     (ac-band :class (format nil "head-band ~a-head" key) :marks t
        (h2 :class "section-head"
          (span :class "section-title" title)
          (if jp
              (ah:</>
               (span :class "section-tag"
                 (render-jp jp)
-                (span :class "section-meta" meta)))
-             (ah:</> (span :class "section-meta" meta)))
+                (render-head-rule)))
+             (ah:</>
+              (<>
+                (span :class "section-meta" meta)
+                (render-head-rule))))
          (cond ((and action action-href)
                 (ah:</> (a :class "section-action" :href action-href action)))
                (action (ah:</> (span :class "section-action" action)))))))))
+
+(defun render-head-rule ()
+  (ah:</>
+   (span :class "head-rule" :aria-hidden t
+     (render-gauge)
+     (render-dot-pair)
+     (render-dot-pair :alt t))))
 
 (defun render-end-transmission ()
   "The line that closes an article's text, above its end head."
@@ -222,10 +299,42 @@ sits against the band before it."
 (defun render-end-band (label content)
   "The band that closes a page: CONTENT, under a row for LABEL when there is one."
   (ah:</>
-   (ac-band :class "end-band"
+   (ac-band :class "end-band" :marks t
      (div :class "end-block"
        (when label (ah:</> (p :class "end-label" label)))
        content))))
+
+;;; Eyebrows and progress rules (Figma: Article (v30), Homepage (v30)): a
+;;; small tracked label over a heading, and under it a bar filled as far as
+;;; the reader, or the series, has got.
+
+(defun render-eyebrow (text &key marks)
+  "TEXT as the label over a heading. MARKS sets squares either side of it."
+  (ah:</>
+   (p :class "eyebrow"
+     (when marks (ah:</> (i :class "sq")))
+     (span text)
+     (when marks
+       (ah:</>
+        (<>
+          (i :class "sq open")
+          (i :class "sq")))))))
+
+(defun render-progress-bar (fraction)
+  "A bar filled to FRACTION, a tick, then the rest hatched."
+  (let ((full (>= fraction 1)))
+    (ah:</>
+     (span :class (ah:clsx "progress-bar" (when full "full")) :aria-hidden t
+       :style (format nil "--p: ~,5f" fraction)
+       (i :class "done")
+       (i :class "tick")
+       (unless full (ah:</> (i :class "rest")))))))
+
+(defun render-rule-dots ()
+  (ah:</>
+   (span :class "rule-dots" :aria-hidden t
+     (i)
+     (i))))
 
 (defun render-hatch ()
   "Spacer hatch for the space left over in a column. It grows into whatever

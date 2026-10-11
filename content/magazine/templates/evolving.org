@@ -1,0 +1,137 @@
+#+TITLE: Keeping a\\Window Open
+#+SUBTITLE: A worked example of an evolving article: a heading that holds one side of the window, text read a paragraph at a time, and code that changes as you read.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-01-01
+#+TOPIC: Native Development
+#+TYPE: Tutorial
+#+LAYOUT: evolving
+#+DRAFT: t
+# #+RELATED: other-article-slug another-slug
+# #+PART: 1
+
+# Evolving: any type of article, laid out so the reader sees one paragraph
+# at a time beside the section's heading, or beside code that changes step
+# by step. Use it when the piece builds one or two pieces of code up
+# gradually. See "Evolving articles" in WRITING.org for the rules.
+#
+# This file is a complete example; it uses everything the layout has. Copy
+# it to content/magazine/your-slug.org, or into a series' folder with
+# #+PART, replace the sections, and delete #+DRAFT: t when it's ready.
+
+* A window that won't stay
+# Paragraphs with nothing after them are read beside the heading.
+Last time we got a window on screen. It opened, and by the time you could look at it, it had closed again. Nothing was wrong with the window. The program simply reached its last line.
+
+A web page never has this problem, because the browser is already running and already waiting. A native application has to do its own waiting.
+
+# A source block belongs to the paragraph before it. Without :evolve it
+# is there only while that paragraph is being read; then the heading
+# comes back. #+RESULTS: is shown under the code.
+You can watch it happen from the REPL. Call the function and the prompt comes straight back; whatever flashed on screen is already gone.
+
+#+BEGIN_SRC lisp :buffer REPL
+(run)
+#+END_SRC
+
+#+RESULTS:
+NIL
+
+# A note also belongs to the paragraph before it, and takes the heading's
+# place while that paragraph is being read.
+So the job for this part is small to state: keep the program alive for as long as the window is open, and stop when it closes.
+
+#+BEGIN_NOTE Terms
+The waiting is usually called the /event loop/, or the run loop on the Mac.
+#+END_NOTE
+
+* The event loop
+A window that opens and closes again straight away isn't much of an app. To keep it on screen we need a loop: something that waits for the system to tell us what happened, and reacts.
+
+We'll build that loop one piece at a time, starting from the smallest program that opens a window at all.
+
+# Source blocks with the same :evolve name are the steps of one block.
+# Each holds the whole code as it stands at that step; the page works out
+# what changed. The block stays beside the paragraphs after it.
+Here is the whole program so far. The function opens a window and then closes it. Run it and you'll see a flash, if you see anything.
+
+#+BEGIN_SRC lisp :buffer run.lisp :evolve run
+(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (close-window window)))
+#+END_SRC
+
+Between opening and closing, we loop. Each pass asks the system for pending events and handles them, and we keep going until the window says it should close.
+
+#+BEGIN_SRC lisp :buffer run.lisp :evolve run
+(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (loop until (should-close-p window)
+          do (poll-events))
+    (close-window window)))
+#+END_SRC
+
+# Mark an expression with [[step][...]] to have it move the block when the
+# reader reaches it. The paragraph is then followed by one source block
+# for each marked expression, in the same order.
+There's a problem. If anything inside the loop signals an error, we never reach the last line and the window is left hanging. Wrapping the loop in [[step][=unwind-protect=]] guarantees the cleanup runs. And while we're in there, each pass should [[step][draw a frame]] too.
+
+#+BEGIN_SRC lisp :buffer run.lisp :evolve run
+(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (unwind-protect
+         (loop until (should-close-p window)
+               do (poll-events))
+      (close-window window))))
+#+END_SRC
+
+#+BEGIN_SRC lisp :buffer run.lisp :evolve run
+(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (unwind-protect
+         (loop until (should-close-p window)
+               do (poll-events)
+                  (draw window))
+      (close-window window))))
+#+END_SRC
+
+That's a complete, well-behaved event loop in seven lines. All that's missing is something to draw.
+
+* Something to draw
+# A block lives in its section: this one starts again from its first step.
+The loop calls a function that doesn't exist yet. Its job is to paint one frame, and it will be called again on every pass, so it has to start from nothing each time.
+
+Starting from nothing means clearing the window. This much already gives us a black rectangle that stays put, which is more than we had an hour ago.
+
+#+BEGIN_SRC lisp :buffer draw.lisp :evolve draw
+(defun draw (window)
+  (clear window :black))
+#+END_SRC
+
+** A square
+# A subheading is set over the paragraph after it.
+Now something on top of it: a white square, forty points in from the corner.
+
+#+BEGIN_SRC lisp :buffer draw.lisp :evolve draw
+(defun draw (window)
+  (clear window :black)
+  (fill-rect window 40 40 120 120 :white))
+#+END_SRC
+
+A square that sits still doesn't prove the loop is running. Once we [[step][bind its position to the clock]] it slides across the window, one step per pass. Nothing appears, though, until we [[step][present the frame]]: everything before that was drawn off screen.
+
+#+BEGIN_SRC lisp :buffer draw.lisp :evolve draw
+(defun draw (window)
+  (let ((x (mod (ticks) 800)))
+    (clear window :black)
+    (fill-rect window x 40 120 120 :white)))
+#+END_SRC
+
+#+BEGIN_SRC lisp :buffer draw.lisp :evolve draw
+(defun draw (window)
+  (let ((x (mod (ticks) 800)))
+    (clear window :black)
+    (fill-rect window x 40 120 120 :white)
+    (present window)))
+#+END_SRC
+
+Run it again. The window stays open, the square moves, and closing the window ends the program. That is the whole skeleton of a native application.

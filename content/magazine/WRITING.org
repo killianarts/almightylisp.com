@@ -37,6 +37,7 @@ Every article starts with these lines, before its first heading.
 | =#+BOOK_TITLE:=   | Optional | The chapter's title on that card.                                      |
 | =#+BOOK_SUMMARY:= | Optional | One sentence about the chapter.                                        |
 | =#+BOOK_HREF:=    | Optional | Where the card links, e.g. =/book/essentials/the-loop-macro=.          |
+| =#+LAYOUT: evolving= | Optional | Makes it an evolving article. See [[*Evolving articles][Evolving articles]].            |
 | =#+HOME: lead=    | Optional | Forces this article into the homepage lead instead of the newest one.  |
 | =#+SLUG:=         | Optional | A URL other than the file name.                                        |
 | =#+CODE:=         | Optional | Overrides the generated serial. You should almost never need it.       |
@@ -262,7 +263,7 @@ A code span ends at the first marker followed by a space or punctuation.
 like that: ~(>= a b)~. For the same reason, write a special variable in
 prose as code, =*scores*=, or it becomes bold.
 
-** Margin notes
+** Notes
 
 #+BEGIN_EXAMPLE
 #+BEGIN_NOTE Try it
@@ -270,9 +271,8 @@ Put the cursor on any =loop= form and press =C-c C-m=.
 #+END_NOTE
 #+END_EXAMPLE
 
-Notes sit in the right-hand column next to their section. On phones and
-tablets there is no such column, so a note is set under the paragraph
-before it: put it after the paragraph it belongs to. The word after
+A note is set in the text where you write it, as an aside under a rule
+down its left: put it after the paragraph it belongs to. The word after
 =BEGIN_NOTE= is the note's label. A note labelled =Syntax= is set in the
 code font, for grammar summaries.
 
@@ -288,9 +288,15 @@ code font, for grammar summaries.
 351
 #+END_EXAMPLE
 
-- =:buffer= and =:package= are tags on the top edge of the block. Either or both can be left out.
-- =:highlight= shades lines by number, counting from 1: =:highlight 2= shades the second line, =:highlight 3 4= the third and fourth.
-- A =#+RESULTS:= block right after the code becomes the Returns stub below the block. Without one, the block ends at the code.
+A block is white on black with its lines numbered, and runs the width of
+the page's column.
+
+- =:buffer= and =:package= are named over the code, dimmed. Either or both can be left out.
+- =:highlight= marks lines by number, counting from 1, with a band and a =+=: =:highlight 2= marks the second line, =:highlight 3 4= the third and fourth.
+- A =#+RESULTS:= block right after the code is set under it, below a dashed rule. Without one, the block ends at the code.
+- =:evolve= names a piece of code that the article builds up: =:evolve run=. Blocks with the same name are its steps, in order, anywhere in the article, and each holds the whole code as it stands at that step. A step after the first is marked with what it changed from the one before: a band and a =+= on each line it added, and a =›= on each line it changed or moved. Nothing needs marking by hand, though =:highlight= still adds to it.
+
+The colours of the lines with a band split and snap together, over and over, while the block is on screen.
 
 ** Tables
 
@@ -319,6 +325,171 @@ its bullet to continue the item, and indent a bullet further to start a list
 inside it. A blank line between items is fine; two blank lines end the list.
 Code blocks and tables can't go inside an item: end the list first.
 
+* Evolving articles
+
+An evolving article is read one paragraph at a time. One half of the window
+holds the section's heading; the other holds the paragraph being read, and
+scrolling fades it out and the next one in. When a paragraph has code, the
+code takes the heading's place, and an /evolving block/ stays there and
+changes, step by step, as the reader goes on. Use it for a piece that builds
+one or two pieces of code up gradually. =templates/evolving.org= is a
+complete example.
+
+Any type of article can be one. Add this line to the header:
+
+#+BEGIN_EXAMPLE
+#+LAYOUT: evolving
+#+END_EXAMPLE
+
+The body is written in the same org as any article. What changes is that
+position matters: *whatever follows a paragraph belongs to that paragraph*,
+and is shown beside it.
+
+** Paragraphs and the heading
+
+#+BEGIN_EXAMPLE
+* The event loop
+A window that opens and closes again straight away isn't much of an app.
+
+We'll build that loop one piece at a time.
+#+END_EXAMPLE
+
+Each paragraph is one stop of the scroll. A paragraph with nothing after it
+is read beside the section's heading. Lists and tables are stops too. A
+=**= subheading is set under the section's heading, and stays there for
+every paragraph until the next one (on a phone, where the heading is in
+the contents strip, it is set over the paragraph after it and then along
+the top of the text).
+
+A list or table is read together with the line that introduces it: when
+the paragraph straight before it ends in a colon ("Strengths:"), the two
+are one stop.
+
+Keep paragraphs short. One that is taller than the window is scrolled
+through before the next one comes, which works but loses the rhythm.
+
+** A block for one paragraph
+
+#+BEGIN_EXAMPLE
+Call the function and the prompt comes straight back.
+
+#+BEGIN_SRC lisp :buffer REPL
+(run)
+#+END_SRC
+
+#+RESULTS:
+NIL
+#+END_EXAMPLE
+
+A source block takes the heading's place while the paragraph before it is
+being read. After that paragraph the heading comes back. =:buffer= names
+the block; =#+RESULTS:= is shown under the code.
+
+** An evolving block
+
+#+BEGIN_EXAMPLE
+Here is the whole program so far.
+
+#+BEGIN_SRC lisp :buffer run.lisp :evolve run
+(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (close-window window)))
+#+END_SRC
+
+Between opening and closing, we loop.
+
+#+BEGIN_SRC lisp :buffer run.lisp :evolve run
+(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (loop until (should-close-p window)
+          do (poll-events))
+    (close-window window)))
+#+END_SRC
+#+END_EXAMPLE
+
+Source blocks with the same =:evolve= name are the steps of one block, in
+the order they are written.
+
+- Write the *whole code as it stands* at each step, not only what changed.
+  The page compares each step with the one before: lines that stay slide to
+  their new place, new lines slide in and are marked =+=, and lines that
+  were edited or re-indented are marked =›=.
+- The block appears with the paragraph before its first step, and stays
+  beside every paragraph after that, until the section ends.
+- A paragraph with no code after it leaves the block as it is. Use that for
+  a paragraph that only talks about the step on show.
+- The name is yours to choose, and only has to be unique in its section. A
+  block doesn't carry over into the next section: to go on with the same
+  code there, start with a step that shows it whole.
+- Give every step the same =:buffer=; the first one's is used.
+
+** Steps inside a paragraph
+
+#+BEGIN_EXAMPLE
+Wrapping the loop in [[step][=unwind-protect=]] guarantees the cleanup
+runs. And each pass should [[step][draw a frame]] too.
+
+#+BEGIN_SRC lisp :buffer run.lisp :evolve run
+...the code with unwind-protect...
+#+END_SRC
+
+#+BEGIN_SRC lisp :buffer run.lisp :evolve run
+...the code that also draws...
+#+END_SRC
+#+END_EXAMPLE
+
+To have a word or an expression move the block, and not the whole
+paragraph, write it as a link to =step=: =[[step][the words]]=. As the
+reader scrolls through the paragraph each marked expression lights up in
+turn, and then the block changes.
+
+The paragraph is followed by one source block for each marked expression,
+in the same order: the first block is what the first expression shows, and
+so on. The count has to match.
+
+** Notes
+
+#+BEGIN_EXAMPLE
+So the job is small to state: keep the program alive.
+
+#+BEGIN_NOTE Terms
+The waiting is usually called the /event loop/.
+#+END_NOTE
+#+END_EXAMPLE
+
+A note takes the heading's place, or an evolving block's, while the
+paragraph before it is being read; then what was there comes back.
+
+** What can follow a paragraph
+
+| After the paragraph                         | Beside it                                      |
+|---------------------------------------------+------------------------------------------------|
+| Nothing                                     | The heading, or the evolving block still there |
+| One source block                            | That block, or the block's next step           |
+| One source block per =[[step][...]]= in it  | Each step, as its expression is reached        |
+| A note                                      | The note                                       |
+
+Anything else stops the site with a message naming the section: a note or
+source block at the start of a section, with no paragraph before it; two
+source blocks after a paragraph that marks no expressions; a different
+number of blocks than marked expressions; a note and code after the same
+paragraph. The fix is nearly always to put a paragraph between them.
+
+** What is different from other articles
+
+- =:highlight= and =:package= on a source block do nothing here. The marks
+  on changed lines do the job of highlighting.
+- Code is set in one colour, without syntax colouring.
+- Code is never broken to fit. A block wider than its panel scrolls
+  sideways, under a bar of its own; one too tall for the window is set
+  smaller, then scrolled through as the reader goes. Both work, but short
+  lines and short blocks read best.
+- Find in page works across the whole article, including the steps of a
+  block that aren't on show, in Chrome, Edge and Firefox. In Safari it is
+  less exact.
+- A reader can link to a place in the article: the address ends in
+  =?at=2.5= for section 2, stop 5, and follows the scroll.
+
 * When the site rejects a file
 
 The site reads every file again when one changes. If an article or series
@@ -340,4 +511,6 @@ is ignored with a warning in the server log.
 - [ ] Every code block runs, and its =#+RESULTS:= is what it really returns.
 - [ ] =RELATED= points at articles a reader of this one would want next.
 - [ ] In a series: the file is in the series' folder and =PART= is right.
+- [ ] In an evolving article: every step of an evolving block is the whole
+  code, and you have scrolled through it once from top to bottom.
 - [ ] =#+DRAFT: t= is gone.

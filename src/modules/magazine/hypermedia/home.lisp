@@ -1,10 +1,10 @@
 (in-package #:magazine/hypermedia/components)
 
-;;;; The homepage (Figma: Neoindustrial / Homepage (v20)).
+;;;; The homepage (Figma: Homepage restyled · C1 · Landing).
 ;;;
-;;; The plate: the lead article beside the book panel. Then the Series
-;;; section, the running series as cards, and the Latest section: the next
-;;; articles as briefs beside the archive column.
+;;; The plate, which the lead article has to itself, and under it the book's
+;;; band. Then the Series section, the running series as cards, and the
+;;; Latest section: the next articles as briefs beside the archive column.
 
 (defun render-lede-row (article extra)
   "The dek beside the byline, under a headline. EXTRA closes the byline column."
@@ -41,16 +41,16 @@
            (render-lead lead)
            (ah:</> (p :class "neo-lead" "No articles have been published yet.")))))))
 
-(defun plate-labels (lead series featured)
+(defun plate-label (lead series featured)
+  "The label in the plate's left gutter. Its right gutter is bare."
   (let ((lead-series (when lead (model:article-series-of lead series))))
-    (list (cond ((null lead) "Almighty Lisp")
-                ((and lead-series (eq lead-series featured))
-                 (list (format nil "  ■  ~a" (joined (model:series-code lead-series)
-                                                     (part-of lead lead-series)))
-                       "omona-series"))
-                (t (joined "Latest Brief" (model:article-code lead)
-                           (date-text (model:article-date lead)))))
-          (joined "Flight Manual" "Lisp & Emacs Essentials"))))
+    (cond ((null lead) "Almighty Lisp")
+          ((and lead-series (eq lead-series featured))
+           (list (format nil "  ■  ~a" (joined (model:series-code lead-series)
+                                               (part-of lead lead-series)))
+                 "omona-series"))
+          (t (joined "Latest Brief" (model:article-code lead)
+                     (date-text (model:article-date lead)))))))
 
 (defun render-series-section (running featured)
   (ah:</>
@@ -137,14 +137,15 @@
 (defun page-home (articles series)
   (let* ((layout (model:homepage-layout articles series))
          (lead (getf layout :lead))
-         (featured (getf layout :featured)))
+         (featured (getf layout :featured))
+         (*marked-bands* 0))
     (ah:render-to-string
      (ah:</>
       (ac-sheet-page :title "Almighty Lisp"
-        (ac-band :class "plate-band" :side (plate-labels lead series featured)
+        (ac-band :class "plate-band" :side (list (plate-label lead series featured) nil) :marks t
           (div :class "neo-plate"
-            (render-lead-cell lead series featured)
-            (render-book-ad)))
+            (render-lead-cell lead series featured)))
+        (render-book-band)
         (when (getf layout :latest)
           (render-latest-section layout series))
         (when (getf layout :series)

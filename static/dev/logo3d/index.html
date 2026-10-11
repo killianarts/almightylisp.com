@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Almighty logo, 3D model</title>
+<style>
+html, body { height: 100%; margin: 0; }
+body { display: grid; grid-template-columns: 1fr 260px; font: 12px/1.4 ui-monospace, Menlo, monospace; background: #111; color: #ddd; }
+#stage { min-width: 0; min-height: 0; overflow: hidden; cursor: grab; }
+#stage canvas { display: block; }
+#panel { padding: 16px; border-left: 1px solid #333; overflow: auto; }
+#panel h1 { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin: 0 0 14px; }
+label { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; margin: 0 0 12px; }
+label input[type=range], label select { grid-column: 1 / -1; width: 100%; }
+output { opacity: 0.6; }
+button { font: inherit; padding: 6px 10px; margin: 0 6px 6px 0; }
+h2 { font-size: 12px; font-weight: normal; opacity: 0.6; margin: 14px 0 6px; }
+p { opacity: 0.6; }
+body.bare { grid-template-columns: 1fr; }
+body.bare #panel { display: none; }
+@media (max-width: 700px) { body { grid-template-columns: 1fr; grid-template-rows: 60vh auto; } #panel { border-left: 0; } }
+</style>
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.js" } }</script>
+</head>
+<body>
+<div id="stage"></div>
+<div id="panel">
+<h1>Almighty logo · 3D model</h1>
+<label>Colours <select data-k="theme"><option value="paper">Black on paper</option><option value="white">Black on white</option><option value="ink">Paper on black</option></select></label>
+<label>Front <select data-k="face"><option value="outline">Outline</option><option value="solid">Solid</option></select></label>
+<label>Holes <output></output><input type="range" data-k="hole" min="0" max="2.5" step="0.05"></label>
+<label>Depth <output></output><input type="range" data-k="depth" min="1" max="40" step="0.5"></label>
+<label>Line <output></output><input type="range" data-k="line" min="0.5" max="6" step="0.25"></label>
+<button id="front">Front view</button><button id="reset">Reset</button>
+<h2>Save the model</h2>
+<button id="glb">GLB</button><button id="obj">OBJ</button><button id="stl">STL</button>
+<p>Drag to turn, scroll to zoom. Holes and depth are part of the model and go into the saved file; colours, front and line are only how it is drawn here.</p>
+</div>
+<script type="module" src="viewer.js"></script>
+</body>
+</html>

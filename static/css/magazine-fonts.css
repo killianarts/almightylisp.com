@@ -70,6 +70,16 @@
     font-display: swap;
 }
 
+/* JF Dot Kappa 20 0213, by Kano Hiroki, public domain: see
+   assets/fonts/jf-dot-kappa20-0213-LICENSE.txt. A subset: only the
+   characters of the footer's motto. */
+@font-face {
+    font-family: "JF Dot Kappa 20 0213";
+    src: url("/static/assets/fonts/jf-dot-kappa20-0213-motto.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+}
+
 @font-face {
     font-family: "KKM Analog TV";
     src: url("/static/assets/fonts/kkm_analogtv_v2-vert.ttf") format("truetype");

@@ -6,8 +6,9 @@
    #:article-date #:article-type #:article-topic #:article-code #:article-slug
    #:article-lead #:article-related #:article-book-chapter #:article-book-title
    #:article-book-summary #:article-book-href #:article-sections #:article-draft
-   #:article-series #:article-part #:article-pathname
+   #:article-series #:article-part #:article-pathname #:article-layout
    #:section-title-lines #:section-title #:section-id #:section-blocks
+   #:section-evolution
    ;; Series
    #:series #:series-code #:series-title #:series-summary #:series-featured
    #:series-parts #:series-total #:series-published
@@ -46,12 +47,19 @@
 ;;;   #+BOOK_SUMMARY: dek for the book card
 ;;;   #+BOOK_HREF: /book/essentials/the-loop-macro
 ;;;   #+PART: 1                                 required in a series' folder, and only there
+;;;   #+LAYOUT: evolving                        an evolving article; see below
 ;;;   #+DRAFT: t                                not published
 ;;;
 ;;; The body is sections (* headings) of paragraphs, ** subheads, source
 ;;; blocks with #+RESULTS:, tables, and #+BEGIN_NOTE label ... #+END_NOTE
 ;;; margin notes; see almighty-press/org for the syntax. Files named with a
 ;;; leading capital, like WRITING.org, are not articles.
+;;;
+;;; An evolving article (#+LAYOUT: evolving) is read one paragraph at a time
+;;; beside its section's heading, or beside code that changes as the reader
+;;; goes: source blocks that share an :evolve name are the steps of one
+;;; block. It is written in the same org, with rules about what may follow
+;;; what; SECTION-EVOLUTION has them.
 ;;;
 ;;; A folder in content/magazine/ is a series (except templates/). Its
 ;;; series.org has the series' keywords and nothing else:
@@ -69,7 +77,9 @@
 (defstruct article
   title-lines title subtitle author date type topic code slug lead related
   book-chapter book-title book-summary book-href
-  sections draft pathname series part)
+  sections draft pathname series part
+  ;; NIL for an ordinary article, :EVOLVING for an evolving one.
+  layout)
 
 (defstruct series
   code title summary featured
@@ -143,7 +153,7 @@
 (defparameter *article-keywords*
   '("TITLE" "SUBTITLE" "AUTHOR" "DATE" "TYPE" "TOPIC" "CODE" "SLUG" "HOME"
     "RELATED" "BOOK_CHAPTER" "BOOK_TITLE" "BOOK_SUMMARY" "BOOK_HREF"
-    "PART" "DRAFT")
+    "PART" "DRAFT" "LAYOUT")
   "Keywords an article may use. Others get a warning, to catch typos.")
 
 (defun choice (keyword text table)
@@ -181,7 +191,8 @@
 
 (defun article-block (block)
   "BLOCK as the article page renders it. Notes become (:note label
-paragraphs), and a source block gets :highlight, a list of line numbers."
+paragraphs), and a source block gets :highlight, a list of line numbers
+(MARK-STEPS adds to it)."
   (case (first block)
     (:block
         (destructuring-bind (name label paragraphs) (rest block)
@@ -191,6 +202,250 @@ paragraphs), and a source block gets :highlight, a list of line numbers."
     (:src
      (list* :src :highlight (highlighted-lines block) (rest block)))
     (t block)))
+
+;;; In an ordinary article, source blocks that share an :evolve name are the
+;;; steps of one piece of code, each the whole code as it stands at that
+;;; step. A step after the first is marked with what it changed, as an
+;;; evolving article marks its steps: LINE-ORIGINS is match in
+;;; static/js/magazine-evolving.js, and the two should agree.
+
+(defun line-text (line)
+  (string-left-trim '(#\Space #\Tab) line))
+
+(defun lines-alike-p (a b)
+  "Are the texts A and B one line, edited? They are when they start alike."
+  (let* ((n (min (length a) (length b)))
+         (same (or (mismatch a b) n)))
+    (and (>= n 4) (>= same (* n 0.4)))))
+
+(defun line-origins (old new)
+  "For each of the texts NEW, the index in OLD of the line it came from, or
+NIL: by the longest common subsequence of the two, and then, between one
+match and the next, by pairing the lines left over that are alike."
+  (let* ((n (length old))
+         (m (length new))
+         (common (make-array (list (1+ n) (1+ m)) :initial-element 0))
+         (origins (make-array m :initial-element nil))
+         (i 0) (j 0) (gone nil) (come nil))
+    (loop for i from (1- n) downto 0
+          do (loop for j from (1- m) downto 0
+                   do (setf (aref common i j)
+                            (if (string= (aref old i) (aref new j))
+                                (1+ (aref common (1+ i) (1+ j)))
+                                (max (aref common (1+ i) j) (aref common i (1+ j)))))))
+    (flet ((pair-leftovers ()
+             (let ((left (reverse gone)))
+               (dolist (to (reverse come))
+                 (let ((found (member-if (lambda (from)
+                                           (lines-alike-p (aref old from) (aref new to)))
+                                         left)))
+                   (when found
+                     (setf (aref origins to) (first found)
+                           left (rest found))))))
+             (setf gone nil come nil)))
+      (loop while (or (< i n) (< j m))
+            do (cond ((and (< i n) (< j m) (string= (aref old i) (aref new j)))
+                      (setf (aref origins j) i)
+                      (incf i)
+                      (incf j)
+                      (pair-leftovers))
+                     ((and (< j m)
+                           (or (>= i n) (>= (aref common i (1+ j)) (aref common (1+ i) j))))
+                      (push j come)
+                      (incf j))
+                     (t
+                      (push i gone)
+                      (incf i))))
+      (pair-leftovers))
+    origins))
+
+(defun step-changes (old new)
+  "What the step with the lines NEW changed from the one with the lines OLD,
+as (values added moved), each a list of line numbers from 1. A line is moved
+when it was there but its text or its indentation is different."
+  (flet ((texts (lines) (map 'vector #'line-text lines))
+         (indent (line) (- (length line) (length (line-text line)))))
+    (let* ((was (texts old))
+           (now (texts new))
+           (origins (line-origins was now)))
+      (loop for line in new
+            for n from 1
+            for from = (aref origins (1- n))
+            if (null from)
+              collect n into added
+            else if (or (string/= (aref was from) (aref now (1- n)))
+                        (/= (indent (nth from old)) (indent line)))
+                   collect n into moved
+            finally (return (values added moved))))))
+
+(defun mark-steps (blocks steps)
+  "BLOCKS, with each source block that has :evolve marked with what it
+changed from the step before it: the lines it added join its :highlight, and
+it gets :moved, the lines it changed. STEPS, a table, holds the lines each
+:evolve name was last seen with, so steps can be sections apart."
+  (mapcar (lambda (block)
+            (let ((name (and (eq (first block) :src)
+                             (cdr (assoc "evolve" (getf (rest block) :args) :test #'string=)))))
+              (cond ((null name) block)
+                    ((zerop (length name))
+                     (error ":evolve needs a name, like :evolve run."))
+                    (t
+                     (let ((lines (getf (rest block) :lines)))
+                       (multiple-value-bind (before seen) (gethash name steps)
+                         (setf (gethash name steps) lines)
+                         (if (not seen)
+                             block
+                             (multiple-value-bind (added moved) (step-changes before lines)
+                               (let ((highlight (sort (union added (copy-list (getf (rest block) :highlight)))
+                                                      #'<)))
+                                 (list* :src :highlight highlight
+                                        :moved (set-difference moved highlight)
+                                        (rest block)))))))))))
+          blocks))
+
+;;; Evolving articles
+;;;
+;;; An evolving article shows one paragraph at a time. Beside it is the
+;;; section's heading, until a paragraph brings something else to that side:
+;;; a note, a source block, or a step of an evolving block. What comes after
+;;; a paragraph in the org file is what that paragraph brings.
+
+(defun step-link-count (text)
+  "How many [[step][expression]] links are in TEXT, a paragraph."
+  (labels ((count-in (inlines)
+             (loop for inline in inlines
+                   sum (cond ((stringp inline) 0)
+                             ((eq (first inline) :code) 0)
+                             ((eq (first inline) :link)
+                              (+ (if (string= (second inline) "step") 1 0)
+                                 (count-in (third inline))))
+                             (t (count-in (second inline)))))))
+    (count-in (press:parse-inlines text))))
+
+(defun section-evolution (section)
+  "SECTION of an evolving article, as (values items stops).
+
+ITEMS are what can take the heading's place, each with an id unique in the
+article:
+  (:code id name frames)        a source block; FRAMES is a list of
+                                (lines results), one for each step
+  (:note id label paragraphs)   a #+BEGIN_NOTE
+
+STOPS are the paragraphs, lists and tables, in order, as plists:
+  :block   the block itself
+  :more    the list or table read with it: one that comes straight after
+           a paragraph ending in a colon
+  :head    the ** subheading before it, if any
+  :sub     the ** subheading it is under, if any, and :sub-number, which
+           one of the section's that is, from 1
+  :item    the id of the item beside it, or NIL for the heading
+  :frame   the step of that item this stop moves it to, if it does
+  :steps   for each [[step][...]] link in the paragraph, (id . frame)
+
+The rules, each an error when broken:
+- A note or a source block belongs to the paragraph before it, so a section
+  can't start with one.
+- A paragraph has a note, or one source block, or as many source blocks as
+  it has [[step][...]] links, in the links' order.
+- Source blocks with the same :evolve name are the steps of one block, in
+  order, and each holds the whole code as it stands at that step. That
+  block then stays beside the paragraphs after it. A source block without
+  :evolve, and a note, are there only for their own paragraph."
+  (let ((items nil) (stops nil) (stop nil) (head nil) (staying nil) (count 0)
+        (sub nil) (subs 0))
+    (labels ((fail (control &rest arguments)
+               (error "In ~s: ~?" (section-title section) control arguments))
+             (new-id ()
+               (format nil "~a-item-~d" (section-id section) (incf count)))
+             (close-stop ()
+               (when stop
+                 (let ((links (getf stop :links)) (given (getf stop :given)))
+                   (when (and (plusp links) (/= links given))
+                     (fail "a paragraph marks ~d expression~:p with [[step][...]] but ~d source block~:p follow~:[~;s~] it; each marked expression needs its own block."
+                           links given (= given 1))))
+                 (push stop stops)
+                 (setf stop nil)))
+             (open-stop (block)
+               (close-stop)
+               (setf stop (list :block block :head head :item staying :frame nil :steps nil
+                                :links (if (eq (first block) :p) (step-link-count (second block)) 0)
+                                :given 0 :note nil :more nil
+                                :sub sub :sub-number (when sub subs))
+                     head nil))
+             (introduced-p ()
+               "Is the open stop a paragraph that ends in a colon, with nothing after it yet?"
+               (and stop
+                    (eq (first (getf stop :block)) :p)
+                    (null (getf stop :more))
+                    (not (getf stop :note))
+                    (zerop (getf stop :given))
+                    (let ((text (string-right-trim '(#\Space #\Tab #\Newline) (second (getf stop :block)))))
+                      (and (plusp (length text))
+                           (char= (char text (1- (length text))) #\:)))))
+             (add-note (block)
+               (destructuring-bind (label paragraphs) (rest block)
+                 (cond ((null stop)
+                        (fail "a note comes before any paragraph. In an evolving article a note belongs to the paragraph before it."))
+                       ((or (getf stop :note) (plusp (getf stop :given)) (plusp (getf stop :links)))
+                        (fail "the note ~s follows a paragraph that already has a note or code beside it; put a paragraph before the note." label)))
+                 (let ((id (new-id)))
+                   (push (list :note id label paragraphs) items)
+                   (setf (getf stop :item) id
+                         (getf stop :note) t))))
+             (add-src (block)
+               (let* ((plist (rest block))
+                      (args (getf plist :args))
+                      (name (cdr (assoc "evolve" args :test #'string=)))
+                      (frame (list (getf plist :lines) (getf plist :results)))
+                      (item (and name (find-if (lambda (item)
+                                                 (and (eq (first item) :code)
+                                                      (equal (fifth item) name)))
+                                               items))))
+                 (cond ((null stop)
+                        (fail "a source block comes before any paragraph. In an evolving article code belongs to the paragraph before it."))
+                       ((getf stop :note)
+                        (fail "a source block follows a paragraph that already has a note beside it; put a paragraph before the code."))
+                       ((and (zerop (getf stop :links)) (plusp (getf stop :given)))
+                        (fail "two source blocks follow one paragraph. Put a paragraph between them, or mark an expression in the paragraph for each with [[step][...]].")))
+                 (when (and name (zerop (length name)))
+                   (fail ":evolve needs a name, like :evolve run."))
+                 (if item
+                     (setf (fourth item) (append (fourth item) (list frame)))
+                     (push (setf item (list :code (new-id)
+                                            (or (cdr (assoc "buffer" args :test #'string=))
+                                                (getf plist :lang))
+                                            (list frame)
+                                            name))
+                           items))
+                 (let ((step (cons (second item) (length (fourth item)))))
+                   (incf (getf stop :given))
+                   (if (plusp (getf stop :links))
+                       (setf (getf stop :steps) (append (getf stop :steps) (list step)))
+                       (setf (getf stop :item) (car step)
+                             (getf stop :frame) (cdr step))))
+                 (when name
+                   (setf staying (second item))))))
+      (dolist (block (section-blocks section))
+        (ecase (first block)
+          (:h (setf head (second block)
+                    sub head)
+              (incf subs))
+          (:p (open-stop block))
+          ;; "Strengths:" and its list are read together.
+          ((:list :table)
+           (if (introduced-p)
+               (setf (getf stop :more) (list block))
+               (open-stop block)))
+          (:note (add-note block))
+          (:src (add-src block))))
+      (close-stop)
+      (values (mapcar (lambda (item) (subseq item 0 4)) (reverse items))
+              (reverse stops)))))
+
+(defun parse-layout (text)
+  (cond ((null text) nil)
+        ((string-equal text "evolving") :evolving)
+        (t (error "#+LAYOUT can only be evolving; got ~s. Leave it out for an ordinary article." text))))
 
 (defun parse-article (text &key slug pathname series)
   "The article in TEXT, an org document. SLUG is used unless #+SLUG is given.
@@ -221,7 +476,8 @@ needs only #+TITLE (and #+PART in a series), so a queued part can be one."
              (type (let ((text (unless-draft "TYPE"))) (and text (choice "TYPE" text *article-types*))))
              (topic (let ((text (unless-draft "TOPIC"))) (and text (choice "TOPIC" text *article-topics*))))
              (part (value "PART"))
-             (home (value "HOME")))
+             (home (value "HOME"))
+             (layout (parse-layout (value "LAYOUT"))))
         (unless (safe-slug-p slug)
           (error "Slug ~s must be letters, digits and hyphens, and not archive or index." slug))
         (when (and home (string-not-equal home "lead"))
@@ -232,9 +488,17 @@ needs only #+TITLE (and #+PART in a series), so a queued part can be one."
                (error "#+PART is only for articles in a series' folder."))
               ((and part (not (ignore-errors (plusp (parse-integer part)))))
                (error "#+PART must be a number from 1; got ~s." part)))
-        (dolist (section (press:document-sections document))
-          (setf (press:section-blocks section)
-                (mapcar #'article-block (press:section-blocks section))))
+        (let ((steps (make-hash-table :test #'equal)))
+          (dolist (section (press:document-sections document))
+            (setf (press:section-blocks section)
+                  (mapcar #'article-block (press:section-blocks section)))
+            ;; Read an evolving section now, so its mistakes stop the file
+            ;; loading and not a page rendering. An ordinary article's steps
+            ;; are marked instead.
+            (if (eq layout :evolving)
+                (section-evolution section)
+                (setf (press:section-blocks section)
+                      (mark-steps (press:section-blocks section) steps)))))
         (make-article
          :title-lines title-lines
          :title (press:join-lines title-lines)
@@ -257,6 +521,7 @@ needs only #+TITLE (and #+PART in a series), so a queued part can be one."
          :draft draft
          :series series
          :part (and part (parse-integer part))
+         :layout layout
          :pathname pathname)))))
 
 (defun article-file-p (file)

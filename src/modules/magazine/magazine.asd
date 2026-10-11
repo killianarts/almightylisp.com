@@ -15,6 +15,7 @@ content/magazine/, served live and published as static pages."
                              (:file "logos")
                              (:file "cards")
                              (:file "blocks")
+                             (:file "evolving")
                              (:file "home")
                              (:file "article")
                              (:file "archive")))

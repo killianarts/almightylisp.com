@@ -1,0 +1,13 @@
+JF Dot Kappa 20 0213 (JFドットKappa20-0213)
+
+Designed by 狩野宏樹 (Kano Hiroki), as the Kappa 20dot fonts.
+http://web.archive.org/web/20101221113130/http://kappa.allnet.ne.jp/20dot.fonts/
+
+The font's own licence field reads:
+
+public domain で、無保証な物として扱って下さい。
+(Treat it as public domain, and as provided without warranty.)
+
+The site's copy, jf-dot-kappa20-0213-motto.ttf, is a subset made with
+fontTools: only the characters of the motto in the footer, 心臓を捧げよう.
+A motto with other characters needs them added to it.

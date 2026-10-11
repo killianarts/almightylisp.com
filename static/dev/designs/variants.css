@@ -1,0 +1,1565 @@
+/* Design variants for the magazine, for the comparison page beside this file
+   (index.html). Nothing on the site links to this stylesheet: the page loads
+   a live magazine page in a frame and adds it there, with variant.js, which
+   sets these attributes on <html> and adds the few elements CSS can't.
+
+     data-design-base="v30"   eyebrow headings, notes beside their subsection,
+                              eyebrow cards (Figma: Article (v30), Homepage (v30))
+     data-design="v31"        v30, and the lead on black and grey panels
+     data-design="v32"        v30, and the lead on a grid
+     data-design-meta         with either lead, the dek and byline set to match
+                              it: "panels" (v33, on v31), "grid" (v34, on v32)
+
+     data-design-book="band"  the homepage's book panel in a band of its own
+                              under the plate. Set with any design, and on
+                              its own for the site as it is.
+
+   Selectors carry the attribute so the rules win over magazine.css whatever
+   order the two load in. */
+
+[data-design-base="v30"] {
+    --v-track: 0.22em;
+    --v-ghost: rgb(0 0 0 / 0.08);
+    --v-orn: #adadad;
+}
+
+/* 1. Parts shared by every variant ----------------------------------------- */
+
+/* Eyebrow: a small tracked label over a heading. */
+[data-design-base] .v-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+[data-design-base] .v-sq {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    background: currentColor;
+}
+[data-design-base] .v-sq.o { background: none; box-shadow: inset 0 0 0 1px currentColor; }
+[data-design-base] .v-eyebrow .v-sq.o { margin-left: 10px; }
+
+[data-design-base] .v-dash {
+    display: block;
+    width: 28px;
+    height: 3px;
+    background: var(--ink);
+}
+
+/* Rule: a progress bar, then dot pairs and an arrow label. */
+[data-design-base] .v-rule {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+[data-design-base] .v-bar {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-width: 40px;
+    height: 6px;
+}
+[data-design-base] .v-bar > i { display: block; height: 6px; }
+[data-design-base] .v-bar .done { flex: 0 0 auto; width: calc((100% - 12px) * var(--p, 0.5)); background: var(--ink); }
+[data-design-base] .v-bar .tick { flex: 0 0 6px; background: var(--ink); }
+[data-design-base] .v-bar .rest { flex: 1 1 0; min-width: 0; background: var(--hatch); box-shadow: inset 0 0 0 1px var(--ink); }
+[data-design-base] .v-bar.full .done { flex: 1 1 0; width: auto; }
+[data-design-base] .v-bar.fixed { flex: 0 0 var(--w, 150px); }
+
+[data-design-base] .v-dots { flex: 0 0 auto; display: inline-flex; gap: 3px; }
+[data-design-base] .v-dots > i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
+[data-design-base] .v-dots > i + i { background: none; box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+[data-design-base] .v-arrow {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: var(--v-track);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+[data-design-base] .v-arrow::after {
+    content: "";
+    width: 48px;
+    height: 9px;
+    border-right: 1px solid currentColor;
+    background: linear-gradient(currentColor, currentColor) left center / 100% 1px no-repeat;
+}
+
+[data-design-base] .v-space { flex: 1 1 0; }
+
+/* The meter's squares, drawn as one bar: filled to the newest part, a tick,
+   then an outlined remainder. */
+[data-design-base] .meter {
+    flex: 1 1 0;
+    display: flex;
+    gap: 0;
+    min-width: 40px;
+    height: 6px;
+}
+[data-design-base] .meter .cell,
+[data-design-base] .featured-part .meter .cell {
+    flex: 1 1 0;
+    width: auto;
+    height: 6px;
+    box-shadow: none;
+    border: solid currentColor;
+    border-width: 1px 0;
+}
+[data-design-base] .meter .cell.on { background: currentColor; }
+[data-design-base] .meter .cell.on + .cell:not(.on) {
+    position: relative;
+    margin-left: 12px;
+    border-left-width: 1px;
+}
+[data-design-base] .meter .cell.on + .cell:not(.on)::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: -10px;
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+}
+[data-design-base] .meter .cell:last-child:not(.on) { border-right-width: 1px; }
+
+/* 2. v30: article sections ------------------------------------------------- */
+
+/* A section is rows of two cells: text, and the notes that belong to it.
+   variant.js splits the text at each subheading and moves the notes. */
+[data-design-base] .piece-row.v-rows {
+    grid-template-columns: var(--cols-lead);
+    row-gap: 0;
+}
+
+[data-design-base] .v-rows > .piece-text { position: relative; overflow: hidden; }
+[data-design-base] .v-rows > .piece-text > * { position: relative; }
+
+/* The first notes cell starts level with the text under the section's
+   heading (--v-h2, measured by variant.js). */
+[data-design-base] .v-rows > .piece-margin.v-first {
+    padding-top: calc(var(--pad) + var(--v-h2, 0px) + 22px);
+}
+
+[data-design-base] .v-h2 {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+[data-design-base] .v-h2 .v-ghost {
+    position: absolute;
+    top: -40px;
+    left: -70px;
+    font-family: var(--disp);
+    font-weight: 500;
+    font-variation-settings: var(--disp-axes);
+    font-size: 190px;
+    line-height: 0.84;
+    color: var(--v-ghost);
+    pointer-events: none;
+    user-select: none;
+}
+
+[data-design-base] .v-h2 > :not(.v-ghost) { position: relative; }
+
+[data-design-base] .mag .v-h2 .piece-name {
+    padding: 0;
+    font-weight: 500;
+    font-size: clamp(26px, calc((100vw - 286px) * 0.028), 40px);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+}
+
+[data-design-base] .v-h2 .v-rule { padding-top: 10px; }
+
+[data-design-base] .v-h3 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding-top: 10px;
+}
+[data-design-base] .v-h3 .v-eyebrow { color: var(--mid); }
+[data-design-base] .v-h3 .subhead { margin: 0; font-size: 24px; line-height: 1.2; }
+
+@media (max-width: 1179px) {
+    [data-design-base] .piece-row.v-rows { grid-template-columns: minmax(0, 1fr); }
+    [data-design-base] .v-h2 .v-ghost { top: -28px; left: -40px; font-size: 130px; }
+    [data-design-base] .v-rows > .piece-text + .piece-margin + .piece-text { padding-top: 8px; }
+}
+
+/* 3. v30: homepage cards --------------------------------------------------- */
+
+/* Featured-series banner: name over a progress rule, the part number as a
+   ghost numeral behind the count. */
+[data-design-base] .featured-banner {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px 24px;
+    padding-block: 16px;
+    overflow: hidden;
+}
+[data-design-base] .featured-banner::before {
+    content: attr(data-part);
+    position: absolute;
+    top: -30px;
+    right: -34px;
+    font-family: var(--disp);
+    font-weight: 500;
+    font-variation-settings: var(--disp-axes);
+    font-size: 180px;
+    line-height: 0.84;
+    color: var(--v-ghost);
+    pointer-events: none;
+}
+[data-design-base] .featured-banner > * { position: relative; }
+[data-design-base] .featured-label { letter-spacing: var(--v-track); }
+[data-design-base] .featured-label::before { content: "■ "; }
+[data-design-base] .featured-part { display: contents; }
+[data-design-base] .featured-part .featured-count { grid-column: 3; grid-row: 1; }
+[data-design-base] .featured-banner .v-rule { grid-column: 1 / -1; grid-row: 2; }
+[data-design-base] .featured-banner .meter { gap: 0; }
+
+/* Series cards: the black bar becomes an eyebrow, with a dash over the title. */
+[data-design-base] .series-bar {
+    background: none;
+    color: var(--ink);
+    font-size: 12px;
+    letter-spacing: var(--v-track);
+}
+[data-design-base] .series-body { padding-top: 5px; }
+[data-design-base] .series-body::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 28px;
+    height: 3px;
+    background: var(--ink);
+}
+[data-design-base] .series-progress { gap: 12px; }
+[data-design-base] .series-progress > span:last-child { flex: 0 0 auto; }
+
+/* Briefs: serial as an eyebrow, a dash, an arrow beside the byline, and the
+   brief's place in the list as a ghost numeral. */
+[data-design-base] .latest-briefs,
+[data-design-base] .keep-briefs { counter-reset: v-brief; }
+
+[data-design-base] .neo-brief {
+    position: relative;
+    overflow: hidden;
+    counter-increment: v-brief;
+}
+[data-design-base] .neo-brief::after {
+    content: counter(v-brief, decimal-leading-zero);
+    position: absolute;
+    right: -22px;
+    bottom: -34px;
+    font-family: var(--disp);
+    font-weight: 500;
+    font-variation-settings: var(--disp-axes);
+    font-size: 150px;
+    line-height: 0.84;
+    color: var(--v-ghost);
+    pointer-events: none;
+}
+[data-design-base] .neo-brief > * { position: relative; z-index: 1; }
+
+[data-design-base] .neo-brief-dots { background: none; }
+[data-design-base] .neo-brief-code { letter-spacing: var(--v-track); }
+[data-design-base] .neo-brief-code::before { content: "■ "; }
+[data-design-base] .neo-brief-title::before {
+    content: "";
+    display: block;
+    width: 28px;
+    height: 3px;
+    margin-bottom: 14px;
+    background: var(--ink);
+}
+[data-design-base] .neo-brief-by {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: auto;
+}
+[data-design-base] .neo-brief-by::after {
+    content: "Read";
+    padding-right: 58px;
+    letter-spacing: var(--v-track);
+    color: var(--ink);
+    background:
+        linear-gradient(var(--ink), var(--ink)) right center / 1px 9px no-repeat,
+        linear-gradient(var(--ink), var(--ink)) right center / 48px 1px no-repeat;
+}
+
+/* A brief in a series: a black chip naming the series and part, and a thin
+   bar filled to that part. */
+[data-design-base] .series-strip {
+    position: absolute;
+    gap: 0;
+    background: none;
+    color: var(--ink);
+    z-index: 2;
+}
+[data-design-base] .series-strip > .series-stamp,
+[data-design-base] .series-strip > .series-stamp + span {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    background: var(--ink);
+    color: var(--paper);
+}
+[data-design-base] .series-strip > .series-stamp {
+    width: 28px;
+    height: auto;
+    padding: 3px 6px;
+    background-clip: border-box;
+}
+[data-design-base] .series-strip > .series-stamp .series-logo {
+    width: 16px;
+    height: 16px;
+    padding: 3px;
+    background: var(--paper);
+    color: var(--ink);
+}
+[data-design-base] .series-strip > .series-stamp + span { padding-right: 10px; letter-spacing: var(--v-track); }
+[data-design-base] .series-strip .v-bar { margin-left: 10px; height: 4px; }
+[data-design-base] .series-strip .v-bar > i { height: 4px; }
+[data-design-base] .series-strip .v-bar .tick { flex-basis: 4px; }
+[data-design-base] .series-strip .v-bar .done { width: calc((100% - 10px) * var(--p, 0.5)); }
+
+/* 4. v31 and v32: the lead -------------------------------------------------- */
+
+/* variant.js wraps the headline in .v-title, which runs the lead's full
+   width, and follows it with a rule. The wrapper takes the headline's size so
+   its grid (v32) can be cut to the headline's lines. */
+[data-design="v31"] .v-title,
+[data-design="v32"] .v-title {
+    position: relative;
+    margin: calc(var(--pad-lead) * -1) calc(var(--pad-lead) * -1) 0;
+    padding-top: var(--pad-lead);
+    font-size: calc(min(136.7px, calc((100vw - 286px) * 0.102 - 10.5px)) * var(--headline-scale, 1));
+}
+
+[data-design="v31"] .mag .v-title .neo-headline,
+[data-design="v32"] .mag .v-title .neo-headline {
+    margin: 0;
+    padding: 0 calc(var(--pad-lead) - 12px) 0 var(--pad-lead);
+    font-size: 1em;
+}
+
+[data-design="v31"] .v-title-foot,
+[data-design="v32"] .v-title-foot {
+    font-size: 16px;
+    min-height: 96px;
+}
+
+[data-design="v31"] .v-meta,
+[data-design="v32"] .v-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    letter-spacing: var(--v-track);
+    text-transform: uppercase;
+}
+[data-design="v31"] .v-meta p,
+[data-design="v32"] .v-meta p { margin: 0; }
+
+[data-design="v31"] .neo-lead > .v-rule,
+[data-design="v32"] .neo-lead > .v-rule { margin-top: 22px; }
+
+[data-design="v31"] .neo-lead > .series-tags,
+[data-design="v32"] .neo-lead > .series-tags { display: none; }
+
+[data-design="v31"] .neo-lead > .hatch-fill,
+[data-design="v32"] .neo-lead > .hatch-fill { background: none; }
+
+/* v31: a black panel and a grey one behind the right half of the headline.
+   The type is the same gradient reversed, clipped to the letters, so it turns
+   white where it crosses the black. */
+[data-design="v31"] .v-title {
+    --s1: 50%;
+    --s2: 75%;
+    background: linear-gradient(90deg, transparent 0 var(--s1), var(--ink) var(--s1) var(--s2), var(--paper) var(--s2));
+}
+
+[data-design="v31"] .mag .v-title .neo-headline {
+    background: linear-gradient(90deg, var(--ink) 0 var(--s1), var(--sheet) var(--s1) var(--s2), var(--ink) var(--s2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+[data-design="v31"] .v-title .neo-headline a { color: inherit; }
+
+[data-design="v31"] .v-title-foot {
+    display: grid;
+    grid-template-columns: var(--s1) calc(var(--s2) - var(--s1)) minmax(0, 1fr);
+    align-items: end;
+}
+[data-design="v31"] .v-num {
+    grid-column: 2;
+    padding: 0 22px 12px;
+    font-family: var(--disp);
+    font-weight: 500;
+    font-variation-settings: var(--disp-axes);
+    font-size: 84px;
+    line-height: 0.84;
+    color: #737373;
+}
+[data-design="v31"] .v-num::after {
+    content: "";
+    display: block;
+    width: 16px;
+    height: 6px;
+    margin-top: 12px;
+    /* an open square and a filled one */
+    background: linear-gradient(var(--sheet), var(--sheet)) right / 6px 6px no-repeat;
+    box-shadow: inset 6px 0 0 -5px var(--sheet);
+}
+[data-design="v31"] .v-meta { grid-column: 3; padding: 14px 24px 18px; }
+
+/* v32: a square grid cut to the headline's lines, grey ornaments set into
+   the headline, and the meta block on two shaded cells. */
+[data-design="v32"] .v-title {
+    --cell: 0.84em;
+    --line: #dcdcdc;
+    background:
+        linear-gradient(to right, var(--line) 1px, transparent 1px) var(--pad-lead) 0 / var(--cell) var(--cell),
+        linear-gradient(to bottom, var(--line) 1px, transparent 1px) 0 var(--pad-lead) / var(--cell) var(--cell);
+    border-bottom: 1px solid var(--line);
+}
+[data-design="v32"] .v-orn {
+    display: inline-block;
+    width: 0;
+    padding-left: 0.14em;
+    color: var(--v-orn);
+    -webkit-text-fill-color: var(--v-orn);
+    font-weight: 500;
+    white-space: nowrap;
+}
+[data-design="v32"] .v-orn.in-foot {
+    align-self: center;
+    width: auto;
+    margin-right: auto;
+    padding-left: var(--pad-lead);
+    font-family: var(--disp);
+    font-variation-settings: var(--disp-axes);
+    font-size: 72px;
+    line-height: 0.84;
+    text-transform: uppercase;
+}
+[data-design="v32"] .v-orn small { margin-left: 0.1em; font-size: 0.49em; letter-spacing: 0; }
+[data-design="v32"] .v-num { display: none; }
+[data-design="v32"] .v-title-foot { display: flex; justify-content: flex-end; align-items: stretch; }
+[data-design="v32"] .v-meta {
+    width: min(100%, 260px);
+    padding: 14px;
+    background: #f0f0f0;
+    box-shadow: inset 1px 0 0 var(--line);
+}
+
+@media (max-width: 1179px) {
+    [data-design="v31"] .v-title,
+    [data-design="v32"] .v-title {
+        margin-top: -24px;
+        padding-top: 24px;
+        font-size: calc(min(136.7px, calc((100vw - 32px) / 6.7)) * var(--headline-scale, 1));
+    }
+    [data-design="v31"] .mag .v-title .neo-headline,
+    [data-design="v32"] .mag .v-title .neo-headline { padding-right: var(--pad-lead); }
+    [data-design="v32"] .v-title { background-position: var(--pad-lead) 0, 0 24px; }
+}
+
+@media (max-width: 699px) {
+    [data-design="v31"] .v-title { --s1: 34%; --s2: 56%; }
+    [data-design="v31"] .v-num { padding-inline: 10px; font-size: 56px; }
+    [data-design="v31"] .v-meta { padding: 10px 12px 14px; }
+    [data-design-base] .v-rule .v-dots + .v-dots { display: none; }
+    /* v32's rule keeps its first bar and the label. */
+    [data-design="v32"] .neo-lead > .v-rule > .v-bar.fixed:last-child,
+    [data-design="v32"] .neo-lead > .v-rule > .v-arrow + .v-dots { display: none; }
+}
+
+/* 5. v33 and v34: the dek and byline --------------------------------------- */
+
+/* Both leave the phone as v31 and v32 have it: there is no room there for
+   the dek beside the byline. */
+@media (min-width: 700px) {
+
+    /* The byline as stacked label and value, in both. */
+    [data-design-meta] .neo-lead .byline-spec { font-size: 14px; letter-spacing: 0.06em; }
+    [data-design-meta] .neo-lead .byline-spec .spec-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
+        white-space: normal;
+    }
+    [data-design-meta] .neo-lead .byline-spec .spec-row + .spec-row { margin-top: 10px; }
+    [data-design-meta] .neo-lead .byline-spec dt { font-size: 10px; letter-spacing: var(--v-track); }
+    [data-design-meta] .neo-lead .byline-spec dd { text-align: left; }
+    [data-design-meta] .neo-lead .byline-spec .spec-lead { display: none; }
+
+    /* v33: the panels run on down the lead. The rule, the space under it and
+       the dek row each carry them, edge to edge; the dek is in the white
+       column, the byline on the black, the button on the grey. */
+    [data-design-meta="panels"] .neo-lead {
+        --s1: 50%;
+        --s2: 75%;
+        --v-panels: linear-gradient(90deg, transparent 0 var(--s1), var(--ink) var(--s1) var(--s2), var(--paper) var(--s2));
+    }
+
+    [data-design-meta="panels"] .neo-lead > .v-rule,
+    [data-design-meta="panels"] .neo-lead > .hatch-fill:has(~ .neo-lead-row),
+    [data-design-meta="panels"] .neo-lead > .neo-lead-row {
+        margin-inline: calc(var(--pad-lead) * -1);
+        background: var(--v-panels);
+    }
+
+    [data-design-meta="panels"] .neo-lead > .v-rule {
+        margin-top: 0;
+        padding: 22px calc(100% - var(--s1) + var(--pad-lead) + 24px) 0 var(--pad-lead);
+    }
+    /* The label goes; the bar and its dots are what fit the column. */
+    [data-design-meta="panels"] .neo-lead > .v-rule .v-dots + .v-dots { display: none; }
+
+    [data-design-meta="panels"] .neo-lead > .hatch-fill:has(~ .neo-lead-row) {
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    [data-design-meta="panels"] .neo-lead > .neo-lead-row {
+        display: grid;
+        grid-template-columns: var(--s1) calc(var(--s2) - var(--s1)) minmax(0, 1fr);
+        align-items: start;
+        gap: 0;
+        padding: 28px 0;
+    }
+    [data-design-meta="panels"] .neo-lead > .neo-lead-row:last-child {
+        margin-bottom: calc(var(--pad-lead) * -1);
+        padding-bottom: var(--pad-lead);
+    }
+
+    [data-design-meta="panels"] .neo-lead-row .neo-dek {
+        align-self: start;
+        max-width: none;
+        padding: 0 24px 0 var(--pad-lead);
+        font-size: 22px;
+    }
+    [data-design-meta="panels"] .neo-lead-row .neo-lead-meta { display: contents; }
+    [data-design-meta="panels"] .neo-lead-row .byline-spec { grid-column: 2; padding: 0 22px; }
+    [data-design-meta="panels"] .neo-lead-row .byline-spec dt { color: var(--faint); }
+    [data-design-meta="panels"] .neo-lead-row .byline-spec dd { color: var(--sheet); }
+    [data-design-meta="panels"] .neo-lead-row .neo-cta,
+    [data-design-meta="panels"] .neo-lead-row .hazard-plate {
+        grid-column: 3;
+        align-self: end;
+        width: auto;
+        margin: 0 24px;
+    }
+    /* The hazard plate is paper stripes: on the grey panel, white ones. */
+    [data-design-meta="panels"] .neo-lead-row .hazard-plate {
+        background: repeating-linear-gradient(135deg, var(--sheet) 0 9.9px, transparent 9.9px 19.8px);
+    }
+
+    /* v34: the grid runs across the whole lead (--v-cell, one line of the
+       headline, set by variant.js), a dash stands over the dek, and the
+       byline is on two shaded cells with the button under it. */
+    [data-design-meta="grid"] .neo-lead {
+        --line: #dcdcdc;
+        background:
+            linear-gradient(to right, var(--line) 1px, transparent 1px) var(--pad-lead) 0 / var(--v-cell, 96px) var(--v-cell, 96px),
+            linear-gradient(to bottom, var(--line) 1px, transparent 1px) 0 var(--pad-lead) / var(--v-cell, 96px) var(--v-cell, 96px),
+            var(--sheet);
+    }
+    [data-design-meta="grid"] .v-title { background: none; border-bottom: 0; }
+
+    [data-design-meta="grid"] .neo-lead-row { align-items: flex-start; }
+    [data-design-meta="grid"] .neo-lead-row .neo-dek { align-self: flex-start; }
+    [data-design-meta="grid"] .neo-lead-row .neo-dek::before {
+        content: "";
+        display: block;
+        width: 28px;
+        height: 3px;
+        margin-bottom: 12px;
+        background: var(--ink);
+    }
+    [data-design-meta="grid"] .neo-lead-row .neo-lead-meta {
+        flex: 0 0 max(216px, calc(var(--v-cell, 96px) * 2));
+        gap: 12px;
+        padding: 12px 12px 0;
+        background: #f0f0f0;
+        box-shadow: inset 0 0 0 1px var(--line);
+    }
+    [data-design-meta="grid"] .neo-lead-row .byline-spec dt { color: var(--mid); }
+    [data-design-meta="grid"] .neo-lead-row .neo-cta,
+    [data-design-meta="grid"] .neo-lead-row .hazard-plate { margin: 0 -12px; }
+    [data-design-meta="grid"] .neo-lead-row .hazard-plate {
+        background: repeating-linear-gradient(135deg, var(--paper) 0 9.9px, var(--sheet) 9.9px 19.8px);
+    }
+}
+
+@media (min-width: 700px) and (max-width: 1179px) {
+    /* The narrow lead stacks the dek over the byline; these keep them side
+       by side. */
+    [data-design-meta="grid"] .neo-lead-row { flex-direction: row; justify-content: space-between; }
+    [data-design-meta="grid"] .neo-lead-row .neo-lead-meta { width: auto; max-width: none; }
+    [data-design-meta="panels"] .neo-lead-row .neo-lead-meta { max-width: none; }
+}
+
+/* 4. The book band ---------------------------------------------------------- */
+
+/* The sheet's bands sit on fixed rows. The book band takes row 5, and what
+   was on row 5 or after moves down one. */
+[data-design-book="band"] .sheet { grid-template-rows: repeat(13, auto) 1fr; }
+[data-design-book="band"] .book-band { grid-row: 5; }
+[data-design-book="band"] :is(.series-gap, .pieces-band, .archive-head, .missing-head) { grid-row: 6; }
+[data-design-book="band"] :is(.series-head, .transmission-band, .archive-band) { grid-row: 7; }
+[data-design-book="band"] :is(.series-band, .end-head) { grid-row: 8; }
+[data-design-book="band"] :is(.latest-gap, .end-band) { grid-row: 9; }
+[data-design-book="band"] .latest-head { grid-row: 10; }
+[data-design-book="band"] .latest-band { grid-row: 11; }
+[data-design-book="band"] .footer-gap { grid-row: 12; }
+[data-design-book="band"] .footer-band { grid-row: 13; }
+[data-design-book="band"] .running.bottom { grid-row: 14; }
+
+/* The lead has the plate to itself, and its headline grows by half to fill
+   it: the lead was two thirds of the plate. */
+[data-design-book="band"] .neo-plate { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1180px) {
+    [data-design-book="band"] .mag .neo-plate .neo-headline {
+        font-size: calc(min(136.7px, calc((100vw - 286px) * 0.102 - 10.5px)) * 1.5 * var(--headline-scale, 1));
+    }
+}
+
+/* The band as a strip (data-design-band="strip"). One low row: the label over the logo, the pitch, the spec list, and the
+   buttons one over the other. */
+[data-design-band="strip"] .book-band > .book-ad {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 27%) auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: 10px var(--pad);
+    padding-block: 18px;
+}
+[data-design-band="strip"] .book-band .book-ad-label { grid-column: 1; grid-row: 1; }
+[data-design-band="strip"] .book-band .book-ad-logo {
+    grid-column: 1;
+    grid-row: 2;
+    width: clamp(150px, 11.5vw, 196px);
+    height: auto;
+}
+[data-design-band="strip"] .book-band .book-ad-pitch {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    font-size: clamp(16px, 1.2vw, 20px);
+    line-height: 1.25;
+    text-wrap: balance;
+}
+[data-design-band="strip"] .book-band .book-ad-pitch p {
+    margin: 0;
+    text-align: left;
+    word-spacing: normal;
+    hyphens: manual;
+}
+[data-design-band="strip"] .book-band .book-spec {
+    grid-column: 3;
+    grid-row: 1 / -1;
+    font-size: 11px;
+}
+[data-design-band="strip"] .book-band .book-ad-actions {
+    grid-column: 4;
+    grid-row: 1 / -1;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    margin-top: 0;
+}
+[data-design-band="strip"] .book-band .book-ad-actions .neo-button { flex: 0 0 auto; height: 40px; }
+
+/* The band after brasshands.com (data-design-band="brass"): a ticker on
+   paper across the top, then four columns of a studio's letterhead, all in
+   the mono face: the logo over boxed status tags, the pitch over the label
+   on a grey tag, the spec list as plain lines, and a hatched button. A heavy
+   rule closes it. */
+[data-design-band="brass"] .book-band > .book-ad {
+    --bb-grey: #b4b4b4;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 17%) minmax(0, 1fr) minmax(0, 27%) minmax(0, 16%);
+    grid-template-rows: auto auto 1fr auto;
+    gap: 16px var(--pad);
+    padding: 0 20px 20px;
+    background: #1c1c1c;
+    color: var(--bb-grey);
+}
+[data-design-band="brass"] .bb-ticker {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0;
+    margin: 0 -20px 6px;
+    padding: 7px 0;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+[data-design-band="brass"] .bb-ticker span { flex: 0 0 auto; padding: 0 10px; }
+[data-design-band="brass"] .bb-ticker i { flex: 0 0 auto; padding: 0 72px; font-style: italic; }
+/* Corner brackets, as on the letterhead. */
+[data-design-band="brass"] .book-band > .book-ad::before,
+[data-design-band="brass"] .book-band > .book-ad::after {
+    content: "";
+    position: absolute;
+    top: 40px;
+    width: 9px;
+    height: 9px;
+    border-top: 1px solid var(--bb-grey);
+}
+[data-design-band="brass"] .book-band > .book-ad::before { left: 8px; border-left: 1px solid var(--bb-grey); }
+[data-design-band="brass"] .book-band > .book-ad::after { right: 8px; border-right: 1px solid var(--bb-grey); }
+
+[data-design-band="brass"] .book-band .book-ad-logo {
+    grid-column: 1;
+    grid-row: 2;
+    width: min(100%, 190px);
+    height: auto;
+    opacity: 0.78;
+}
+[data-design-band="brass"] .bb-tags {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: end;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+[data-design-band="brass"] .bb-slashes { flex: 0 0 100%; letter-spacing: 0.02em; font-style: italic; }
+[data-design-band="brass"] .bb-tag { padding: 4px 8px; border: 1px solid currentColor; white-space: nowrap; }
+[data-design-band="brass"] .bb-tag.on { background: var(--paper); border-color: var(--paper); color: var(--ink); }
+
+[data-design-band="brass"] .book-band .book-ad-pitch {
+    grid-column: 2;
+    grid-row: 2;
+    font-family: var(--mohave);
+    font-weight: 600;
+    font-size: clamp(19px, 1.5vw, 26px);
+    line-height: 1.14;
+    color: var(--bb-grey);
+    text-wrap: balance;
+}
+[data-design-band="brass"] .book-band .book-ad-pitch p {
+    margin: 0;
+    text-align: left;
+    word-spacing: normal;
+    hyphens: manual;
+}
+[data-design-band="brass"] .book-band .book-ad-label {
+    grid-column: 2;
+    grid-row: 3;
+    align-self: end;
+    justify-self: start;
+    min-width: min(100%, 288px);
+    padding: 11px 12px;
+    background: var(--bb-grey);
+    color: var(--ink);
+    text-box: none;
+}
+
+/* The spec list as lines of "NAME: value", in two groups. */
+[data-design-band="brass"] .book-band .book-spec {
+    grid-column: 3;
+    grid-row: 2 / 4;
+    font-size: 12px;
+    line-height: 2;
+    letter-spacing: 0.1em;
+}
+[data-design-band="brass"] .book-band .book-spec .spec-row { display: block; }
+[data-design-band="brass"] .book-band .book-spec .spec-row:nth-child(4) { margin-top: 12px; }
+[data-design-band="brass"] .book-band .book-spec .spec-lead { display: none; }
+[data-design-band="brass"] .book-band .book-spec dt,
+[data-design-band="brass"] .book-band .book-spec dd { display: inline; color: var(--bb-grey); }
+[data-design-band="brass"] .book-band .book-spec dt::after { content: ": "; }
+
+[data-design-band="brass"] .book-band .book-ad-actions {
+    grid-column: 4;
+    grid-row: 2 / 4;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 0;
+}
+[data-design-band="brass"] .mag .book-band a.neo-button {
+    flex: 0 0 auto;
+    justify-content: center;
+    padding: 0 12px;
+    border: 1px solid var(--bb-grey);
+    background: none;
+    color: var(--bb-grey);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+}
+[data-design-band="brass"] .mag .book-band a.neo-button.primary {
+    height: 68px;
+    background: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.2) 0 1px, transparent 1px 5px);
+    color: var(--sheet);
+}
+[data-design-band="brass"] .mag .book-band a.neo-button.primary:hover {
+    background: var(--paper);
+    color: var(--ink);
+}
+[data-design-band="brass"] .book-band .neo-button.primary::after { content: none; }
+[data-design-band="brass"] .mag .book-band a.neo-button.secondary { border-style: dashed; }
+[data-design-band="brass"] .bb-rule {
+    grid-column: 1 / -1;
+    height: 3px;
+    margin-top: 4px;
+    background: var(--bb-grey);
+}
+
+/* The band after Creative Mints' Agento project (data-design-band="agento"):
+   a square grid, one block of it hatched; an eyebrow with its squares and
+   the logo over a ghost numeral; the pitch as a headline over a gauge and
+   dot pairs; the spec list small under that; and the buttons at the foot of
+   the last column. */
+[data-design-band="agento"] .book-band > .book-ad {
+    --c: calc(min(1440px, 100vw - 286px) / 16);
+    --ba-line: rgb(255 255 255 / 0.2);
+    --ba-dim: rgb(255 255 255 / 0.45);
+    position: relative;
+    display: grid;
+    grid-template-columns: calc(var(--c) * 4 - var(--pad)) minmax(0, 1fr) calc(var(--c) * 3);
+    grid-template-rows: auto auto 1fr auto auto;
+    gap: 0 var(--pad);
+    padding: var(--pad);
+    overflow: hidden;
+    background:
+        linear-gradient(to right, var(--ba-line) 1px, transparent 1px) 0 0 / var(--c) var(--c),
+        linear-gradient(to bottom, var(--ba-line) 1px, transparent 1px) 0 0 / var(--c) var(--c),
+        #0b0b0b;
+    color: var(--sheet);
+}
+[data-design-band="agento"] .book-band > .book-ad > :not(.ba-hatch, .ba-ghost) { position: relative; }
+[data-design-band="agento"] .ba-hatch {
+    position: absolute;
+    left: calc(var(--c) * 13);
+    top: 0;
+    width: calc(var(--c) * 2);
+    height: var(--c);
+    background: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.3) 0 1px, transparent 1px 6px);
+}
+[data-design-band="agento"] .ba-ghost {
+    position: absolute;
+    left: -0.06em;
+    bottom: -0.16em;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: calc(var(--c) * 2.9);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: rgb(255 255 255 / 0.07);
+}
+
+[data-design-band="agento"] .book-band .book-ad-label {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-box: none;
+}
+[data-design-band="agento"] .book-band .book-ad-label::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    background: currentColor;
+}
+[data-design-band="agento"] .ba-squares { grid-column: 1; grid-row: 2; display: flex; gap: 10px; margin-top: 12px; }
+[data-design-band="agento"] .ba-squares i { width: 8px; height: 8px; background: var(--ba-dim); }
+[data-design-band="agento"] .ba-squares i:first-child { background: none; box-shadow: inset 0 0 0 1px var(--ba-dim); }
+[data-design-band="agento"] .book-band .book-ad-logo {
+    grid-column: 1;
+    grid-row: 3 / -1;
+    align-self: end;
+    width: min(100%, 210px);
+    height: auto;
+}
+
+[data-design-band="agento"] .book-band .book-ad-pitch {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    font-family: var(--mohave);
+    font-weight: 400;
+    font-size: clamp(27px, 2.35vw, 40px);
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    color: var(--sheet);
+    text-wrap: balance;
+}
+[data-design-band="agento"] .book-band .book-ad-pitch p {
+    margin: 0;
+    text-align: left;
+    word-spacing: normal;
+    hyphens: manual;
+}
+[data-design-band="agento"] .ba-rule {
+    grid-column: 2;
+    grid-row: 4;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin: 22px 0 20px;
+}
+[data-design-band="agento"] .ba-gauge { flex: 0 1 300px; display: flex; align-items: center; height: 6px; min-width: 0; }
+[data-design-band="agento"] .ba-gauge .done { flex: 0 0 22%; height: 100%; background: var(--sheet); }
+[data-design-band="agento"] .ba-gauge .tick { flex: 0 0 6px; height: 100%; margin-left: 2px; background: var(--ba-dim); }
+[data-design-band="agento"] .ba-gauge .rest {
+    flex: 1 1 auto;
+    height: 100%;
+    background: repeating-linear-gradient(135deg, var(--ba-dim) 0 1px, transparent 1px 3px);
+}
+[data-design-band="agento"] .ba-dots { display: inline-flex; gap: 2px; }
+[data-design-band="agento"] .ba-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--sheet); }
+[data-design-band="agento"] .ba-dots i + i { background: none; box-shadow: inset 0 0 0 1.5px var(--sheet); }
+[data-design-band="agento"] .ba-dots.alt i { background: none; box-shadow: inset 0 0 0 1.5px var(--sheet); }
+[data-design-band="agento"] .ba-dots.alt i + i { background: var(--ba-dim); box-shadow: none; }
+
+[data-design-band="agento"] .book-band .book-spec {
+    grid-column: 2;
+    grid-row: 5;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 var(--pad);
+    font-size: 11px;
+}
+[data-design-band="agento"] .book-band .book-spec dt { color: var(--ba-dim); }
+
+[data-design-band="agento"] .ba-corner {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    justify-content: space-between;
+    padding-left: var(--c);
+}
+[data-design-band="agento"] .book-band .book-ad-actions {
+    grid-column: 3;
+    grid-row: 3 / -1;
+    align-self: end;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-top: 0;
+}
+[data-design-band="agento"] .mag .book-band a.neo-button {
+    flex: 0 0 auto;
+    height: 40px;
+    padding: 0 14px;
+    font-family: var(--mohave);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+}
+/* The primary button's dither strip becomes a boxed arrow. */
+[data-design-band="agento"] .book-band .neo-button.primary::after {
+    content: "\2192";
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: 24px;
+    display: grid;
+    place-items: center;
+    background: var(--ink);
+    color: var(--sheet);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0;
+}
+[data-design-band="agento"] .mag .book-band a.neo-button.secondary { border-color: var(--ba-line); color: var(--sheet); }
+
+/* Narrow pages have the book in the footer, as they do now. */
+@media (max-width: 1179px) {
+    [data-design-book="band"] .book-band { display: none; }
+}
+
+/* 5. From the Figma file ---------------------------------------------------- */
+
+/* Shared furniture: a gauge and dot pairs, drawn in the current colour. */
+.vl-gauge { display: inline-flex; align-items: center; gap: 2px; width: 240px; height: 6px; }
+.vl-gauge > i { display: block; height: 6px; }
+.vl-gauge .done { flex: 0 0 24%; background: currentColor; }
+.vl-gauge .tick { flex: 0 0 7px; background: currentColor; opacity: 0.5; }
+.vl-gauge .rest { flex: 1 1 0; background: repeating-linear-gradient(135deg, currentColor 0 1px, transparent 1px 3px); opacity: 0.5; }
+.vl-dots { display: inline-flex; gap: 2px; }
+.vl-dots > i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.vl-dots > i + i { background: none; box-shadow: inset 0 0 0 1.6px currentColor; }
+.vl-dots.alt > i { background: none; box-shadow: inset 0 0 0 1.6px currentColor; }
+.vl-dots.alt > i + i { background: currentColor; box-shadow: none; opacity: 0.5; }
+
+/* The Landing book band (data-design-band="landing"; Figma: Book ad / C1
+   Landing): the logo and eyebrow, the pitch as a headline over a gauge, the
+   dither in the corner, and three ways to read as cards. */
+[data-design-band="landing"] .book-band > .book-ad {
+    --vl-bg: #05060a;
+    --vl-card: #15161a;
+    --vl-line: #2a2b30;
+    --vl-dim: #8b8c92;
+    position: relative;
+    display: grid;
+    grid-template-columns: clamp(200px, 20.6%, 296px) minmax(0, 780px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    gap: 0;
+    padding: 44px 64px 56px;
+    background:
+        url("/static/assets/images/magazine/patterns/dither-fade-reversed.svg") right top / 336px 336px no-repeat,
+        var(--vl-bg);
+    color: var(--sheet);
+}
+[data-design-band="landing"] .book-band .book-ad-logo { grid-column: 1; grid-row: 1 / 3; width: 170px; height: auto; }
+[data-design-band="landing"] .book-band .book-ad-label {
+    grid-column: 2;
+    grid-row: 1;
+    padding-top: 18px;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--vl-dim);
+    text-box: none;
+}
+[data-design-band="landing"] .book-band .book-ad-pitch {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 28px;
+    font-family: var(--mohave);
+    font-size: clamp(30px, 2.67vw, 46px);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    color: var(--sheet);
+    text-wrap: balance;
+}
+[data-design-band="landing"] .book-band .book-ad-pitch p { margin: 0; text-align: left; word-spacing: normal; hyphens: manual; }
+[data-design-band="landing"] .book-band .book-spec { display: none; }
+[data-design-band="landing"] .vl-rule { grid-column: 2; grid-row: 3; display: flex; align-items: center; gap: 22px; margin-top: 26px; }
+[data-design-band="landing"] .vl-rule .vl-gauge { width: 355px; }
+[data-design-band="landing"] .book-ad > .vl-corner { position: absolute; top: 62px; right: 64px; display: flex; gap: 42px; }
+[data-design-band="landing"] .vl-cards {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 38px;
+}
+[data-design-band="landing"] .mag .vl-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 132px;
+    padding: 52px 64px 20px 24px;
+    border: 1px solid var(--vl-line);
+    border-radius: 4px;
+    background: var(--vl-card);
+    color: var(--sheet);
+}
+[data-design-band="landing"] .mag .vl-card::before {
+    content: "";
+    position: absolute;
+    top: 52px;
+    left: 24px;
+    width: 14px;
+    height: 3px;
+    background: currentColor;
+}
+[data-design-band="landing"] .vl-card-meta {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vl-dim);
+}
+[data-design-band="landing"] .vl-card-title { margin-top: 16px; font-family: var(--disp); font-weight: 700; font-variation-settings: var(--disp-axes); font-size: 16px; line-height: 1.1; letter-spacing: 0.01em; text-transform: uppercase; }
+[data-design-band="landing"] .vl-card-sub { margin-top: 6px; font-family: var(--mohave); font-size: 14px; line-height: 1.3; color: var(--vl-dim); }
+[data-design-band="landing"] .vl-card-arrow {
+    position: absolute;
+    right: 24px;
+    bottom: 22px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    background: var(--vl-line);
+    color: var(--sheet);
+    font-family: var(--sans);
+    font-size: 14px;
+}
+[data-design-band="landing"] .mag .vl-card.on { border-color: #f2f2f2; background: #f2f2f2; color: var(--vl-bg); }
+[data-design-band="landing"] .vl-card.on .vl-card-sub,
+[data-design-band="landing"] .vl-card.on .vl-card-meta { color: #4a4b50; }
+[data-design-band="landing"] .vl-card.on .vl-card-arrow { background: var(--vl-bg); }
+[data-design-band="landing"] .mag .vl-card:hover { border-color: var(--sheet); }
+
+/* The Landing theme (data-design-theme="landing"; Figma: Homepage restyled
+   · C1 · Landing, Article restyled · C1 · Landing). A light page: the site's display
+   headings, and black kept for what should pull the eye, the
+   featured series, the book, the section heads and the footer. */
+[data-design-theme="landing"] { --vl-bg: #05060a; --vl-card: #15161a; --vl-line: #2a2b30; --vl-dim: #85868b; }
+[data-design-theme="landing"] .edge,
+[data-design-theme="landing"] .head-band > .hazard { background: none; }
+[data-design-theme="landing"] .head-band > .hazard::before,
+[data-design-theme="landing"] .head-band > .hazard::after { content: none; }
+
+/* Headings stay in the display face, as on the site. */
+[data-design-theme="landing"] .mag .v-h2 .piece-name { font-size: 40px; line-height: 0.95; }
+
+/* Black: the featured series' banner and card. */
+[data-design-theme="landing"] .featured-banner,
+[data-design-theme="landing"] .series-card.featured {
+    --ink: #fff;
+    --paper: var(--vl-bg);
+    --hatch: none;
+    --v-ghost: rgb(255 255 255 / 0.09);
+    background: var(--vl-bg);
+    border-color: var(--vl-bg);
+    color: #fff;
+}
+[data-design-theme="landing"] .featured-banner .featured-label { color: #a2a3a8; }
+[data-design-theme="landing"] .featured-banner a,
+[data-design-theme="landing"] .series-card.featured a { color: #fff; }
+[data-design-theme="landing"] .series-card.featured .series-summary { color: #d2d2d2; }
+[data-design-theme="landing"] .series-card.featured .part-row { border-top-color: var(--vl-line); }
+[data-design-theme="landing"] .series-card.featured .part-row.queued,
+[data-design-theme="landing"] .series-card.featured .part-row.queued .part-t { color: var(--vl-dim); }
+
+/* Section heads: black, a thin title, a gauge and dot pairs. */
+[data-design-theme="landing"] .head-band > .section-head { background-color: var(--vl-bg); }
+[data-design-theme="landing"] .section-tag > .section-meta { display: none; }
+[data-design-theme="landing"] .vl-headrule {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    height: 16px;
+    color: #fff;
+}
+[data-design-theme="landing"] .vl-headrule .vl-dots + .vl-dots { margin-left: -8px; }
+
+/* The footer: near-black cells, tracked eyebrows, a thin heading, buttons
+   as cards, dot pairs in each cell's corner. */
+[data-design-theme="landing"] .site-footer { background: var(--vl-line); }
+[data-design-theme="landing"] .footer-colophon,
+[data-design-theme="landing"] .footer-block { position: relative; background-color: var(--vl-bg); }
+[data-design-theme="landing"] .site-footer .vl-corner { position: absolute; top: 34px; right: 32px; display: flex; gap: 10px; color: #fff; }
+[data-design-theme="landing"] .site-footer .book-ad-label { font-size: 11px; letter-spacing: 0.32em; color: var(--vl-dim); }
+[data-design-theme="landing"] .mag .site-footer a.neo-button {
+    border: 1px solid var(--vl-line);
+    border-radius: 4px;
+    background: var(--vl-card);
+    color: #fff;
+    font-family: var(--mohave);
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0;
+    text-transform: none;
+}
+[data-design-theme="landing"] .mag .site-footer a.neo-button.primary { border-color: #f2f2f2; background: #f2f2f2; color: var(--vl-bg); }
+[data-design-theme="landing"] .mag .site-footer a.neo-button:hover { border-color: #fff; }
+
+@media (max-width: 1179px) {
+    [data-design-theme="landing"] .vl-headrule .vl-gauge { width: 140px; }
+    [data-design-theme="landing"] .mag .v-h2 .piece-name { font-size: 28px; }
+}
+
+/* The Agento footer (data-design-footer="agento"; Figma: Homepage + B1 ·
+   Spec sheet): the footer in the style of the Agento book band above it,
+   on the same square grid. */
+[data-design-footer="agento"] .site-footer {
+    --c: calc(min(1440px, 100vw - 286px) / 16);
+    --ba-line: rgb(255 255 255 / 0.2);
+    position: relative;
+    gap: 0;
+    background:
+        linear-gradient(to right, var(--ba-line) 1px, transparent 1px) 0 0 / var(--c) var(--c),
+        linear-gradient(to bottom, var(--ba-line) 1px, transparent 1px) 0 0 / var(--c) var(--c),
+        #0b0b0b;
+    color: #fff;
+}
+[data-design-footer="agento"] .footer-colophon,
+[data-design-footer="agento"] .footer-block { background: none; }
+[data-design-footer="agento"] .footer-block { box-shadow: inset 1px 0 0 #333; }
+/* A hatched block, two cells wide, on the grid's columns. */
+[data-design-footer="agento"] .site-footer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: calc(var(--c) * 14);
+    width: calc(var(--c) * 2);
+    height: var(--c);
+    background: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.3) 0 1px, transparent 1px 6px);
+    pointer-events: none;
+}
+[data-design-footer="agento"] .site-footer .book-ad-label { font-size: 12px; letter-spacing: 0.28em; color: #fff; }
+[data-design-footer="agento"] .site-footer .book-ad-label::before { content: "■  "; }
+[data-design-footer="agento"] .footer-title {
+    font-family: var(--mohave);
+    font-weight: 400;
+    font-variation-settings: normal;
+    font-size: 40px;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    text-transform: none;
+}
+[data-design-footer="agento"] .mag .site-footer a.neo-button {
+    height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--ba-line);
+    background: none;
+    color: #fff;
+    font-family: var(--mohave);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+}
+[data-design-footer="agento"] .mag .site-footer a.neo-button.primary { border-color: #fff; background: #fff; color: #000; }
+[data-design-footer="agento"] .site-footer .neo-button.primary::after {
+    content: "\2192";
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: 24px;
+    display: grid;
+    place-items: center;
+    background: #000;
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: 0;
+}
+@media (max-width: 1179px) {
+    [data-design-footer="agento"] .site-footer { --c: 90px; }
+    [data-design-footer="agento"] .site-footer::after { display: none; }
+}
+
+/* 6. Figma designs: fit ------------------------------------------------------ */
+
+/* B1: the Agento band without the spec list. */
+[data-design-footer="agento"][data-design-band="agento"] .book-band .book-spec { display: none; }
+[data-design-footer="agento"][data-design-band="agento"] .book-band .ba-rule { margin-bottom: 0; }
+
+/* Footer buttons keep their words: they take the room they need and wrap
+   to a row each when the cell is narrow. */
+[data-design-footer="agento"] .footer-actions .neo-button,
+[data-design-theme="landing"] .footer-actions .neo-button {
+    flex: 1 1 auto;
+    min-width: max-content;
+    justify-content: flex-start;
+}
+[data-design-footer="agento"] .footer-actions .neo-button.primary { padding-right: 44px; }
+
+/* The first footer button still takes a row of its own, and leaves room
+   for its arrow. */
+[data-design-footer="agento"] .mag .site-footer .footer-actions a.neo-button.primary,
+[data-design-theme="landing"] .mag .site-footer .footer-actions a.neo-button.primary { flex: 1 1 100%; }
+[data-design-footer="agento"] .mag .site-footer .footer-actions a.neo-button.primary { padding-right: 44px; }
+[data-design-footer="agento"] .book-band .book-ad-label { white-space: nowrap; }
+
+@media (max-width: 1399px) {
+    [data-design-footer="agento"] .book-band .book-ad-label { letter-spacing: 0.16em; }
+    [data-design-band="landing"] .book-band > .book-ad { padding: 36px 40px 44px; }
+    [data-design-band="landing"] .book-ad > .vl-corner { top: 50px; right: 40px; }
+    [data-design-band="landing"] .mag .vl-card { padding-right: 60px; }
+}
+
+/* Under 1180px the footer is one panel: the colophon across the top, the
+   book beside the theme packs. The panel carries the ground, and the cells
+   keep the site's spacing. */
+@media (max-width: 1179px) {
+    [data-design-footer="agento"] .site-footer { gap: 28px 32px; }
+    [data-design-footer="agento"] .footer-block { box-shadow: none; }
+    [data-design-theme="landing"] .site-footer { background: var(--vl-bg); }
+    [data-design-theme="landing"] .footer-colophon,
+    [data-design-theme="landing"] .footer-block { background: none; }
+    [data-design-theme="landing"] .site-footer .vl-corner { display: none; }
+    [data-design-footer="agento"] .footer-title { font-size: 32px; }
+}
+@media (max-width: 699px) {
+    [data-design-footer="agento"] .footer-actions .neo-button,
+    [data-design-theme="landing"] .footer-actions .neo-button { flex-basis: 100%; }
+}
+@media (max-width: 1499px) {
+    /* The corner dots would sit on the eyebrows in the narrower cells. */
+    [data-design-theme="landing"] .site-footer .vl-corner { display: none; }
+}
+
+/* 7. Figma designs: buttons --------------------------------------------------- */
+
+/* Primary buttons carry the call-to-action's dither (.neo-cta): the same
+   tile at the same scale and crop, running off the right edge. The tile is
+   drawn in white for black buttons, so on these white ones it is inverted. */
+[data-design-footer="agento"] .mag .book-band a.neo-button.primary,
+[data-design-footer="agento"] .mag .site-footer a.neo-button.primary,
+[data-design-theme="landing"] .mag .site-footer a.neo-button.primary,
+[data-design-band="landing"] .mag .vl-card.on {
+    position: relative;
+    overflow: hidden;
+    border-color: #fff;
+    background: #fff;
+    color: #000;
+}
+[data-design-footer="agento"] .mag .book-band a.neo-button.primary,
+[data-design-footer="agento"] .mag .site-footer .footer-actions a.neo-button.primary { padding-right: 72px; }
+[data-design-footer="agento"] .book-band .neo-button.primary::after,
+[data-design-footer="agento"] .site-footer .neo-button.primary::after,
+[data-design-theme="landing"] .site-footer .neo-button.primary::after,
+[data-design-band="landing"] .vl-card.on::after {
+    content: "";
+    position: absolute;
+    top: calc(50% - 48.5px);
+    right: -55px;
+    bottom: auto;
+    left: auto;
+    display: block;
+    width: 118px;
+    height: 118px;
+    background: url("/static/assets/images/magazine/patterns/dither-ramp-reversed.svg") 0 0 / 224px 224px;
+    filter: invert(1);
+    opacity: 0.55;
+    pointer-events: none;
+}
+/* The card is taller than a button: the same tile, larger, down its right side. */
+[data-design-band="landing"] .vl-card.on::after {
+    top: 0;
+    right: -118px;
+    width: 224px;
+    height: 100%;
+    background-position: 0 -40px;
+}
+[data-design-band="landing"] .vl-card.on > * { z-index: 1; }
+[data-design-band="landing"] .vl-card.on > .vl-card-title,
+[data-design-band="landing"] .vl-card.on > .vl-card-sub { position: relative; }
+[data-design-band="landing"] .mag .vl-card.on { padding-right: 112px; }
+[data-design-band="landing"] .vl-card.on .vl-card-arrow { background: #000; }
+
+/* Secondary buttons: a full-strength outline and a lifted ground, so they
+   read as buttons on black. The book band's other two cards are set the
+   same way. */
+[data-design-footer="agento"] .mag .book-band a.neo-button.secondary,
+[data-design-footer="agento"] .mag .site-footer a.neo-button.secondary,
+[data-design-theme="landing"] .mag .site-footer a.neo-button.secondary,
+[data-design-band="landing"] .mag .vl-card:not(.on) {
+    border: 1px solid var(--paper);
+    background: #1e1f24;
+    color: #fff;
+}
+[data-design-footer="agento"] .mag .book-band a.neo-button.secondary:hover,
+[data-design-footer="agento"] .mag .site-footer a.neo-button.secondary:hover,
+[data-design-theme="landing"] .mag .site-footer a.neo-button.secondary:hover,
+[data-design-band="landing"] .mag .vl-card:not(.on):hover { background: #2c2d33; }
+[data-design-band="landing"] .vl-card:not(.on) .vl-card-sub,
+[data-design-band="landing"] .vl-card:not(.on) .vl-card-meta { color: #b4b4b4; }
+[data-design-band="landing"] .vl-card:not(.on) .vl-card-arrow { background: none; box-shadow: inset 0 0 0 1px var(--paper); }
+/* The lit card's price sits on the dither, so it gets a ground of its own. */
+[data-design-band="landing"] .vl-card.on .vl-card-meta { top: 20px; right: 20px; padding: 4px 6px; background: #fff; color: #000; }
+
+/* The pitch is justified in the Agento and Landing bands, like the rest of
+   the body text. At this size the measure is short for the script, so the
+   browser sets it; a word broken at this size reads badly, so it doesn't
+   hyphenate. */
+[data-design-band="agento"] .book-band .book-ad-pitch,
+[data-design-band="landing"] .book-band .book-ad-pitch { text-wrap: wrap; }
+[data-design-band="agento"] .book-band .book-ad-pitch p,
+[data-design-band="landing"] .book-band .book-ad-pitch p {
+    text-align: justify;
+    -webkit-hyphens: manual;
+    hyphens: manual;
+}
+
+/* 8. C1 Landing: furniture --------------------------------------------------- */
+
+/* In the gutters beside a band (the columns the side labels use): dot pairs
+   at its top, a gauge at its foot. */
+[data-design-theme="landing"] .band > .vl-m {
+    grid-row: 1;
+    justify-self: center;
+    align-self: start;
+    margin-top: 22px;
+    color: var(--vl-bg);
+    z-index: 2;
+}
+[data-design-theme="landing"] .band > .vl-m.left { grid-column: 2; }
+[data-design-theme="landing"] .band > .vl-m.right { grid-column: 4; }
+[data-design-theme="landing"] .band > .vl-m.foot {
+    grid-column: 4;
+    align-self: end;
+    width: 52px;
+    margin: 0 0 22px;
+}
+/* The same beside each section of an article: a section spans the sheet's
+   columns, so they sit on its grid. */
+[data-design-theme="landing"] .neo-piece > .vl-p {
+    grid-row: 1;
+    justify-self: center;
+    align-self: start;
+    margin-top: 22px;
+    color: var(--vl-bg);
+    z-index: 2;
+}
+[data-design-theme="landing"] .neo-piece > .vl-p.left { grid-column: 2; }
+[data-design-theme="landing"] .neo-piece > .vl-p.right { grid-column: 4; }
+[data-design-theme="landing"] .neo-piece > .vl-p.foot { grid-column: 4; align-self: end; width: 52px; margin: 0 0 22px; }
+
+/* The book band: a ring of dots and a slider under the logo, and a small
+   dot grid in each card's corner. */
+[data-design-band="landing"] .vl-side {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    display: flex;
+    flex-direction: column;
+    gap: 58px;
+    margin-top: 96px;
+    padding-right: 32px;
+    color: var(--sheet);
+}
+[data-design-band="landing"] .vl-mark { position: relative; width: 40px; height: 40px; }
+[data-design-band="landing"] .vl-mark > i { position: absolute; width: 11px; height: 11px; border-radius: 50%; background: currentColor; }
+[data-design-band="landing"] .vl-slider {
+    position: relative;
+    width: min(220px, 100%);
+    height: 44px;
+    background:
+        linear-gradient(currentColor, currentColor) right center / 1px 11px no-repeat,
+        linear-gradient(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.5)) left center / 100% 1px no-repeat;
+}
+[data-design-band="landing"] .vl-slider > i { position: absolute; width: 8px; height: 8px; }
+[data-design-band="landing"] .vl-slider > .a { top: 2px; left: 0; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--vl-dim); }
+[data-design-band="landing"] .vl-slider > .b { bottom: 2px; left: 0; border-radius: 50%; background: currentColor; }
+[data-design-band="landing"] .vl-slider > .c { top: 2px; right: 4px; background: var(--vl-dim); }
+[data-design-band="landing"] .vl-slider > .d { bottom: 2px; right: 4px; box-shadow: inset 0 0 0 1px currentColor; }
+[data-design-band="landing"] .vl-card-icon { position: absolute; top: 22px; left: 24px; width: 16px; height: 16px; }
+[data-design-band="landing"] .vl-card-icon > i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: currentColor; }
+[data-design-band="landing"] .vl-card-icon > i.dim { opacity: 0.5; }
+
+/* The footer: a gauge over the book's buttons. */
+[data-design-theme="landing"] .vl-footgauge { align-self: flex-end; width: 180px; margin: -6px 0 2px; color: #fff; }
+
+@media (max-width: 1179px) {
+    [data-design-theme="landing"] .band > .vl-m,
+    [data-design-theme="landing"] .neo-piece > .vl-p { display: none; }
+}
+@media (max-width: 1399px) {
+    [data-design-band="landing"] .vl-side { margin-top: 72px; gap: 36px; }
+}
+
+/* 9. Figma designs: gap band, motto ------------------------------------------ */
+
+/* A gap band between the plate and the book band: one more row. */
+[data-design-gap="book"] .sheet { grid-template-rows: repeat(14, auto) 1fr; }
+[data-design-gap="book"] .book-gap { grid-row: 5; }
+[data-design-gap="book"] .book-band { grid-row: 6; }
+[data-design-gap="book"] :is(.series-gap, .pieces-band, .archive-head, .missing-head) { grid-row: 7; }
+[data-design-gap="book"] :is(.series-head, .transmission-band, .archive-band) { grid-row: 8; }
+[data-design-gap="book"] :is(.series-band, .end-head) { grid-row: 9; }
+[data-design-gap="book"] :is(.latest-gap, .end-band) { grid-row: 10; }
+[data-design-gap="book"] .latest-head { grid-row: 11; }
+[data-design-gap="book"] .latest-band { grid-row: 12; }
+[data-design-gap="book"] .footer-gap { grid-row: 13; }
+[data-design-gap="book"] .footer-band { grid-row: 14; }
+[data-design-gap="book"] .running.bottom { grid-row: 15; }
+@media (max-width: 1179px) {
+    [data-design-gap="book"] .book-gap { display: none; }
+}
+
+/* The motto in the footer's colophon, in JF Dot Kappa 20 0213. The file
+   beside this one holds only the motto's seven characters, cut from the
+   installed font with fontTools; a real version would add it to the site's
+   fonts (magazine-fonts.js, magazine-fonts.css) with its licence. */
+@font-face {
+    font-family: "JF Dot Kappa 20 0213";
+    src: url("jf-dot-kappa20-0213-motto.ttf") format("truetype");
+    font-display: swap;
+}
+.vl-motto {
+    margin-top: auto;
+    font-family: "JF Dot Kappa 20 0213", var(--jp-dot);
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1.2;
+    color: #fff;
+    white-space: nowrap;
+}
+@media (max-width: 1399px) { .vl-motto { font-size: 24px; } }
+@media (max-width: 1179px) { .vl-motto { margin-top: 0; font-size: 20px; } }
+
+/* The hardcover's card: fainter than the ebook's. The whole card pulses
+   (cardPulse in variant.js). */
+[data-design-band="landing"] .mag .vl-card.faint { border-color: #55565c; background: #121317; color: #c2c3c8; }
+[data-design-band="landing"] .mag .vl-card.faint:hover { border-color: var(--paper); background: #1e1f24; color: #fff; }
+[data-design-band="landing"] .vl-card.faint .vl-card-sub,
+[data-design-band="landing"] .vl-card.faint .vl-card-meta { color: #7d7e84; }
+[data-design-band="landing"] .vl-card.faint .vl-card-icon,
+[data-design-band="landing"] .vl-card.faint::before { opacity: 0.6; }
+[data-design-band="landing"] .vl-card.faint .vl-card-arrow { box-shadow: inset 0 0 0 1px #55565c; }
+
+/* The sheet's outer edges: a field of small plus signs, one every 24px,
+   in place of the site's fading triangles. Each side's grid starts at
+   its inner edge, so the two mirror each other. */
+[data-design-theme="landing"] .edge {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3e%3cpath d='M12 8.5v7M8.5 12h7' fill='none' stroke='%2305060a' stroke-width='1'/%3e%3c/svg%3e");
+    background-size: 24px 24px;
+    background-repeat: repeat;
+    opacity: 0.55;
+}
+[data-design-theme="landing"] .edge.left { background-position: right 0 top 0; }
+[data-design-theme="landing"] .edge.right { background-position: left 0 top 0; }
+
+/* The theme packs' list in a narrow footer cell (a desktop under 1500px):
+   a row's leader and its themes no longer fit on a line, and wrapped
+   badly. Each pack's name stands over its themes instead. */
+@media (min-width: 1180px) and (max-width: 1499px) {
+    :is([data-design-theme="landing"], [data-design-footer="agento"]) .footer-themes .book-spec { display: grid; gap: 6px; }
+    :is([data-design-theme="landing"], [data-design-footer="agento"]) .footer-themes .spec-row { display: block; }
+    :is([data-design-theme="landing"], [data-design-footer="agento"]) .footer-themes .spec-lead { display: none; }
+    :is([data-design-theme="landing"], [data-design-footer="agento"]) .footer-themes .spec-row dt { display: block; font-size: 10px; letter-spacing: 0.2em; opacity: 0.75; }
+    :is([data-design-theme="landing"], [data-design-footer="agento"]) .footer-themes .spec-row dd { display: block; white-space: nowrap; }
+}
+@media (min-width: 1180px) and (max-width: 1499px) {
+    :is([data-design-theme="landing"], [data-design-footer="agento"]) .footer-themes .spec-row dd { margin: 0; text-align: left; }
+    /* And in cells this narrow: no gauge beside the book's logo, and the
+       eyebrows tracked a little tighter so they keep to one line. */
+    [data-design-theme="landing"] .vl-footgauge { display: none; }
+    [data-design-footer="agento"] .site-footer .book-ad-label { letter-spacing: 0.16em; white-space: nowrap; }
+    [data-design-theme="landing"] .site-footer .book-ad-label { letter-spacing: 0.2em; white-space: nowrap; }
+}

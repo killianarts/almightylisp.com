@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design comparison — Almighty Lisp</title>
+<!--
+  Compares design variants with the current design, on the live magazine
+  pages. Open it from the running site: /static/dev/designs/index.html
+  Every design is listed as it is, and again with the book in a band of its
+  own under the lead, in each of that band's three settings.
+
+  Each pane is a frame holding a real page from /magazine. A variant pane
+  gets variants.css and variant.js added to it once it loads; the "Current"
+  pane is left alone. The frames are the same origin as this page, which is
+  what lets it reach into them, so it has to be served by the site, not
+  opened from disk.
+
+  The address keeps the state, so a comparison can be bookmarked:
+    ?page=/magazine/opening-a-window&a=v31&b=v31-band&view=split&w=1728
+-->
+<style>
+  :root {
+    --ink: #000;
+    --paper: #e5e5e5;
+    --sheet: #fff;
+    --mid: #6b6b6b;
+    --mono: "Construct Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --bar-h: 46px;
+  }
+  @font-face {
+    font-family: "Construct Mono";
+    src: local("Construct Mono");
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    background: var(--paper);
+    color: var(--ink);
+    font: 12px/1.3 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+    min-height: var(--bar-h);
+    padding: 8px 14px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .bar h1 { margin: 0 6px 0 0; font: inherit; font-weight: 700; letter-spacing: 0.14em; }
+  .field { display: flex; align-items: center; gap: 8px; }
+  .field > span { color: #9a9a9a; }
+  select, button, input[type="checkbox"] { font: inherit; letter-spacing: inherit; text-transform: inherit; }
+  select, .seg button, .bar > button {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid #5a5a5a;
+    border-radius: 0;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+  }
+  select { max-width: 30vw; }
+  select:hover, .seg button:hover, .bar > button:hover { border-color: var(--paper); }
+  select:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--sheet); outline-offset: 1px; }
+  .seg { display: inline-flex; }
+  .seg button + button { margin-left: -1px; }
+  .seg button[aria-pressed="true"] { background: var(--paper); border-color: var(--paper); color: var(--ink); }
+  .check { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .check input { width: 14px; height: 14px; margin: 0; accent-color: var(--paper); }
+  .keys { margin-left: auto; color: #9a9a9a; }
+  .keys kbd { font: inherit; padding: 1px 5px; border: 1px solid #5a5a5a; color: var(--paper); }
+
+  .panes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    min-height: 0;
+    background: var(--ink);
+  }
+  .panes[data-view="a"], .panes[data-view="b"] { grid-template-columns: minmax(0, 1fr); }
+  .panes[data-view="a"] .pane[data-pane="b"],
+  .panes[data-view="b"] .pane[data-pane="a"] { display: none; }
+
+  .pane { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; background: var(--paper); }
+  .pane-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    background: var(--sheet);
+    border-bottom: 1px solid var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .pane-head .tag { padding: 2px 7px; background: var(--ink); color: var(--paper); }
+  .pane-head .what { color: var(--mid); overflow: hidden; text-overflow: ellipsis; }
+  .pane-head .size { margin-left: auto; color: var(--mid); }
+  .stage { position: relative; min-height: 0; overflow: hidden; }
+  .stage iframe {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    border: 0;
+    background: var(--sheet);
+    transform-origin: top left;
+  }
+  .note { padding: 40px; text-transform: none; letter-spacing: 0; font-size: 14px; line-height: 1.5; max-width: 60ch; }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <h1>Design comparison</h1>
+  <label class="field"><span>Page</span>
+    <select id="page"></select>
+  </label>
+  <label class="field"><span>Left</span>
+    <select id="a"></select>
+  </label>
+  <label class="field"><span>Right</span>
+    <select id="b"></select>
+  </label>
+  <div class="field"><span>View</span>
+    <div class="seg" id="view">
+      <button type="button" data-value="split">Split</button>
+      <button type="button" data-value="a">Left</button>
+      <button type="button" data-value="b">Right</button>
+    </div>
+  </div>
+  <label class="field"><span>Width</span>
+    <select id="w">
+      <option value="1728">1728 desktop</option>
+      <option value="1440">1440 laptop</option>
+      <option value="1180">1180 narrow desktop</option>
+      <option value="820">820 tablet</option>
+      <option value="390">390 phone</option>
+    </select>
+  </label>
+  <label class="check"><input type="checkbox" id="sync" checked> Scroll together</label>
+  <span class="keys"><kbd>1</kbd> split <kbd>2</kbd> left <kbd>3</kbd> right <kbd>F</kbd> flip</span>
+</header>
+
+<main class="panes" id="panes" data-view="split">
+  <section class="pane" data-pane="a">
+    <div class="pane-head"><span class="tag"></span><span class="what"></span><span class="size"></span></div>
+    <div class="stage"><iframe title="Left design"></iframe></div>
+  </section>
+  <section class="pane" data-pane="b">
+    <div class="pane-head"><span class="tag"></span><span class="what"></span><span class="size"></span></div>
+    <div class="stage"><iframe title="Right design"></iframe></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // The designs. "current" is the site as it is; the others are added to the
+  // page by variants.css and variant.js.
+  var DESIGNS = [
+    { id: "current", name: "Current", what: "The site as it is" },
+    { id: "v30", name: "v30", what: "Eyebrow headings, notes beside their subsection, eyebrow cards" },
+    { id: "v31", name: "v31", what: "v30, and the lead on black and grey panels" },
+    { id: "v32", name: "v32", what: "v30, and the lead on a grid" },
+    { id: "v33", name: "v33", what: "v31, with the dek and byline on the panels" },
+    { id: "v34", name: "v34", what: "v32, with the dek and byline on the grid" }
+  ];
+
+  // Each of them again with the homepage's book panel moved out of the plate
+  // into a band of its own under it ("v31-band"), in three settings of that
+  // band. variant.js does the moving.
+  var BOOKS = [
+    { id: "band", name: "book band", what: "with the book in a low band under the lead" },
+    { id: "brass", name: "book band, Brass Hands", what: "with the book in a band after brasshands.com" },
+    { id: "agento", name: "book band, Agento", what: "with the book in a band after Creative Mints' Agento project" }
+  ];
+  var BASES = DESIGNS.slice();
+  BOOKS.forEach(function (book) {
+    DESIGNS = DESIGNS.concat(BASES.map(function (d) {
+      return {
+        id: d.id + "-" + book.id,
+        name: d.name + " + " + book.name,
+        what: (d.id === "current" ? "The site as it is" : d.name) + ", " + book.what,
+        base: d.id,
+        book: book.id,
+        group: "With the " + book.name
+      };
+    }));
+  });
+
+  // Two pages from the Figma file (Magazine page, the Neoindustrial
+  // Brasshands and Creative Mints sections), built from the same parts.
+  DESIGNS.push(
+    { id: "fig-b1", name: "Figma: Homepage + B1 Spec sheet", what: "The site as it is, the Agento book band, and the footer in the band's style",
+      base: "current", book: "agento", footer: "agento", figma: true, group: "From the Figma file" },
+    { id: "fig-c1", name: "Figma: C1 Landing (restyled)", what: "v30 cards on a light page: black heads, banner and book band, Landing footer",
+      base: "v30", book: "landing", theme: "landing", figma: true, group: "From the Figma file" }
+  );
+
+  var HOME = "/magazine";
+  var HERE = location.pathname.replace(/[^/]*$/, "");
+  var STAMP = Date.now();   // so edits to the variant files show on reload
+
+  if (location.protocol === "file:") {
+    document.getElementById("panes").innerHTML =
+      '<p class="note">Open this page from the running site (for example ' +
+      'http://127.0.0.1:5002/static/dev/designs/index.html). It loads the live ' +
+      'magazine pages into frames and restyles them, which only works when the ' +
+      'page and the frames come from the same server.</p>';
+    return;
+  }
+
+  var params = new URLSearchParams(location.search);
+  function known(id, fallback) {
+    return DESIGNS.some(function (d) { return d.id === id; }) ? id : fallback;
+  }
+  var state = {
+    page: params.get("page") || HOME,
+    a: known(params.get("a"), "current"),
+    b: known(params.get("b"), "v30"),
+    view: ["split", "a", "b"].indexOf(params.get("view")) >= 0 ? params.get("view") : "split",
+    w: Number(params.get("w")) || 1728,
+    sync: params.get("sync") !== "0"
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var panesEl = $("panes");
+  var panes = {};
+  ["a", "b"].forEach(function (key) {
+    var section = panesEl.querySelector('[data-pane="' + key + '"]');
+    panes[key] = {
+      key: key,
+      section: section,
+      stage: section.querySelector(".stage"),
+      frame: section.querySelector("iframe"),
+      tag: section.querySelector(".tag"),
+      what: section.querySelector(".what"),
+      size: section.querySelector(".size"),
+      loaded: null     // "page|design" the frame holds
+    };
+  });
+
+  function design(id) {
+    return DESIGNS.filter(function (d) { return d.id === id; })[0];
+  }
+
+  // ---- Controls
+
+  function fillDesigns(select) {
+    var groups = {};
+    DESIGNS.forEach(function (d) {
+      var option = document.createElement("option");
+      option.value = d.id;
+      option.textContent = d.name;
+      var name = d.group || "Book beside the lead";
+      if (!groups[name]) {
+        groups[name] = document.createElement("optgroup");
+        groups[name].label = name;
+        select.appendChild(groups[name]);
+      }
+      groups[name].appendChild(option);
+    });
+  }
+
+  function addPage(path, label) {
+    var select = $("page");
+    var known = Array.prototype.filter.call(select.options, function (o) { return o.value === path; })[0];
+    // A page named in the address is listed by its path until its title is known.
+    if (known) { if (label !== path) known.textContent = label; return; }
+    var option = document.createElement("option");
+    option.value = path;
+    option.textContent = label;
+    select.appendChild(option);
+  }
+
+  // The homepage, the archive, and every article the archive links to.
+  function fillPages() {
+    addPage(HOME, "Homepage");
+    addPage(HOME + "/archive", "Archive");
+    return fetch(HOME + "/archive").then(function (r) { return r.text(); }).then(function (html) {
+      var doc = new DOMParser().parseFromString(html, "text/html");
+      Array.prototype.forEach.call(doc.querySelectorAll('a[href^="' + HOME + '/"]'), function (a) {
+        var path = a.getAttribute("href").split(/[?#]/)[0];
+        if (path === HOME + "/archive") return;
+        var title = a.querySelector(".arch-name, .neo-brief-title, .index-cell-title");
+        addPage(path, "Article: " + (title ? title.textContent : path.slice(HOME.length + 1)).trim());
+      });
+    }).catch(function () { /* the two fixed pages are still there */ });
+  }
+
+  function writeControls() {
+    addPage(state.page, state.page);
+    $("page").value = state.page;
+    $("a").value = state.a;
+    $("b").value = state.b;
+    $("w").value = String(state.w);
+    if ($("w").value !== String(state.w)) {
+      var option = document.createElement("option");
+      option.value = option.textContent = String(state.w);
+      $("w").appendChild(option);
+      $("w").value = String(state.w);
+    }
+    $("sync").checked = state.sync;
+    Array.prototype.forEach.call($("view").children, function (button) {
+      button.setAttribute("aria-pressed", String(button.dataset.value === state.view));
+    });
+    panesEl.dataset.view = state.view;
+  }
+
+  function writeAddress() {
+    var next = new URLSearchParams();
+    next.set("page", state.page);
+    next.set("a", state.a);
+    next.set("b", state.b);
+    if (state.view !== "split") next.set("view", state.view);
+    next.set("w", String(state.w));
+    if (!state.sync) next.set("sync", "0");
+    history.replaceState(null, "", location.pathname + "?" + next.toString().replace(/%2F/g, "/"));
+  }
+
+  // ---- Frames
+
+  // Add the variant to a frame's page. Runs on every full load of the frame;
+  // variant.js looks after pages htmx swaps in.
+  function dress(pane) {
+    var doc = pane.frame.contentDocument;
+    var win = pane.frame.contentWindow;
+    if (!doc || !doc.documentElement) return;
+    var id = state[pane.key];
+    if (id !== "current" && !doc.getElementById("design-variant-css")) {
+      var d = design(id);
+      win.__design = d.base || id;
+      win.__book = d.book || null;
+      win.__theme = d.theme || null;
+      win.__footer = d.footer || null;
+      win.__figma = !!d.figma;
+      var link = doc.createElement("link");
+      link.id = "design-variant-css";
+      link.rel = "stylesheet";
+      link.href = HERE + "variants.css?" + STAMP;
+      doc.head.appendChild(link);
+      var script = doc.createElement("script");
+      script.src = HERE + "variant.js?" + STAMP;
+      doc.head.appendChild(script);
+    }
+    watch(pane);
+  }
+
+  // Following a link in one pane takes the other pane with it.
+  function watch(pane) {
+    var doc = pane.frame.contentDocument;
+    var win = pane.frame.contentWindow;
+    if (doc.__watched) return;
+    doc.__watched = true;
+    doc.addEventListener("htmx:afterSettle", function () { moved(pane); });
+    doc.addEventListener("htmx:historyRestore", function () { moved(pane); });
+    win.addEventListener("scroll", function () { scrolled(pane); }, { passive: true });
+  }
+
+  function pathOf(pane) {
+    try {
+      var path = pane.frame.contentWindow.location.pathname.replace(/\/$/, "");
+      return path.indexOf(HOME) === 0 ? path : null;
+    } catch (e) { return null; }
+  }
+
+  function moved(pane) {
+    var path = pathOf(pane);
+    if (!path || path === state.page) return;
+    state.page = path;
+    pane.loaded = path + "|" + state[pane.key];
+    writeControls();
+    writeAddress();
+    load();
+  }
+
+  function load() {
+    ["a", "b"].forEach(function (key) {
+      var pane = panes[key];
+      var d = design(state[key]);
+      pane.tag.textContent = d.name;
+      pane.what.textContent = d.what;
+      var want = state.page + "|" + state[key];
+      if (pane.loaded === want) return;
+      pane.loaded = want;
+      pane.frame.src = state.page;
+    });
+  }
+
+  // A frame is always state.w wide, scaled down to fit its pane, so both
+  // panes show the page as it is laid out at that width.
+  function fit() {
+    ["a", "b"].forEach(function (key) {
+      var pane = panes[key];
+      var room = pane.stage.clientWidth;
+      if (!room) return;
+      var scale = Math.min(1, room / state.w);
+      pane.frame.style.width = state.w + "px";
+      pane.frame.style.height = Math.ceil(pane.stage.clientHeight / scale) + "px";
+      pane.frame.style.transform = "translateX(" + (-(state.w * scale) / 2) + "px) scale(" + scale + ")";
+      pane.size.textContent = state.w + "px" + (scale < 1 ? " at " + Math.round(scale * 100) + "%" : "");
+    });
+  }
+
+  // Scroll the other pane to the same share of its page: the two designs are
+  // different heights, so matching pixels would drift apart.
+  var leader = null, release = 0;
+  function scrolled(pane) {
+    if (!state.sync || state.view !== "split") return;
+    if (leader && leader !== pane) return;
+    leader = pane;
+    clearTimeout(release);
+    release = setTimeout(function () { leader = null; }, 120);
+    var other = panes[pane.key === "a" ? "b" : "a"];
+    try {
+      var from = pane.frame.contentDocument.scrollingElement;
+      var to = other.frame.contentDocument.scrollingElement;
+      var span = from.scrollHeight - from.clientHeight;
+      if (span <= 0) return;
+      to.scrollTop = (from.scrollTop / span) * (to.scrollHeight - to.clientHeight);
+    } catch (e) { /* the other frame is between pages */ }
+  }
+
+  function set(changes) {
+    Object.keys(changes).forEach(function (key) { state[key] = changes[key]; });
+    writeControls();
+    writeAddress();
+    load();
+    fit();
+  }
+
+  // ---- Wiring
+
+  fillDesigns($("a"));
+  fillDesigns($("b"));
+  ["a", "b"].forEach(function (key) {
+    panes[key].frame.addEventListener("load", function () {
+      var pane = panes[key];
+      if (!pane.frame.contentDocument || pane.frame.contentWindow.location.href === "about:blank") return;
+      dress(pane);
+      // A link htmx didn't take (a full load): bring the other pane along.
+      var path = pathOf(pane);
+      if (path && path !== state.page) moved(pane);
+    });
+  });
+
+  $("page").addEventListener("change", function () { set({ page: this.value }); });
+  $("a").addEventListener("change", function () { set({ a: this.value }); });
+  $("b").addEventListener("change", function () { set({ b: this.value }); });
+  $("w").addEventListener("change", function () { set({ w: Number(this.value) }); });
+  $("sync").addEventListener("change", function () { set({ sync: this.checked }); });
+  $("view").addEventListener("click", function (event) {
+    var button = event.target.closest("button");
+    if (button) set({ view: button.dataset.value });
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (/^(select|input|textarea)$/i.test(event.target.tagName)) return;
+    var key = event.key.toLowerCase();
+    if (key === "1") set({ view: "split" });
+    else if (key === "2") set({ view: "a" });
+    else if (key === "3") set({ view: "b" });
+    else if (key === "f") set({ view: state.view === "a" ? "b" : "a" });
+  });
+
+  window.addEventListener("resize", fit);
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(panesEl);
+
+  writeControls();
+  writeAddress();
+  load();
+  fit();
+  fillPages().then(writeControls);
+})();
+</script>
+</body>
+</html>

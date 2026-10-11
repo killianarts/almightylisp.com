@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scroll-driven article (mock)</title>
+<style>body { margin: 40px; font: 14px/1.5 ui-monospace, monospace; }</style>
+</head>
+<body>
+<p id="status">Loading the article shell…</p>
+
+<!-- The mock article, in the markup scrolly.js reads.
+
+     section.sx            one section; its h2.sx-title holds the left side
+     figure.sx-block       a code block. Each <pre> is one frame; a block with
+                           one <pre> is an individual block, more make it an
+                           evolving one. Where it sits in the section doesn't
+                           matter.
+     aside.sx-note         a note, shown on the left like a block.
+     p, ul, ol             one stop on the right.
+       data-block="id"     this paragraph brings that block or note to the left
+       data-frame="n"      ...at this frame (1 if left out)
+       data-head="text"    a subheading shown over the paragraph
+     mark[data-frame]      an expression inside a paragraph that moves the
+                           current block to that frame as it is reached.
+
+     What is on the left carries on until a later paragraph changes it;
+     data-block="" brings the heading back. -->
+<template id="mock-article">
+<section class="neo-piece sx" id="a-window-that-wont-stay">
+<h2 class="sx-title">A window that won't stay</h2>
+<figure class="sx-block" id="repl" data-name="REPL">
+<pre>CL-USER&gt; (run)
+NIL
+CL-USER&gt; </pre>
+</figure>
+<p>Last time we got a window on screen. It opened, and by the time you could look at it, it had closed again. Nothing was wrong with the window. The program simply reached its last line.</p>
+<p>A web page never has this problem, because the browser is already running and already waiting. A native application has to do its own waiting.</p>
+<p data-block="repl">You can watch it happen from the REPL. Call the function and the prompt comes straight back; whatever flashed on screen is already gone.</p>
+<p data-block="">So the job for this part is small to state: keep the program alive for as long as the window is open, and stop when it closes.</p>
+</section>
+
+<section class="neo-piece sx" id="the-event-loop">
+<h2 class="sx-title">The event loop</h2>
+<figure class="sx-block" id="run" data-name="run.lisp">
+<pre>(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (close-window window)))</pre>
+<pre>(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (loop until (should-close-p window)
+          do (poll-events))
+    (close-window window)))</pre>
+<pre>(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (unwind-protect
+         (loop until (should-close-p window)
+               do (poll-events))
+      (close-window window))))</pre>
+<pre>(defun run ()
+  (let ((window (open-window "Almighty" 800 600)))
+    (unwind-protect
+         (loop until (should-close-p window)
+               do (poll-events)
+                  (draw window))
+      (close-window window))))</pre>
+</figure>
+<p>A window that opens and closes again straight away isn't much of an app. To keep it on screen we need a loop: something that waits for the system to tell us what happened, and reacts.</p>
+<p>We'll build that loop one piece at a time, starting from the smallest program that opens a window at all.</p>
+<p data-block="run" data-frame="1">Here is the whole program so far. The function opens a window and then closes it. Run it and you'll see a flash, if you see anything.</p>
+<p data-frame="2">Between opening and closing, we loop. Each pass asks the system for pending events and handles them, and we keep going until the window says it should close.</p>
+<p>There's a problem. If anything inside the loop signals an error, we never reach the last line and the window is left hanging. Wrapping the loop in <mark data-frame="3"><code>unwind-protect</code></mark> guarantees the cleanup runs. And while we're in there, each pass should <mark data-frame="4">draw a frame</mark> too.</p>
+<p>That's a complete, well-behaved event loop in seven lines. All that's missing is something to draw.</p>
+</section>
+
+<section class="neo-piece sx" id="something-to-draw">
+<h2 class="sx-title">Something to draw</h2>
+<figure class="sx-block" id="draw" data-name="draw.lisp">
+<pre>(defun draw (window)
+  (clear window :black))</pre>
+<pre>(defun draw (window)
+  (clear window :black)
+  (fill-rect window 40 40 120 120 :white))</pre>
+<pre>(defun draw (window)
+  (let ((x (mod (ticks) 800)))
+    (clear window :black)
+    (fill-rect window x 40 120 120 :white)))</pre>
+<pre>(defun draw (window)
+  (let ((x (mod (ticks) 800)))
+    (clear window :black)
+    (fill-rect window x 40 120 120 :white)
+    (present window)))</pre>
+</figure>
+<p>The loop calls a function that doesn't exist yet. Its job is to paint one frame, and it will be called again on every pass, so it has to start from nothing each time.</p>
+<p data-block="draw" data-frame="1">Starting from nothing means clearing the window. This much already gives us a black rectangle that stays put, which is more than we had an hour ago.</p>
+<p data-frame="2">Now something on top of it: a white square, forty points in from the corner.</p>
+<p>A square that sits still doesn't prove the loop is running. Once we <mark data-frame="3">bind its position to the clock</mark> it slides across the window, one step per pass. Nothing appears, though, until we <mark data-frame="4">present the frame</mark>: everything before that was drawn off screen.</p>
+<p>Run it again. The window stays open, the square moves, and closing the window ends the program. That is the whole skeleton of a native application.</p>
+</section>
+</template>
+
+<script>
+window.SCROLLY = {
+  // The live article that lends this page everything but its sections.
+  shell: "/magazine/opening-a-window",
+  template: "mock-article",
+  title: "Keeping a Window Open",
+  dek: "A mock article for trying out scroll-driven sections: a heading that holds the left side of the window, text that fades from one paragraph to the next, and code blocks that change as you read."
+};
+</script>
+<script>document.write('<script src="shell.js?' + Date.now() + '"><\/script>');</script>
+</body>
+</html>

@@ -5,40 +5,41 @@
 (defun src-arg (block name)
   (cdr (assoc name (getf (rest block) :args) :test #'string=)))
 
-(defun render-src-tag (key value)
-  (when value
-    (ah:</>
-     (span :class "src-tag"
-       (span :class "src-k" key)
-       (span :class "src-v" value)))))
-
 (defun render-src (block)
-  "A source block, drawn as a plate. :buffer and :package are tags over its
-top edge, the lines numbered in :highlight are marked, and #+RESULTS: is a stub
-below a perforation. Each is left out when it isn't given."
-  (let ((buffer (src-arg block "buffer"))
-        (package (src-arg block "package"))
-        (highlight (getf (rest block) :highlight))
-        (lang (getf (rest block) :lang))
-        (results (getf (rest block) :results)))
+  "A source block, drawn as an evolving article draws one: white on black,
+its lines numbered. :buffer names it, with :package beside; the lines numbered
+in :highlight are marked, which are also the lines an :evolve step added, and
+those in :moved, the lines it changed, more quietly (model:mark-steps); and
+#+RESULTS: is set under a dashed rule. Each is left out when it isn't given.
+The marked lines' colours split, over and over (the code pulse in
+static/js/magazine-fx.js)."
+  (let* ((buffer (src-arg block "buffer"))
+         (package (src-arg block "package"))
+         (highlight (getf (rest block) :highlight))
+         (moved (getf (rest block) :moved))
+         (lang (getf (rest block) :lang))
+         (results (getf (rest block) :results))
+         (lines (getf (rest block) :lines))
+         ;; the line numbers' column is as wide as the last line's number
+         (digits (length (princ-to-string (length lines)))))
     (ah:</>
-     (figure :class (ah:clsx "src" (when results "has-results"))
+     (figure :class "src" :style (format nil "--digits: ~d" digits)
        (when (or buffer package)
          (ah:</>
-          (figcaption :class "src-tags"
-            (render-src-tag "Buffer" buffer)
-            (render-src-tag "Package" package))))
+          (figcaption :class "src-name"
+            (when buffer (ah:</> (span :class "src-buffer" buffer)))
+            (when package (ah:</> (span :class "src-package" package))))))
        (div :class "src-body"
-         (loop for line in (getf (rest block) :lines)
+         (loop for line in lines
                for n from 1
                collect (ah:</>
-                        (div :class (ah:clsx "src-line" (when (member n highlight) "is-hit"))
+                        (div :class (ah:clsx "src-line"
+                                            (when (member n highlight) "is-hit")
+                                            (when (member n moved) "is-moved"))
                           (code :class lang (if (string= line "") " " line))))))
        (when results
          (ah:</>
-          (div :class "src-returns"
-            (span :class "src-k" "Returns")
-            (pre :class "src-result" results))))))))
+          (pre :class "src-result" :aria-label "Returns" results)))))))
 
 (defun render-table (header rows)
   (flet ((cells (tag row)
@@ -72,21 +73,21 @@ more are set as paragraphs under it, then its sublists."
           (ah:</> (ul :class "prose-list" rendered))))))
 
 (defun render-block (block)
-  "A block in a section's text column. A note is also set here, under the
-paragraph before it, for the screens that have no margin column."
+  "A block in a section's text, in the order it is written."
   (ecase (first block)
     (:p (ah:</> (p :class "prose" (render-inlines (second block)))))
     (:h (ah:</> (h3 :class "subhead" (second block))))
     (:src (render-src block))
     (:table (render-table (second block) (third block)))
     (:list (render-list block))
-    (:note (render-margin-note block :inline t))))
+    (:note (render-note block))))
 
-(defun render-margin-note (note &key inline)
-  "A #+BEGIN_NOTE block. A note labelled Syntax is set in the code face."
+(defun render-note (note)
+  "A #+BEGIN_NOTE block, set in the text where it is written. A note labelled
+Syntax is set in the code face."
   (destructuring-bind (label paragraphs) (rest note)
     (ah:</>
-     (aside :class (ah:clsx "margin-note" (when inline "inline-note")
+     (aside :class (ah:clsx "margin-note inline-note"
                             (when (string-equal label "Syntax") "syntax"))
        (p :class "margin-note-label" label)
        (mapcar (lambda (paragraph)

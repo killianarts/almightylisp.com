@@ -44,7 +44,8 @@ from those.
 The script picks the path once, when it loads:
 
 #+begin_src js
-var SVG_FILTER = navigator.vendor !== "Apple Computer, Inc.";
+var HANDHELD = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+var SVG_FILTER = navigator.vendor !== "Apple Computer, Inc." && !HANDHELD;
 if (!SVG_FILTER) root.classList.add("fx-lite");
 #+end_src
 
@@ -52,6 +53,11 @@ if (!SVG_FILTER) root.classList.add("fx-lite");
 browser (they all have to use WebKit), and "Google Inc." or empty
 elsewhere. Feature detection can't answer this one: Safari supports the
 filter, it just can't run it quickly.
+
+Phones and tablets get Safari's version too, in any browser. Chrome on
+Android runs the filter, but on a phone it lags; the copies don't. A
+handheld is a device with touch and no hover, which is true of a phone
+however wide its window and false of a laptop with a touch screen.
 
 * What both versions share
 

@@ -141,7 +141,7 @@ next decade. The largest variable is whether said developers will even be
 /looking/ at the code, in which case web-like API will mean less to them than
 other factors (speed and efficiency).
 
-* Starting Small, Think Big
+* Starting Small, Thinking Big
 So the question is: for my first application, where do I begin?
 
 The correct approach I believe is to start with the easiest thing possible,
@@ -164,12 +164,459 @@ However, given the capabilities of the latest LLMs, in the future I will try
 making a custom GUI framework. Whether I go with a web-like API or something
 else is something to decide later.
 
-* Finally, opening a window with Clozure CL
+* Load Clozure's Objective-C Bridge
 After doing the research to come to this conclusion, it's time to actually open
-a window. To get started, we need to gain access to Clozure's Cocoa API. 
+a window. To get started, we need to gain access to Clozure's Cocoa/AppKit API. 
 
-#+begin_note
+#+begin_note Cocoa and AppKit
 Cocoa is the native application framework created by Apple for making MacOS
-applications. 
+applications. AppKit provides the UI bits.
 #+end_note
 
+At the top of a Lisp file, add:
+
+#+begin_src lisp
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (require "OBJC-SUPPORT"))
+#+end_src
+
+This loads the CCL API for working with Cocoa. =eval-when= with those options
+ensures that the =OBJC-SUPPORT= code is loaded before any of the rest of the
+code in the file is compiled. In a real, modern system you'd use =asdf= to load
+your dependencies before compiling your own.
+
+#+begin_src lisp
+(defsystem "opening-a-window"
+  :depends-on ((:require "OBJC-SUPPORT"))
+  :components ((:file "opening-a-window")))
+#+end_src
+
+=OBJC-SUPPORT= isn't an =asdf= system nor is it a package name. It's an
+old-style module =provide='d by the =objc-support.lisp= file in the CCL
+code base, and thus you need to write =((:require "OBJC-SUPPORT"))= instead of
+=("OBJC-SUPPORT")=. And since =OBJC-SUPPORT= is a module only provided by
+ClozureCL, you might hide it behind a feature flag:
+
+#+begin_src lisp
+(defsystem "opening-a-window"
+  :depends-on ((:feature :ccl (:require "OBJC-SUPPORT")))
+  :components ((:file "opening-a-window.lisp")))
+#+end_src
+
+However you load the Objective-C bridge, first you have to get it loaded into
+the Lisp image before compiling the rest of your code.
+
+* Finally, Opening a Window
+Once you have the bridge loaded, you are ready for a minimal-but-dysfunctional
+window.
+
+#+begin_src lisp
+(defun open-window ()
+  (#/sharedApplication ns:ns-application)
+  (#/setActivationPolicy: #&NSApp #$NSApplicationActivationPolicyRegular)
+  (let ((w (make-instance 'ns:ns-window
+                          :with-content-rect (ns:make-ns-rect 0 0 400 300)
+                          :style-mask (logior #$NSWindowStyleMaskTitled #$NSWindowStyleMaskClosable)
+                          :backing #$NSBackingStoreBuffered
+                          :defer nil)))
+    (#/makeKeyAndOrderFront: w nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    (#/run #&NSApp)))
+
+(ccl:process-interrupt ccl::*initial-process* #'open-window)
+#+end_src
+
+It's a lot to take in if you're a Lisper unfamiliar with Objective-C. The
+equivalent Objective-C looks like this:
+
+#+begin_src objc
+#import <Cocoa/Cocoa.h>
+
+void openWindow(void) {
+    [NSApplication sharedApplication];
+    [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+    NSWindow *w = [[NSWindow alloc]
+        initWithContentRect:NSMakeRect(0, 0, 400, 300)
+                  styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
+                    backing:NSBackingStoreBuffered
+                      defer:NO];
+    [w makeKeyAndOrderFront:nil];
+    [NSApp activateIgnoringOtherApps:YES];
+    [NSApp run];
+}
+
+int main(void) {
+    openWindow();
+    return 0;
+}
+#+end_src
+
+Notice it's very similar because the ClozureCL code is just writing the
+Objective-C code in Lisp--similar to how Parenscript writes JavaScript.
+
+Let's take this code line by line.
+
+** Every window needs an application
+#+begin_src lisp
+(#/sharedApplication ns:ns-application)
+#+end_src
+
+The =sharedApplication= message in Objective-C tells the =ns-application= class
+to set the value of a copy of AppKit's =NSApp= global variable to a new
+=NSApplication=. Each process needs an =NSApplication= object.
+
+** To Dock or Not To Dock
+#+begin_src lisp
+(#/setActivationPolicy: #&NSApp #$NSApplicationActivationPolicyRegular)
+#+end_src
+
+Now that the =NSApp= variable is set to the application object, we begin
+configuring the application.
+
+Applications in MacOS can either be a background process, in which case you
+don't want a Dock icon or menu bar, or they can be menu bar icon applications,
+or they can be a full-blown application that can come into the foreground. We
+want the last one--a regular application.
+
+#+begin_note Activation Policies
+=NSApplicationActivationPolicyRegular= is for regular applications.
+
+=NSApplicationActivationPolicyAccessory= is for menu bar applications.
+
+=NSApplicationActivationPolicyProhibited= is for background process with no UI.
+#+end_note
+
+** Making a Window Object
+#+begin_src lisp
+(let ((w (make-instance 'ns:ns-window
+                          :with-content-rect (ns:make-ns-rect 0 0 400 300)
+                          :style-mask (logior #$NSWindowStyleMaskTitled #$NSWindowStyleMaskClosable)
+                          :backing #$NSBackingStoreBuffered
+                          :defer nil)))
+#+end_src
+
+Here we make the window object. Windows in AppKit have what is called a =content
+rect=, the rectangle or box that holds everything in it. A =rect= has four
+values: x coordinant, y coordinant, width, and height.
+
+A style mask is a configuration setting for how the window should look and act--should
+it have borders, should it have a title bar, should it be resizable, etc.
+
+The =logior= setting here might not be familiar to you if you're a simple web
+dev like me. Bits have an on and off state--1 or 0. There are different ways to
+modify a certain set of bits--called bitwise operations--and =logior= is one of
+them.
+
+Each style mask is set to a numeric value. =logior= combines those values at the
+bit level. The above style masks (=Titled= and =Closable=) have values 1 and 2.
+At the bit level, they are represented as follows:
+
+#+begin_src
+1 = 0001
+2 = 0010
+#+end_src
+
+=logior= forms the union of the two, =0011=.
+
+In any case, the exact settings for the style mask are stored as a combined set
+of bits.
+
+The =backing= is related to how the window should use pixels written elsewhere
+in memory. For modern applications, it should always be set to
+=NSBackingStoreBuffered=.
+
+=defer= refers to whether a window's resources should be allocated immediately
+or if the resources should be allocated after it is opened. For windows you are
+about to display, =:defer nil= is what you want.
+
+** Window & Application configuration
+#+begin_src lisp
+(#/makeKeyAndOrderFront: w nil)
+(#/activateIgnoringOtherApps: #&NSApp t)
+#+end_src
+
+One application can have multiple windows displayed at once (think Photoshop).
+=makeKeyAndOrderFront= sets whether a window should be the one "on top of" or in
+front of the others.
+
+And of course, you can have multiple applications open.
+=activateIgnoringOtherApps= is used to either have the /application/ open in front of
+or behind the others.
+** Run the Application / Event Loop
+#+begin_src lisp
+(#/run #&NSApp)))
+#+end_src
+=run= does what you imagine, but what you might not know is that applications
+have what is called an =event loop= which waits for events. Events queue up and
+are processed in order by the loop.
+
+In MacOS, the event loop for an application needs to be started on the *main
+thread*. This will become relevant shortly.
+
+** Adding the Application to the Main Thread
+#+begin_src lisp
+(ccl:process-interrupt ccl::*initial-process* #'open-window)
+#+end_src
+
+Simply called =(open-window)= won't work--it will immediately blow up your REPL
+without signaling an error. When that happens--no debugger, just a dead Lisp
+process--that means there was an error on the Objective-C side.
+
+The reason for the error is that MacOS apps need to open on the *main thread*.
+In the Objective-C code, we don't see any reference to the main thread because
+it will naturally do it; there's no need to explicitly reference the main
+thread.
+
+That is not the case with Common Lisp. We need to purposefully set the
+=open-window= function as the process on the main thread. =process-interrupt=
+will tell =*initial-process*=--the main thread--to stop what it's doing and run
+the =open-window= function.
+
+* Making it close properly
+When you close the window, you'll notice that the icon in the Dock sticks
+around. That's because the window is closed, but the process is still running.
+
+To get it to close the process properly as we expect, we need to assign a
+=delegate= object to the application object. 
+
+#+begin_src lisp
+(defclass app-delegate (ns:ns-object)
+  ((quit-on-close :initarg :quit-on-close
+                 :initform nil
+                 :reader quit-on-close))
+  (:metaclass ns:+ns-object))
+
+(objc:defmethod (#/applicationShouldTerminateAfterLastWindowClosed: :<BOOL>)
+    ((self app-delegate) app)
+  (declare (ignore app))
+  (quit-on-close self))
+
+(defvar *delegate* nil)
+#+end_src
+
+Why do we need this "delegate" thing? When you close the window, AppKit gets the
+close event and asks, "Should I terminate the process?" But AppKit asks the
+delegate. If the delegate doesn't exist, then AppKit defaults to not terminating
+the process.
+
+=app-delegate= looks like a regular Lisp class definition, but the =:metaclass
+ns:+ns-object= part of the definition makes this an *Objective-C class*. The
+same is true of the =objc:defmethod=--it's an Objective-C method for the
+=appDelegate= class (in Objective-C).
+
+The protocol for Objective-C methods for AppKit objects includes a method called
+=applicationShouldTerminateAfterLastWindowClosed:= (mind the =:=) that returns a
+boolean value. If the application object has a delegate, when the AppKit goes to
+ask the delegate, "Should I terminate the process?", the answer the delegate
+returns is the return value of
+=applicationShouldTerminateAfterLastWindowClosed:=.
+
+Now we just need to update the =open-window= function to use the delegate.
+
+#+begin_src lisp
+(defun open-window ()
+  (#/sharedApplication ns:ns-application)
+  (#/setActivationPolicy: #&NSApp #$NSApplicationActivationPolicyRegular)
+  ;; Add the next two lines.
+  (setf *delegate* (make-instance 'app-delegate :quit-on-close t))
+  (#/setDelegate: #&NSApp *delegate*)
+  (let ((w (make-instance 'ns:ns-window
+                          :with-content-rect (ns:make-ns-rect 0 0 400 300)
+                          :style-mask (logior #$NSWindowStyleMaskTitled #$NSWindowStyleMaskClosable)
+                          :backing #$NSBackingStoreBuffered
+                          :defer nil)))
+    (#/makeKeyAndOrderFront: w nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    (#/run #&NSApp)))
+#+end_src
+
+Now if we close the window, the process is closed, too. The application process
+and the Lisp process are the same, so you Lisp REPL will be killed, too.
+You probably don't want that during development. Feel free to add a =(dev-p)=
+function or something to configure it to stay open during development and to
+close in production.
+
+* Reopening A Window
+
+Now we have a problem: If we set =:quit-on-close= to =nil=, we can't /reopen/
+the window. Click on the icon in the Dock... nothing. Rerun
+=(ccl:process-interrupt ccl::*initial-process* #'open-window)=... nothing.
+=process-interrupt= won't interrupt the first =open-window= event loop. Now we
+have to restart our Lisp process to open another window.
+
+One of the problems with =open-window= is that it does too much: it makes the
+window instance and it starts the application. What we want to do is open a
+window on the main thread. To do that, we need to split up =open-window= a bit.
+
+#+begin_src lisp
+(defun make-window ()
+  (let ((window (make-instance 'ns:ns-window
+                               :with-content-rect (ns:make-ns-rect 0 0 400 300)
+                               :style-mask (logior #$NSWindowStyleMaskTitled #$NSWindowStyleMaskClosable)
+                               :backing #$NSBackingStoreBuffered
+                               :defer nil)))
+    (#/makeKeyAndOrderFront: window nil)
+    ;; Bring the window to the front and focus on it.
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    window))
+
+(defun open-window ()
+  (#/sharedApplication ns:ns-application)
+  (#/setActivationPolicy: #&NSApp #$NSApplicationActivationPolicyRegular)
+  (setf *delegate* (make-instance 'app-delegate :quit-on-close t))
+  (#/setDelegate: #&NSApp *delegate*)
+  (make-window)
+  (#/run #&NSApp))
+#+end_src
+
+To get a message to the already running application, we need to send a message
+to the delegate.
+
+We want the delegate to reopen the window for the application, so first we need
+to add that method to the delegate.
+
+#+begin_src lisp
+(objc:defmethod (#/reopenWindow: :void) ((self app-delegate) sender)
+  (declare (ignore sender))
+  (make-window))
+#+end_src
+
+Now we need to send a message to the delegate to run that method. To do that, we
+need to use an Objective-C method called =performSelectorOnMainThread:=.
+
+#+begin_src lisp
+(#/performSelectorOnMainThread: *delegate* (#/objc:@selector #/reopenWindow:))
+#+end_src
+
+A =selector= is roughly the equivalent of a function symbol name like
+='my-function=. The first argument to the selector =performSelectorOnMainThread=
+is the object--=*delegate*=--you want to ask to call some function, and the
+selector--=openWindow=--is the function you want it to call.
+
+Now, in Objective-C, the above code would look something like this:
+
+#+begin_src objc
+[delegate performSelectorOnMainThread:@selector(reopenWindow:)]
+#+end_src
+
+Everything between the brackets is called a =message=, =delegate= is the
+receiver of the message, =performSelectorOnMainThread:= is a selector, the
+argument to the selector is =@selector(reopenWindow:)=.
+
+Well, this isn't entirely accurate. The full selector is:
+
+#+begin_src objc
+performSelectorOnMainThread:
+withObject:
+waitUntilDone:
+#+end_src
+
+The equivalent name in Lisp would be
+=perform-selector-on-main-thread-with-object-wait-until-done=. And you thought
+Lisp function names were already long!
+
+But instead of having one function/selector name followed by its arguments, a
+selector in Objective-C breaks the selector apart into pieces for each argument
+the selector takes. Confusing, I know, but that's why the ClozureCL bridge code
+/actually/ looks like this:
+
+#+begin_src lisp
+(#/performSelectorOnMainThread:withObject:waitUntilDone
+ ,*delegate*
+ (objc:@selector #/reopenWindow:)
+ nil
+ t)
+#+end_src
+
+The =performSelectorOnMainThread:= and =withObject:= together are similar to a
+=funcall=:
+
+#+begin_src lisp
+;; Send this function these arguments
+(funcall #'my-function args)
+#+end_src
+
+=waitUntilDone='s argument is =t=, meaning we want the main thread to block the
+calling thread (the main thread) until the method is finished running.
+
+And now we just need to make it callable from a Lisp function:
+
+#+begin_src lisp
+(defun reopen-window ()
+  (#/performSelectorOnMainThread:withObject:waitUntilDone
+   *delegate*
+   (objc:@selector #/reopenWindow:)
+   nil
+   t))
+#+end_src
+
+* Final Code
+
+The final code looks like this:
+
+#+begin_src lisp
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (require "OBJC-SUPPORT"))
+
+;; * Delegate
+(defclass app-delegate (ns:ns-object)
+  ((quit-on-close :initarg :quit-on-close
+                  :initform nil
+                  :reader quit-on-close))
+  (:metaclass ns:+ns-object))
+
+(objc:defmethod (#/applicationShouldTerminateAfterLastWindowClosed: :<BOOL>)
+    ((self app-delegate) app)
+  (declare (ignore app))
+  (quit-on-close self))
+
+(objc:defmethod (#/reopenWindow: :void) ((self app-delegate) sender)
+  (declare (ignore sender))
+  (make-window))
+
+(defvar *delegate* nil)
+
+;; * Window
+(defun make-window ()
+  (let ((window (make-instance 'ns:ns-window
+                               :with-content-rect (ns:make-ns-rect 0 0 400 300)
+                               :style-mask (logior #$NSWindowStyleMaskTitled #$NSWindowStyleMaskClosable)
+                               :backing #$NSBackingStoreBuffered
+                               :defer nil)))
+    (#/makeKeyAndOrderFront: window nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    window))
+
+(defun open-window ()
+  (#/sharedApplication ns:ns-application)
+  (#/setActivationPolicy: #&NSApp #$NSApplicationActivationPolicyRegular)
+  (setf *delegate* (make-instance 'app-delegate :quit-on-close nil))
+  (#/setDelegate: #&NSApp *delegate*)
+  (make-window)
+  (#/run #&NSApp))
+
+(defun reopen-window ()
+  (#/performSelectorOnMainThread:withObject:waitUntilDone:
+   ,*delegate*
+   (objc:@selector #/reopenWindow:)
+   nil
+   t))
+
+;; * Open the first time with this
+(ccl:process-interrupt ccl::*initial-process* #'open-window)
+
+;; * Reopen with this
+;; (reopen-window)
+#+end_src
+
+If you get warnings in CCL's REPL and the file compilation fails the first time,
+but you try it a second time and it works, then you can replace the first
+=eval-when= form with this:
+
+#+begin_src lisp
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (handler-bind ((warning #'muffle-warning))
+    (require "OBJC-SUPPORT")))
+#+end_src
+
+After that, it should compile the first time.

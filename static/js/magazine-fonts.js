@@ -37,6 +37,8 @@
     { family: "KKM Analog TV", file: "kkm_analogtv_v2-vert.ttf", wait: true },
     { family: "Mohave", file: "Mohave-latin-ext.woff2",
       weight: "300 700", unicodeRange: LATIN_EXT },
+    // The motto, in the footer.
+    { family: "JF Dot Kappa 20 0213", file: "jf-dot-kappa20-0213-motto.ttf" },
     // Code blocks, further down an article.
     { family: "Berkeley Mono", file: "BerkeleyMono-Regular.ttf" },
     // Stands in for Avenir Next Condensed where there's no Avenir.

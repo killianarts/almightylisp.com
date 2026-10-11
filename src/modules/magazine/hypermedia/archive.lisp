@@ -24,7 +24,8 @@
                   articles)))
 
 (defun page-archive (articles series)
-  (let ((since (car (last articles))))
+  (let ((since (car (last articles)))
+        (*marked-bands* 0))
     (ah:render-to-string
      (ah:</>
       (ac-sheet-page :title "Archive — Almighty Lisp"
@@ -45,7 +46,7 @@
                         (model:group-by-month articles))
                 (ah:</> (p :class "end-label" "Nothing has been published yet."))))))))))
 
-(defun page-not-found (articles series)
+(defun page-not-found (articles series &aux (*marked-bands* 0))
   (ah:render-to-string
    (ah:</>
     (ac-sheet-page :title "Not found — Almighty Lisp"
@@ -59,5 +60,4 @@
         (div :class "keep-briefs"
           (mapcar (lambda (article)
                     (render-article-brief article (model:article-series-of article series)))
-                  (subseq articles 0 (min 3 (length articles))))))
-       :folio (ah:</> (a :href (magazine-href) "Back to the magazine  >>>")))))))
+                  (subseq articles 0 (min 3 (length articles)))))))))))

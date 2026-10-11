@@ -550,11 +550,16 @@ body {
 /* Whole-viewport film-grain / static noise (currently OFF — flip to scanlines).
    An inline SVG feTurbulence filter (data URI, no external asset) used as an
    alpha *mask* over a solid color fill, so the grain takes whatever
-   --noise-color you give it. Uncomment the block below to bring it back. */
+   --noise-color you give it. Uncomment the block below to bring it back.
+
+   The grain flickers by moving the whole overlay (transform), which the
+   compositor does without painting it again; moving the mask inside it
+   (mask-position) would paint the overlay at every step. So it reaches 50px
+   past the window on every side, further than noise-flicker moves it. */
 body::before {
     content: "";
     position: fixed;
-    inset: 0;
+    inset: -50px;
     z-index: var(--noise-z, 9998);
     pointer-events: none;
     opacity: var(--noise-opacity, 0.06);
@@ -564,29 +569,32 @@ body::before {
     -webkit-mask-size: var(--noise-size, 160px) var(--noise-size, 160px);
     mask-size: var(--noise-size, 160px) var(--noise-size, 160px);
     animation: noise-flicker var(--noise-anim-duration, 0.7s) steps(1) infinite;
+    will-change: transform;
 }
 
 @keyframes noise-flicker {
-    0%   { -webkit-mask-position:   0    0;   mask-position:   0    0;   }
-    10%  { -webkit-mask-position: -17px  9px; mask-position: -17px  9px; }
-    20%  { -webkit-mask-position:  31px -22px; mask-position:  31px -22px; }
-    30%  { -webkit-mask-position: -43px 13px; mask-position: -43px 13px; }
-    40%  { -webkit-mask-position:  27px 41px; mask-position:  27px 41px; }
-    50%  { -webkit-mask-position: -11px -37px; mask-position: -11px -37px; }
-    60%  { -webkit-mask-position:  49px 19px; mask-position:  49px 19px; }
-    70%  { -webkit-mask-position: -29px -13px; mask-position: -29px -13px; }
-    80%  { -webkit-mask-position:  13px 33px; mask-position:  13px 33px; }
-    90%  { -webkit-mask-position: -37px 27px; mask-position: -37px 27px; }
-    100% { -webkit-mask-position:   0    0;   mask-position:   0    0;   }
+    0%   { transform: translate(  0,     0);   }
+    10%  { transform: translate(-17px,   9px); }
+    20%  { transform: translate( 31px, -22px); }
+    30%  { transform: translate(-43px,  13px); }
+    40%  { transform: translate( 27px,  41px); }
+    50%  { transform: translate(-11px, -37px); }
+    60%  { transform: translate( 49px,  19px); }
+    70%  { transform: translate(-29px, -13px); }
+    80%  { transform: translate( 13px,  33px); }
+    90%  { transform: translate(-37px,  27px); }
+    100% { transform: translate(  0,     0);   }
 }
 
 /* Whole-viewport CRT scanlines. Fixed + pointer-events:none so it overlays
    every scroll position without intercepting clicks. The lines drift downward
-   by scrolling the gradient exactly one period, so the loop is seamless. */
+   by moving the overlay exactly one period, so the loop is seamless. As the
+   noise, it is moved and not painted again, and so reaches a period past
+   the top and bottom of the window. */
 body::after {
     content: "";
     position: fixed;
-    inset: 0;
+    inset: calc((var(--scanline-thickness) + var(--scanline-gap)) * -1) 0;
     z-index: var(--scanline-z);
     pointer-events: none;
     opacity: var(--scanline-opacity);
@@ -598,12 +606,13 @@ body::after {
         transparent calc(var(--scanline-thickness) + var(--scanline-gap))
     );
     animation: scanline-scroll var(--scanline-speed, 0.4s) linear infinite;
+    will-change: transform;
 }
 
 /* Move one full line period (thickness + gap) so start and end frames align. */
 @keyframes scanline-scroll {
-    from { background-position: 0 0; }
-    to   { background-position: 0 calc(var(--scanline-thickness) + var(--scanline-gap)); }
+    from { transform: translateY(0); }
+    to   { transform: translateY(calc(var(--scanline-thickness) + var(--scanline-gap))); }
 }
 
 /* Honor reduced-motion: keep the lines, drop the scroll. */

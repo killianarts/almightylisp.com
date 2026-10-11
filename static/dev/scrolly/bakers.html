@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Almighty Bakers (scroll-driven mock)</title>
+<style>body { margin: 40px; font: 14px/1.5 ui-monospace, monospace; }</style>
+</head>
+<body>
+<p id="status">Loading the article…</p>
+<!-- "Almighty Bakers" as it is published, with its sections converted to
+     scroll-driven ones by shell.js. Each note goes to the left side while
+     the paragraph before it is being read. -->
+<script>window.SCROLLY = { shell: "/magazine/almighty-bakers" };</script>
+<script>document.write('<script src="shell.js?' + Date.now() + '"><\/script>');</script>
+</body>
+</html>

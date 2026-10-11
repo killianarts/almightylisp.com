@@ -1,0 +1,959 @@
+#+TITLE: Building A Temperature Conversion Application
+#+subtitle: Now that we know how to open a simple window, we can finally get to work building a small application: a temperature converter. Not only will we learn how to build the GUI, but we will also learn how to write code that allows us to hotload changes into an open instance of the application.
+#+date: 2026-10-10
+#+author: Micah Killian
+#+type: Tutorial
+#+topic: Native Development
+#+PART: 4
+
+* Now it's getting GUI
+Now that we have a working system for making windows and starting an event loop,
+we want to add stuff to the window. We'll be building a temperature conversion
+application, so we'll need a place to type a number. To make it easy on
+ourselves, we'll only have one place to type the number, and then we'll have two
+buttons: one to convert from Fahrenheit to Celsius, and one for the reverse.
+They'll change the value of the number in the field where the original
+temperature was typed.
+
+Understanding how to get a window open was challenging--we had to learn the
+inner workings of MacOS's GUI framework AppKit and how to use ClozureCL's Cocoa
+bridge to write Objective-C code in Common Lisp--but now that we understand the
+basics of working with AppKit, building the actual GUI isn't going to be that
+challenging.
+
+Building the GUI is going to be fairly similar to building a CRUD application.
+
+1. We'll display a text input and buttons in a window.
+2. We'll code up a controller that has two actions: =f-to-c= and =c-to-f=.
+3. We'll write the code that models the "business logic" of converting temperatures.
+4. We'll wire up the model and controller code with the "views"--GUI widgets.
+
+It'll end up feeling familiar to all my fellow web developers.
+
+One important goal we have, however, is to write our code in a way that makes it
+hotswappable and interactive just like all Lisp code. We'll first muddle our way
+through the naive way before we upgrade to the more sophisticated approach.
+Future native application development will be made much easier after we learn
+the principles.
+
+* A Refresher
+First, let's just summarize what we covered in [[opening-a-window][the last article]]:
+
+1. We learned how to interact with MacOS's GUI framework AppKit via ClozureCL's
+   Cocoa bridge.
+2. We learned some of the details of Objective-C's syntax so we could understand
+   how to write our Lisp code.
+3. We learned why we need an AppKit delegate to close our application and reopen
+   the window in development.
+
+Let's walk through the final code of that project piece by piece.
+
+We begin by loading the Cocoa bridge.
+
+#+begin_src lisp
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  ;; We get some warnings from the CCL bridge that block compilation on the first try.
+  ;; This blocks those warnings so we don't have to compile the file twice.
+  (handler-bind ((warning #'muffle-warning))
+    (require "OBJC-SUPPORT")))
+#+end_src
+
+We set up a delegate--an Objective-C object that AppKit asks whether it should
+quit the application when the window closes, and that we send a message to when
+we want the window reopened.
+
+#+begin_src lisp
+;; * Delegate
+(defclass app-delegate (ns:ns-object)
+  ((quit-on-close :initarg :quit-on-close
+                  :initform nil
+                  :reader quit-on-close))
+  (:metaclass ns:+ns-object))
+
+(objc:defmethod (#/applicationShouldTerminateAfterLastWindowClosed: :<BOOL>)
+    ((self app-delegate) app)
+  (declare (ignore app))
+  (quit-on-close self))
+
+(objc:defmethod (#/reopenWindow: :void) ((self app-delegate) sender)
+  (declare (ignore sender))
+  (make-window))
+
+(defvar *delegate* nil)
+#+end_src
+
+We split making a window and opening a window so that we can call =make-window=
+in the =reopenWindow:= method above without calling =run= again--which starts an
+event loop.
+
+#+begin_src lisp
+;; * Window
+(defun make-window ()
+  (let ((window (make-instance 'ns:ns-window
+                               :with-content-rect (ns:make-ns-rect 0 0 300 120)
+                               :style-mask (logior #$NSWindowStyleMaskTitled #$NSWindowStyleMaskClosable)
+                               :backing #$NSBackingStoreBuffered
+                               :defer nil)))
+    (#/makeKeyAndOrderFront: window nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    window))
+
+(defun open-window ()
+  (#/sharedApplication ns:ns-application)
+  (#/setActivationPolicy: #&NSApp #$NSApplicationActivationPolicyRegular)
+  (setf *delegate* (make-instance 'app-delegate :quit-on-close nil))
+  (#/setDelegate: #&NSApp *delegate*)
+  (make-window)
+  (#/run #&NSApp))
+#+end_src
+
+We wrote a function that sends a message on the main thread to the application's
+delegate that tells it to reopen the window.
+
+#+begin_src lisp
+(defun reopen-window ()
+  (#/performSelectorOnMainThread:withObject:waitUntilDone:
+   *delegate*
+   (objc:@selector #/reopenWindow:)
+   nil
+   t))
+#+end_src
+
+And we wrote the entry-point for starting the application.
+
+#+begin_src lisp
+;; * Open the first time with this
+(ccl:process-interrupt ccl::*initial-process* #'open-window)
+
+;; * Reopen with this
+;; (reopen-window)
+#+end_src
+
+It was a lot to learn right from the beginning--selectors, delegates, main
+threads and event loops, an Objective-C and AppKit crash course, etc.
+
+* Widgets
+Thankfully, the next step in learning native programming isn't going to be quite
+as humbling. First, let's make the basic widgets, starting with a button.
+
+** A Button
+Making a button is easy thanks to ClozureCL's bridge--it has a convenient
+=ns-button= class that does the work of building the button in Objective-C. We
+just pass an =ns-rect= with the =:with-frame= argument. You can safely run this
+code without blowing up your REPL--you don't need to do it on the main thread.
+
+#+begin_src lisp :buffer REPL
+(make-instance 'ns:ns-button
+               :with-frame (ns:make-ns-rect 20 20 125 32))
+#+end_src
+
+#+RESULTS:
+#<NS-BUTTON <NSButton: 0x10542c8f0> (#x10542C8F0)>
+
+We can make a small alias around =ns:make-ns-rect= to make future code easier to
+write.
+
+#+begin_src lisp :buffer converter.lisp
+(defun rect (x y width height)
+  (ns:make-ns-rect x y width height))
+#+end_src
+
+Then we can rewrite the =make-instance= call.
+
+#+begin_src lisp :buffer REPL :highlight 2
+(make-instance 'ns:ns-button
+               :with-frame (rect 20 20 125 32))
+#+end_src
+
+The =x= and =y= coordinates refer to a position inside the view that the button
+will live in--for us, that will be the window's content view. If you're coming
+from the web, there's a trap here: the origin is the /bottom-left/ corner, and
+=y= grows /upward/. A button at =0 0= sits in the bottom-left corner of the
+window, not the top-left.
+
+Let's keep it in a variable so we can play with it.
+
+#+begin_src lisp :buffer REPL :highlight 1 2
+(defparameter *button*
+  (make-instance 'ns:ns-button :with-frame (rect 20 20 125 32)))
+#+end_src
+
+A new button's title is an =ns-string=.
+
+#+begin_src lisp :buffer REPL
+(#/title *button*)
+#+end_src
+
+#+RESULTS:
+#<NS-STRING "Button" (#xAFF1CB6628A66459)>
+
+Which you can get back as a Lisp string using =objc:lisp-string-from-nsstring=.
+
+#+begin_src lisp :buffer REPL
+(objc:lisp-string-from-nsstring (#/title button))
+#+end_src
+
+#+RESULTS:
+"Button"
+
+...which isn't very helpful. We change it by sending the button the =setTitle:=
+message.
+
+#+begin_src lisp :buffer REPL
+(#/setTitle: *button* #@"F to C")
+#+end_src
+
+The =#@= in front of the string is important. A Lisp string is not an
+Objective-C string, and AppKit only understands its own =NSString= objects.
+=#@"F to C"= is ClozureCL's reader macro for writing an =NSString= constant
+directly in your Lisp code.
+
+#+begin_note Only ASCII in #@ strings
+Keep the text in a =#@= string to plain ASCII. I tried to use a nice arrow, as
+in =#@"F → C"=, and the entire Lisp process died the moment the button was
+displayed. For anything fancier, or for a string that is only known at runtime,
+use =(objc:make-nsstring "F → C")=. As I wrote above, to go the other way, from an =NSString= to
+a Lisp string, use =objc:lisp-string-from-nsstring=.
+#+end_note
+
+** A Text Field
+We also need somewhere to type the temperature. Unsurprisingly, AppKit's text
+input is called =NSTextField=, and it's made exactly the same way as the button.
+
+#+begin_src lisp :buffer REPL
+(make-instance 'ns:ns-text-field :with-frame (rect 20 70 260 24))
+#+end_src
+
+#+RESULTS:
+#<NS-TEXT-FIELD <NSTextField: 0x105445700> (#x105445700)>
+
+Notice the =y= of 70. Since =y= grows upward, the text field is going to sit
+/above/ the button we made at a =y= of 20.
+
+** Putting Widgets in a Window
+Making widgets in the REPL is safe, but we can't see them. A widget only appears
+on screen after it's added to a window. So let's start with the =make-window=
+function from last time, using our new =rect= function.
+
+#+begin_src lisp :buffer converter.lisp :highlight 3
+(defun make-window ()
+  (let ((window (make-instance 'ns:ns-window
+                               :with-content-rect (rect 0 0 300 120)
+                               :style-mask (logior #$NSWindowStyleMaskTitled
+                                                   #$NSWindowStyleMaskClosable)
+                               :backing #$NSBackingStoreBuffered
+                               :defer nil)))
+    (#/makeKeyAndOrderFront: window nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    window))
+#+end_src
+
+Every window comes with a =contentView=--the view that fills the window below
+the title bar. Think of it as the =<body>= of the window. Widgets are views too,
+and we add them to the content view with =addSubview:=.
+
+#+begin_src lisp :buffer converter.lisp :highlight 9 10
+(defun make-window ()
+  (let* ((window (make-instance 'ns:ns-window
+                                :with-content-rect (rect 0 0 300 120)
+                                :style-mask (logior #$NSWindowStyleMaskTitled
+                                                    #$NSWindowStyleMaskClosable)
+                                :backing #$NSBackingStoreBuffered
+                                :defer nil))
+         (content (#/contentView window))
+         (field (make-instance 'ns:ns-text-field :with-frame (rect 20 70 260 24))))
+    (#/addSubview: content field)
+    (#/makeKeyAndOrderFront: window nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    window))
+#+end_src
+
+Then we add the two buttons side by side under the text field.
+
+#+begin_src lisp :buffer converter.lisp :highlight 10 11 12 13 15 16
+(defun make-window ()
+  (let* ((window (make-instance 'ns:ns-window
+                                :with-content-rect (rect 0 0 300 120)
+                                :style-mask (logior #$NSWindowStyleMaskTitled
+                                                    #$NSWindowStyleMaskClosable)
+                                :backing #$NSBackingStoreBuffered
+                                :defer nil))
+         (content (#/contentView window))
+         (field (make-instance 'ns:ns-text-field :with-frame (rect 20 70 260 24)))
+         (f-to-c-button (make-instance 'ns:ns-button :with-frame (rect 20 20 125 32)))
+         (c-to-f-button (make-instance 'ns:ns-button :with-frame (rect 155 20 125 32))))
+    (#/setTitle: f-to-c-button #@"F to C")
+    (#/setTitle: c-to-f-button #@"C to F")
+    (#/addSubview: content field)
+    (#/addSubview: content f-to-c-button)
+    (#/addSubview: content c-to-f-button)
+    (#/makeKeyAndOrderFront: window nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    window))
+#+end_src
+
+If you still have the application running from last time, close the window,
+compile the new =make-window=, and call =(reopen-window)=. Otherwise, compile
+the whole file and start the application with the =process-interrupt= line. You
+should see a small window with a text field and two buttons.
+
+You can type in the field and you can click the buttons. Nothing happens when
+you click them, of course. We haven't told them what to do yet.
+
+* Controller
+In web programming, if we an interface to do something, we use a =<form>=.
+
+#+begin_src html
+<form method="post" id="my-form" action="/do-this">
+    ...
+    <button>Submit</button>
+</form>
+#+end_src
+
+When you click the button, it sends a message to the server (a request), which
+gets routed to the controller at =do-this=. The controller does something and
+replies to the message.
+
+The same is true in AppKit. A button holds two things: a *target* and an
+*action*. The target is an object. The action is a selector--the name of a
+method. When you click the button, AppKit sends the action message to the
+target. This is called the target-action pattern, and it's used everywhere in
+AppKit. 
+
+So we need an object with two methods. This is our controller. Just like the
+delegate, it needs to be an Objective-C object so that AppKit can send it
+messages. It also needs to know about the text field, because that's where it
+will read the temperature from and write the converted temperature to.
+
+#+begin_src lisp :buffer converter.lisp
+(defclass converter (ns:ns-object)
+  ((field :initarg :field
+          :reader field))
+  (:metaclass ns:+ns-object))
+#+end_src
+
+Now we need the two actions. An action method always has the same shape: it
+takes one argument--the =sender=, which is the widget that was clicked--and
+returns nothing, which is =:void= in Objective-C. Since it takes an argument,
+the selector's name ends with a =:=. For now, the actions will just write
+something into the text field so that we know the buttons are working.
+
+#+begin_src lisp :buffer converter.lisp
+(objc:defmethod (#/fToC: :void) ((self converter) sender)
+  (declare (ignore sender))
+  (#/setStringValue: (field self) #@"F to C"))
+
+(objc:defmethod (#/cToF: :void) ((self converter) sender)
+  (declare (ignore sender))
+  (#/setStringValue: (field self) #@"C to F"))
+#+end_src
+
+Objective-C's naming convention is camelCase, so our =f-to-c= and =c-to-f=
+actions become =fToC:= and =cToF:=. All that's left is the wiring.
+
+In =make-window=, we make the controller and hand it the text field, then we set
+the target and action of each button.
+
+#+begin_src lisp :buffer converter.lisp
+(defun make-window ()
+  (let* ((window (make-instance 'ns:ns-window
+                                :with-content-rect (rect 0 0 300 120)
+                                :style-mask (logior #$NSWindowStyleMaskTitled
+                                                    #$NSWindowStyleMaskClosable)
+                                :backing #$NSBackingStoreBuffered
+                                :defer nil))
+         (content (#/contentView window))
+         (field (make-instance 'ns:ns-text-field :with-frame (rect 20 70 260 24)))
+         (f-to-c-button (make-instance 'ns:ns-button :with-frame (rect 20 20 125 32)))
+         (c-to-f-button (make-instance 'ns:ns-button :with-frame (rect 155 20 125 32)))
+         (controller (make-instance 'converter :field field)))
+    (#/setTitle: f-to-c-button #@"F to C")
+    (#/setTarget: f-to-c-button controller)
+    (#/setAction: f-to-c-button (objc:@selector #/fToC:))
+    (#/setTitle: c-to-f-button #@"C to F")
+    (#/setTarget: c-to-f-button controller)
+    (#/setAction: c-to-f-button (objc:@selector #/cToF:))
+    (#/addSubview: content field)
+    (#/addSubview: content f-to-c-button)
+    (#/addSubview: content c-to-f-button)
+    (#/makeKeyAndOrderFront: window nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    window))
+#+end_src
+
+You might wonder why the variable is named =controller= and not =converter=.
+It's because I tried =converter= first and ClozureCL refused to compile the
+function.
+
+#+begin_note Class names are variables
+When you define an Objective-C class with =defclass=, ClozureCL also makes a
+global variable with the same name that holds the class. That variable can't be
+rebound, so ~(let ((converter ...)) ...)~ fails with this error:
+=CONVERTER is declared static and can not be bound=.
+Give your local variables a different name than your Objective-C classes.
+#+end_note
+
+Close the window, compile, and call =(reopen-window)= again. Click the buttons
+and the text field tells you which button you clicked. The view is talking to
+the controller.
+
+* Logic
+Now for the "business logic". This is the easy part, and the best part: it has
+nothing to do with AppKit, Objective-C, or threads. It's just Lisp.
+
+#+begin_src lisp :buffer converter.lisp
+(defun fahrenheit-to-celsius (fahrenheit)
+  (* (- fahrenheit 32) 5/9))
+
+(defun celsius-to-fahrenheit (celsius)
+  (+ (* celsius 9/5) 32))
+#+end_src
+
+Because it's just Lisp, we can test it in the REPL without opening a window at
+all. Water boils at 212 degrees Fahrenheit.
+
+#+begin_src lisp :buffer REPL
+(fahrenheit-to-celsius 212)
+#+end_src
+
+#+RESULTS:
+100
+
+And we can go back the other way.
+
+#+begin_src lisp :buffer REPL
+(celsius-to-fahrenheit 100)
+#+end_src
+
+#+RESULTS:
+212
+
+Since we wrote the fractions as =5/9= and =9/5=, Common Lisp does the math with
+rational numbers and we never lose any precision. That also means that a
+temperature that doesn't divide evenly comes back as a fraction.
+
+#+begin_src lisp :buffer REPL
+(fahrenheit-to-celsius 100)
+#+end_src
+
+#+RESULTS:
+340/9
+
+That is the correct answer, but nobody wants to read =340/9= on a thermometer.
+We'll leave the logic precise and round the number only when we display it.
+=format= can do that for us.
+
+#+begin_src lisp :buffer REPL
+(format nil "~,1f" (fahrenheit-to-celsius 100))
+#+end_src
+
+#+RESULTS:
+"37.8"
+
+Keeping the logic away from the GUI like this is the same separation we make in
+web applications, and for the same reasons. We can test it, reuse it, and when
+we later build the UI again with a different toolkit, this code won't change at
+all.
+
+* Naive implementation
+We have the views, the controller, and the logic. Now we connect them. When a
+button is clicked, we want to:
+
+1. Read the number in the text field.
+2. Convert it.
+3. Write the result back into the text field.
+
+Both actions do the same thing with a different conversion, so we'll write one
+function that takes the conversion as an argument.
+
+#+begin_src lisp :buffer converter.lisp
+(defun convert-field (field conversion)
+  (let ((temperature (#/doubleValue field)))
+    (#/setStringValue: field
+                       (objc:make-nsstring
+                        (format nil "~,1f" (funcall conversion temperature))))))
+#+end_src
+
+=doubleValue= asks the text field to read its text as a number and gives us a
+Lisp double float. If the text isn't a number at all--it's empty, or somebody
+typed "hot"--we get =0.0d0= instead of an error. Good enough for now.
+=setStringValue:= needs an =NSString=, and since our string is made at runtime
+by =format=, we convert it with =objc:make-nsstring=.
+
+Then we rewrite the actions to call it.
+
+#+begin_src lisp :buffer converter.lisp :highlight 3 7
+(objc:defmethod (#/fToC: :void) ((self converter) sender)
+  (declare (ignore sender))
+  (convert-field (field self) #'fahrenheit-to-celsius))
+
+(objc:defmethod (#/cToF: :void) ((self converter) sender)
+  (declare (ignore sender))
+  (convert-field (field self) #'celsius-to-fahrenheit))
+#+end_src
+
+Compile those three forms, but this time *don't close the window*. Type 212
+into the text field that's already open and click "F to C". It says 100.0. Click
+"C to F" and it goes back to 212.0.
+
+We redefined two Objective-C methods and the running application picked them up
+immediately. That's the Lisp experience we want. The same is true of
+=convert-field= and the conversion functions: redefine them and the very next
+click uses the new definition.
+
+So the /behavior/ of our application is already hotswappable. The trouble is
+everything else.
+
+** The Trouble
+Let's say we want to change the title of a button. We change the string in
+=make-window=, compile it, and... nothing. The window on the screen was built by
+the old =make-window=, and it has no idea that a new one exists. To see the
+change we have to close the window and call =(reopen-window)=, and whatever we
+typed in the old window is gone.
+
+That's the "edit, refresh the page" loop of web development. It's fine for
+three widgets. It won't be fine for a real application where getting back to the
+screen you were working on takes ten clicks.
+
+What we really want is to reach into the running application from the REPL and
+change it. Let's imagine we had saved the window in a variable named =*window*=
+and tried to give it a title from the REPL.
+
+#+begin_src lisp :buffer REPL
+(#/setTitle: *window* #@"Temperature")
+#+end_src
+
+#+RESULTS:
+Terminating app due to uncaught exception 'NSInternalInconsistencyException',
+reason: 'NSWindow geometry should only be modified on the main thread!'
+
+No debugger, just a dead Lisp process and that message left behind in the
+=*sly-inferior-lisp*= buffer. It's the same lesson we learned last time when we
+tried to open a window: your REPL does not run on the main thread, and AppKit
+insists that its windows and views are only touched from the main thread. Some
+messages will kill the process like this one did, and some will just freeze your
+REPL. Either way, you're restarting Lisp.
+
+We already know one way around this--it's how =reopen-window= works. We add a
+method to the delegate and use =performSelectorOnMainThread:= to send it the
+message. But that would mean writing a new Objective-C method for every single
+thing we ever want to do to the running application. That's not interactive
+development. That's filling out forms.
+
+* Making it Hotswappable With a Main Thread Caller
+What we want is to be able to write any Lisp code at all and say, "run this on
+the main thread".
+
+The problem is that =performSelectorOnMainThread:= doesn't know what a Lisp
+function is. It only knows how to send a message to an Objective-C object. So
+we'll give it what it wants: an Objective-C object whose only job is to hold a
+Lisp function and to call it when it receives a message.
+
+#+begin_src lisp :buffer converter.lisp
+(defclass main-thread-caller (ns:ns-object)
+  ((function-to-call :initarg :function-to-call
+                     :reader function-to-call))
+  (:metaclass ns:+ns-object))
+
+(objc:defmethod (#/callLispFunction: :void) ((self main-thread-caller) sender)
+  (declare (ignore sender))
+  (funcall (function-to-call self)))
+#+end_src
+
+That's the only Objective-C method we'll need to write for this, ever. Now we
+write the Lisp function that uses it. It makes a caller that holds our function,
+asks AppKit to send the caller the =callLispFunction:= message on the main
+thread, and waits for it to finish.
+
+#+begin_src lisp :buffer converter.lisp
+(defun call-on-main-thread (function)
+  (let ((caller (make-instance 'main-thread-caller
+                               :function-to-call function)))
+    (#/performSelectorOnMainThread:withObject:waitUntilDone:
+     caller
+     (objc:@selector #/callLispFunction:)
+     nil
+     t)
+    (#/release caller)))
+#+end_src
+
+The =release= at the end is new. Objective-C objects aren't garbage collected
+like Lisp objects are. Each one keeps a count of how many owners it has, and
+it's freed when the count reaches zero. We made the caller, so we own it, and
+when we're done with it we need to say so. Since we make a new caller for every
+call, we'd leak a little memory every time if we didn't.
+
+This already works, but it throws away whatever our function returns. In a REPL
+we want to /ask/ the running application questions, too. The function we pass
+and the function that calls it run on different threads, but a closure doesn't
+care about that. We can wrap our function in a =lambda= that saves the result in
+a variable, and return it after the main thread is done.
+
+#+begin_src lisp :buffer converter.lisp :highlight 2 3 4 5 6 12 13
+(defun call-on-main-thread (function)
+  (let* ((result nil)
+         (caller (make-instance 'main-thread-caller
+                                :function-to-call
+                                (lambda ()
+                                  (setf result (funcall function))))))
+    (#/performSelectorOnMainThread:withObject:waitUntilDone:
+     caller
+     (objc:@selector #/callLispFunction:)
+     nil
+     t)
+    (#/release caller)
+    result))
+#+end_src
+
+There's one more thing to take care of. If our function signals an error, it
+signals it on the main thread, in the middle of the application's event loop.
+I'm the one who made the mistake in the REPL, so I want the error in the REPL.
+We can do the same trick again: catch the error on the main thread, save it,
+and signal it again in the thread that asked.
+
+#+begin_src lisp :buffer converter.lisp :highlight 3 7 8 15 16
+(defun call-on-main-thread (function)
+  (let* ((result nil)
+         (problem nil)
+         (caller (make-instance 'main-thread-caller
+                                :function-to-call
+                                (lambda ()
+                                  (handler-case (setf result (funcall function))
+                                    (error (e) (setf problem e)))))))
+    (#/performSelectorOnMainThread:withObject:waitUntilDone:
+     caller
+     (objc:@selector #/callLispFunction:)
+     nil
+     t)
+    (#/release caller)
+    (when problem
+      (error problem))
+    result))
+#+end_src
+
+Finally, since we're going to be typing this a lot, a small macro saves us from
+writing the =lambda= every time.
+
+#+begin_src lisp :buffer converter.lisp
+(defmacro on-main-thread (&body body)
+  `(call-on-main-thread (lambda () ,@body)))
+#+end_src
+
+** Holding On To The Window
+To poke at the window from the REPL, we need to be able to find it. We'll save
+it in a global variable when we make it.
+
+#+begin_src lisp :buffer converter.lisp
+(defvar *window* nil)
+#+end_src
+
+There is one catch. By default, a window that isn't managed by a window
+controller is released when it's closed. Our variable would be left pointing
+at freed memory, and the next message we sent to it would crash the process. We
+tell the window not to do that with =setReleasedWhenClosed:=.
+
+#+begin_src lisp :buffer converter.lisp
+(defun make-window ()
+  (let* ((window (make-instance 'ns:ns-window
+                                :with-content-rect (rect 0 0 300 120)
+                                :style-mask (logior #$NSWindowStyleMaskTitled
+                                                    #$NSWindowStyleMaskClosable)
+                                :backing #$NSBackingStoreBuffered
+                                :defer nil))
+         (content (#/contentView window))
+         (field (make-instance 'ns:ns-text-field :with-frame (rect 20 70 260 24)))
+         (f-to-c-button (make-instance 'ns:ns-button :with-frame (rect 20 20 125 32)))
+         (c-to-f-button (make-instance 'ns:ns-button :with-frame (rect 155 20 125 32)))
+         (controller (make-instance 'converter :field field)))
+    (#/setReleasedWhenClosed: window nil)
+    (#/setTitle: f-to-c-button #@"F to C")
+    (#/setTarget: f-to-c-button controller)
+    (#/setAction: f-to-c-button (objc:@selector #/fToC:))
+    (#/setTitle: c-to-f-button #@"C to F")
+    (#/setTarget: c-to-f-button controller)
+    (#/setAction: c-to-f-button (objc:@selector #/cToF:))
+    (#/addSubview: content field)
+    (#/addSubview: content f-to-c-button)
+    (#/addSubview: content c-to-f-button)
+    (#/makeKeyAndOrderFront: window nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    (setf *window* window)))
+#+end_src
+
+Reopening the window was the one thing we could already do on the main thread,
+and it took a delegate method and a function to do it. Now it's one line, and we
+can delete the =reopenWindow:= method from the delegate.
+
+#+begin_src lisp :buffer converter.lisp
+(defun reopen-window ()
+  (on-main-thread (make-window)))
+#+end_src
+
+Compile the new definitions, close the old window, and call =(reopen-window)=.
+We don't even need to restart Lisp to switch over to the new code. Now let's try
+setting the title again--the same code that killed our Lisp process before.
+
+#+begin_src lisp :buffer REPL
+(on-main-thread (#/setTitle: *window* #@"Temperature"))
+#+end_src
+
+#+RESULTS:
+NIL
+
+The title bar changes while the application is running, and the REPL is still
+alive. We can ask questions, too.
+
+#+begin_src lisp :buffer REPL
+(on-main-thread (objc:lisp-string-from-nsstring (#/title *window*)))
+#+end_src
+
+#+RESULTS:
+"Temperature"
+
+And if we make a mistake, we get an ordinary Lisp error in an ordinary Lisp
+debugger. Abort it and both the REPL and the application carry on as if nothing
+happened.
+
+#+begin_src lisp :buffer REPL
+(on-main-thread (error "Too hot!"))
+#+end_src
+
+** Hotswapping the Widgets
+We can now change anything in the running application from the REPL, but
+changing things by hand isn't the same as changing the code. We still have the
+original trouble: when we edit =make-window=, the open window doesn't change.
+
+The reason is that =make-window= does two jobs. It makes a window, and it makes
+the content of the window. We split =open-window= last time for the same kind of
+reason, so let's split again. First, the buttons are getting repetitive, so
+they get a function of their own. It takes a Lisp string for the title, so we
+can finally have our arrows.
+
+#+begin_src lisp :buffer converter.lisp
+(defun make-button (title frame target action)
+  (let ((button (make-instance 'ns:ns-button :with-frame frame)))
+    (#/setTitle: button (objc:make-nsstring title))
+    (#/setTarget: button target)
+    (#/setAction: button action)
+    button))
+#+end_src
+
+Then we move the widgets out of =make-window= and into a function that builds a
+fresh content view--an =NSView=, the plain rectangle that all widgets are built
+on--with everything already in it.
+
+#+begin_src lisp :buffer converter.lisp
+(defun make-content ()
+  (let* ((content (make-instance 'ns:ns-view :with-frame (rect 0 0 300 120)))
+         (field (make-instance 'ns:ns-text-field :with-frame (rect 20 70 260 24)))
+         (controller (make-instance 'converter :field field)))
+    (#/addSubview: content field)
+    (#/addSubview: content (make-button "F to C" (rect 20 20 125 32)
+                                        controller (objc:@selector #/fToC:)))
+    (#/addSubview: content (make-button "C to F" (rect 155 20 125 32)
+                                        controller (objc:@selector #/cToF:)))
+    content))
+#+end_src
+
+That leaves =make-window= with only the window to worry about. Instead of
+adding widgets to the content view the window came with, it replaces the whole
+content view with ours using =setContentView:=.
+
+#+begin_src lisp :buffer converter.lisp :highlight 2 7 9
+(defun make-window ()
+  (let ((window (make-instance 'ns:ns-window
+                               :with-content-rect (rect 0 0 300 120)
+                               :style-mask (logior #$NSWindowStyleMaskTitled
+                                                   #$NSWindowStyleMaskClosable)
+                               :backing #$NSBackingStoreBuffered
+                               :defer nil)))
+    (#/setReleasedWhenClosed: window nil)
+    (#/setContentView: window (make-content))
+    (#/makeKeyAndOrderFront: window nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    (setf *window* window)))
+#+end_src
+
+And here's the payoff. If a window's content view can be replaced when the
+window is made, it can be replaced at any time after that, too--as long as it's
+done on the main thread.
+
+#+begin_src lisp :buffer converter.lisp
+(defun refresh ()
+  (on-main-thread (#/setContentView: *window* (make-content))))
+#+end_src
+
+Compile the new definitions, close the window, and call =(reopen-window)= one
+last time. Now go to =make-content=, change the two titles to ="F → C"= and
+="C → F"=, compile the function, and evaluate this in the REPL.
+
+#+begin_src lisp :buffer REPL
+(refresh)
+#+end_src
+
+The buttons change in the open window. Move a button, resize the text field,
+add a third button, compile, =(refresh)=. The window never closes and the Lisp
+process never restarts.
+
+If you've used a frontend framework, this will feel familiar: the content is
+whatever =make-content= returns, and we "re-render" by calling it again. It's
+crude--the text in the field is thrown away with the old content view, for
+example--but it's the whole principle of hotswapping a native GUI in a few lines
+of code:
+
+1. Keep a reference to the things you want to change.
+2. Build them in functions you can call again.
+3. Have one way to run any code on the main thread.
+
+* Final Code
+The final code looks like this:
+
+#+begin_src lisp :buffer converter.lisp
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  ;; We get some warnings from the CCL bridge that block compilation on the first try.
+  ;; This blocks those warnings so we don't have to compile the file twice.
+  (handler-bind ((warning #'muffle-warning))
+    (require "OBJC-SUPPORT")))
+
+;; * Main Thread Caller
+(defclass main-thread-caller (ns:ns-object)
+  ((function-to-call :initarg :function-to-call
+                     :reader function-to-call))
+  (:metaclass ns:+ns-object))
+
+(objc:defmethod (#/callLispFunction: :void) ((self main-thread-caller) sender)
+  (declare (ignore sender))
+  (funcall (function-to-call self)))
+
+(defun call-on-main-thread (function)
+  (let* ((result nil)
+         (problem nil)
+         (caller (make-instance 'main-thread-caller
+                                :function-to-call
+                                (lambda ()
+                                  (handler-case (setf result (funcall function))
+                                    (error (e) (setf problem e)))))))
+    (#/performSelectorOnMainThread:withObject:waitUntilDone:
+     caller
+     (objc:@selector #/callLispFunction:)
+     nil
+     t)
+    (#/release caller)
+    (when problem
+      (error problem))
+    result))
+
+(defmacro on-main-thread (&body body)
+  `(call-on-main-thread (lambda () ,@body)))
+
+;; * Delegate
+(defclass app-delegate (ns:ns-object)
+  ((quit-on-close :initarg :quit-on-close
+                  :initform nil
+                  :reader quit-on-close))
+  (:metaclass ns:+ns-object))
+
+(objc:defmethod (#/applicationShouldTerminateAfterLastWindowClosed: :<BOOL>)
+    ((self app-delegate) app)
+  (declare (ignore app))
+  (quit-on-close self))
+
+(defvar *delegate* nil)
+
+;; * Logic
+(defun fahrenheit-to-celsius (fahrenheit)
+  (* (- fahrenheit 32) 5/9))
+
+(defun celsius-to-fahrenheit (celsius)
+  (+ (* celsius 9/5) 32))
+
+;; * Controller
+(defclass converter (ns:ns-object)
+  ((field :initarg :field
+          :reader field))
+  (:metaclass ns:+ns-object))
+
+(defun convert-field (field conversion)
+  (let ((temperature (#/doubleValue field)))
+    (#/setStringValue: field
+                       (objc:make-nsstring
+                        (format nil "~,1f" (funcall conversion temperature))))))
+
+(objc:defmethod (#/fToC: :void) ((self converter) sender)
+  (declare (ignore sender))
+  (convert-field (field self) #'fahrenheit-to-celsius))
+
+(objc:defmethod (#/cToF: :void) ((self converter) sender)
+  (declare (ignore sender))
+  (convert-field (field self) #'celsius-to-fahrenheit))
+
+;; * Widgets
+(defun rect (x y width height)
+  (ns:make-ns-rect x y width height))
+
+(defun make-button (title frame target action)
+  (let ((button (make-instance 'ns:ns-button :with-frame frame)))
+    (#/setTitle: button (objc:make-nsstring title))
+    (#/setTarget: button target)
+    (#/setAction: button action)
+    button))
+
+(defun make-content ()
+  (let* ((content (make-instance 'ns:ns-view :with-frame (rect 0 0 300 120)))
+         (field (make-instance 'ns:ns-text-field :with-frame (rect 20 70 260 24)))
+         (controller (make-instance 'converter :field field)))
+    (#/addSubview: content field)
+    (#/addSubview: content (make-button "F → C" (rect 20 20 125 32)
+                                        controller (objc:@selector #/fToC:)))
+    (#/addSubview: content (make-button "C → F" (rect 155 20 125 32)
+                                        controller (objc:@selector #/cToF:)))
+    content))
+
+;; * Window
+(defvar *window* nil)
+
+(defun make-window ()
+  (let ((window (make-instance 'ns:ns-window
+                               :with-content-rect (rect 0 0 300 120)
+                               :style-mask (logior #$NSWindowStyleMaskTitled #$NSWindowStyleMaskClosable)
+                               :backing #$NSBackingStoreBuffered
+                               :defer nil)))
+    (#/setReleasedWhenClosed: window nil)
+    (#/setContentView: window (make-content))
+    (#/makeKeyAndOrderFront: window nil)
+    (#/activateIgnoringOtherApps: #&NSApp t)
+    (setf *window* window)))
+
+(defun open-window ()
+  (#/sharedApplication ns:ns-application)
+  (#/setActivationPolicy: #&NSApp #$NSApplicationActivationPolicyRegular)
+  (setf *delegate* (make-instance 'app-delegate :quit-on-close nil))
+  (#/setDelegate: #&NSApp *delegate*)
+  (make-window)
+  (#/run #&NSApp))
+
+(defun reopen-window ()
+  (on-main-thread (make-window)))
+
+(defun refresh ()
+  (on-main-thread (#/setContentView: *window* (make-content))))
+
+;; * Open the first time with this
+(ccl:process-interrupt ccl::*initial-process* #'open-window)
+
+;; * Reopen with this
+;; (reopen-window)
+
+;; * Hotswap the content of the open window with this
+;; (refresh)
+#+end_src
+
+It's not much of an application, but look at what we get to keep. The logic is
+plain Lisp that we can test in the REPL. The controller is two tiny methods we
+can redefine while the application is running. The widgets are built by a
+function we can call again whenever we like. And =on-main-thread= lets us reach
+into the running application from the REPL to inspect it and change it. We'll
+be using it in every native application we write from here on.
+
+That's the Lisp development experience we were missing last time, and now that
+we have it, we're ready to build something real.

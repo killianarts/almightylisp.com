@@ -17,6 +17,7 @@
 ;;;   logos.lisp      series logos and stamps
 ;;;   cards.lisp      briefs, the book panel, series cards and progress
 ;;;   blocks.lisp     an article's body: prose, code, tables, margin notes
+;;;   evolving.lisp   an evolving article's body
 ;;;   home.lisp       the homepage
 ;;;   article.lisp    the article page
 ;;;   archive.lisp    the archive and the not-found page
@@ -74,6 +75,10 @@ right once that module has served a request.")
 (defun joined (&rest parts)
   "PARTS set apart with the black square that separates facts in a label."
   (format nil "~{~a~^  ■  ~}" (remove nil parts)))
+
+(defun slashed (&rest parts)
+  "PARTS set apart with a slash, as an eyebrow sets its facts."
+  (format nil "~{~a~^ / ~}" (remove nil parts)))
 
 (defun two-digits (n)
   (format nil "~2,'0d" n))

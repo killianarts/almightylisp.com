@@ -2,7 +2,11 @@
 
 The Shiso module behind =/magazine=: articles written as org files in
 =content/magazine/=, served live, and published as static pages to
-=static/magazine/published/=. The design is Figma's /Neoindustrial/ file.
+=static/magazine/published/=. The design is Figma's /Neoindustrial/ file:
+the frames /Homepage restyled · C1 · Landing/ and /Article restyled · C1 ·
+Landing/, which are the v30 cards and article sections on a light page,
+with black kept for the book, the featured series, section heads and the
+footer.
 
 Writers need only =content/magazine/WRITING.org=. This file is for
 changing the code.
@@ -35,7 +39,8 @@ used for another site.
 | =hypermedia/sheet.lisp=       | The document and the sheet: bands, gutters, header, footer, strip  |
 | =hypermedia/logos.lisp=       | Series logos, drawn as SVG paths                                   |
 | =hypermedia/cards.lisp=       | Briefs, the book panel, series cards and progress, indexes         |
-| =hypermedia/blocks.lisp=      | An article's body: prose, lists, code, tables, margin notes; headline size |
+| =hypermedia/blocks.lisp=      | An article's body: prose, lists, code, tables, notes; headline size|
+| =hypermedia/evolving.lisp=    | An evolving article's body (=#+LAYOUT: evolving=)                  |
 | =hypermedia/home.lisp=        | The homepage                                                       |
 | =hypermedia/article.lisp=     | The article page                                                   |
 | =hypermedia/archive.lisp=     | The archive and the not-found page                                 |
@@ -53,7 +58,8 @@ Outside this directory:
 | =static/js/magazine-fonts.js= | Loads the fonts and switches them in together                  |
 | =static/css/magazine-fonts.css= | The same fonts as =@font-face=, for browsers without JavaScript |
 | =static/js/magazine-toc.js=   | The contents strip that pins to the top of an article          |
-| =static/js/magazine-justify.js= | Justifies article paragraphs and the book panel's pitch      |
+| =static/js/magazine-evolving.js= | Builds an evolving article's sections and drives them by scroll |
+| =static/js/magazine-justify.js= | Justifies the site's body text                              |
 | =static/js/pretext-0.0.9.min.js= | Pretext, which measures the text for it                     |
 | =static/assets/images/magazine/= | Logos, the typemark, patterns                               |
 | =content/magazine/=           | Articles, a folder per series, =templates/=, =WRITING.org=     |
@@ -65,7 +71,10 @@ Outside this directory:
 - =article= :: one file in =content/magazine/= or a series' folder. Its
   =sections= are almighty-press sections whose blocks are press's, except
   that =#+BEGIN_NOTE= becomes =(:note label paragraphs)= and a source block
-  gets =:highlight=, its highlighted line numbers. Its =code= (serial) is
+  gets =:highlight=, its highlighted line numbers. Source blocks that share
+  an =:evolve= name are steps of one piece of code: =mark-steps= adds the
+  lines a step added to its =:highlight=, and gives it =:moved=, the lines
+  it changed. Its =code= (serial) is
   made from the topic, type and date unless =#+CODE= is given. Its =series=
   is the code of the folder it's in.
 - =series= :: a folder in =content/magazine/= (except those in
@@ -74,6 +83,14 @@ Outside this directory:
 - =part= :: a series' part: a number, a title, and its article, or NIL
   while the part is a draft. =read-series= builds them from the folder, so
   a part's title and number come only from its own file.
+
+An article with =#+LAYOUT: evolving= has =layout= =:evolving=. Its sections
+are the same blocks; =section-evolution= reads a section as what the page
+needs: the notes and source blocks that can stand beside the text, and the
+paragraphs, each with what is beside it. Its docstring has the rules.
+=hypermedia/evolving.lisp= writes that out as plain markup, and
+=static/js/magazine-evolving.js= builds the moving page from it; the
+styles are under /Evolving articles/ in =magazine.css=.
 
 =load-magazine= reads it all: the standalone articles, then each series'
 folder. Drafts are read, so a queued part has a title, but only published
@@ -86,7 +103,11 @@ Checks that stop the magazine loading: missing =TITLE=; missing =DATE=,
 or missing inside one; a series with a missing or repeated part number; a
 folder with no =series.org=; a =series.org= that lists parts; two series
 with one code; two articles with one slug; a =:highlight= that isn't line
-numbers within its source block. An unknown keyword only warns.
+numbers within its source block; an =:evolve= with no name; a =#+LAYOUT=
+other than =evolving=; and,
+in an evolving article, a note or source block with no paragraph to belong
+to, or a paragraph followed by the wrong number of source blocks. An
+unknown keyword only warns.
 
 =homepage-layout= decides what the homepage shows (its docstring lists
 the plist it returns), and =keep-reading-articles= what follows an article
@@ -105,8 +126,17 @@ running footer. A band is an =ac-band=:
 #+BEGIN_SRC lisp
 (ac-band :class "latest-band"
          :side (list "Latest  ■  4 articles" "Archive")   ; gutter labels
+         :marks t                                         ; gutter marks
   ...content in the main column...)
 #+END_SRC
+
+=:marks= draws the band's gutter marks: a dot pair at the top of each
+gutter and a gauge at the foot of the right one (=:foot= for the gauge
+alone). The two kinds of dot pair change sides from one marked band to the
+next, counted in =*marked-bands*=, which each page function binds around
+its render. Only =ac-band= counts, because a component's body runs as the
+page is rendered, in page order; a plain function called in a template
+runs earlier.
 
 Bands are placed on fixed rows of the sheet's grid by their class, in
 =magazine.css= under /The sheet/. A new kind of band needs a row there.
@@ -119,7 +149,10 @@ Components reused across pages:
 |--------------------------+---------------------------------------------------------|
 | =render-article-brief=   | Latest, Keep reading, not found                         |
 | =render-book-brief=      | Keep reading, when an article names a book chapter      |
-| =render-book-ad=         | Beside the lead; =:compact t= beside an article         |
+| =render-book-band=       | The book's band on the homepage, under the plate        |
+| =render-book-ad=         | The compact book panel beside an article                |
+| =render-gauge=, =render-dot-pair= | The ornaments: gutters, section heads, black panels |
+| =render-eyebrow=, =render-progress-bar= | Over and under a heading: sections, briefs in a series |
 | =render-index=, =render-index-cell= | The end of a series, and each archive month   |
 | =render-series-progress= | Series cards, the end of a series                       |
 | =render-headline=        | The lead and an article's lede, scaled to fit           |
@@ -133,7 +166,12 @@ book's link is written out in =*book-href*=, because Shiso only knows where
 another module is mounted after that module has served a request.
 
 =joined= puts the =■= between facts in labels, so every label is spaced
-the same.
+the same; =slashed= does the same with a slash, for eyebrows.
+
+An article's section (=render-piece=) is one cell: its heading, then its
+blocks in the order they are written, notes included. Paragraphs, lists
+and notes keep to a measure at the left; the heading, code blocks and
+tables run the cell's width.
 
 ** Series logos
 
@@ -146,9 +184,10 @@ sets its colour. A code without an entry gets a square.
 
 =static/css/magazine.css= has five parts, in order:
 
-1. *Tokens*, on =.mag=: colours, the dot and hatch patterns, fonts, cell
-   padding (=--pad=), and the column ratios (=--cols-lead=, =--cols-index=,
-   =--cols-piece=). The narrow layout mostly works by changing =--pad=.
+1. *Tokens*, on =.mag=: colours (=--night= and its kin are the black
+   panels'), the hatch pattern, fonts, cell padding (=--pad=), and the
+   column ratios (=--cols-lead=, =--cols-index=). The narrow layout mostly
+   works by changing =--pad=.
 2. *Base*: element defaults inside =.mag=.
 3. *Roles*: type and layout many components share. /Display/ (Science
    Gothic in capitals), /captions/ and /labels/ (Construct Mono, tracked),
@@ -158,10 +197,11 @@ sets its colour. A code without an entry gets a square.
    added to a role's selector list, then its own rule sets only what
    differs.
 4. *Components*, in page order: the sheet and its rows, furniture, header,
-   nameplate, strip, patterns, specs, buttons, section heads, series
-   marks, the lead, the book panel, briefs, series cards, Latest, the
-   article, contents, sections, code, tables, the end band, indexes, and
-   the contents strip.
+   nameplate, strip, patterns, ornaments (gauges, dot pairs, eyebrows and
+   progress rules), specs, buttons, section heads, series marks, the lead,
+   the featured banner, the book panel and the book band, the footer,
+   briefs, series cards, Latest, the article, contents, sections, code,
+   tables, the end band, indexes, and the contents strip.
 5. *Responsive* (1180px drops the gutters, 980px stacks the columns),
    then the screen effects and view transitions.
 
@@ -172,14 +212,16 @@ film grain and scanlines.
 
 The body is =hx-boost="true"=: links within the magazine swap the body's
 contents instead of loading a page, and the preload extension fetches a
-page when its link is hovered. The book panel is =hx-boost="false"=, since
-its links leave the magazine.
+page when its link is hovered. The book panel, the book band and the
+footer's shop cells are =hx-boost="false"=, since their links leave the
+magazine.
 
 htmx swaps only the body's contents, so the sheet carries the body's class
 in =data-body-class=, and =magazine-fx.js= copies it to the body after
 each swap.
 
-=magazine-fx.js= also plays the hover flicker and the tear when an article
+=magazine-fx.js= also plays the hover flicker (on the book's buttons and
+the book band's cards) and the tear when an article
 or book link is clicked, then lets htmx (or the browser, for other sites)
 navigate. Safari (and every browser on iOS) runs the tear's SVG filter
 on the CPU, far too slowly, so there the page is copied instead: three
@@ -198,6 +240,11 @@ outside =static/=, so the site never serves it: run
 =python3 dev/fx-lab/serve.py= (with the dev server up) and open
 http://127.0.0.1:5090/fx-lab/.
 
+=dev/fx-lab/overlays.html= (at =/fx-lab/overlays.html= there) is a test page
+for the noise and the scanlines: it draws them on a page of the site one of
+several ways, repainted as the site has them or painted once and moved, to
+compare. Its comment says how to open it on a phone.
+
 =magazine-fonts.js= runs first, in =<head>=. Once the page's stylesheets
 and scripts are in, it loads the fonts itself and holds them back until they
 have all arrived. If that takes longer than a
@@ -208,9 +255,11 @@ font to its =FONTS= list, and to =magazine-fonts.css=. The details are in
 
 * Justified text
 
-Article paragraphs (=.prose=), the lead's dek (=.neo-dek=) and the book
-panel's pitch are justified by
-=magazine-justify.js=. It picks the line breaks for a paragraph as a whole,
+The site's body text is justified by =magazine-justify.js=: article
+paragraphs (=.prose=), list items and margin notes, the lead's dek
+(=.neo-dek=), the summaries on briefs and series cards, and the book
+panel's pitch. The list is =SELECTOR= in the script, and the same elements
+are named in the "Justified text" rule in =magazine.css=; add to both. It picks the line breaks for a paragraph as a whole,
 so the spaces come out even, where the browser's own justifying fills one
 line at a time. [[https://github.com/chenglou/pretext][Pretext]] measures the words on a canvas; the script then
 wraps each line's text in a =.just-line= span that can't wrap, and the

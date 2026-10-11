@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overlay Lab</title>
+<!--
+  Test page for the two overlays every magazine page has: the noise
+  (.mag::before) and the scanlines (.mag::after), both in the first part of
+  static/css/magazine.css. It shows a page of the site in a frame and draws
+  the overlays there one of several ways, to compare them. Run serve.py here
+  and open http://127.0.0.1:5090/fx-lab/overlays.html. For a phone, serve to
+  the network (python3 dev/fx-lab/serve.py 5090 http://127.0.0.1:5002 0.0.0.0)
+  and open the same page at this machine's address.
+
+  As the site has them, each overlay is painted once, a little larger than
+  the window, and moved (transform), which the compositor does on its own.
+  They used to be repainted: the noise moved its mask (mask-position) and
+  the scanlines their gradient (background-position), which the browser can
+  only do by painting the whole overlay again. That way is kept here to
+  compare, with a few others.
+
+  The meter reads this page's main thread, which the frame shares. It can't
+  see the compositor or the GPU. What it can show is the difference "Busy
+  thread" makes: with the thread held up, an overlay that is repainted
+  stops and one that is moved carries on. For the cost on a phone, watch
+  the page while scrolling, and its heat and battery over a few minutes.
+
+  The choices are kept in the address, so a reload or a copied link comes
+  back to them.
+-->
+<style>
+  :root {
+    --bg: #e5e5e5;
+    --panel: #f4f4f4;
+    --ink: #111;
+    --muted: #666;
+    --line: #c8c8c8;
+    --good: #1a7f37;
+    --warn: #b35900;
+    --bad: #c62828;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161616;
+      --panel: #202020;
+      --ink: #eee;
+      --muted: #999;
+      --line: #3a3a3a;
+      --good: #4cc36b;
+      --warn: #f0a040;
+      --bad: #ff6b6b;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--ink);
+    font: 13px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 8px 14px;
+    padding: 10px 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  h1 { margin: 0 auto 0 0; align-self: center; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+  label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  label.check { flex-direction: row; align-items: center; gap: 6px; padding-bottom: 7px; }
+  select {
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 6px 8px;
+    max-width: 100%;
+  }
+  select:hover { border-color: var(--ink); }
+  #meter { min-width: 21ch; padding-bottom: 7px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  #status { flex-basis: 100%; margin: 0; font-size: 11px; color: var(--muted); }
+  #status:empty { display: none; }
+  .good { color: var(--good); }
+  .warn { color: var(--warn); }
+  .bad { color: var(--bad); }
+  main { position: relative; flex: 1; min-height: 0; }
+  iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+  @media (max-width: 760px) {
+    header { padding: 8px 12px; gap: 6px 10px; }
+    h1 { flex-basis: 100%; }
+    label:not(.check) { flex: 1 1 30%; min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Overlay Lab</h1>
+  <label>Page <select id="page"></select></label>
+  <label>Noise <select id="noise"></select></label>
+  <label>Scanlines <select id="scan"></select></label>
+  <label class="check"><input type="checkbox" id="busy"> Busy thread</label>
+  <span id="meter">–</span>
+  <p id="status"></p>
+</header>
+<main><iframe id="frame" title="The page under test"></iframe></main>
+
+<script>
+(function () {
+  var PAGES = [
+    ["/magazine", "Homepage"],
+    ["/magazine/building-a-temperature-conversion-application", "Article, with code"],
+    ["/magazine/archive", "Archive"]
+  ];
+
+  // Each way is CSS for the page in the frame, over the site's own rule.
+  // "html .mag" is to win over ".mag"; the site's rules that put an overlay
+  // away (.mag.fx-rgb::before and the like) still do.
+  function place(x, y) {
+    return "{ -webkit-mask-position: " + x + "px " + y + "px; mask-position: " + x + "px " + y + "px; }";
+  }
+  var NOISES = [
+    ["current", "Moved, same mask (the site's)", ""],
+    // noise-flicker's places, as places of the mask in an overlay that stays
+    ["repainted", "Repainted mask",
+      "html .mag::before { inset: 0 !important; will-change: auto !important;" +
+      " animation: lab-noise var(--noise-anim-duration, 0.3s) steps(1) infinite !important; }" +
+      "@keyframes lab-noise { 0%, 100% " + place(0, 0) + " 10% " + place(-17, 9) +
+      " 20% " + place(31, -22) + " 30% " + place(-43, 13) + " 40% " + place(27, 41) +
+      " 50% " + place(-11, -37) + " 60% " + place(49, 19) + " 70% " + place(-29, -13) +
+      " 80% " + place(13, 33) + " 90% " + place(-37, 27) + " }"],
+    // TILE is the mask drawn once to a picture, in the noise's colour.
+    ["tile", "Moved, drawn-once picture",
+      "html .mag::before { -webkit-mask-image: none !important; mask-image: none !important;" +
+      " background-color: transparent !important; background-image: url(TILE) !important;" +
+      " background-size: var(--noise-size, 160px) var(--noise-size, 160px) !important; }"],
+    ["still", "Still", "html .mag::before { animation: none !important; }"],
+    ["off", "Off", "html .mag::before { display: none !important; }"]
+  ];
+
+  var PERIOD = "calc(var(--scanline-thickness) + var(--scanline-gap))";
+  var SCANS = [
+    ["current", "Moved, smoothly (the site's)", ""],
+    ["repainted", "Repainted gradient",
+      "html .mag::after { inset: 0 !important; will-change: auto !important;" +
+      " animation: lab-scan var(--scanline-speed, 0.4s) linear infinite !important; }" +
+      "@keyframes lab-scan { from { background-position: 0 0; } to { background-position: 0 " + PERIOD + "; } }"],
+    // a step for each pixel of the period: 3 a cycle, not one a frame
+    ["stepped", "Moved, in 3 steps",
+      "html .mag::after { animation-timing-function: steps(3) !important; }"],
+    ["still", "Still", "html .mag::after { animation: none !important; }"],
+    ["off", "Off", "html .mag::after { display: none !important; }"]
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var frame = $("frame"), status = $("status");
+
+  function fill(select, options) {
+    options.forEach(function (o) {
+      var option = document.createElement("option");
+      option.value = o[0];
+      option.textContent = o[1];
+      select.appendChild(option);
+    });
+  }
+  fill($("page"), PAGES);
+  fill($("noise"), NOISES);
+  fill($("scan"), SCANS);
+
+  // The choices, kept in the address: #page=..&noise=..&scan=..&busy=1
+  function read() {
+    var at = new URLSearchParams(location.hash.slice(1));
+    ["page", "noise", "scan"].forEach(function (id) {
+      var value = at.get(id);
+      if (value && Array.prototype.some.call($(id).options, function (o) { return o.value === value; })) {
+        $(id).value = value;
+      }
+    });
+    $("busy").checked = at.get("busy") === "1";
+  }
+  function write() {
+    var at = new URLSearchParams();
+    ["page", "noise", "scan"].forEach(function (id) { at.set(id, $(id).value); });
+    if ($("busy").checked) at.set("busy", "1");
+    history.replaceState(null, "", "#" + at.toString());
+  }
+  function css(list, key) {
+    return list.filter(function (o) { return o[0] === key; })[0][2];
+  }
+
+  // The noise's mask, drawn once in the noise's colour, as a picture to
+  // tile. It is read from the page as the site styles it, so it is the mask
+  // and the colour that page has, at this screen's density.
+  function tile(doc, done) {
+    var set = doc.defaultView.getComputedStyle(doc.body, "::before");
+    var mask = /^url\("(.*)"\)$/.exec(set.maskImage || set.webkitMaskImage || "");
+    var size = parseFloat(set.maskSize || set.webkitMaskSize) || 160;
+    var colour = set.backgroundColor;
+    if (!mask) { done(null, "this page's noise has no mask to draw"); return; }
+    var image = new Image();
+    image.onload = function () {
+      try {
+        var canvas = document.createElement("canvas");
+        var px = Math.round(size * Math.min(3, window.devicePixelRatio || 1));
+        canvas.width = canvas.height = px;
+        var c = canvas.getContext("2d");
+        c.drawImage(image, 0, 0, px, px);
+        c.globalCompositeOperation = "source-in";
+        c.fillStyle = colour;
+        c.fillRect(0, 0, px, px);
+        done(canvas.toDataURL("image/png"));
+      } catch (e) {
+        done(null, "this browser won't draw the mask to a picture (" + e.message + ")");
+      }
+    };
+    image.onerror = function () { done(null, "this browser won't load the mask as a picture"); };
+    image.src = mask[1];
+  }
+
+  // Style the page in the frame for the choices. The site's own overlays
+  // are read first, with nothing of ours in the way.
+  var applying = 0;
+  function apply() {
+    var doc = frame.contentDocument;
+    if (!doc || !doc.body) return;
+    var run = ++applying;
+    var old = doc.getElementById("overlay-lab");
+    if (old) old.remove();
+    status.textContent = "";
+    var noise = css(NOISES, $("noise").value), scan = css(SCANS, $("scan").value);
+    function put(noiseCss) {
+      if (run !== applying || !frame.contentDocument || frame.contentDocument !== doc) return;
+      var style = doc.createElement("style");
+      style.id = "overlay-lab";
+      style.textContent = noiseCss + scan;
+      doc.head.appendChild(style);
+    }
+    if (noise.indexOf("TILE") < 0) { put(noise); return; }
+    tile(doc, function (url, problem) {
+      if (url) { put(noise.replace("TILE", '"' + url + '"')); return; }
+      status.textContent = "Noise left as the site has it: " + problem + ".";
+      put("");
+    });
+  }
+
+  function go() {
+    var path = $("page").value;
+    // The site's pages swap in place (htmx); the path says where it is now.
+    var here = "";
+    try { here = frame.contentWindow.location.pathname; } catch (e) {}
+    if (here !== path) frame.src = path;
+  }
+
+  frame.addEventListener("load", apply);
+  $("page").addEventListener("change", function () { write(); go(); });
+  $("noise").addEventListener("change", function () { write(); apply(); });
+  $("scan").addEventListener("change", function () { write(); apply(); });
+
+  // Busy thread: the main thread held for 80ms of every 200.
+  var busy = 0;
+  function setBusy() {
+    clearInterval(busy);
+    busy = !$("busy").checked ? 0 : setInterval(function () {
+      var until = performance.now() + 80;
+      while (performance.now() < until) {}
+    }, 200);
+  }
+  $("busy").addEventListener("change", function () { write(); setBusy(); });
+
+  // The meter: frames a second on the main thread, and the longest wait
+  // for one, over each second.
+  var meter = $("meter"), last = performance.now(), since = last, frames = 0, worst = 0;
+  (function tick(now) {
+    worst = Math.max(worst, now - last);
+    last = now;
+    frames++;
+    if (now - since >= 1000) {
+      var fps = frames * 1000 / (now - since);
+      meter.textContent = fps.toFixed(0) + " fps · worst " + worst.toFixed(0) + " ms";
+      meter.className = worst < 34 ? "good" : worst < 60 ? "warn" : "bad";
+      since = now;
+      frames = 0;
+      worst = 0;
+    }
+    requestAnimationFrame(tick);
+  })(last);
+
+  read();
+  write();
+  setBusy();
+  go();
+})();
+</script>
+</body>
+</html>

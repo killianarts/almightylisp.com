@@ -7,9 +7,9 @@
 #+topic: Industry
 
 * Bread Wasn't Always Easy
-Do you own a bread machine? You know, one of those things that pour flour and
+Do you own a bread machine? You know, one of those things that you pour flour and
 water into and out comes a steaming hot loaf of crackly-soft bread? I do. I'm
-just got the bread machine going right now. But I haven't turned it on in a
+just powered up the bread machine right now. But I haven't turned it on in a
 while, maybe a month or two. How about you? When was the last time you used your
 bread machine?
 
@@ -27,7 +27,7 @@ through the [[https://www.youtube.com/@TastingHistory][Tasting History channel]]
 #+end_note
 
 * Making Breakfast Rolls For a Nation Was Deadly
-What of the most deadly jobs in Victorian era London was the job of baker.
+One of the most deadly jobs in Victorian era London was the job of baker.
 
 The bakers of London had an important job: providing fresh bread for the early
 morning breakfast crowd *every single morning*. While at the time

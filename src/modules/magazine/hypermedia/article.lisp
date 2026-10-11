@@ -1,12 +1,16 @@
 (in-package #:magazine/hypermedia/components)
 
-;;;; The article page (Figma: Neoindustrial / Article (v18), Article (v18 · Series)).
+;;;; The article page (Figma: Article restyled · C1 · Landing).
 ;;;
 ;;; The homepage's sheet. The head band holds the lede, and beside it the
-;;; book and the contents. Each section is a row of three cells: heading,
-;;; text, margin notes. A contents strip pins to the top of the window once
+;;; book and the contents. Each section is rows of two cells, the text and
+;;; the notes that belong to it: one row under the section's heading, then
+;;; one for each subheading. A contents strip pins to the top of the window once
 ;;; the lede has scrolled away (static/js/magazine-toc.js). The end band
 ;;; lists the rest of the series, or more articles to read.
+;;;
+;;; An evolving article (#+LAYOUT: evolving) is the same page with other
+;;; sections: see evolving.lisp.
 
 (defun render-series-tags (article series)
   (ah:</>
@@ -98,24 +102,46 @@
 
 ;;; Sections
 
-(defun render-piece (section number)
-  (let ((blocks (model:section-blocks section)))
+(defun render-piece-heading (section number total)
+  "A section's heading: its place among the sections as an eyebrow and as a
+bar, and its number drawn large behind."
+  (ah:</>
+   (header :class "piece-heading"
+     (span :class "ghost-numeral" :aria-hidden t (two-digits number))
+     (render-eyebrow (format nil "Section ~a / ~a" (two-digits number) (two-digits total))
+                     :marks t)
+     (h2 :class "piece-name" (press:render-lines (model:section-title-lines section)))
+     (div :class "progress-rule"
+       (render-progress-bar (/ number total))
+       (render-rule-dots)))))
+
+(defun render-subhead (text number sub)
+  (ah:</>
+   (div :class "subhead-group"
+     (span :class "dash")
+     (render-eyebrow (format nil "Section ~d.~d" number sub))
+     (h3 :class "subhead" text))))
+
+(defun render-piece (section number total)
+  "SECTION, the NUMBERth of TOTAL: its heading, then its blocks in one column,
+each note where it is written."
+  (let ((sub 0))
     (ah:</>
      (section :class "neo-piece" :id (model:section-id section)
        (div :class "piece-row"
-         (div :class "piece-cell piece-head"
-           (p :class "piece-number" (princ-to-string number))
-           (h2 :class "piece-name" (press:render-lines (model:section-title-lines section)))
-           (render-hatch))
          (div :class "piece-cell piece-text"
-           (mapcar #'render-block blocks))
-         (div :class "piece-cell piece-margin"
-           (mapcar #'render-margin-note
-                   (remove :note blocks :key #'first :test-not #'eq))
-           (render-hatch)))))))
+           (render-piece-heading section number total)
+           (div :class "piece-body"
+             (mapcar (lambda (block)
+                       (if (eq (first block) :h)
+                           (render-subhead (second block) number (incf sub))
+                           (render-block block)))
+                     (model:section-blocks section)))))
+       (render-marks (evenp number))))))
 
 (defun render-toc-strip (article series)
-  "The contents strip that pins to the top of the window while reading."
+  "The contents strip that pins to the top of the window while reading. Each
+cell's number carries the count of sections, for layouts that show both."
   (ah:</>
    (div :class "toc-dock" :aria-hidden "true"
      (nav :class "toc-strip"
@@ -133,7 +159,11 @@
                       (a :class "toc-cell" :tabindex "-1"
                         :href (format nil "#~a" (model:section-id section))
                         :data-section (model:section-id section)
-                        (span :class "strip-n" (two-digits n))
+                        ;; Shown on hover where a cell has no room for it.
+                        :title (model:section-title section)
+                        (span :class "strip-n"
+                          :data-total (two-digits (length (model:article-sections article)))
+                          (two-digits n))
                         (span :class "strip-t" (model:section-title section))
                         (span :class "strip-bar"))))))))
 
@@ -203,14 +233,20 @@
 
 (defun page-article (article articles series)
   (let ((in-series (model:article-series-of article series))
-        (sections (model:article-sections article)))
+        (sections (model:article-sections article))
+        (evolving (eq (model:article-layout article) :evolving))
+        (*marked-bands* 0))
     (ah:render-to-string
      (ah:</>
       (ac-sheet-page :title (format nil "~a — Almighty Lisp" (model:article-title article))
         :description (model:article-subtitle article)
-        :page-class "page-article" :sheet-id "top" 
-        :scripts (ah:</> (script :src (asset "js/magazine-toc.js") :defer t))
-        (ac-band :class "art-head-band"
+        :page-class (ah:clsx "page-article" (when evolving "page-evolving")) :sheet-id "top"
+        :scripts (ah:</>
+                  (<>
+                    (script :src (asset "js/magazine-toc.js") :defer t)
+                    (when evolving
+                      (ah:</> (script :src (asset "js/magazine-evolving.js") :defer t)))))
+        (ac-band :class "art-head-band" :marks :foot
           :side (list (joined (model:article-code article)
                               (date-text (model:article-date article)))
                       (if in-series
@@ -220,7 +256,7 @@
           (div :class "art-head"
             (render-article-lede article in-series)
             (div :class "art-side"
-              (render-book-ad :compact t)
+              (render-book-ad)
               (render-article-contents article in-series))))
         (ac-band :class "pieces-band"
           :side (list (joined "Almighty Lisp" "Continuous operation" "Live image system")
@@ -228,7 +264,9 @@
           (div :class "piece-list"
             (loop for section in sections
                   for number from 1
-                  collect (render-piece section number))))
+                  collect (if evolving
+                              (render-evolving-piece section)
+                              (render-piece section number (length sections))))))
         (when sections (render-toc-strip article in-series))
         (if in-series
             (render-series-end article in-series)

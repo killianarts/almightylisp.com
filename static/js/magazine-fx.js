@@ -1,9 +1,9 @@
 // Magazine screen effects.
 //
-// Hover on a book button: a quick CRT flicker over the whole window (CSS,
-// .fx-flicker in magazine.css).
+// Hover on a book button, or one of the book band's cards: a quick CRT
+// flicker over the whole window (CSS, .fx-flicker in magazine.css).
 //
-// Click on a book button, an article link or a link to another site: the
+// Click on a book button or card, an article link or a link to another site: the
 // page splits into its colour
 // channels and tears sideways (an SVG filter on the visible part of .sheet;
 // in Safari, which can't run it fast enough, copies of the page instead),
@@ -22,7 +22,8 @@
 // or so, a small version of the click's first stage, on the link alone: its
 // colours swell apart, then let go in a split and a tear. It marks the link
 // as one, and as one that plays the effect, without a hover (a phone has
-// none).
+// none). The hardcover's card in the book band (.book-card.faint) pulses
+// the same way, the whole card.
 //
 // The effect's own elements hang off <html>, not <body>, so htmx never swaps
 // them out or saves them in its history snapshots. (A link's pulse puts
@@ -68,8 +69,9 @@
 
   // ---------------------------------------------------------------- links
 
+  // The book's buttons, and the cards of the homepage's book band.
   function isBookButton(a) {
-    return a.classList.contains("neo-button");
+    return a.classList.contains("neo-button") || a.classList.contains("book-card");
   }
 
   function isArticleLink(a) {
@@ -224,12 +226,17 @@
   // (see buildSplit) and the tear is more, in bands (see buildTear), all
   // painted once and then only moved.
   //
+  // Phones and tablets take the copies too, whatever their browser: the
+  // filter runs there, but not smoothly. They are told apart by having
+  // touch and no hover, not by the size of the window.
+  //
   // The effects test page can ask for either with ?fx-path=filter or
   // ?fx-path=copies, whatever the browser (only on this machine).
   var forcePath = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) &&
     /[?&]fx-path=(filter|copies)\b/.exec(location.search);
+  var HANDHELD = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
   var SVG_FILTER = forcePath ? forcePath[1] === "filter"
-                             : navigator.vendor !== "Apple Computer, Inc.";
+                             : navigator.vendor !== "Apple Computer, Inc." && !HANDHELD;
   if (!SVG_FILTER) root.classList.add("fx-lite");
 
   // Before the tear, the bands (below) hold for at least this many frames.
@@ -676,8 +683,12 @@
       "0 0 0 0 " + r + "  0 0 0 0 " + g + "  0 0 0 0 " + b + '  0 0 0 1 0" result="' + result + '"/>';
   }
 
-  function linkFilter(rgb, light) {
-    var key = rgb.join("-");
+  //
+  // A burst (below) has a filter to itself, one of a few SLOTs for each
+  // colour, so bursts a moment apart don't move as one; and its filter
+  // reaches further to the sides, for a wider split.
+  function linkFilter(rgb, light, slot) {
+    var key = rgb.join("-") + (slot == null ? "" : "-burst-" + slot);
     if (linkFilters[key]) return linkFilters[key];
     var ns = "http://www.w3.org/2000/svg";
     if (!linkSvg) {
@@ -695,7 +706,9 @@
     var holder = document.createElementNS(ns, "g");
     // The filter reaches past the link's box, for what slides out of it.
     holder.innerHTML =
-      '<filter id="' + id + '" x="-15%" y="-35%" width="130%" height="170%" color-interpolation-filters="sRGB">' +
+      '<filter id="' + id + '" ' +
+        (slot == null ? 'x="-15%" y="-35%" width="130%" height="170%"' : 'x="-50%" y="-35%" width="200%" height="170%"') +
+        ' color-interpolation-filters="sRGB">' +
         '<feImage preserveAspectRatio="none" result="map"/>' +
         '<feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G" result="torn"/>' +
         (light
@@ -806,7 +819,8 @@
     });
     a.removeAttribute("data-fx-link");
     bands.forEach(function (band) { box.appendChild(band.el); });
-    a.style.color = "transparent"; // the copies stand in for it
+    // the copies stand in for it; !important, for a line whose colour an animation sets
+    a.style.setProperty("color", "transparent", "important");
     return bands;
   }
 
@@ -828,7 +842,7 @@
 
   function endLink(pulse) {
     pulse.a.style.filter = "";
-    pulse.a.style.color = "";
+    pulse.a.style.removeProperty("color");
     if (!pulse.a.getAttribute("style")) pulse.a.removeAttribute("style");
     if (pulse.bands) pulse.bands.forEach(function (band) { band.el.remove(); });
     pulses.set(pulse.a, performance.now() + LINK_EVERY * (0.6 + Math.random() * 0.8));
@@ -864,16 +878,69 @@
     });
   }
 
+  // A burst: the letting go without the swell, on any element. Its colours
+  // start at their widest, with a tear, and ease out in steps. It is what a
+  // line of code plays as it is plugged into an evolving block
+  // (magazine-evolving.js). OPTIONS are ms, split and tear (px, as LINK_SPLIT
+  // and LINK_TEAR) and rgb, the text's colour, when it isn't the element's
+  // colour just now, and share: bursts given the same object have one filter
+  // between them, and move as one. False where it can't be played: while the
+  // page is tearing, or with too many filtered bursts going already.
+  var BURST_SLOTS = 8;
+  function burst(el, options) {
+    if (playing || !el.isConnected) return false;
+    var rgb = options.rgb ||
+      (getComputedStyle(el).color.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number);
+    var light = rgb[0] * 0.3 + rgb[1] * 0.59 + rgb[2] * 0.11 > 128;
+    var pulse = {
+      a: el,
+      start: performance.now(),
+      frame: 0,
+      dir: Math.random() < 0.5 ? -1 : 1,
+      filter: null,
+      bands: null,
+      burst: { ms: options.ms || 600, split: options.split || LINK_SPLIT, tear: options.tear || LINK_TEAR }
+    };
+    if (SVG_FILTER) {
+      var slot = 0;
+      var shared = options.share && pulsing.filter(function (p) { return p.share === options.share; })[0];
+      if (shared) slot = shared.slot;
+      else while (slot < BURST_SLOTS && pulsing.some(function (p) { return p.slot === slot; })) slot++;
+      if (slot === BURST_SLOTS) return false;
+      pulse.slot = slot;
+      pulse.share = options.share;
+      pulse.filter = linkFilter(rgb, light, slot);
+      el.style.filter = "url(#" + pulse.filter.id + ")";
+    } else {
+      pulse.bands = buildLinkBands(el, rgb, light);
+    }
+    pulsing.push(pulse);
+    if (pulsing.length === 1) requestAnimationFrame(stepLinks);
+    return true;
+  }
+
   function stepLinks(now) {
     pulsing = pulsing.filter(function (pulse) {
-      var t = (now - pulse.start) / LINK_MS;
+      var burst = pulse.burst;
+      var t = (now - pulse.start) / (burst ? burst.ms : LINK_MS);
       // Hovered, the link is white on a black box (.inline-link:hover), and
-      // the split would ink in the whole box, or hide the text.
-      if (t >= 1 || !pulse.a.isConnected || pulse.a.matches(":hover")) {
+      // the split would ink in the whole box, or hide the text. Scrolled out
+      // of the window, there is nobody to play to.
+      if (t >= 1 || !pulse.a.isConnected || !onScreen(pulse.a) ||
+          (!burst && pulse.a.matches(":hover"))) {
         endLink(pulse);
         return false;
       }
       var frame = pulse.frame++;
+      if (burst) {
+        if (frame % 3 === 2) return true;
+        var left = Math.pow(1 - t, 2.4);
+        var wide = pulse.dir * left * burst.split * (0.8 + Math.random() * 0.4);
+        var rise = left * (Math.random() * 1.2 - 0.6);
+        setLink(pulse, [[wide, rise], [wide * 0.12, 0], [-wide * 0.85, -rise]],
+                left * burst.tear * 2 * (0.6 + Math.random() * 0.8));
+        return true;
+      }
       if (t < LINK_SWELL) {
         var u = t / LINK_SWELL;
         var swell = pulse.dir * 0.55 * u * u * LINK_SPLIT;
@@ -911,10 +978,183 @@
   // The bands are placed for the page as it is when they are made.
   window.addEventListener("resize", stopLinks);
 
+  // -------------------------------------------------------- code pulse
+
+  // The marked lines of a code block in an article (.src-line.is-hit: the
+  // lines an :evolve step added, and those in :highlight) play the burst a
+  // line plays as it is plugged into an evolving block, in the same
+  // measures, but where they stand: nothing slides in. They play it over and
+  // over while the block is in the window, a block's lines together, with a
+  // rest between. As the site's other effects do, they play whatever the
+  // system's Reduce Motion setting says.
+  var CODE_SPLIT = 58;      // px the colours part, at most
+  var CODE_TEAR = 60;       // px a band slides, at most
+  var CODE_MS = 380;
+  var CODE_EVERY = 2400;    // ms from the start of one burst to the next
+
+  var codes = new WeakMap(); // block -> when its next burst is due
+
+  function checkCode() {
+    if (playing || document.hidden) return;
+    var now = performance.now();
+    Array.prototype.forEach.call(document.querySelectorAll("figure.src"), function (block) {
+      if (now < (codes.get(block) || 0) || !onScreen(block)) return;
+      var lines = Array.prototype.filter.call(
+        block.querySelectorAll(".src-line.is-hit > code"), onScreen);
+      if (!lines.length) return;
+      codes.set(block, now + CODE_EVERY);
+      var share = {};
+      lines.forEach(function (code) {
+        burst(code, { ms: CODE_MS, split: CODE_SPLIT, tear: CODE_TEAR, share: share });
+      });
+    });
+  }
+
+  setInterval(checkCode, LINK_CHECK);
+
+  // -------------------------------------------------------- card pulse
+
+  // The hardcover's card in the homepage's book band (.book-card.faint)
+  // pulses as a link does, the whole card. A link's pulse is made from its
+  // shape, which for a card would be a flat block; this one splits the
+  // card's own colours. Its red, green and blue drift apart (the swell);
+  // then, at their widest, a few bands of the card slide sideways, and it
+  // settles in steps. One SVG filter does it, in every browser.
+  var CARD_SPLIT = 8;       // px the colours part, at most
+  var CARD_TEAR = 24;       // the displacement's scale at most: bands slide up to half of it
+  var CARD_EVERY = 8000;    // ms from one pulse to the next, give or take
+  var CARD_FIRST = 2500;    // ms before a card's first
+  var CARD_MS = 1500;
+  var CARD_SWELL = 0.65;    // how much of the pulse is the swell
+  var CARD_STEPS = 6;       // steps it lets go in, each with its own bands
+
+  var cardFilter = null;
+  var cards = new WeakMap();  // card -> when its next pulse is due
+  var cardPulsing = null;     // the card pulsing now
+
+  function cardParts() {
+    if (cardFilter) return cardFilter;
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("width", "0");
+    svg.setAttribute("height", "0");
+    svg.style.position = "absolute";
+    function channel(row, result) {
+      var rows = ["0 0 0 0 0", "0 0 0 0 0", "0 0 0 0 0"];
+      rows[row] = ["1 0 0 0 0", "0 1 0 0 0", "0 0 1 0 0"][row];
+      return '<feColorMatrix in="torn" type="matrix" values="' + rows.join("  ") +
+        '  0 0 0 1 0" result="' + result + '"/>';
+    }
+    // The filter reaches past the card's box, for what slides out of it.
+    svg.innerHTML =
+      '<filter id="fx-card" x="-10%" y="-12%" width="120%" height="124%" color-interpolation-filters="sRGB">' +
+        // Noise that only changes down the card, so it moves in bands; most
+        // of it is flattened to "stay put" (0.5), the rest pushed apart.
+        '<feTurbulence type="fractalNoise" baseFrequency="0.0001 0.018" numOctaves="1" seed="1" result="noise"/>' +
+        '<feColorMatrix in="noise" type="matrix" values="2.4 0 0 0 -0.7  0 0 0 0 0.5  0 0 0 0 0  0 0 0 0 1" result="spread"/>' +
+        '<feComponentTransfer in="spread" result="map"><feFuncR type="discrete" tableValues="0.5 0 0.5 0.5 0.8 0.5 0.5 0.2 0.5 1 0.5"/></feComponentTransfer>' +
+        '<feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G" result="torn"/>' +
+        channel(0, "r") + channel(1, "g") + channel(2, "b") +
+        '<feOffset in="r" dx="0" dy="0" result="ro"/>' +
+        '<feOffset in="g" dx="0" dy="0" result="go"/>' +
+        '<feOffset in="b" dx="0" dy="0" result="bo"/>' +
+        '<feBlend in="ro" in2="go" mode="screen" result="rg"/>' +
+        '<feBlend in="rg" in2="bo" mode="screen"/>' +
+      "</filter>";
+    root.appendChild(svg);
+    return (cardFilter = {
+      noise: svg.querySelector("feTurbulence"),
+      displace: svg.querySelector("feDisplacementMap"),
+      offsets: svg.querySelectorAll("feOffset")
+    });
+  }
+
+  // The first use of a filter costs the most: it is made, the card gets a
+  // layer, and the noise is drawn for the first time. So that happens when
+  // the card is first seen, where it doesn't show: the filter runs for a
+  // few frames with nothing moved. The card keeps its layer (will-change).
+  function warmCard(card) {
+    var f = cardParts();
+    var frames = 0;
+    card.style.willChange = "filter";
+    card.style.filter = "url(#fx-card)";
+    cardPulsing = card;
+    (function idle() {
+      frames += 1;
+      if (frames === 2) f.displace.setAttribute("scale", "0.01");
+      if (frames < 4) { requestAnimationFrame(idle); return; }
+      endCard(card);
+    })();
+  }
+
+  function endCard(card) {
+    cardParts().displace.setAttribute("scale", "0");
+    card.style.filter = "";
+    if (cardPulsing === card) cardPulsing = null;
+  }
+
+  function startCard(card, start) {
+    var f = cardParts();
+    var dir = Math.random() < 0.5 ? -1 : 1;
+    var step = 0;
+    card.style.filter = "url(#fx-card)";
+    cardPulsing = card;
+    (function frame(now) {
+      var t = (now - start) / CARD_MS;
+      if (t >= 1 || !card.isConnected || cardPulsing !== card) {
+        endCard(card);
+        cards.set(card, performance.now() + CARD_EVERY * (0.6 + Math.random() * 0.8));
+        return;
+      }
+      var split, tear = 0;
+      if (t < CARD_SWELL) {
+        var u = t / CARD_SWELL;
+        split = CARD_SPLIT * u * u;
+      } else {
+        var k = Math.floor((t - CARD_SWELL) / (1 - CARD_SWELL) * CARD_STEPS);
+        var left = 1 - k / CARD_STEPS;
+        split = CARD_SPLIT * left;
+        tear = CARD_TEAR * left;
+        if (k !== step) {
+          step = k;
+          f.noise.setAttribute("seed", String(1 + Math.floor(Math.random() * 90)));
+        }
+      }
+      f.offsets[0].setAttribute("dx", (dir * split).toFixed(2));
+      f.offsets[1].setAttribute("dy", (split * 0.35).toFixed(2));
+      f.offsets[2].setAttribute("dx", (-dir * split).toFixed(2));
+      f.displace.setAttribute("scale", tear.toFixed(1));
+      requestAnimationFrame(frame);
+    })(start);
+  }
+
+  // One filter, so one card at a time (the page has one).
+  function stopCards() {
+    if (cardPulsing) endCard(cardPulsing);
+  }
+
+  function checkCards() {
+    if (playing || document.hidden || cardPulsing) return;
+    var now = performance.now();
+    Array.prototype.some.call(document.querySelectorAll("a.book-card.faint"), function (card) {
+      if (!cards.has(card)) {
+        cards.set(card, now + CARD_FIRST);
+        warmCard(card);
+        return true;
+      }
+      if (now < cards.get(card) || !onScreen(card)) return false;
+      startCard(card, now);
+      return true;
+    });
+  }
+
+  setInterval(checkCards, LINK_CHECK);
+
   // ---------------------------------------------------------- playback
 
   function play(mode, duration, done) {
     stopLinks();
+    stopCards();
     playing = true;
     var id = ++run;
     if (sheet && sheet !== document.querySelector(".sheet")) clearFilter();
@@ -1100,6 +1340,7 @@
     // Save it clean.
     document.addEventListener("htmx:beforeHistorySave", function () {
       stopLinks();
+      stopCards();
       var s = sheet;
       if (!s || !s.classList.contains("fx-torn")) return;
       var style = s.getAttribute("style") || "";
@@ -1135,7 +1376,7 @@
   });
 
   document.addEventListener("focusin", function (e) {
-    var a = e.target.closest && e.target.closest("a.neo-button");
+    var a = e.target.closest && e.target.closest("a.neo-button, a.book-card");
     if (!a) return;
     prefetch(a);
     if (e.target.matches(":focus-visible")) hoverFlicker();
@@ -1150,7 +1391,7 @@
   // Coming back with the back button restores the page as it was left:
   // mid-effect. Put it straight.
   window.addEventListener("pageshow", function (e) {
-    if (e.persisted) { leaving = null; stopLinks(); finish(); }
+    if (e.persisted) { leaving = null; stopLinks(); stopCards(); finish(); }
   });
 
   // Arriving from an effect on the last page: settle in.
@@ -1169,6 +1410,8 @@
     play: function (mode) {
       if (!playing) play(mode, mode ? ARRIVE_MS : LEAVE_MS, mode ? null : finish);
     },
+    // The colours of EL split and let go (see burst).
+    burst: burst,
     // And every link in the text due its pulse now.
     pulse: function () {
       pulses = new WeakMap();

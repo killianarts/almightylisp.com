@@ -1,10 +1,12 @@
 """Serve the effects test page (index.html here) next to the dev site.
 
-    python3 dev/fx-lab/serve.py [PORT] [SITE]
+    python3 dev/fx-lab/serve.py [PORT] [SITE] [HOST]
 
 then open http://127.0.0.1:PORT/fx-lab/ (PORT defaults to 5090, SITE to
 http://127.0.0.1:5002, the dev server). /fx-lab/ is this folder; every
-other request goes to the site. The test page reaches into the magazine
+other request goes to the site. HOST is the address to listen on: this
+machine alone unless given, or 0.0.0.0 to try a page on a phone on the same
+network, at this machine's address. The test page reaches into the magazine
 page in its frame, so the two have to come from the same origin: this.
 
 This folder isn't under static/, so the site never serves it.
@@ -19,6 +21,7 @@ import urllib.request
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 5090
 SITE = (sys.argv[2] if len(sys.argv) > 2 else "http://127.0.0.1:5002").rstrip("/")
+HOST = sys.argv[3] if len(sys.argv) > 3 else "127.0.0.1"
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # Headers that belong to one connection, not to the request or response.
@@ -96,4 +99,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     print("Effects test page: http://127.0.0.1:%d/fx-lab/  (site: %s)" % (PORT, SITE))
-    http.server.ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()
+    if HOST != "127.0.0.1":
+        print("Listening on %s: open to this network." % HOST)
+    http.server.ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()

@@ -1,5 +1,6 @@
-// Justified text: article paragraphs, the lead's dek and the book panel's
-// pitch.
+// Justified text: the site's body text. Article paragraphs, list items and
+// margin notes; the lead's dek; the summaries on briefs and series cards;
+// and the book panel's pitch.
 //
 // The browser justifies a paragraph a line at a time, taking as many words
 // as fit and stretching the spaces to fill, so one line comes out tight and
@@ -12,7 +13,8 @@
 // the space between two lines as the only place to break. The browser does
 // the stretching itself (text-align: justify, on .just), so the right edge
 // is exact whatever the measuring was off by. A line that has to be set
-// tight gets a negative word-spacing, since the browser only stretches.
+// tight, or that only just fits, gets a negative word-spacing, since the
+// browser only stretches.
 //
 // Links, emphasis and code stay as they are: only their text is wrapped.
 // Without JavaScript, in a narrow column, or where a paragraph can't be
@@ -24,7 +26,19 @@
   var P = window.Pretext;
   if (!P || !window.ResizeObserver || !window.WeakMap) return;
 
-  var SELECTOR = ".prose, .book-ad-pitch p, .neo-dek";
+  // A list item is set whole unless it holds paragraphs or a list of its
+  // own; then its paragraphs are set, and the rest is left to the browser.
+  // Syntax notes are code, and stay ragged.
+  var SELECTOR = [
+    ".prose",
+    ".prose-list li:not(:has(> p, > ul, > ol))",
+    ".prose-list li > p",
+    ".margin-note:not(.syntax) .margin-note-body",
+    ".neo-dek",
+    ".neo-brief-dek",
+    ".series-summary",
+    ".book-ad-pitch p"
+  ].join(", ");
 
   // Narrower than this many spaces of its own font, a column has too few
   // words a line to justify well without hyphenating, and is left to the
@@ -42,8 +56,14 @@
   var LONE_WORD = 1e9;     // a line of one word can't be justified
   var WIDOW = 3000;        // a last line of one word
 
-  // Taken off a tight line's spaces (px), so it's sure to fit.
-  var SLACK = 0.02;
+  // How much wider than its measured words a line may come out (px): the
+  // words are measured one at a time, and set together they are a few
+  // hundredths of a pixel wider each. A line within this of the measure has
+  // its spaces set tighter by as much, so it's sure to fit; the browser
+  // stretches it back to the edge. One that didn't fit would be broken
+  // again, where an element inside it ends, into two lines full of holes.
+  var GUARD = 0.5;
+  var GUARD_WORD = 0.06;
 
   var BOX = 0, SPACE = 1, DEAD = 2;
 
@@ -257,8 +277,9 @@
       for (var w = start; w < end; w++) {
         natural += words[w].width + (w < end - 1 ? words[w].space : 0);
       }
-      var tight = natural > width && count
-        ? ((width - natural) / count - SLACK).toFixed(3) + "px"
+      var guard = GUARD + GUARD_WORD * (end - start);
+      var tight = count && natural > width - guard
+        ? ((width - guard - natural) / count).toFixed(3) + "px"
         : "";
       var span = null;
       for (var i = words[start].first; i <= words[end - 1].last; i++) {
@@ -300,8 +321,12 @@
     paragraphs.forEach(function (p, i) { apply(p, plans[i]); });
   }
 
+  // Not in an evolving section (magazine-evolving.js): its text is set
+  // ragged, and each paragraph keeps the height it was measured at.
   function all() {
-    return Array.prototype.slice.call(document.querySelectorAll(SELECTOR));
+    return Array.prototype.filter.call(document.querySelectorAll(SELECTOR), function (p) {
+      return !p.closest(".ev");
+    });
   }
 
   // Columns change width with the window, and the book panel comes and

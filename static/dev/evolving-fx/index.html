@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evolving code: plug-in effect</title>
+<!--
+  A page for trying the effect a code block plays when a step adds lines to
+  it (.is-powering and .is-jolted in css/magazine.css, set by
+  js/magazine-evolving.js). Open it from the running site:
+
+      http://127.0.0.1:5002/static/dev/evolving-fx/index.html
+
+  The block is the site's own markup under the site's own stylesheet, so
+  what plays here is what an article plays. The controls set the custom
+  properties the effect is made of, on the block; the box at the bottom
+  holds the rule to paste over the one in magazine.css (.ev-code, under
+  "A line the step adds"). ease.js makes the slide's easing.
+-->
+<script src="/static/js/magazine-fonts.js"></script>
+<link rel="stylesheet" href="/static/css/magazine.css">
+<style>
+html, body { height: 100%; }
+body.mag { display: grid; grid-template-columns: minmax(0, 1fr) 340px; background: #1b1b1b; }
+body.mag::before, body.mag::after { display: none; }
+#bench { display: grid; place-items: center; min-width: 0; padding: 24px; }
+#panel-code { position: relative; width: min(640px, 100%); height: 560px; }
+#panel-code .ev-left { position: absolute; inset: 0; }
+#lab {
+    padding: 16px 18px 24px;
+    overflow: auto;
+    border-left: 1px solid #333;
+    background: #111;
+    color: #ddd;
+    font: 12px/1.4 ui-monospace, Menlo, monospace;
+}
+#lab h1 { margin: 0 0 12px; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
+#lab h2 { margin: 16px 0 8px; font-size: 11px; font-weight: normal; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.6; }
+#lab label { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; margin: 0 0 9px; }
+#lab label > input[type=range], #lab label > select { grid-column: 1 / -1; width: 100%; }
+#lab output { opacity: 0.6; }
+#lab button { font: inherit; padding: 6px 10px; margin: 0 6px 6px 0; }
+#lab .row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-bottom: 8px; }
+#lab textarea { width: 100%; height: 190px; box-sizing: border-box; font: 11px/1.4 ui-monospace, Menlo, monospace; background: #000; color: #ddd; border: 1px solid #333; padding: 8px; white-space: pre; }
+#curve { display: block; width: 100%; height: 110px; margin: 4px 0 10px; background: #000; border: 1px solid #333; }
+#lab p { opacity: 0.6; margin: 8px 0; }
+/* A phone: the code in a low strip across the top, and the settings in the
+   rest of the screen, scrolling on their own under it. */
+@media (max-width: 900px) {
+    html, body { height: 100dvh; overflow: hidden; }
+    body.mag { grid-template-columns: minmax(0, 1fr); grid-template-rows: 236px minmax(0, 1fr); }
+    #bench { padding: 0; }
+    #panel-code { width: 100%; height: 100%; }
+    #panel-code .ev-code { font-size: calc(10px * var(--code-fit, 1)); }
+    #lab { border-left: 0; border-top: 1px solid #333; padding: 12px 16px 40px; }
+    #lab label { margin-bottom: 12px; }
+    #lab input[type=range] { height: 28px; }
+    #curve { height: 80px; }
+}
+</style>
+</head>
+<body class="mag page-article page-evolving">
+<div id="bench">
+  <div id="panel-code" class="ev">
+    <div class="ev-left">
+      <figure class="ev-block is-on has-steps">
+        <p class="ev-name">opening-a-window.lisp</p>
+        <div class="ev-view"><div class="ev-code" id="code"><div class="ev-nums" id="nums"></div></div></div>
+      </figure>
+    </div>
+  </div>
+</div>
+
+<div id="lab">
+  <h1>Plug-in effect</h1>
+  <div class="row">
+    <button id="play">Play (space)</button>
+    <label style="display:flex;margin:0"><input type="checkbox" id="loop"> loop</label>
+  </div>
+  <label>Speed <output></output><input type="range" id="speed" min="0.1" max="1" step="0.05" value="1"></label>
+  <label>Lines added <output></output><input type="range" id="count" min="1" max="6" step="1" value="2"></label>
+
+  <h2>The slide</h2>
+  <label>Preset <select id="preset">
+    <option value="spring">Spring (the site's)</option>
+    <option value="loose">Loose spring</option>
+    <option value="back">Back: one overshoot</option>
+    <option value="bounce">Bounce off its place</option>
+    <option value="slam">Slam: no give</option>
+    <option value="soft">Soft: eases in to place</option>
+  </select></label>
+  <canvas id="curve" width="608" height="220"></canvas>
+  <label>Kind <select data-ease="kind"><option value="spring">spring</option><option value="bounce">bounce</option><option value="none">none</option></select></label>
+  <label>Duration <output></output><input type="range" data-var="--plug-ms" data-unit="ms" min="150" max="1600" step="10"></label>
+  <label>Starts from <output></output><input type="range" data-var="--plug-from" data-unit="px" min="0" max="600" step="10"></label>
+  <label>Reaches its place at <output></output><input type="range" data-ease="hit" min="0.05" max="1" step="0.01"></label>
+  <label>Overshoot (share of the distance) <output></output><input type="range" data-ease="overshoot" min="0" max="0.6" step="0.01"></label>
+  <label>Swings <output></output><input type="range" data-ease="bounces" min="1" max="10" step="0.5"></label>
+  <label>Damping <output></output><input type="range" data-ease="damping" min="0" max="10" step="0.1"></label>
+  <label>Between lines <output></output><input type="range" data-var="--plug-stagger" data-unit="ms" min="0" max="250" step="5"></label>
+
+  <h2>The hit</h2>
+  <label>Other lines knocked <output></output><input type="range" data-var="--plug-jolt" data-unit="px" min="0" max="40" step="1"></label>
+  <label>Flare <output></output><input type="range" data-var="--plug-flare" data-unit="" min="0" max="1" step="0.05"></label>
+  <label>Flare and colours last <output></output><input type="range" data-var="--plug-flare-ms" data-unit="ms" min="100" max="2000" step="20"></label>
+  <label>Colours stand apart <output></output><input type="range" data-var="--plug-split" data-unit="px" min="0" max="60" step="1"></label>
+  <label>Colours tear <output></output><input type="range" data-var="--plug-tear" data-unit="px" min="0" max="60" step="1"></label>
+
+  <h2>For magazine.css</h2>
+  <textarea id="css" readonly spellcheck="false"></textarea>
+  <button id="copy">Copy</button>
+  <p>Paste over the .ev-code rule under "A line the step adds" in static/css/magazine.css.</p>
+</div>
+
+<!-- The site's scripts: the effect's colours are magazine-fx.js's, and
+     magazine-evolving.js plays the effect (MagazineEvolving.power). -->
+<script src="/static/js/magazine-fx.js"></script>
+<script src="/static/js/magazine-evolving.js"></script>
+<script src="ease.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var code = $("code"), nums = $("nums");
+
+  // The block before the step, and the lines the step adds after line 3.
+  var BASE = [
+    "(defun open-window ()",
+    "  (#/sharedApplication ns:ns-application)",
+    "  (#/setActivationPolicy: #&NSApp #$NSApplicationActivationPolicyRegular)",
+    "  (let ((w (make-instance 'ns:ns-window",
+    "                          :with-content-rect (ns:make-ns-rect 0 0 400 300)",
+    "                          :backing #$NSBackingStoreBuffered",
+    "                          :defer nil)))",
+    "    (#/makeKeyAndOrderFront: w nil)",
+    "    (#/run #&NSApp)))"
+  ];
+  var ADDED = [
+    "  (setf *delegate* (make-instance 'app-delegate :quit-on-close t))",
+    "  (#/setDelegate: #&NSApp *delegate*)",
+    "  (#/activateIgnoringOtherApps: #&NSApp t)",
+    "  (#/setTitle: w #@\"Almighty\")",
+    "  (#/center w)",
+    "  (#/display w)"
+  ];
+  var AFTER = 3;
+
+  var PRESETS = {
+    spring: { kind: "spring", hit: 0.3, overshoot: 0.1, bounces: 4, damping: 2.2, ms: 500, from: 180 },
+    loose: { kind: "spring", hit: 0.18, overshoot: 0.22, bounces: 6, damping: 2.4, ms: 900, from: 220 },
+    back: { kind: "spring", hit: 0.4, overshoot: 0.12, bounces: 1, damping: 0.5, ms: 380, from: 180 },
+    bounce: { kind: "bounce", hit: 0.3, overshoot: 0.12, bounces: 4, damping: 3, ms: 620, from: 180 },
+    slam: { kind: "none", hit: 0.55, overshoot: 0, bounces: 1, damping: 0, ms: 220, from: 260 },
+    soft: { kind: "none", hit: 1, overshoot: 0, bounces: 1, damping: 0, ms: 450, from: 72 }
+  };
+  var ease = { kind: "spring", hit: 0.3, overshoot: 0.1, bounces: 4, damping: 2.2 };
+  var vars = {
+    "--plug-from": "180px", "--plug-ms": "500ms", "--plug-stagger": "50ms", "--plug-jolt": "7px",
+    "--plug-flare": "1", "--plug-flare-ms": "660ms", "--plug-split": "22px", "--plug-tear": "13px"
+  };
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function line(text, kind) {
+    var body = text.replace(/^\s+/, "");
+    var node = el("div", "ev-line k-" + kind);
+    node.appendChild(el("span", "ev-m", kind === "new" ? "+" : ""));
+    node.appendChild(el("code", "", body));
+    node.style.setProperty("--indent", text.length - body.length);
+    code.appendChild(node);
+    return node;
+  }
+  function number(count) {
+    nums.innerHTML = "";
+    for (var i = 1; i <= count; i++) nums.appendChild(el("span", "", String(i)));
+    code.style.setProperty("--rows", count);
+    code.closest(".ev-block").style.setProperty("--digits", String(count).length);
+  }
+
+  var old = [], timer = 0;
+  function reset() {
+    clearTimeout(timer);
+    Array.prototype.slice.call(code.querySelectorAll(".ev-line")).forEach(function (n) { n.remove(); });
+    code.classList.remove("is-jolted");
+    old = BASE.map(function (text, row) {
+      var node = line(text, "plain");
+      node.style.setProperty("--row", row);
+      return node;
+    });
+    number(BASE.length);
+    var widest = BASE.concat(ADDED).reduce(function (most, text) { return Math.max(most, text.length); }, 0);
+    code.style.setProperty("--cols", widest);
+  }
+  // The step, as magazine-evolving.js plays it: the lines below move down,
+  // the new ones are plugged in, the block takes the knock.
+  function step() {
+    var count = +$("count").value;
+    old.forEach(function (node, row) {
+      node.className = "ev-line k-same";
+      node.style.setProperty("--row", row < AFTER ? row : row + count);
+    });
+    var added = [];
+    for (var i = 0; i < count; i++) {
+      var node = line(ADDED[i], "new");
+      node.style.setProperty("--row", AFTER + i);
+      added.push(node);
+    }
+    number(BASE.length + count);
+    var rate = +$("speed").value;
+    window.MagazineEvolving.power(code, added, rate);
+    document.getAnimations().forEach(function (a) { a.playbackRate = rate; });
+  }
+  function play() {
+    reset();
+    timer = setTimeout(function () {
+      step();
+      if ($("loop").checked) {
+        var whole = 140 + parseFloat(vars["--plug-ms"]) + parseFloat(vars["--plug-flare-ms"]) + 900;
+        timer = setTimeout(play, whole / +$("speed").value);
+      }
+    }, 350);
+  }
+
+  // ---- Controls
+
+  function draw() {
+    var c = $("curve"), g = c.getContext("2d"), w = c.width, h = c.height;
+    var text = window.plugEase(ease);
+    var points = text.slice(7, -1).split(", ").map(Number);
+    g.clearRect(0, 0, w, h);
+    var top = 0.25 * h, bottom = 0.9 * h; // 1 at top, 0 at bottom
+    g.strokeStyle = "#444"; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(0, top); g.lineTo(w, top); g.moveTo(0, bottom); g.lineTo(w, bottom); g.stroke();
+    g.strokeStyle = "#fff"; g.lineWidth = 2;
+    g.beginPath();
+    points.forEach(function (p, i) {
+      var x = i / (points.length - 1) * w, y = bottom - p * (bottom - top);
+      if (i) g.lineTo(x, y); else g.moveTo(x, y);
+    });
+    g.stroke();
+    g.fillStyle = "#888"; g.font = "18px ui-monospace, Menlo, monospace";
+    g.fillText("in place", 6, top - 6);
+  }
+
+  function apply() {
+    var text = window.plugEase(ease);
+    Object.keys(vars).forEach(function (name) { code.style.setProperty(name, vars[name]); });
+    code.style.setProperty("--plug-hit", ease.hit);
+    code.style.setProperty("--plug-ease", text);
+    $("css").value = ".ev-code {\n" +
+      "    --plug-from: " + vars["--plug-from"] + ";\n" +
+      "    --plug-ms: " + vars["--plug-ms"] + ";\n" +
+      "    --plug-hit: " + ease.hit + ";\n" +
+      "    /* " + ease.kind + ": overshoot " + ease.overshoot + ", " + ease.bounces + " swings, damping " + ease.damping + " (dev/evolving-fx/ease.js) */\n" +
+      "    --plug-ease: " + text + ";\n" +
+      "    --plug-stagger: " + vars["--plug-stagger"] + ";\n" +
+      "    --plug-jolt: " + vars["--plug-jolt"] + ";\n" +
+      "    --plug-flare: " + vars["--plug-flare"] + ";\n" +
+      "    --plug-flare-ms: " + vars["--plug-flare-ms"] + ";\n" +
+      "    --plug-split: " + vars["--plug-split"] + ";\n" +
+      "    --plug-tear: " + vars["--plug-tear"] + ";\n" +
+      "}\n";
+    draw();
+  }
+
+  function show(input, value) {
+    var out = input.parentNode.querySelector("output");
+    if (out) out.textContent = value;
+  }
+  function sync() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-var]"), function (input) {
+      input.value = parseFloat(vars[input.dataset.var]);
+      show(input, vars[input.dataset.var]);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-ease]"), function (input) {
+      input.value = ease[input.dataset.ease];
+      show(input, ease[input.dataset.ease]);
+    });
+    ["speed", "count"].forEach(function (id) { show($(id), $(id).value); });
+  }
+
+  document.addEventListener("input", function (e) {
+    var input = e.target;
+    if (input.dataset.var) vars[input.dataset.var] = input.value + input.dataset.unit;
+    else if (input.dataset.ease) ease[input.dataset.ease] = input.dataset.ease === "kind" ? input.value : +input.value;
+    else if (input.id === "preset") {
+      var p = PRESETS[input.value];
+      ease = { kind: p.kind, hit: p.hit, overshoot: p.overshoot, bounces: p.bounces, damping: p.damping };
+      vars["--plug-ms"] = p.ms + "ms";
+      vars["--plug-from"] = p.from + "px";
+    }
+    sync();
+    apply();
+  });
+  // Play again once a control is let go, not on every tick of a drag.
+  document.addEventListener("change", function (e) { if (e.target.id !== "loop") play(); });
+  $("play").addEventListener("click", play);
+  $("copy").addEventListener("click", function () {
+    $("css").select();
+    if (navigator.clipboard) navigator.clipboard.writeText($("css").value);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === " " && !/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(e.target.tagName)) { e.preventDefault(); play(); }
+  });
+
+  sync();
+  apply();
+  play();
+})();
+</script>
+</body>
+</html>
