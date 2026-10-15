@@ -229,14 +229,19 @@ magazine."
          (section :class "footer-block footer-book" :aria-label "Lisp & Emacs Essentials"
            :|hx-boost:inherited| "false"
            (render-book-panel))
-         (section :class "footer-block footer-themes" :aria-label "Theme packs"
+         (section :class "footer-block footer-themes" :aria-label "Doom Emacs Theme packs"
            :|hx-boost:inherited| "false"
-           (p :class "book-ad-label" (joined "Doom Emacs" "16 themes"))
-           (h2 :class "footer-title" "Theme Packs")
-           (render-spec *theme-packs* :class "spec book-spec")
+           (p :class "book-ad-label" (joined "Dark & Mid" "16 themes"))
+           ;; The title and a barcode under it, in three rows whether the
+           ;; title takes one or two (see magazine.css).
+           (div :class "theme-head"
+             (h2 :class "footer-title" "Doom Emacs Theme Packs"))
+           ;; Each pack's button carries its themes, under its name.
            (div :class "footer-actions"
              (mapcar (lambda (pack)
-                       (ah:</> (a :class "neo-button secondary" :href (third pack) (first pack))))
+                       (ah:</> (a :class "neo-button secondary theme-button" :href (third pack)
+                                 (span :class "theme-button-name" "Buy " (first pack))
+                                 (span :class "theme-button-themes" (second pack)))))
                      *theme-packs*))
            (render-dot-pairs :class "panel-corner")))))))
 

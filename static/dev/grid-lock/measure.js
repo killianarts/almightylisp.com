@@ -99,7 +99,7 @@
     boxes.forEach(function (b) {
       var ex = edge(b.w), ey = edge(b.h);
       var sharp = whole(b.x * dpr) && whole(b.y * dpr);
-      out.boxes.push({ name: b.name, w: px(b.w), h: px(b.h), x: ex, y: ey, sharp: sharp });
+      out.boxes.push({ name: b.name, left: px(b.x), top: px(b.y + sy), w: px(b.w), h: px(b.h), x: ex, y: ey, sharp: sharp });
       if (!drawing) return;
       var X = b.x + sx, Y = b.y + sy;
       var good = ex.fit === "closed" && ey.fit === "closed" && sharp;

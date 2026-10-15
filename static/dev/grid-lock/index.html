@@ -114,6 +114,7 @@
       <li><b>Contents measured in cells.</b> Padding is one cell (was 31.68px). A line of text is a row tall. The logos are two rows. Buttons are two rows (were 44px) with a cell between them, and reach one pixel past their area so their borders lie on the lines. They sit side by side when the cell has 13 cells inside, and stack when it hasn't (a container query).</li>
       <li><b>Height in whole rows.</b> Because everything inside is whole rows, so is each box. <code>magazine-grid-lock.js</code> rounds it up if anything ever isn't (a fallback font, say); the chip says when it had to.</li>
       <li><b>Whole pixels, across.</b> From 1180px, the sheet is rounded to an even width (<code>round(down, 100%, 2px)</code>), so on odd window widths over 1726px the main column no longer starts on half a pixel. (Not narrower: there the bands run to the window's edges, and on an odd-width phone, 375 or 393, the sheet would stop a pixel short of them.) And <code>--third</code>, the side column beside an article, is rounded to whole pixels, so the book panel in it no longer starts at x = 912.67 and the like. Try 1729.</li>
+      <li><b>Narrow screens too.</b> Under 1180px the footer was one plain black panel; now it has the paper as well, on one lattice: the colophon across the top and the book beside the theme packs (one over the other under 700px), a cell in from the paper on every side and a cell between them, in columns of whole cells. The dither is in the top right corner, as on a desktop, its edge on the paper's last line and its 4px squares seven to a cell. (The book beside an article stays hidden there.)</li>
       <li><b>Whole pixels, down.</b> A box starts wherever the text above it ends, usually part of the way through a pixel. <code>magazine-grid-lock.js</code> moves each box down the part of a pixel it needs (a margin under 1px); the chip says by how much.</li>
     </ol>
     <h2>Costs</h2>
@@ -123,7 +124,7 @@
       <li>Being on whole pixels down the page needs the script. Without it the lattice is still whole cells and closed, but may blur by a pixel.</li>
       <li>The two side cells are equal, but the middle can be up to two cells wider than them.</li>
       <li>Browser zoom at odd steps (110%, 90%) still puts 1px lines between device pixels. Display scaling at 1×, 1.25×, 1.5× and 2× does not.</li>
-      <li>Under 1180px neither box has paper (the footer is one black panel, and the book beside an article is hidden), so nothing changes there: the phone and tablet sizes show the two panes the same.</li>
+      <li>Under 1180px the footer is taller: the colophon is five rows and stacked buttons two rows each with a cell between them (they stack in a column under 13 cells, so on a phone and at most tablet widths). Its contents sit a cell in from the paper, which is itself up to 13px in from each side, so on a 360px phone they are 280px wide (were 328px).</li>
     </ul>
     <h2>Files</h2>
     <ul>
