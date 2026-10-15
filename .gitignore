@@ -7,3 +7,8 @@ tmp/
 */.git
 *.pem
 
+
+# Intel desk state, local to the machine that curates
+content/intel/inbox.sexp
+content/intel/following.sexp
+content/intel/active.sexp

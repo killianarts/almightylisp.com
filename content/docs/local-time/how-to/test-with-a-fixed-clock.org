@@ -1,0 +1,112 @@
+#+TITLE: Test With\\a Fixed Clock
+#+SUBTITLE: local-time asks a clock object for the current time. Bind your own clock and =now= returns whatever you decide, so a test can run at midnight on New Year's Day every time.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: How-to
+#+LIBRARY: local-time
+#+VERIFIED: local-time 1.0.6, SBCL 2.6.3
+
+* Define a clock
+A clock is any object with a =clock-now= method. This one hands out the
+timestamp it was made with:
+
+#+BEGIN_SRC lisp
+(defclass fixed-clock ()
+  ((time :initarg :time :reader fixed-clock-time)))
+
+(defmethod local-time:clock-now ((clock fixed-clock))
+  (local-time:clone-timestamp (fixed-clock-time clock)))
+#+END_SRC
+
+Return a copy, as =clone-timestamp= does here, and never the stored
+timestamp itself. [[*What goes wrong][What goes wrong]] shows why.
+
+* Bind the clock around the code under test
+=local-time:*clock*= is a special variable, so the binding lasts only for
+the body of the =let=. Code outside it still reads the system clock.
+
+#+BEGIN_SRC lisp
+(let ((local-time:*clock*
+        (make-instance 'fixed-clock
+                       :time (local-time:parse-timestring
+                              "2026-01-01T00:00:00Z"))))
+  (local-time:format-timestring nil (local-time:now)
+                                :timezone local-time:+utc-zone+))
+#+END_SRC
+
+#+RESULTS:
+"2026-01-01T00:00:00.000000Z"
+
+#+BEGIN_NOTE Timezones
+A timestamp prints in =*default-timezone*=, so the same moment reads
+=@2026-01-01T09:00:00.000000+09:00= in Tokyo. Format it in UTC, as above,
+when a test compares text.
+#+END_NOTE
+
+* Use it in a test
+Wrap the binding in a macro and each test names the moment it runs at:
+
+#+BEGIN_SRC lisp
+(defmacro with-fixed-clock ((timestring) &body body)
+  `(let ((local-time:*clock*
+           (make-instance 'fixed-clock
+                          :time (local-time:parse-timestring ,timestring))))
+     ,@body))
+
+(with-fixed-clock ("2026-01-31T00:00:00Z")
+  (local-time:timestamp> (local-time:now)
+                         (local-time:parse-timestring "2026-01-30T00:00:00Z")))
+#+END_SRC
+
+#+RESULTS:
+T
+
+Put your test framework's assertion where the comparison is.
+
+* What goes wrong
+** today changes the timestamp it is given
+=today= calls =clock-today=, and the method local-time supplies takes the
+timestamp from =clock-now= and sets its seconds to zero in place. A clock
+that returns its stored timestamp gets that timestamp changed under it:
+
+#+BEGIN_SRC lisp
+(defclass careless-clock ()
+  ((time :initarg :time :reader careless-clock-time)))
+
+(defmethod local-time:clock-now ((clock careless-clock))
+  (careless-clock-time clock))
+
+(let ((local-time:*clock*
+        (make-instance 'careless-clock
+                       :time (local-time:parse-timestring
+                              "2026-01-01T12:34:56Z"))))
+  (local-time:today)
+  (local-time:now))
+#+END_SRC
+
+#+RESULTS:
+@2026-01-01T00:00:00.000000Z
+
+The clock was made at 12:34:56 and now says midnight. With
+=clone-timestamp= in =clock-now=, the same two calls leave it alone:
+=today= gives =@2026-01-01T00:00:00.000000Z= and =now= still gives
+=@2026-01-01T12:34:56.000000Z=.
+
+** The binding doesn't reach other threads
+A =let= binding of a special variable belongs to the thread that made it.
+Code the test starts in another thread reads the global value of
+=*clock*=, which is the system clock. To fix the time for a whole test
+run, set the global value instead: =(setf local-time:*clock* ...)=, and
+set it back to =t= afterwards.
+
+** Code that kept a timestamp doesn't notice
+The clock only changes what =now= and =today= return from then on. A
+timestamp taken before the binding, or stored in an object or a database
+row, is unchanged.
+
+* See also
+- Reference: Clocks lists =*clock*=, =clock-now=, =clock-today= and the
+  clocks local-time comes with.
+- Explanation: How a timestamp is stored says why a timestamp can be
+  changed in place at all.

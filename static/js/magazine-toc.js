@@ -2,8 +2,8 @@
 // section being read, and fills a bar under it as the section goes by.
 //
 // Pages arrive by htmx swap as well as by normal loads, and each article
-// brings this script with it. The scroll listeners are set up once; each new
-// page only re-finds its elements.
+// brings this script with it, back and forward through the history too. The
+// scroll listeners are set up once; each new page only re-finds its elements.
 (function () {
   if (window.MagazineToc) {
     window.MagazineToc.init();
@@ -83,9 +83,6 @@
 
   window.addEventListener("scroll", request, { passive: true });
   window.addEventListener("resize", request);
-  // Back and forward through htmx's history restore a page without running
-  // its scripts again.
-  document.addEventListener("htmx:historyRestore", init);
 
   window.MagazineToc = { init: init };
   init();

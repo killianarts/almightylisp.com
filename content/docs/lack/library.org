@@ -1,0 +1,5 @@
+#+CODE: LK
+#+TITLE: Lack
+#+SUMMARY: The small core under Clack: an application is a function, and middleware is a function that wraps one. Everything the README says, and the parts it leaves out.
+#+VERSION: 0.3.0
+#+SOURCE: https://github.com/fukamachi/lack

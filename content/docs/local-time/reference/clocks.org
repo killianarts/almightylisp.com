@@ -1,0 +1,105 @@
+#+TITLE: Clocks
+#+SUBTITLE: The variable and the two generic functions that decide what =now= and =today= return, and the clocks local-time comes with.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: Reference
+#+LIBRARY: local-time
+#+VERIFIED: local-time 1.0.6, SBCL 2.6.3
+
+* Overview
+=now= and =today= do not read the system time themselves. Each calls a
+generic function on the value of =*clock*=:
+
+| Call      | Is                         |
+|-----------+----------------------------|
+| =(now)=   | =(clock-now *clock*)=      |
+| =(today)= | =(clock-today *clock*)=    |
+
+All of these are exported from the =local-time= package and defined in
+=src/local-time.lisp=.
+
+* *clock*
+#+BEGIN_NOTE Syntax
+=*clock*=    variable, initially =t=
+#+END_NOTE
+
+The clock =now= and =today= ask. Its value can be any object: what matters
+is which =clock-now= and =clock-today= methods apply to it.
+
+| Value                              | Clock                                              |
+|------------------------------------+----------------------------------------------------|
+| =t=                                | The system clock. The initial value.               |
+| =local-time:leap-second-adjusted=  | The system clock, less the leap seconds so far.    |
+| an object of your own class        | Whatever your =clock-now= method returns.          |
+
+Bound with =let=, a clock is in effect for that thread until the form
+ends. Set with =setf=, it is in effect everywhere.
+
+* clock-now
+#+BEGIN_NOTE Syntax
+clock-now clock => timestamp
+#+END_NOTE
+
+Returns the present moment according to =clock=.
+
+| Method on                         | Returns                                                         |
+|-----------------------------------+-----------------------------------------------------------------|
+| =t= (any object)                  | The system time, to the precision the implementation gives.     |
+| =(eql 'leap-second-adjusted)=     | The system time, moved back by the leap seconds recorded in =*default-timezone*=. With none recorded, the system time. |
+
+The method on =t= applies to every object, so an object with no method of
+its own is the system clock. On ABCL, Allegro, CMUCL, CCL, SBCL and
+LispWorks (Linux or Darwin) the system time has parts of a second.
+Elsewhere it comes from =get-universal-time= and is whole seconds.
+
+A method of your own should return a new timestamp on every call. See
+=clock-today=.
+
+* clock-today
+#+BEGIN_NOTE Syntax
+clock-today clock => timestamp
+#+END_NOTE
+
+Returns the present day according to =clock=, as a timestamp at 00:00:00
+UTC on that day.
+
+| Method on         | Returns                                                               |
+|-------------------+-----------------------------------------------------------------------|
+| =t= (any object)  | =(clock-now clock)=, with its =sec= and =nsec= set to zero in place.  |
+
+The method changes the timestamp =clock-now= gave it and returns the same
+object. If =clock-now= returns a timestamp the clock keeps, that timestamp
+is changed.
+
+The day is the UTC day. At 08:00 on 2 January in Tokyo, which is 23:00 on
+1 January in UTC, =today= is 1 January.
+
+* now
+#+BEGIN_NOTE Syntax
+now => timestamp
+#+END_NOTE
+
+=(clock-now *clock*)=.
+
+* today
+#+BEGIN_NOTE Syntax
+today => timestamp
+#+END_NOTE
+
+=(clock-today *clock*)=.
+
+* Notes
+- =clock-now= and =clock-today= are exported. The docstring of =*clock*=
+  writes them as =local-time::clock-now=, with two colons, from before
+  they were.
+- A clock needs only =clock-now=. Define =clock-today= as well when the
+  day should not be the UTC day, or when =clock-now= is costly.
+- Nothing in local-time other than =now= and =today= reads =*clock*=.
+  Parsing, formatting and arithmetic take the timestamps they are given.
+- Lack's access log calls =now= for the time of each request, so a clock
+  bound around a Lack application sets the times in its log.
+
+* See also
+- How-to: Test with a fixed clock.
+- Explanation: How a timestamp is stored.

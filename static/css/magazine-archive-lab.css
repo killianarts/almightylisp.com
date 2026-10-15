@@ -1,0 +1,614 @@
+/* The archive lab (/magazine/archive/lab): three candidate archives set on the
+   magazine's sheet, to compare. (Figma: Archive A · Manifest, Archive B ·
+   Month plates, Archive C · Card catalogue.)
+
+   Loaded by that page alone, after magazine.css, and written to its rules:
+   the same layers and the same tokens. Whichever design is kept moves into
+   magazine.css; the rest of this file goes. */
+
+@layer modules {
+    /* The lab's switches take the row between the head and the archive. */
+    .page-archive-lab .archive-head { grid-row: 5; }
+    .lab-switch-band { grid-row: 6; }
+
+    /* Captions: small tracked capitals, as magazine.css sets its own. */
+    .lab-switch, .lab-chip, .lab-chips-label, .lab-cols, .lab-month-count, .lab-month-go,
+    .lab-row-series, .lab-row-kind, .lab-row-part, .lab-row-code, .lab-row-go, .lab-foot,
+    .lab-plate-sub, .lab-scale, .lab-rail-year, .lab-rail-cell, .lab-index-label,
+    .lab-index-head, .lab-lead-row, .lab-line-meta {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+    }
+
+    /* Display: Science Gothic in capitals. */
+    .lab-month-name, .lab-row-date, .lab-row-title, .lab-rail-n, .lab-index-count {
+        font-family: var(--disp);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-variation-settings: var(--disp-axes);
+        letter-spacing: -0.005em;
+    }
+
+    /* Switches: which design, and which articles. Hatched, so it reads as
+     scaffolding and not as part of any design. */
+    .lab-switch {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-8) var(--space-24);
+        padding-block: var(--space-12);
+        padding-inline: var(--pad);
+        background: var(--hatch);
+    }
+
+    .lab-switch-group {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-8);
+    }
+
+    .lab-switch-group.end { margin-inline-start: auto; }
+
+    .lab-switch-label,
+    .lab-tab {
+        padding-block: var(--space-6);
+        padding-inline: var(--space-10);
+        background: var(--sheet);
+        white-space: pre;
+    }
+
+    .lab-switch-label { color: var(--mid); }
+
+    .lab-tab {
+        border: var(--rule) solid var(--ink);
+
+        &.on {
+            background: var(--ink);
+            color: var(--sheet);
+        }
+
+        &:hover:not(.on) { background: var(--paper); }
+    }
+
+    /* A design: rows of cells, the rule between them the grey showing
+     through a 1px gap. */
+    .lab,
+    .lab-groups,
+    .lab-month,
+    .lab-rows,
+    .lab-catalogue {
+        display: flex;
+        flex-direction: column;
+        gap: var(--rule);
+        background: var(--paper);
+    }
+
+    :where(.lab) button {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: inherit;
+        cursor: pointer;
+    }
+
+    .lab button:focus-visible {
+        outline: var(--space-2) solid var(--ink);
+        outline-offset: -3px;
+    }
+
+    .lab [hidden] { display: none; }
+
+    .lab-month[data-collapsed] > .lab-month-body { display: none; }
+
+    /* Days published (Figma: Deco / Barcode): a tick for each day of the
+     month, tall on the days an article came out. */
+    .lab-barcode {
+        flex: 1 1 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        min-width: 0;
+        height: var(--space-24);
+
+        > i {
+            flex: 0 0 var(--space-2);
+            height: 33%;
+            background: var(--faint);
+
+            &.on {
+                flex-basis: var(--space-6);
+                height: 100%;
+                background: var(--ink);
+            }
+        }
+    }
+
+    .lab-hatch {
+        flex: 1 1 0;
+        min-width: 0;
+        height: var(--space-24);
+        background: var(--hatch);
+    }
+
+    /* The foot: how many are shown, and a way to see them all. */
+    .lab-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-16);
+        padding-block: var(--space-20);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+        white-space: pre;
+    }
+
+    .lab-foot-button {
+        padding-block: var(--space-10);
+        padding-inline: var(--space-16);
+        background: var(--ink);
+        color: var(--sheet);
+        letter-spacing: var(--track);
+
+        &:hover { background: var(--ink-hover-strong); }
+    }
+
+    /* A · Manifest: one row an article, under filters. */
+
+    .lab-filter {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-12) var(--space-24);
+        padding-block: var(--space-14);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+    }
+
+    .lab-chips {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-8);
+    }
+
+    .lab-chips-label {
+        margin-inline-end: var(--space-4);
+        color: var(--mid);
+    }
+
+    .lab-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-8);
+        padding-block: var(--space-6);
+        padding-inline: var(--space-10);
+        border: var(--rule) solid var(--paper);
+        white-space: pre;
+
+        > .n { color: var(--mid); }
+
+        &:hover { border-color: var(--ink); }
+
+        &[aria-pressed="true"] {
+            border-color: var(--ink);
+            background: var(--ink);
+            color: var(--sheet);
+
+            > .n { color: inherit; }
+
+            .series-stamp.ink {
+                background: var(--sheet);
+                color: var(--ink);
+            }
+        }
+    }
+
+    .lab-a { --lab-cols: 108px 72px minmax(0, 1fr) 110px 80px 120px var(--space-28); }
+
+    .lab-cols,
+    .lab-row {
+        display: grid;
+        grid-template-columns: var(--lab-cols);
+        column-gap: var(--space-24);
+        align-items: center;
+        padding-inline: var(--pad);
+        background: var(--sheet);
+    }
+
+    .lab-cols {
+        padding-block: var(--space-8);
+        color: var(--mid);
+    }
+
+    /* A column's name sorts by it. The one in use is in ink, with an arrow
+     that points down while its order is descending and up while ascending. */
+    .lab-col {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-6);
+        justify-self: start;
+        letter-spacing: inherit;
+        text-transform: inherit;
+
+        &:hover { color: var(--ink); }
+
+        &[aria-pressed="true"] { color: var(--ink); }
+    }
+
+    .lab-col-dir {
+        width: 0;
+        height: 0;
+        border-inline: var(--space-4) solid transparent;
+        border-block-start: var(--space-6) solid transparent;
+
+        [aria-pressed="true"] > & { border-block-start-color: currentcolor; }
+        [data-dir="asc"] > & { transform: rotate(180deg); }
+    }
+
+    .lab-row {
+        padding-block: var(--space-16);
+        color: var(--ink);
+
+        &:hover .lab-row-title { text-decoration: underline; }
+    }
+
+    .lab-row-date,
+    .lab-row-title {
+        font-weight: 400;
+        font-size: 19px;
+        line-height: 1.14;
+    }
+
+    .lab-row-date { white-space: pre; }
+
+    .lab-row-series {
+        display: flex;
+        align-items: center;
+        gap: var(--space-6);
+    }
+
+    .lab-row-part,
+    .lab-row-code { color: var(--mid); }
+
+    .lab-row-go,
+    .lab-month-go { text-align: right; }
+
+    .lab-month-bar {
+        display: flex;
+        align-items: center;
+        gap: var(--space-24);
+        width: 100%;
+        padding-block: var(--space-22) 18px;
+        padding-inline: var(--pad);
+        background: var(--sheet);
+
+        > .lab-barcode { display: none; }
+    }
+
+    .lab-month-name {
+        font-size: 30px;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .lab-month-count {
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    .lab-month-go { flex: 0 0 var(--space-28); }
+
+    /* An open month's bar has no arrow; a closed one trades its hatching for
+     the month's barcode and is set at a row's size. */
+    .lab-a .lab-month:not([data-collapsed]) .lab-month-go { visibility: hidden; }
+
+    .lab-a .lab-month[data-collapsed] > .lab-month-bar {
+        padding-block: var(--space-16);
+
+        > .lab-hatch { display: none; }
+        > .lab-barcode { display: flex; }
+
+        > .lab-month-name {
+            flex: 0 0 300px;
+            font-weight: 400;
+            font-size: 19px;
+            line-height: 1.14;
+        }
+
+        > .lab-month-count { color: var(--ink); }
+
+        &:hover > .lab-month-name { text-decoration: underline; }
+    }
+
+    /* B · Month plates: the year across the top, then the live archive's
+     plates, each month's name over its barcode. */
+
+    .lab-rail {
+        display: grid;
+        grid-template-columns: 190px repeat(12, minmax(0, 1fr));
+        gap: var(--rule);
+    }
+
+    .lab-rail-year,
+    .lab-rail-cell {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+        padding-block: var(--space-14);
+        padding-inline: var(--space-16);
+        background: var(--sheet);
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    .lab-rail-year { padding-inline-start: var(--pad); }
+
+    .lab-rail-n {
+        font-size: var(--text-lg);
+        line-height: 1.2;
+        color: var(--ink);
+    }
+
+    .lab-rail-cell {
+        &:hover { background: var(--paper); }
+
+        &.on {
+            background: var(--ink);
+            color: var(--sheet);
+
+            .lab-rail-n { color: inherit; }
+        }
+
+        &.none {
+            pointer-events: none;
+            color: var(--faint);
+
+            .lab-rail-n { color: inherit; }
+        }
+    }
+
+    .lab-b .lab-month {
+        display: grid;
+        grid-template-columns: var(--cols-index);
+    }
+
+    .lab-plate-head {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-14);
+        min-width: 0;
+        padding-block: var(--space-28) var(--pad);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+
+        > .lab-barcode {
+            flex: 0 0 auto;
+            height: 36px;
+        }
+
+        > .lab-hatch {
+            height: auto;
+            min-height: var(--space-16);
+        }
+    }
+
+    .lab-plate-sub {
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    .lab-scale {
+        display: flex;
+        justify-content: space-between;
+        font-size: 9px;
+        color: var(--mid);
+    }
+
+    .lab-cells {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-content: start;
+        gap: var(--rule);
+        background: var(--paper);
+    }
+
+    .lab-b .index-cell-meta .series-stamp {
+        margin-inline-end: var(--space-8);
+        vertical-align: -3px;
+    }
+
+    /* A closed plate is one row: the month, its barcode, its count. */
+    .lab-b .lab-month[data-collapsed] {
+        grid-template-columns: minmax(0, 1fr);
+
+        > .lab-plate-head {
+            flex-direction: row;
+            align-items: center;
+            gap: var(--space-24);
+            padding-block: var(--space-20);
+
+            > .lab-month-name {
+                flex: 0 0 280px;
+                font-weight: 400;
+                font-size: 19px;
+                line-height: 1.14;
+            }
+
+            > .lab-barcode {
+                flex: 1 1 0;
+                height: var(--space-24);
+            }
+
+            > .lab-plate-sub {
+                order: 1;
+                color: var(--ink);
+
+                > :first-child { display: none; }
+                &::after { content: "  >>>"; }
+            }
+
+            > .lab-scale,
+            > .lab-hatch { display: none; }
+
+            &:hover > .lab-month-name { text-decoration: underline; }
+        }
+    }
+
+    /* C · Card catalogue: a black index of kinds, series and months beside
+     the catalogue, the newest articles as briefs and the rest as lines. */
+
+    .lab.lab-c {
+        display: grid;
+        grid-template-columns: var(--cols-index);
+    }
+
+    .lab-index {
+        min-width: 0;
+        padding: var(--pad);
+        background: var(--ink);
+        color: var(--sheet);
+    }
+
+    .lab-index-inner {
+        position: sticky;
+        inset-block-start: var(--space-24);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-28);
+    }
+
+    .lab-index-label,
+    .lab-index-head { color: var(--night-dim); }
+
+    .lab-index-count {
+        margin-block: var(--space-10);
+        font-size: 150px;
+        line-height: 0.84;
+    }
+
+    .lab-index-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-10);
+    }
+
+    .lab-index-head {
+        padding-block-end: var(--space-8);
+        border-bottom: var(--rule) solid var(--night-edge);
+    }
+
+    .lab-lead-row {
+        display: flex;
+        align-items: baseline;
+        width: 100%;
+        font-size: var(--text-13);
+        color: var(--sheet);
+        white-space: pre;
+
+        > .series-stamp {
+            align-self: center;
+            margin-inline-end: var(--space-8);
+        }
+
+        > .lab-lead-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* A dot leader as the lead's byline sets one (.spec-lead): a run of
+         periods, cut off where the row's value starts. */
+        > .lab-lead {
+            flex: 1 1 0;
+            min-width: 1ch;
+            overflow: hidden;
+            contain: inline-size;
+            letter-spacing: 0.1em;
+            color: var(--night-dim);
+
+            &::before {
+                content: "................................................................................................................................";
+            }
+        }
+
+        &:hover > .lab-lead { color: var(--sheet); }
+
+        &[aria-pressed="true"]::before { content: "\25a0"; }
+    }
+
+    .lab-catalogue { min-width: 0; }
+
+    .lab-c-head {
+        width: 100%;
+        padding-block: var(--space-24) 0;
+        padding-inline: var(--pad);
+        background: var(--sheet);
+
+        > .arch-month-head { width: 100%; }
+
+        &:hover .arch-month-head > :first-child { text-decoration: underline; }
+    }
+
+    .lab-c .lab-month[data-collapsed] > .lab-c-head {
+        padding-block-end: var(--space-24);
+
+        .arch-count::after { content: "  >>>"; }
+    }
+
+    .lab-card {
+        display: flex;
+        min-width: 0;
+
+        > .neo-brief { flex: 1 1 auto; }
+    }
+
+    .lab-lines {
+        margin: 0;
+        padding-block: 0 var(--space-24);
+        padding-inline: var(--pad);
+        list-style: none;
+        background: var(--sheet);
+    }
+
+    .lab-line-meta {
+        flex: 0 0 auto;
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    /* Narrow screens: one column, and a row keeps its date, series and title. */
+
+    @media (max-width: 1179px) {
+        .lab-a { --lab-cols: 84px 60px minmax(0, 1fr) var(--space-28); }
+        .lab-cols, .lab-row-kind, .lab-row-part, .lab-row-code { display: none; }
+        .lab-a .lab-month[data-collapsed] > .lab-month-bar > .lab-month-name { flex-basis: 200px; }
+
+        .lab-rail { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+        .lab-rail-year { grid-column: 1 / -1; }
+        .lab-b .lab-month, .lab.lab-c { grid-template-columns: minmax(0, 1fr); }
+        .lab-b .lab-month[data-collapsed] > .lab-plate-head > .lab-month-name { flex-basis: 200px; }
+
+        .lab-index-inner { position: static; }
+        .lab-index-count { font-size: 96px; }
+        .lab-line-meta { display: none; }
+    }
+
+    @media (max-width: 699px) {
+        .lab-a { --lab-cols: 64px minmax(0, 1fr); }
+        .lab-row-series, .lab-row-go, .lab-month-bar > .lab-hatch, .lab-month-bar > .lab-barcode { display: none !important; }
+        .lab-month-bar { justify-content: space-between; }
+        .lab-month-name { font-size: var(--text-xl); }
+        .lab-a .lab-month[data-collapsed] > .lab-month-bar > .lab-month-name,
+        .lab-b .lab-month[data-collapsed] > .lab-plate-head > .lab-month-name { flex: 1 1 auto; }
+        .lab-b .lab-month[data-collapsed] > .lab-plate-head > .lab-barcode { display: none; }
+        .lab-cells, .lab-c .latest-briefs { grid-template-columns: minmax(0, 1fr); }
+        .lab-cells > .index-fill { display: none; }
+    }
+}

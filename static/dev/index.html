@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab pages — Almighty Lisp</title>
+<!--
+  Every test, experiment and lab page made while building the site, in one list.
+
+  Open it from the running site:
+
+      http://127.0.0.1:5002/static/dev/index.html
+
+  Pages are of four kinds, by how they are reached:
+
+    site    under static/, or a route: the dev server serves it.
+    fx-lab  in dev/fx-lab/, outside static/. Run python3 dev/fx-lab/serve.py
+            (with the dev server up); the links go to its port, 5090.
+    file    in dev/, served by nothing. Open the file itself.
+
+  A page is one entry in PAGES below: add a new lab there. `at` is the date its
+  file was last changed, set by hand.
+-->
+<style>
+html { color-scheme: dark; }
+body { margin: 0; padding: 24px 28px 64px; font: 12px/1.5 ui-monospace, Menlo, monospace; background: #111; color: #ddd; }
+a { color: #fff; text-decoration-color: #666; text-underline-offset: 3px; }
+a:hover { text-decoration-color: #fff; }
+header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: baseline; margin: 0 0 8px; }
+h1 { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin: 0; }
+#count { opacity: 0.6; }
+#controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 4px; }
+input[type=search] { font: inherit; color: inherit; background: #1a1a1a; border: 1px solid #333; padding: 6px 10px; width: min(320px, 100%); }
+button { font: inherit; color: inherit; background: none; border: 1px solid #333; padding: 6px 10px; cursor: pointer; }
+button[aria-pressed=true] { background: #ddd; color: #111; border-color: #ddd; }
+h2 { font-size: 12px; font-weight: normal; letter-spacing: 0.14em; text-transform: uppercase; margin: 32px 0 4px; padding: 0 0 6px; border-bottom: 1px solid #333; display: flex; gap: 12px; justify-content: space-between; }
+h2 span { opacity: 0.6; letter-spacing: 0; text-transform: none; }
+.note { opacity: 0.6; margin: 6px 0 0; max-width: 90ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1px; background: #2a2a2a; border: 1px solid #2a2a2a; margin: 10px 0 0; }
+.card { background: #111; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.card h3 { font-size: 13px; font-weight: 600; margin: 0; }
+.card p { margin: 0; opacity: 0.75; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 10px; opacity: 0.6; margin-top: auto; padding-top: 6px; }
+.path { overflow-wrap: anywhere; }
+.tag { border: 1px solid currentColor; padding: 0 5px; }
+.tag.site { color: #8fd18f; } .tag.fx { color: #e6c36a; } .tag.file { color: #9ab; }
+.more { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+#empty { opacity: 0.6; margin: 32px 0; }
+[hidden] { display: none !important; }
+@media (max-width: 700px) { body { padding: 16px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Lab pages</h1>
+  <span id="count"></span>
+</header>
+<p class="note">The test, experiment and prototype pages made while building almightylisp.com. None of them is linked from the site.</p>
+<div id="controls">
+  <input type="search" id="q" placeholder="Filter (/)" autocomplete="off">
+  <button data-kind="" aria-pressed="true">All</button>
+  <button data-kind="site" aria-pressed="false">Site</button>
+  <button data-kind="fx" aria-pressed="false">fx-lab</button>
+  <button data-kind="file" aria-pressed="false">File</button>
+</div>
+<main id="list"></main>
+<p id="empty" hidden>Nothing matches.</p>
+
+<script>
+// kind: "site" (the dev server serves `url`), "fx" (`url` is under /fx-lab/, on
+// serve.py's port), "file" (`path` only). `more` is extra links: [label, url].
+const GROUPS = [
+  { name: "Magazine labs", note: "Routes of the magazine module: pages rendered by the site itself, over its own articles. src/modules/magazine/hypermedia/.", pages: [
+    { title: "Intel desk", kind: "site", url: "/magazine/intel/desk", path: "hypermedia/intel.lisp", at: "2026-10-13",
+      text: "Curation dashboard for the Intel feed. Answers only when the server has INTEL_DESK=true or magazine/intel:*desk-enabled* set.",
+      more: [["Published", "/magazine/intel/desk?view=published"], ["Dismissed", "/magazine/intel/desk?view=dismissed"], ["The Intel page", "/magazine/intel"]] },
+    { title: "Archive lab", kind: "site", url: "/magazine/archive/lab", path: "hypermedia/archive-lab.lisp", at: "2026-10-12",
+      text: "Three candidate archives to compare, over the magazine's own articles or a sample of 59.",
+      more: [["A · Manifest", "/magazine/archive/lab?design=a&data=sample"], ["B · Month plates", "/magazine/archive/lab?design=b&data=sample"], ["C · Card catalogue", "/magazine/archive/lab?design=c&data=sample"], ["C, live articles", "/magazine/archive/lab?design=c&data=live"]] },
+    { title: "Docs lab", kind: "site", url: "/magazine/docs/lab", path: "hypermedia/docs-lab.lisp", at: "2026-10-12",
+      text: "One page of the Almighty Docs set on the magazine's sheet: a how-to guide for local-time, with the library's four kinds of documentation." },
+  ]},
+  { name: "Design and layout", note: "static/dev/", pages: [
+    { title: "Grid lock", kind: "site", url: "/static/dev/grid-lock/index.html", path: "static/dev/grid-lock/", at: "2026-10-15",
+      text: "The graph paper, in the footer and the book panel beside an article, before and after keeping it to whole 28px cells at every width: one lattice per box, closed edges, whole pixels, buttons on the lines. Measures each, at a chosen or swept width.",
+      more: [["At 1729 (half-pixel case)", "/static/dev/grid-lock/index.html?w=1729"], ["At 390 (phone)", "/static/dev/grid-lock/index.html?w=390"], ["After, alone", "/static/dev/grid-lock/specimen.html?mode=after&overlay=1"]] },
+    { title: "Design comparison", kind: "site", url: "/static/dev/designs/index.html", path: "static/dev/designs/index.html", at: "2026-10-08",
+      text: "Design variants beside the current design, on the live magazine pages, in two frames at a chosen width.",
+      more: [["v31 against v31-band", "/static/dev/designs/index.html?page=/magazine/opening-a-window&a=v31&b=v31-band&view=split&w=1728"]] },
+    { title: "Scroll-driven article (mock)", kind: "site", url: "/static/dev/scrolly/index.html", path: "static/dev/scrolly/index.html", at: "2026-10-09",
+      text: "A mock article whose code blocks and notes hold the left side while the paragraphs are read on the right." },
+    { title: "Almighty Bakers, scroll-driven", kind: "site", url: "/static/dev/scrolly/bakers.html", path: "static/dev/scrolly/bakers.html", at: "2026-10-09",
+      text: "\"Almighty Bakers\" as it is published, with its sections converted to scroll-driven ones by shell.js." },
+    { title: "Evolving article: Keeping a Window Open", kind: "site", url: "/static/dev/evolving-test.html", path: "static/dev/evolving-test.html", at: "2026-10-07",
+      text: "A worked example of an evolving article: a heading that holds one side, text read a paragraph at a time, and code that changes as you read." },
+    { title: "Evolving code: plug-in effect", kind: "site", url: "/static/dev/evolving-fx/index.html", path: "static/dev/evolving-fx/index.html", at: "2026-10-09",
+      text: "Tunes the effect a code block plays when a step adds lines to it: the slide, the hit, the flare. Gives the rule to paste into magazine.css." },
+  ]},
+  { name: "Effects lab", note: "dev/fx-lab/ is outside static/, so the site never serves it. Run python3 dev/fx-lab/serve.py with the dev server up; these links go to its port, 5090.", pages: [
+    { title: "Effects Lab", kind: "fx", url: "/fx-lab/index.html", path: "dev/fx-lab/index.html", at: "2026-10-01",
+      text: "Plays the magazine's screen effects in a frame, in the live version or another saved there, and times them." },
+    { title: "Overlay Lab", kind: "fx", url: "/fx-lab/overlays.html", path: "dev/fx-lab/overlays.html", at: "2026-10-11",
+      text: "The noise and the scanlines every magazine page has, drawn one of several ways on a page of the site, to compare." },
+    { title: "Gutter Patterns Lab", kind: "fx", url: "/fx-lab/patterns.html", path: "dev/fx-lab/patterns.html", at: "2026-10-04",
+      text: "The pattern in the sheet's two edges: today's dots against the triangle fade and dither ramps, on a mock sheet or the live site." },
+    { title: "Live links", kind: "fx", url: "/fx-lab/links.html", path: "dev/fx-lab/links.html", at: "2026-10-03",
+      text: "Article links, links to other sites and underlined text, the same paragraph set in each treatment." },
+    { title: "Link aura", kind: "fx", url: "/fx-lab/aura.html", path: "dev/fx-lab/aura.html", at: "2026-10-03",
+      text: "Electricity drawn around the article links, on small canvases laid over the page." },
+    { title: "Link glitch", kind: "fx", url: "/fx-lab/glitch.html", path: "dev/fx-lab/glitch.html", at: "2026-10-03",
+      text: "The click effect's colour split and tear, on one link at a time." },
+    { title: "Link pulse", kind: "fx", url: "/fx-lab/pulse.html", path: "dev/fx-lab/pulse.html", at: "2026-10-03",
+      text: "A pulse of colour split on the article links, as a text-shadow." },
+  ]},
+  { name: "Logo and fonts", note: "The font pages are written by their scripts and served by nothing: open the files.", pages: [
+    { title: "Almighty logo, 3D model", kind: "site", url: "/static/dev/logo3d/index.html", path: "static/dev/logo3d/index.html", at: "2026-10-08",
+      text: "The logo as a 3D model, with its holes, depth and line to set, saved as GLB, OBJ or STL." },
+    { title: "STL test", kind: "site", url: "/static/dev/logo3d/stl.html", path: "static/dev/logo3d/stl.html", at: "2026-10-08",
+      text: "Shows a saved STL file, the logo's unless ?file= names another." },
+    { title: "JF Dot M+Q 10: vertical forms", kind: "file", path: "dev/jfdot-vert.html", at: "2026-10-08",
+      text: "Every vertical form added to the pixel face of the Japanese labels. Written by dev/jfdot-vert.py." },
+    { title: "KKM Analog TV: vertical forms", kind: "file", path: "dev/kkm-vert.html", at: "2026-10-05",
+      text: "Every vertical form added to KKM Analog TV. Written by dev/kkm-vert.py." },
+  ]},
+  { name: "Magazine prototypes, September", note: "Static mock-ups of the masthead, hero and article that led to the magazine's grid. static/prototypes/.", pages: [
+    { title: "Grid: masthead and hero", kind: "site", url: "/static/prototypes/grid-masthead-hero.html", path: "static/prototypes/grid-masthead-hero.html", at: "2026-09-23",
+      text: "The magazine's home on the grid theme: nameplate, the book, Latest." },
+    { title: "Grid: article", kind: "site", url: "/static/prototypes/grid-article.html", path: "static/prototypes/grid-article.html", at: "2026-09-23",
+      text: "\"To LOOP or not to LOOP\" set as an article on the grid theme." },
+    { title: "Grid plate: masthead and hero", kind: "site", url: "/static/prototypes/time-county-grid.html", path: "static/prototypes/time-county-grid.html", at: "2026-09-22",
+      text: "Black-and-white masthead and hero, locked to a 12-column rule." },
+    { title: "Print Edition: masthead and hero", kind: "site", url: "/static/prototypes/time-county-print-masthead-hero.html", path: "static/prototypes/time-county-print-masthead-hero.html", at: "2026-09-22",
+      text: "The masthead and hero alone, taken from the Print Edition prototype." },
+  ]},
+  { name: "Magazine prototypes, July", note: "The first directions for a magazine-style home. static/prototypes/ and static/magazine/.", pages: [
+    { title: "Print Edition: landing", kind: "site", url: "/static/prototypes/time-county-print.html", path: "static/prototypes/time-county-print.html", at: "2026-07-18",
+      text: "County Highway typography over the TIME layout; the editorial counterpart to the Flight Manual." },
+    { title: "Flight Manual: landing", kind: "site", url: "/static/prototypes/time-county.html", path: "static/prototypes/time-county.html", at: "2026-07-11",
+      text: "Industrial aerospace magazine, in the site's themes. County Highway type on the TIME layout." },
+    { title: "Standard Output: technical bulletin", kind: "site", url: "/static/prototypes/magazine-industrial.html", path: "static/prototypes/magazine-industrial.html", at: "2026-07-10",
+      text: "The magazine as a technical bulletin: figures, document numbers, liveries." },
+    { title: "The S-Express: broadsheet", kind: "site", url: "/static/prototypes/magazine-broadsheet.html", path: "static/prototypes/magazine-broadsheet.html", at: "2026-07-10",
+      text: "The magazine as a newspaper broadsheet. \"All the forms fit to eval.\"" },
+    { title: "CL-USER: field journal with a listener", kind: "site", url: "/static/prototypes/magazine-v2.html", path: "static/prototypes/magazine-v2.html", at: "2026-07-10",
+      text: "A magazine you evaluate: a listener on the page that answers forms like (features) and (contents)." },
+    { title: "The Field Journal", kind: "site", url: "/static/prototypes/magazine.html", path: "static/prototypes/magazine.html", at: "2026-07-10",
+      text: "The first magazine prototype, built on the book's design system and its code blocks." },
+    { title: "Magazine landing prototype (v2)", kind: "site", url: "/static/magazine/index.html", path: "static/magazine/index.html", at: "2026-07-10",
+      text: "A magazine-style home page matched to the live theme and the landing page and book. Its README and screenshots are beside it." },
+    { title: "Essay restyle: the Bun Rust rewrite", kind: "site", url: "/static/prototypes/bun-rust-rewrite.html", path: "static/prototypes/bun-rust-rewrite.html", at: "2026-07-10",
+      text: "A long essay from elsewhere set in the Almighty Lisp themes, with a theme picker, to try long-form reading." },
+    { title: "Prototypes: book components", kind: "site", url: "/static/prototype.html", path: "static/prototype.html", at: "2026-07-10",
+      text: "Specimens of the book's components under the site's themes, with a theme switcher." },
+  ]},
+];
+
+const KIND = { site: "site", fx: "fx-lab", file: "file" };
+const FX_PORT = "5090";
+// Opened from a file, the site's pages are assumed to be on the dev server.
+const SITE = location.protocol === "file:" ? "http://127.0.0.1:5002" : "";
+
+function href(page, url) {
+  if (page.kind === "site") return SITE + url;
+  if (page.kind === "fx") {
+    if (location.port === FX_PORT) return url;
+    return "http://" + (location.hostname || "127.0.0.1") + ":" + FX_PORT + url;
+  }
+  // A file: reachable only when this page is a file too.
+  return location.protocol === "file:" ? "../../" + page.path : null;
+}
+
+function el(tag, attrs, ...kids) {
+  const node = document.createElement(tag);
+  for (const k in attrs || {}) node.setAttribute(k, attrs[k]);
+  node.append(...kids.filter(k => k != null));
+  return node;
+}
+
+function link(page, url, label) {
+  const to = href(page, url);
+  return to ? el("a", { href: to }, label) : label;
+}
+
+const list = document.getElementById("list");
+const sections = GROUPS.map(group => {
+  const cards = group.pages.map(page => {
+    const node = el("article", { class: "card" },
+      el("h3", null, link(page, page.url, page.title)),
+      el("p", null, page.text),
+      page.more && el("div", { class: "more" }, ...page.more.map(([label, url]) => link(page, url, label))),
+      el("div", { class: "meta" },
+        el("span", { class: "tag " + page.kind }, KIND[page.kind]),
+        el("span", null, page.at),
+        el("span", { class: "path" }, page.path)));
+    return { node, page, hay: (page.title + " " + page.text + " " + page.path + " " + group.name).toLowerCase() };
+  });
+  const count = el("span");
+  const node = el("section", null,
+    el("h2", null, group.name, count),
+    el("p", { class: "note" }, group.note),
+    el("div", { class: "grid" }, ...cards.map(c => c.node)));
+  list.append(node);
+  return { node, cards, count };
+});
+
+const q = document.getElementById("q");
+const buttons = [...document.querySelectorAll("button[data-kind]")];
+const total = sections.reduce((n, s) => n + s.cards.length, 0);
+let kind = "";
+
+function show() {
+  const words = q.value.toLowerCase().split(/\s+/).filter(Boolean);
+  let shown = 0;
+  for (const section of sections) {
+    let n = 0;
+    for (const card of section.cards) {
+      const on = (!kind || card.page.kind === kind) && words.every(w => card.hay.includes(w));
+      card.node.hidden = !on;
+      if (on) n++;
+    }
+    section.node.hidden = n === 0;
+    section.count.textContent = n;
+    shown += n;
+  }
+  document.getElementById("count").textContent = shown === total ? total + " pages" : shown + " of " + total + " pages";
+  document.getElementById("empty").hidden = shown > 0;
+}
+
+q.addEventListener("input", show);
+for (const button of buttons) {
+  button.addEventListener("click", () => {
+    kind = button.dataset.kind;
+    for (const b of buttons) b.setAttribute("aria-pressed", b === button);
+    show();
+  });
+}
+addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+  else if (e.key === "Escape" && document.activeElement === q) { q.value = ""; show(); q.blur(); }
+});
+show();
+</script>
+</body>
+</html>

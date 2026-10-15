@@ -5,8 +5,10 @@
 //
 // Click on a book button or card, an article link or a link to another site: the
 // page splits into its colour
-// channels and tears sideways (an SVG filter on the visible part of .sheet;
-// in Safari, which can't run it fast enough, copies of the page instead),
+// channels and tears sideways (an SVG filter on the visible part of .sheet,
+// or on the search palette when that is open over it; in Safari, which
+// can't run it fast enough, copies of the page instead, and the palette
+// goes out of sight as the effect starts),
 // while a WebGL overlay adds tear bars, scanlines and noise and then switches
 // the screen off like a CRT. The next page settles in with a shorter version
 // of the same thing. The shorter version also plays when the fonts finish
@@ -16,7 +18,7 @@
 // plays, and swapped in once the screen is off. Other boosted navigations
 // (the nameplate, the archive) use a view transition instead. The book
 // buttons and links to other sites leave the magazine, so they do a normal
-// page load after the effect.
+// page load after the effect. This file sets htmx up for all of that.
 //
 // A link in the text, to an article or to another site: every ten seconds
 // or so, a small version of the click's first stage, on the link alone: its
@@ -26,8 +28,7 @@
 // the same way, the whole card.
 //
 // The effect's own elements hang off <html>, not <body>, so htmx never swaps
-// them out or saves them in its history snapshots. (A link's pulse puts
-// copies in its paragraph in Safari; they're gone before a page is saved.)
+// them out.
 //
 // Everything runs only while an effect is playing, but for a twice-a-second
 // check for links due a pulse. The effects play whatever the reduced-motion
@@ -38,8 +39,11 @@
   // The effects test page (dev/fx-lab/, served locally by its serve.py)
   // loads the page with ?fx-lab=NAME to try dev/fx-lab/NAME.js, another
   // version of this file, in its place, after the distortion maps the
-  // versions share (distortions.js). Only on this machine.
-  var lab = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) &&
+  // versions share (distortions.js). Only on this machine, or from another
+  // on its network (a phone, with serve.py listening on 0.0.0.0): never at
+  // the site's own address.
+  var LOCAL = /^(localhost|127\.0\.0\.1|10(\.\d+){3}|192\.168(\.\d+){2}|172\.(1[6-9]|2\d|3[01])(\.\d+){2}|[a-z0-9-]+\.local)$/i;
+  var lab = LOCAL.test(location.hostname) &&
     /[?&]fx-lab=([a-z0-9-]+)/.exec(location.search);
   if (lab && !window.MagazineFxLab) {
     window.MagazineFxLab = lab[1];
@@ -62,6 +66,7 @@
   var SHEET = [229 / 255, 229 / 255, 229 / 255];
 
   var sheet = null;       // the sheet being torn by the current effect
+  var over = null;        // and the search palette, when it is open over it
   var playing = false;
   var run = 0;            // bumps on every effect, so an old frame loop stops
   var htmx = window.htmx;
@@ -74,10 +79,18 @@
     return a.classList.contains("neo-button") || a.classList.contains("book-card");
   }
 
+  // The magazine is the site's root. These are the parts of the site that
+  // aren't the magazine: the other modules mounted in src/main.lisp, and the
+  // static files. (The magazine's articles are under /article.)
+  var OTHER_SECTIONS = /^\/(admin|book|author|static)(\/|$)/;
+
+  function isMagazinePath(path) {
+    return !OTHER_SECTIONS.test(path);
+  }
+
   function isArticleLink(a) {
     if (a.origin !== location.origin) return false;
-    return /^\/magazine\/[a-z0-9-]+\/?$/.test(a.pathname) &&
-           !/^\/magazine\/archive\/?$/.test(a.pathname);
+    return /^\/article\/[a-z0-9-]+\/?$/.test(a.pathname);
   }
 
   // Another site's page. Not mail or phone links, which leave nothing.
@@ -249,7 +262,11 @@
     return true;
   }
 
-  var svg = null, filterEl, image, displace, offR, offG, offB, strips, tearMaps;
+  // The filter is on one element at a time: the sheet, or the search
+  // palette when that is open, which covers nearly all of the sheet. A
+  // filter on each, both the size of the window, is twice the work and
+  // felt slow; the sheet behind the palette only shakes.
+  var svg = null, pageFilter = null, strips, tearMaps;
 
   function ensureFilter() {
     if (svg || !SVG_FILTER) return;
@@ -263,37 +280,39 @@
     svg.style.position = "absolute";
     svg.innerHTML =
       '<filter id="fx-aberration" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">' +
-        '<feImage id="fx-strip" preserveAspectRatio="none" result="map"/>' +
-        '<feDisplacementMap id="fx-displace" in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G" result="torn"/>' +
+        '<feImage preserveAspectRatio="none" result="map"/>' +
+        '<feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G" result="torn"/>' +
         '<feColorMatrix in="torn" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>' +
-        '<feOffset id="fx-r" in="r" dx="0" dy="0" result="rs"/>' +
+        '<feOffset in="r" dx="0" dy="0" result="rs"/>' +
         '<feColorMatrix in="torn" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>' +
-        '<feOffset id="fx-g" in="g" dx="0" dy="0" result="gs"/>' +
+        '<feOffset in="g" dx="0" dy="0" result="gs"/>' +
         '<feColorMatrix in="torn" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>' +
-        '<feOffset id="fx-b" in="b" dx="0" dy="0" result="bs"/>' +
+        '<feOffset in="b" dx="0" dy="0" result="bs"/>' +
         '<feBlend in="rs" in2="gs" mode="screen" result="rg"/>' +
         '<feBlend in="rg" in2="bs" mode="screen"/>' +
       "</filter>";
     root.appendChild(svg);
-    filterEl = svg.querySelector("filter");
-    image = svg.querySelector("#fx-strip");
-    displace = svg.querySelector("#fx-displace");
-    offR = svg.querySelector("#fx-r");
-    offG = svg.querySelector("#fx-g");
-    offB = svg.querySelector("#fx-b");
+    var el = svg.querySelector("filter"), offsets = el.querySelectorAll("feOffset");
+    pageFilter = { el: el, image: el.querySelector("feImage"), displace: el.querySelector("feDisplacementMap"),
+               r: offsets[0], g: offsets[1], b: offsets[2] };
+  }
+
+  // Set NAME to VALUE on PART of the filter.
+  function setPart(part, name, value) {
+    pageFilter[part].setAttribute(name, value);
   }
 
   // Limit the filter to the part of the page on screen: filtering the
-  // whole article would cost a lot more and show nothing extra.
+  // whole article would cost a lot more and show nothing extra. The window
+  // is placed from where the filtered element is.
   function placeFilter() {
     if (!SVG_FILTER) return;
-    var box = sheet.getBoundingClientRect();
-    var x = -box.left, y = -box.top, w = window.innerWidth, h = window.innerHeight;
-    [filterEl, image].forEach(function (el) {
-      el.setAttribute("x", x);
-      el.setAttribute("y", y);
-      el.setAttribute("width", w);
-      el.setAttribute("height", h);
+    var box = (over || sheet).getBoundingClientRect();
+    [pageFilter.el, pageFilter.image].forEach(function (part) {
+      part.setAttribute("x", -box.left);
+      part.setAttribute("y", -box.top);
+      part.setAttribute("width", window.innerWidth);
+      part.setAttribute("height", window.innerHeight);
     });
   }
 
@@ -358,22 +377,27 @@
     by += bx * splitSlope;
     var gy = gx * splitSlope;
     if (SVG_FILTER) {
-      offR.setAttribute("dx", rx.toFixed(1));
-      offR.setAttribute("dy", ry.toFixed(1));
-      offG.setAttribute("dx", gx.toFixed(1));
-      offG.setAttribute("dy", gy.toFixed(1));
-      offB.setAttribute("dx", bx.toFixed(1));
-      offB.setAttribute("dy", by.toFixed(1));
+      setPart("r", "dx", rx.toFixed(1));
+      setPart("r", "dy", ry.toFixed(1));
+      setPart("g", "dx", gx.toFixed(1));
+      setPart("g", "dy", gy.toFixed(1));
+      setPart("b", "dx", bx.toFixed(1));
+      setPart("b", "dy", by.toFixed(1));
       return;
     }
     rgbOffsets = [[rx, ry], [gx, gy], [bx, by]];
   }
 
-  // Shake the page: the sheet, or (WebKit) the copies over it.
+  // Shake the page: the sheet and the search palette over it, or (WebKit)
+  // the copies over the sheet. In WebKit the palette is out of sight for
+  // the effect (.fx-lite .search.fx-torn in magazine.css): a copy of it in
+  // every copy of the page made the effect too slow to use, and so did
+  // leaving it over them.
   function setShake(x, y, skew) {
     var t = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0) skewX(" + skew.toFixed(2) + "deg)";
     if (SVG_FILTER) {
       sheet.style.transform = t;
+      if (over) over.style.transform = t;
     } else {
       shake = t;
       placeCopies();
@@ -392,8 +416,8 @@
     var wobble = 0.8 + Math.random() * 0.4;
     var split = amount * SPLIT * wobble;
     if (SVG_FILTER) {
-      image.setAttribute("href", strips[frame % strips.length]);
-      displace.setAttribute("scale", (amount * TEAR * (0.6 + Math.random() * 0.8)).toFixed(1));
+      setPart("image", "href", strips[frame % strips.length]);
+      setPart("displace", "scale", (amount * TEAR * (0.6 + Math.random() * 0.8)).toFixed(1));
     }
     if (!SVG_FILTER && liteDue(frame)) setBands(0.35, amount * TEAR, 0);
     setSplit(splitDir * split, amount * (Math.random() * 6 - 3), splitDir * split * 0.12,
@@ -404,8 +428,8 @@
   // The page coming apart. K runs from about 0.55 to 1 over the tear.
   function setTear(k, frame) {
     if (SVG_FILTER) {
-      image.setAttribute("href", tearMaps[Math.floor(Math.random() * tearMaps.length)]);
-      displace.setAttribute("scale", Math.round(k * (300 + Math.random() * 500)));
+      setPart("image", "href", tearMaps[Math.floor(Math.random() * tearMaps.length)]);
+      setPart("displace", "scale", Math.round(k * (300 + Math.random() * 500)));
     }
     if (!SVG_FILTER) setBands(0.55, k * (300 + Math.random() * 500), 30 * k);
     var dir = Math.random() < 0.5 ? -1 : 1;
@@ -503,6 +527,11 @@
   function clearFilter() {
     removeTear();
     removeSplit();
+    if (over) {
+      over.classList.remove("fx-torn");
+      over.style.transform = "";
+      over = null;
+    }
     if (!sheet) return;
     sheet.classList.remove("fx-torn");
     sheet.style.transform = "";
@@ -824,8 +853,29 @@
     return bands;
   }
 
+  // An element's text colour as [r, g, b], each 0-255. The stylesheet's
+  // palette is in OKLCH, and a computed colour comes back in the space it was
+  // written in ("oklch(1 0 0)" for white), so it is drawn to a canvas and
+  // read there, not picked out of the text.
+  var inks = {}, inkPad = null;
+  function inkOf(el) {
+    var colour = getComputedStyle(el).color;
+    if (inks[colour]) return inks[colour];
+    if (!inkPad) {
+      var canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 1;
+      inkPad = canvas.getContext("2d", { willReadFrequently: true });
+    }
+    inkPad.clearRect(0, 0, 1, 1);
+    inkPad.fillStyle = "#000";
+    inkPad.fillStyle = colour;
+    inkPad.fillRect(0, 0, 1, 1);
+    var px = inkPad.getImageData(0, 0, 1, 1).data;
+    return (inks[colour] = [px[0], px[1], px[2]]);
+  }
+
   function startLink(a, now) {
-    var rgb = (getComputedStyle(a).color.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number);
+    var rgb = inkOf(a);
     var light = rgb[0] * 0.3 + rgb[1] * 0.59 + rgb[2] * 0.11 > 128;
     var pulse = {
       a: a,
@@ -889,8 +939,7 @@
   var BURST_SLOTS = 8;
   function burst(el, options) {
     if (playing || !el.isConnected) return false;
-    var rgb = options.rgb ||
-      (getComputedStyle(el).color.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number);
+    var rgb = options.rgb || inkOf(el);
     var light = rgb[0] * 0.3 + rgb[1] * 0.59 + rgb[2] * 0.11 > 128;
     var pulse = {
       a: el,
@@ -1161,13 +1210,16 @@
     sheet = document.querySelector(".sheet");
     // Pages without the sheet layout (the archive) get the overlay only.
     if (sheet) {
+      over = document.querySelector(".search.open");
       ensureFilter();
       placeFilter();
       if (!SVG_FILTER) {
         buildSplit();
         buildTear();
       }
-      sheet.classList.add("fx-torn");
+      // The filter goes on the palette when it is open, not on both.
+      if (!over || !SVG_FILTER) sheet.classList.add("fx-torn");
+      if (over) over.classList.add("fx-torn");
     }
     var hasGL = ensureGL();
     if (!sheet && !hasGL) { playing = false; if (done) done(); return; }
@@ -1242,7 +1294,7 @@
   }
 
   // A boosted article link: htmx fetches the page while this plays. The
-  // swap waits for the screen to go off (see htmx:beforeSwap below).
+  // swap waits for the screen to go off (see htmx:before:swap below).
   var leaving = null;
 
   function leaveBoosted(a) {
@@ -1255,9 +1307,9 @@
     play(0, LEAVE_MS, function () { /* stays switched off until the swap */ });
   }
 
+  // htmx marks the links it has boosted (see htmx:before:init below).
   function isBoosted(a) {
-    var b = a.closest("[hx-boost]");
-    return !!(htmx && b && b.getAttribute("hx-boost") !== "false");
+    return !!(a._htmx && a._htmx.boosted);
   }
 
   // Pages carry their layout in the body's class, but htmx only swaps the
@@ -1285,43 +1337,39 @@
   }, true);
 
   if (htmx) {
-    htmx.config.globalViewTransitions = true;
+    // A page that answers with an error isn't swapped in: it is loaded the
+    // ordinary way (see fallBack).
+    htmx.config.noSwap = [204, 304, "4xx", "5xx"];
+    // Fetch a boosted link's page when it is hovered (htmx's preload
+    // extension), not only when it is pressed.
+    htmx.config.preload = { boostEvent: "mouseover" };
 
-    // Preload magazine pages when a link is hovered (htmx's preload
-    // extension, enabled on the body). htmx sets up each link just after
-    // this event, on the first load and after every swap, and the extension
-    // reads the preload attribute right after that. Only other magazine
-    // pages: not #anchors on this page, the book, or other sites.
-    document.addEventListener("htmx:beforeProcessNode", function (e) {
+    // Only links to other magazine pages are boosted. The rest (the book,
+    // inline links in an article) lead to pages with other styles, and load
+    // the ordinary way. htmx asks before it sets up each link, on the first
+    // load and after every swap.
+    document.addEventListener("htmx:before:init", function (e) {
       var a = e.target;
-      if (!(a instanceof HTMLAnchorElement) || a.hasAttribute("preload")) return;
-      var href = a.getAttribute("href");
-      if (!href || href.charAt(0) === "#" || !isBoosted(a)) return;
-      if (a.origin !== location.origin || !/^\/magazine(\/|$)/.test(a.pathname)) return;
-      a.setAttribute("preload", "mouseover");
-    });
-
-    // Boosted links that leave the magazine (the book, inline links in an
-    // article) load the ordinary way: their pages have other styles.
-    document.addEventListener("htmx:beforeRequest", function (e) {
-      if (!e.detail.boosted) return;
-      var url = new URL(e.detail.requestConfig.path, location.href);
-      if (!/^\/magazine(\/|$)/.test(url.pathname)) {
-        e.preventDefault();
-        if (!playing) location.href = url.href;
-      }
+      if (!(a instanceof HTMLAnchorElement) || a.hasAttribute("hx-get")) return;
+      if (a.origin !== location.origin || !isMagazinePath(a.pathname)) e.preventDefault();
     });
 
     // Hold the new page until the screen has gone off, and skip the view
     // transition: the effect is the transition.
-    document.addEventListener("htmx:beforeSwap", function (e) {
-      if (!leaving || !e.detail.boosted) return;
+    document.addEventListener("htmx:before:swap", function (e) {
+      if (!leaving || e.detail.ctx.target !== document.body) return;
       var wait = Math.max(0, Math.round(LEAVE_MS - (performance.now() - leaving.start)));
-      e.detail.swapOverride = "innerHTML swap:" + wait + "ms transition:false";
+      e.detail.tasks.forEach(function (task) {
+        if (task.type !== "main") return;
+        task.swapSpec.swap = wait + "ms";
+        task.swapSpec.transition = false;
+      });
     });
 
-    document.addEventListener("htmx:afterSettle", function (e) {
-      if (e.detail.target !== document.body) return;
+    // The new page is in, and scrolled to where its link pointed (which
+    // htmx does last): settle in there.
+    document.addEventListener("htmx:finally:swap", function (e) {
+      if (e.detail.ctx.target !== document.body) return;
       syncBodyClass();
       if (leaving) {
         clearTimeout(leaving.timer);
@@ -1333,34 +1381,19 @@
     function fallBack() {
       if (leaving) location.href = leaving.href;
     }
-    document.addEventListener("htmx:responseError", fallBack);
-    document.addEventListener("htmx:sendError", fallBack);
+    document.addEventListener("htmx:response:error", fallBack);
+    document.addEventListener("htmx:error", fallBack);
 
-    // htmx saves the page it's leaving just before the swap, mid-effect.
-    // Save it clean.
-    document.addEventListener("htmx:beforeHistorySave", function () {
+    // Back and forward fetch the page again and swap it in. Whatever was
+    // playing stops.
+    document.addEventListener("htmx:before:history:restore", function () {
       stopLinks();
       stopCards();
-      var s = sheet;
-      if (!s || !s.classList.contains("fx-torn")) return;
-      var style = s.getAttribute("style") || "";
-      s.classList.remove("fx-torn");
-      s.style.transform = "";
-      Promise.resolve().then(function () {
-        if (playing && s.isConnected) {
-          s.classList.add("fx-torn");
-          s.setAttribute("style", style);
-        }
-      });
-    });
-
-    document.addEventListener("htmx:historyRestore", function () {
       finish();
     });
 
-    // Swaps, history restores and cache misses all replace the body's
-    // contents, and not every path fires the same htmx event: watch the
-    // body instead.
+    // A swap and a history restore both replace the body's contents, and
+    // a swap that fails part-way fires no event: watch the body instead.
     new MutationObserver(syncBodyClass).observe(document.body, { childList: true });
   }
 

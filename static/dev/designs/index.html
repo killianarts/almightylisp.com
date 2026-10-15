@@ -360,8 +360,7 @@
     var win = pane.frame.contentWindow;
     if (doc.__watched) return;
     doc.__watched = true;
-    doc.addEventListener("htmx:afterSettle", function () { moved(pane); });
-    doc.addEventListener("htmx:historyRestore", function () { moved(pane); });
+    doc.addEventListener("htmx:after:swap", function () { moved(pane); });
     win.addEventListener("scroll", function () { scrolled(pane); }, { passive: true });
   }
 

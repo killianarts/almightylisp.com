@@ -32,15 +32,30 @@
     { family: "Construct Mono", file: "ConstructMono.otf", wait: true },
     { family: "Mohave", file: "Mohave-latin.woff2", wait: true,
       weight: "300 700", unicodeRange: LATIN },
+    // Article text.
+    { family: "Geist", file: "Geist-latin.woff2", wait: true,
+      weight: "100 900", unicodeRange: LATIN },
     // Japanese labels: in the running header, so on every page.
     { family: "JF Dot M+Q 10", file: "jf-dot-mplusq10-vert.ttf", wait: true },
     { family: "KKM Analog TV", file: "kkm_analogtv_v2-vert.ttf", wait: true },
     { family: "Mohave", file: "Mohave-latin-ext.woff2",
       weight: "300 700", unicodeRange: LATIN_EXT },
+    { family: "Geist", file: "Geist-latin-ext.woff2",
+      weight: "100 900", unicodeRange: LATIN_EXT },
+    // On trial for article text: loads only where a rule names it.
+    { family: "Geologica", file: "Geologica-latin.woff2",
+      weight: "100 900", unicodeRange: LATIN },
+    { family: "Geologica", file: "Geologica-latin-ext.woff2",
+      weight: "100 900", unicodeRange: LATIN_EXT },
     // The motto, in the footer.
     { family: "JF Dot Kappa 20 0213", file: "jf-dot-kappa20-0213-motto.ttf" },
     // Code blocks, further down an article.
     { family: "Berkeley Mono", file: "BerkeleyMono-Regular.ttf" },
+    // =code= in the text.
+    { family: "Berkeley Mono", file: "BerkeleyMono-Bold.ttf", weight: "700" },
+    // Code in a note.
+    { family: "Berkeley Mono UltraCondensed", file: "BerkeleyMono-Bold-UltraCondensed.ttf",
+      weight: "700" },
     // Stands in for Avenir Next Condensed where there's no Avenir.
     { family: "Barlow Condensed", file: "BarlowCondensed-SemiBold-latin.woff2",
       weight: "600", unicodeRange: LATIN },

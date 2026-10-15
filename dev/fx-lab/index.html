@@ -156,9 +156,10 @@
   <div class="group">
     <h2>Page</h2>
     <select id="page">
-      <option value="/magazine">Magazine home</option>
-      <option value="/magazine/using-llms-to-design-and-build-this-site">Article: Using LLMs…</option>
-      <option value="/magazine/why-build-native-instead-of-web-applications">Article: Why build native…</option>
+      <option value="/">Magazine home (the hardcover's card)</option>
+      <option value="/article/using-machine-intelligence-to-design-and-build-this-site">Article: Using machine intelligence… (many links)</option>
+      <option value="/article/opening-a-window">Article: Opening a window</option>
+      <option value="/article/why-build-native-instead-of-web-applications">Article: Why build native…</option>
     </select>
   </div>
 
@@ -174,6 +175,15 @@
     </div>
     <p class="note">Leave plays in place and comes back, instead of going anywhere. Each run reloads the page first, so none starts with the copies already painted.</p>
     <div id="status" class="note"></div>
+  </div>
+
+  <div class="group">
+    <h2>Pulse</h2>
+    <div class="row">
+      <button data-pulse="pulse">Links</button>
+      <button data-pulse="card">Hardcover card</button>
+    </div>
+    <p class="note">Plays now what otherwise comes round every ten seconds or so: the pulse of every link in the text that is in the window, or of the hardcover's card on the home page. Not timed.</p>
   </div>
 
   <div class="group">
@@ -202,7 +212,9 @@
     { name: "ripple-staged", title: "Ripple, staged", note: "copies + ripple, a colour a frame" },
     { name: "ripple-premask", title: "Ripple, premasked", note: "stripes on from the first frame" },
     { name: "hybrid", title: "Hybrid", note: "copies + Chrome's displacement filter", styles: true },
-    { name: "styles", title: "Distortions", note: "live, with the distortion below", styles: true }
+    { name: "styles", title: "Distortions", note: "live, with the distortion below", styles: true },
+    { name: "lightning", title: "Lightning", note: "bolts, white with a blue glow, in place of the split and tear" },
+    { name: "lightning-shader", title: "Lightning, shader", note: "the same, drawn by a fragment shader: glow and taper" }
   ];
   var DURATION = { 0: 650, 1: 260 };   // LEAVE_MS and ARRIVE_MS
   var TAIL = 120;                      // ms timed past the end
@@ -255,6 +267,7 @@
     });
   }
   try { var page = localStorage.getItem("fx-lab-page"); if (page) pageSelect.value = page; } catch (e) {}
+  if (pageSelect.selectedIndex < 0) pageSelect.selectedIndex = 0; // a page since moved
 
   var versionBox = document.getElementById("versions");
   VERSIONS.forEach(function (v) {
@@ -423,6 +436,15 @@
   Array.prototype.forEach.call(document.querySelectorAll("button[data-mode]"), function (b) {
     b.addEventListener("click", function () {
       if (!busy) run(Number(b.dataset.mode), Number(b.dataset.runs || 1));
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll("button[data-pulse]"), function (b) {
+    b.addEventListener("click", function () {
+      var fx = frame.contentWindow.MagazineFx;
+      if (busy || !fx) return;
+      if (fx[b.dataset.pulse]) fx[b.dataset.pulse]();
+      else status.textContent = "This version can't play that on its own.";
     });
   });
 

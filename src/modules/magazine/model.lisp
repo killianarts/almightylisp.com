@@ -6,7 +6,7 @@
    #:article-date #:article-type #:article-topic #:article-code #:article-slug
    #:article-lead #:article-related #:article-book-chapter #:article-book-title
    #:article-book-summary #:article-book-href #:article-sections #:article-draft
-   #:article-series #:article-part #:article-pathname #:article-layout
+   #:article-series #:article-part #:article-recap #:article-pathname #:article-layout
    #:section-title-lines #:section-title #:section-id #:section-blocks
    #:section-evolution
    ;; Series
@@ -47,6 +47,7 @@
 ;;;   #+BOOK_SUMMARY: dek for the book card
 ;;;   #+BOOK_HREF: /book/essentials/the-loop-macro
 ;;;   #+PART: 1                                 required in a series' folder, and only there
+;;;   #+RECAP: what the part before did         from part 2; normally that part's dek
 ;;;   #+LAYOUT: evolving                        an evolving article; see below
 ;;;   #+DRAFT: t                                not published
 ;;;
@@ -78,6 +79,9 @@
   title-lines title subtitle author date type topic code slug lead related
   book-chapter book-title book-summary book-href
   sections draft pathname series part
+  ;; The recap of the part before, which this part's lede closes with; NIL
+  ;; to use that part's dek.
+  recap
   ;; NIL for an ordinary article, :EVOLVING for an evolving one.
   layout)
 
@@ -153,7 +157,7 @@
 (defparameter *article-keywords*
   '("TITLE" "SUBTITLE" "AUTHOR" "DATE" "TYPE" "TOPIC" "CODE" "SLUG" "HOME"
     "RELATED" "BOOK_CHAPTER" "BOOK_TITLE" "BOOK_SUMMARY" "BOOK_HREF"
-    "PART" "DRAFT" "LAYOUT")
+    "PART" "RECAP" "DRAFT" "LAYOUT")
   "Keywords an article may use. Others get a warning, to catch typos.")
 
 (defun choice (keyword text table)
@@ -487,7 +491,11 @@ needs only #+TITLE (and #+PART in a series), so a queued part can be one."
               ((and part (not series))
                (error "#+PART is only for articles in a series' folder."))
               ((and part (not (ignore-errors (plusp (parse-integer part)))))
-               (error "#+PART must be a number from 1; got ~s." part)))
+               (error "#+PART must be a number from 1; got ~s." part))
+              ((and (value "RECAP") (not series))
+               (error "#+RECAP is only for parts of a series, to recap the part before."))
+              ((and (value "RECAP") (= (parse-integer part) 1))
+               (error "#+RECAP is for part 2 on: part 1 has no part before it to recap.")))
         (let ((steps (make-hash-table :test #'equal)))
           (dolist (section (press:document-sections document))
             (setf (press:section-blocks section)
@@ -521,6 +529,7 @@ needs only #+TITLE (and #+PART in a series), so a queued part can be one."
          :draft draft
          :series series
          :part (and part (parse-integer part))
+         :recap (value "RECAP")
          :layout layout
          :pathname pathname)))))
 

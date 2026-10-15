@@ -1,0 +1,66 @@
+#+TITLE: Almighty Docs
+
+Documentation for Common Lisp libraries, written in the four kinds Diataxis
+names. Each library has a folder, and each kind has a folder inside it:
+
+#+BEGIN_EXAMPLE
+local-time/
+  library.org        the library: code, title, summary, version
+  tutorials/         learn, by building something
+  how-to/            get one task done
+  reference/         look something up
+  explanation/       understand how or why
+lack/
+  ...
+#+END_EXAMPLE
+
+Nothing reads this folder yet. The site's test page for the docs
+(=/docs/lab=) has its own copy of one guide written out in Lisp.
+These files are the content for the docs module when it exists.
+
+* The files
+
+A page is an org file written as =content/magazine/WRITING.org= describes:
+the same header, sections, inline markup, notes, code blocks and tables.
+Two header lines are new:
+
+| Line           | What it does                                                    |
+|----------------+-----------------------------------------------------------------|
+| =#+LIBRARY:=   | The library the page belongs to: the name of its folder.        |
+| =#+VERIFIED:=  | The versions the page's code was run against.                   |
+
+=library.org= in each folder describes the library, as =series.org= does a
+series: its code, title, summary, version and where its source is.
+
+=#+TYPE:= is one of Tutorial, How-to, Reference or Explanation, and matches
+the folder the file is in.
+
+* Which kind a page is
+
+| The reader wants to...       | Kind        | The page                                              |
+|------------------------------+-------------+-------------------------------------------------------|
+| learn, by building something | Tutorial    | Chooses the example, shows every step and its result. |
+| get one task done            | How-to      | Assumes the basics, gives the steps, then what goes wrong. |
+| look something up            | Reference   | Complete and terse, in the order the code has it.     |
+| understand how or why        | Explanation | Builds a model and tests it. Tells no one what to do. |
+
+Keep them apart. A how-to that stops to explain sends the reader to the
+explanation with a link. A reference entry has no story.
+
+* Every block is run
+
+A source block with a =#+RESULTS:= under it shows what that code printed.
+Every one in this folder was run on SBCL 2.6.3 against the libraries vendored
+in this project: local-time 1.0.6 and Lack 0.3.0. A block with no result
+under it was run too, unless it starts a server, is quoted from another
+project, or is a pattern with a name of your own to fill in.
+
+local-time prints a timestamp in =*default-timezone*=. The local-time pages
+set it to UTC first, so their results read the same on any machine.
+
+* What is here
+
+| Library    | Tutorials | How-to | Reference | Explanation |
+|------------+-----------+--------+-----------+-------------|
+| local-time |         1 |      3 |         1 |           1 |
+| Lack       |         1 |      3 |         1 |           1 |

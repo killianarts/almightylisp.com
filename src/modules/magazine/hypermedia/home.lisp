@@ -19,7 +19,7 @@
                               (list "Activated" (date-text (model:article-date article)))))
                     :class "spec byline-spec")
        (if (eq extra :cta)
-           (ah:</> (a :class "neo-cta" :href (article-href article) "Read the article"))
+           (ah:</> (a :class "neo-cta" :href (article-href article) "Read the Article"))
            (ah:</> (span :class "hazard-plate" :aria-hidden t)))))))
 
 (defun render-lead (article)
@@ -109,7 +109,7 @@
                   (destructuring-bind (date count) month
                     (ah:</>
                      (li
-                       (a :class "arch-line month" :href (archive-href date)
+                       (a :class "arch-line month" :href (archive-href :month date)
                          (span :class "arch-name" (press:format-date date :month))
                          (span :class "arch-count" (format nil "~d  >>>" count)))))))
                 (getf layout :earlier))))
@@ -134,7 +134,9 @@
                      (getf layout :latest)))
            column))))))
 
-(defun page-home (articles series)
+(defun page-home (articles series &optional updates (watching 0))
+  "The homepage. UPDATES are Intel's published updates, newest first, and
+WATCHING how many projects its watch list has."
   (let* ((layout (model:homepage-layout articles series))
          (lead (getf layout :lead))
          (featured (getf layout :featured))
@@ -148,5 +150,7 @@
         (render-book-band)
         (when (getf layout :latest)
           (render-latest-section layout series))
+        (when updates
+          (render-intel-section updates watching))
         (when (getf layout :series)
           (render-series-section (getf layout :series) featured)))))))

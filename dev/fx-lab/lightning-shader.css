@@ -1,0 +1,15 @@
+/* Effects test page: the shader lightning variant's rule (see
+   lightning-shader.js). One WebGL canvas over the window, for the click and
+   for the links' and the card's pulses. It hangs off <html>, outside .mag,
+   so the page's tokens aren't there to use: the number is --z-overlay + 1. */
+.fx-storm {
+    position: fixed;
+    inset: 0;
+    z-index: 9001;
+    display: none;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.fx-storm.is-on { display: block; }

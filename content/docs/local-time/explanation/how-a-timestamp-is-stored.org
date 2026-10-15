@@ -1,0 +1,140 @@
+#+TITLE: How a\\Timestamp\\Is Stored
+#+SUBTITLE: A timestamp is three integers and no timezone. That explains why day zero is 1 March 2000, why the same timestamp prints differently on two machines, and why one can change under you.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: Explanation
+#+LIBRARY: local-time
+#+VERIFIED: local-time 1.0.6, SBCL 2.6.3
+
+* Three numbers
+What is inside a timestamp? Three slots, each an integer:
+
+| Slot   | Reader     | Holds                                              |
+|--------+------------+----------------------------------------------------|
+| =day=  | =day-of=   | Days since 1 March 2000. Negative before it.       |
+| =sec=  | =sec-of=   | Seconds since midnight UTC on that day.            |
+| =nsec= | =nsec-of=  | Nanoseconds into that second, 0 to 999,999,999.    |
+
+#+BEGIN_SRC lisp
+(let ((moment (local-time:parse-timestring "2026-10-12T08:30:00Z")))
+  (list (local-time:day-of moment)
+        (local-time:sec-of moment)
+        (local-time:nsec-of moment)))
+#+END_SRC
+
+#+RESULTS:
+(9721 30600 0)
+
+Day 9721, and 30600 seconds into it: eight and a half hours. Year, month,
+hour and weekday are not stored. They are worked out from these three each
+time you ask.
+
+The design is Erik Naggum's, from his paper /The Long, Painful History of
+Time/, which local-time's manual credits for the split into days and
+seconds and for the choice of day zero.
+
+* Why days and seconds are apart
+A single count of seconds, as Unix time is, would be simpler to store.
+Keeping the day apart makes the common questions cheap. Whether two
+moments are on the same day, how many days lie between them, what weekday
+it is: each is arithmetic on =day= alone, with no division by 86400.
+
+It also keeps the numbers small. The seconds never pass 86,400 and the
+nanoseconds never pass a billion, so both are fixnums, and only the day
+grows with the distance from 2000.
+
+* Why day zero is 1 March 2000
+#+BEGIN_SRC lisp
+(list (local-time:day-of (local-time:parse-timestring "2000-03-01"))
+      (local-time:day-of (local-time:parse-timestring "2000-02-29"))
+      (local-time:day-of (local-time:parse-timestring "1970-01-01")))
+#+END_SRC
+
+#+RESULTS:
+(0 -1 -11017)
+
+The date looks arbitrary and is not. Turning a day number into a year and
+a month means stepping over leap days, and a leap day in the middle of the
+year makes every month after it depend on whether the year is a leap year.
+
+Start the year on 1 March and the leap day is its last day. Then the
+months have the same lengths in every year, and only the year's total
+changes. local-time's table of month lengths is written in that order,
+March first and February last: 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31
+and 28.
+
+The year 2000 was chosen for the same reason one level up. The leap-year
+rule repeats every 400 years, and 2000 is where a cycle turns over: the
+day before day zero, 29 February 2000, is the leap day that only a year
+divisible by 400 has. Counting from there, the 400-year, 100-year and
+4-year cycles all start at zero.
+
+Unix time counts from 1970, which is day -11017. =timestamp-to-unix= and
+=unix-to-timestamp= convert with that one constant.
+
+* No timezone inside
+There is no fourth slot. A timestamp is a moment, the same one everywhere,
+and "09:30 in Tokyo" is a way of writing it down.
+
+So a timezone appears in only two places: reading text in, and writing
+text out. Parsing uses the offset in the text to find the moment and then
+forgets it:
+
+#+BEGIN_SRC lisp
+(local-time:timestamp=
+ (local-time:parse-timestring "2026-12-25T09:00:00+09:00")
+ (local-time:parse-timestring "2026-12-25T00:00:00Z"))
+#+END_SRC
+
+#+RESULTS:
+T
+
+Printing picks a zone, and when you don't name one it is
+=*default-timezone*=, which starts as the zone of the machine. That is why
+one timestamp prints two ways on two machines, and why a test that
+compares printed timestamps passes on a laptop and fails on a server. The
+timestamps are equal. Their printed forms are not.
+
+It is also why the functions that take a timestamp apart, such as
+=timestamp-hour= and =decode-timestamp=, accept =:timezone=. The hour is
+not a property of the moment. It is a property of the moment and a place.
+
+* The printed form hides some of it
+The printed form shows six digits after the seconds. The slot holds nine:
+
+#+BEGIN_SRC lisp
+(let ((moment (local-time:parse-timestring "2026-12-25T09:30:00.123456789Z")))
+  (list (prin1-to-string moment)
+        (local-time:nsec-of moment)))
+#+END_SRC
+
+#+RESULTS:
+("@2026-12-25T09:30:00.123456Z" 123456789)
+
+Two timestamps can print alike and not be =timestamp==. Round-tripping a
+timestamp through its printed form loses the last three digits.
+
+* A timestamp can be changed
+The three slots can be set. =day-of=, =sec-of= and =nsec-of= work with
+=setf=, and =adjust-timestamp!= changes its argument, where
+=adjust-timestamp= and =timestamp+= return a new one.
+
+Most code never notices, because most functions return new timestamps. It
+matters when two places hold the same object. local-time's own =today=
+does this: it takes the timestamp the clock returns and zeroes its seconds
+in place. A clock that keeps one timestamp and hands it out every time
+will have it changed by the first call to =today=.
+
+=clone-timestamp= makes a copy with the same three numbers.
+
+* The rule
+A timestamp is a count of days, seconds and nanoseconds from 1 March 2000
+in UTC, and nothing else. Whenever a year, an hour, a weekday or a printed
+string is involved, a timezone was used to make it, and if you didn't
+choose one, =*default-timezone*= did.
+
+* See also
+- How-to: Convert between timezones.
+- How-to: Test with a fixed clock shows the clock that =today= changes.
+- Reference: Clocks.

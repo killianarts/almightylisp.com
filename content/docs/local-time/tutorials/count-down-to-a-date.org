@@ -1,0 +1,181 @@
+#+TITLE: Count Down\\To a Date
+#+SUBTITLE: Build a function that says how long is left until a release date. Along the way you make timestamps, compare them, subtract them and print them.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: Tutorial
+#+LIBRARY: local-time
+#+VERIFIED: local-time 1.0.6, SBCL 2.6.3
+
+* What you will build
+A function, =countdown=, that takes a date and answers in a sentence:
+
+#+BEGIN_SRC text
+"73 days, 15 hours and 30 minutes until Friday, 25 December 2026"
+#+END_SRC
+
+You need a running Lisp with Quicklisp. Type each block at the REPL and
+check that you get the result shown under it.
+
+* Load the library and ask for the time
+Load local-time, then tell it to print times in UTC. Without that second
+line it prints them in your computer's timezone, and your results won't
+match the ones here.
+
+#+BEGIN_SRC lisp
+(ql:quickload "local-time")
+
+(setf local-time:*default-timezone* local-time:+utc-zone+)
+#+END_SRC
+
+Now ask what time it is:
+
+#+BEGIN_SRC lisp
+(local-time:now)
+#+END_SRC
+
+You get a timestamp, printed with an =@= in front. Yours shows the moment
+you pressed return, so it is the one result in this tutorial that will
+differ:
+
+#+BEGIN_SRC text
+@2026-10-12T08:30:00.000000Z
+#+END_SRC
+
+A timestamp is one moment. The =Z= at the end says it is printed in UTC.
+
+* Make a timestamp for the release
+=parse-timestring= reads a timestamp from text. Give it the release date
+and keep the result in a variable:
+
+#+BEGIN_SRC lisp
+(defparameter *release*
+  (local-time:parse-timestring "2026-12-25T00:00:00Z"))
+
+*release*
+#+END_SRC
+
+#+RESULTS:
+@2026-12-25T00:00:00.000000Z
+
+To get the same results as this page, also keep a fixed "now" to count
+from:
+
+#+BEGIN_SRC lisp
+(defparameter *today*
+  (local-time:parse-timestring "2026-10-12T08:30:00Z"))
+#+END_SRC
+
+* Compare two timestamps
+Is the release still ahead? =timestamp<= answers whether its first
+argument is the earlier one:
+
+#+BEGIN_SRC lisp
+(local-time:timestamp< *today* *release*)
+#+END_SRC
+
+#+RESULTS:
+T
+
+There is a whole family of these: ~timestamp<=~, ~timestamp>~,
+~timestamp>=~, ~timestamp=~ and ~timestamp/=~. Use them and not =<=,
+which only knows numbers.
+
+* Subtract them
+=timestamp-difference= gives the seconds from its second argument to its
+first:
+
+#+BEGIN_SRC lisp
+(local-time:timestamp-difference *release* *today*)
+#+END_SRC
+
+#+RESULTS:
+6363000
+
+Seconds aren't what a person wants to read. =floor= divides and hands back
+the remainder as a second value, so three calls turn the seconds into days,
+hours and minutes:
+
+#+BEGIN_SRC lisp
+(floor 6363000 86400)
+#+END_SRC
+
+#+RESULTS:
+73, 55800
+
+Seventy-three whole days, and 55800 seconds left over. Divide those by
+3600 for the hours, and what is left by 60 for the minutes:
+
+#+BEGIN_SRC lisp
+(floor 55800 3600)
+#+END_SRC
+
+#+RESULTS:
+15, 1800
+
+* Print a date for a person
+=format-timestring= writes a timestamp as text. Its =:format= is a list:
+keywords are replaced by parts of the date, and strings are copied as they
+are.
+
+#+BEGIN_SRC lisp
+(local-time:format-timestring
+ nil *release*
+ :format '(:long-weekday ", " :day " " :long-month " " :year))
+#+END_SRC
+
+#+RESULTS:
+"Friday, 25 December 2026"
+
+The =nil= means "give me a string". Pass =t= there and it prints instead.
+
+* Put it together
+Now write the function. It counts from =from=, which is the present moment
+unless you say otherwise:
+
+#+BEGIN_SRC lisp :buffer countdown.lisp
+(defun countdown (target &optional (from (local-time:now)))
+  (if (local-time:timestamp<= target from)
+      "It's out."
+      (multiple-value-bind (days rest)
+          (floor (local-time:timestamp-difference target from) 86400)
+        (multiple-value-bind (hours rest) (floor rest 3600)
+          (format nil "~d days, ~d hours and ~d minutes until ~a"
+                  days hours (floor rest 60)
+                  (local-time:format-timestring
+                   nil target
+                   :format '(:long-weekday ", " :day " " :long-month " " :year)))))))
+#+END_SRC
+
+Try it from the fixed "now":
+
+#+BEGIN_SRC lisp
+(countdown *release* *today*)
+#+END_SRC
+
+#+RESULTS:
+"73 days, 15 hours and 30 minutes until Friday, 25 December 2026"
+
+And from a moment after the release:
+
+#+BEGIN_SRC lisp
+(countdown *release* (local-time:parse-timestring "2027-01-01T00:00:00Z"))
+#+END_SRC
+
+#+RESULTS:
+"It's out."
+
+Leave the second argument off and it counts from the real present:
+=(countdown *release*)=.
+
+* What you have learned
+You made timestamps two ways, with =now= and =parse-timestring=. You
+compared them with =timestamp<=, measured between them with
+=timestamp-difference=, and printed one with =format-timestring=.
+
+From here:
+
+- To read dates people type, see the how-to Parse a timestring.
+- To show a time in another city, see the how-to Convert between timezones.
+- =countdown= takes =from= so that it can be tested. The how-to Test with a
+  fixed clock shows how to test code that calls =now= itself.

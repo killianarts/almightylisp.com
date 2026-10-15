@@ -1,7 +1,7 @@
 #+title: Using Machine Intelligence To Design And Build This Site
 #+SUBTITLE: LLMs are a force multiplier. We are often exposed to the multiplied forces of lazy or even malicious LLM users, but I believe that thoughtful and tasteful use can render both good design and good code that the builder can be proud of. This article will talk about how I built almightylisp.com using Machine Intelligence.
 #+AUTHOR: Micah Killian
-#+DATE: 2026-09-29
+#+DATE: 2026-10-15
 #+TOPIC: Lisp
 #+TYPE: Case study
 #+DRAFT: nil
@@ -10,8 +10,8 @@
 This website in its current form has been a long-term goal of mine. One of the
 challenges that Common Lisp faces to gain adoption is the lack of "energy":
 There is an ecosystem, there are users, and there are plenty of resources for
-learning, but _project_ a sense of dynamism, growth, or excitement for the
-language.
+learning, but nothing _projecting_ a sense of dynamism, growth, or excitement for the
+language. 
 
 That's not surprising. Common Lisp doesn't typically attract a young audience
 that cares about the future of a programming language. Young people want to
@@ -21,23 +21,26 @@ write CL already or a rouge coder looking to experiment who finds Lisp a good
 medium. The typical Lisper isn't concerned with social cues or money, only the
 utility that the language provides. Who cares what [[https://common-lisp.net][Common-Lisp.net]] looks like?
 
+(common-lisp.net has been redesigned since I wrote this. The design does a good
+job of demonstrating the necessity for this site.)
+
 And that's fine. The big brains don't need fancy GUIs. Why does a [[https://local-time.common-lisp.dev/manual.html][manual for a
 vital library]] even need CSS, really? In fact, fancy graphics might even be a
 counter-indicator of quality for the big brains. What deficiencies in coding
 skill or code quality are being hidden with all this marketing mumbojumbo, pal?
 
-Of course, even if the typical Common Lisp user would /like/ for everything
-Common Lisp resource to have a website as nice as, say, [[https://elixir-lang.org/][Elixir's website]] or
-[[https://nextjs.org/][Next.js's website]] or even just [[https://norvig.github.io/paip-lisp/#/][PAIP's website]], they are almost certainly not the
-ones with either the skills or motivation to make it happen. Obviously, it's a
-lot of work--logo designers, web designers, illustration designers, animation
+Of course, even if the typical Common Lisp user would /like/ for every Common
+Lisp resource to have a website as nice as, say, [[https://elixir-lang.org/][Elixir's website]] or [[https://nextjs.org/][Next.js's
+website]] or even just [[https://norvig.github.io/paip-lisp/#/][PAIP's website]], they are almost certainly not the ones with
+either the skills or motivation to make it happen. Obviously, it's a lot of
+work--logo designers, web designers, illustration designers, animation
 designers, front-end and back-end engineers, etc. get paid good money to make
 those websites look great.
 
-...well, for now at least...
-
 But times are changing. Machine Intelligence empowers the motivated user to
-actually make great things. It enables users to become Almighty.
+actually make great things. It enables users to become Almighty. Selling a
+language using high-powered propaganda is now within reach of those with the
+desire to do so.
 
 
 * Concept: A Propaganda Outlet For Common Lisp
@@ -48,7 +51,7 @@ do everything for them, and so they may never read this site. But for /new/
 people considering Lisp, this website should serve as an important source of
 both knowledge and *energy*. When they come to this site, they should leave
 feeling *excited*. While the knowledge and help that Almighty Lisp provides will
-be high quality, the knowledge and help are /secondary/ to the mission is
+be high quality, the knowledge and help are /secondary/ to the mission of
 getting people excited to use Lisp.
 
 Lisp already has smart, capable programmers who've already written excellent
@@ -68,7 +71,7 @@ appeal of black and white and every color in between.
 To start with, though, I asked LLMs to brainstorm some different designs right
 in code. At first, I left the task very broad: Make a magazine design for
 Almighty Lisp. It reused theme elements from the existing website and
-made...something. It wasn't very good, though. You can view it at [[https://almightylisp.com/static/prototypes/magazine.html][here]].
+made...something. It wasn't very good, though. You can view it [[https://almightylisp.com/static/prototypes/magazine.html][here]].
 
 I had a few sites that I thought might be good as references: [[https://www.countyhighway.com/][County
 Highway's newspaper]] and [[https://time.com/][Time magazine]]. Time is mostly a source of compositional
@@ -159,7 +162,8 @@ an SVG filter to create a wavy effect. The first Safari iteration had bad colors
 and still had poor performance. However, I essentially followed its suggestions
 for continuing to increase the animation's performance. After we got the
 performance better, we worked on the colors and finally got something that looks
-good.
+good. I also discovered that the scanline and noise animations were causing some
+stuttering on weaker hardware (my phone), so we optimized those animations as well.
 
 I could not have done the animation work myself. I would have been satisfied
 with just the scanlines and noise (which I could have figured out on my own).
@@ -167,13 +171,16 @@ But the LLM was a force multiplier that I believe I have used tastefully to add
 character to the site while also making it feel better (hiding page load times
 and acknowledging the long font load times explicitly).
 
-About those Japanese fonts: Opus 5.5 one-shot an upgrade of the free font I
-downloaded--adding the ability of the font to properly render when
+About those Japanese fonts: Opus 5.5 one-shot an upgrade of the free fonts I
+downloaded--adding the ability of the fonts to properly render when
 =text-orientation: upright= in CSS was set. Something I wouldn't have even
-considered until I saw the model's capabilities with animation.
+considered until I saw the model's capabilities with animation. It also trimmed
+the character set to just the ones I use, saving significant space (since I use
+three different Japanese fonts, this is a huge savings).
 
 This is how we go from average to Almighty--ambitious, thoughtful use of LLMs
-with an eye for quality over quantity.
+with an eye for quality over quantity. We test to ensure that not only the
+software works, but it /feels good/.
 
 * Lessons Learned
 Just to summarize:

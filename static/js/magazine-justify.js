@@ -231,7 +231,7 @@
 
   // Back to the paragraph as it was written.
   function reset(p) {
-    var lines = p.querySelectorAll(".just-line");
+    var lines = p.querySelectorAll(".just-line, .just-gap");
     if (!lines.length) return;
     Array.prototype.forEach.call(lines, function (line) {
       line.replaceWith.apply(line, Array.prototype.slice.call(line.childNodes));
@@ -291,6 +291,14 @@
           spans.push(span);
         }
       }
+      // The space the line ends at. The browser counts it in the line's
+      // width before it drops it, and a full line then doesn't fit: one
+      // with an element in it (a =code=, a link) is broken again where the
+      // element ends. A span sets the space to no width.
+      var after = items[words[end - 1].last + 1];
+      if (l + 1 < starts.length && after && after.kind === SPACE) {
+        spans.push({ node: after.node, start: after.start, end: after.end, gap: true });
+      }
     });
     return spans.reverse();
   }
@@ -302,7 +310,7 @@
       if (span.end < node.length) node.splitText(span.end);
       if (span.start > 0) node = node.splitText(span.start);
       var line = document.createElement("span");
-      line.className = "just-line";
+      line.className = span.gap ? "just-gap" : "just-line";
       if (span.tight) line.style.wordSpacing = span.tight;
       node.replaceWith(line);
       line.appendChild(node);
@@ -356,10 +364,13 @@
     justify(all());
   }
 
-  // Pages arrive by htmx swap as well as by normal loads, and come back
-  // from htmx's history with their line spans still in them.
-  document.addEventListener("htmx:afterSettle", init);
-  document.addEventListener("htmx:historyRestore", init);
+  // Pages arrive by htmx swap as well as by normal loads, and so does part
+  // of one (the archive's catalogue). Not the search palette's results:
+  // nothing in them is justified.
+  document.addEventListener("htmx:after:swap", function (e) {
+    if (e.target.closest && e.target.closest("#search")) return;
+    init();
+  });
   // Fonts the browser loads when the page first needs them (see
   // magazine-fonts.js, which calls refresh itself for the ones it holds
   // back).

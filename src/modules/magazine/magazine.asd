@@ -1,13 +1,17 @@
 (defsystem "magazine"
-  :description "The magazine at /magazine: articles written in org files under
+  :description "The magazine at the site's root: articles written in org files under
 content/magazine/, served live and published as static pages."
   :author "Micah Killian <micah@almightylisp.com>"
   :license "MIT"
   :version "0.2"
-  :depends-on (:shiso :almighty-html :almighty-toki :almighty-press)
+  :depends-on (:shiso :quri :almighty-html :almighty-toki :almighty-press
+               :cl-ppcre :com.inuoe.jzon
+               :usocket :cl+ssl :bordeaux-threads :babel)
   :pathname "."
   :serial t
   :components ((:file "model")
+               (:file "intel")
+               (:file "irc")
                (:module "hypermedia"
                 :serial t
                 :components ((:file "package")
@@ -18,7 +22,11 @@ content/magazine/, served live and published as static pages."
                              (:file "evolving")
                              (:file "home")
                              (:file "article")
-                             (:file "archive")))
+                             (:file "search")
+                             (:file "archive")
+                             (:file "intel")
+                             (:file "archive-lab")
+                             (:file "docs-lab")))
                (:file "publish")
                (:file "controllers")
                (:file "routes")

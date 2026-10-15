@@ -1,0 +1,180 @@
+#+TITLE: Test an App\\Without\\a Server
+#+SUBTITLE: Make requests to a Lack application from your test suite with =lack/test=: query strings, form posts, headers, redirects and sessions, with no port opened.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: How-to
+#+LIBRARY: lack
+#+VERIFIED: Lack 0.3.0, SBCL 2.6.3
+
+* Load it
+=lack/test= is in its own system, and Lack's README doesn't mention it:
+
+#+BEGIN_SRC lisp
+(ql:quickload "lack-test")
+#+END_SRC
+
+The examples test this application, which greets whoever the =name=
+parameter says:
+
+#+BEGIN_SRC lisp
+(defparameter *echo*
+  (lambda (env)
+    (let* ((request (lack/request:make-request env))
+           (name (cdr (assoc "name" (lack/request:request-parameters request)
+                             :test #'string=))))
+      (list 200
+            '(:content-type "text/plain")
+            (list (format nil "Hello, ~a" (or name "stranger")))))))
+#+END_SRC
+
+* Make a request
+=testing-app= names the application; =request= inside it makes a request
+and returns the body as one string:
+
+#+BEGIN_SRC lisp
+(lack/test:testing-app *echo*
+  (lack/test:request "/hello?name=ada"))
+#+END_SRC
+
+#+RESULTS:
+"Hello, ada"
+
+=request= returns more than the body. The second value is the status, and
+the third is the headers, as a hash table keyed by lower-case name:
+
+#+BEGIN_SRC lisp
+(lack/test:testing-app *echo*
+  (multiple-value-bind (body status headers)
+      (lack/test:request "/hello")
+    (list body status (gethash "content-type" headers))))
+#+END_SRC
+
+#+RESULTS:
+("Hello, stranger" 200 "text/plain")
+
+Put your test framework's assertions where the =list= is.
+
+* Post a form
+Give =:method= and =:content=. An alist is sent as a form, and the
+content type is set for you:
+
+#+BEGIN_SRC lisp
+(lack/test:testing-app *echo*
+  (lack/test:request "/hello"
+                     :method :post
+                     :content '(("name" . "grace"))))
+#+END_SRC
+
+#+RESULTS:
+"Hello, grace"
+
+For JSON or any other body, pass a string and say what it is:
+
+#+BEGIN_SRC lisp
+(lack/test:testing-app *echo*
+  (lack/test:request "/hello"
+                     :method :post
+                     :content "{\"n\":1}"
+                     :headers '(("content-type" . "application/json"))))
+#+END_SRC
+
+=*echo*= doesn't read JSON, so this one answers ="Hello, stranger"=.
+
+=:headers= is an alist of any request headers. The application finds them
+in the hash table under =:headers= in the environment, by lower-case name.
+
+* Follow or stop at a redirect
+=request= follows redirects, up to five. You get the page at the end:
+
+#+BEGIN_SRC lisp
+(defun strip-trailing-slash (app)
+  (lambda (env)
+    (let ((path (getf env :path-info)))
+      (if (and (> (length path) 1)
+               (char= (char path (1- (length path))) #\/))
+          (list 301 (list :location (string-right-trim "/" path)) (list ""))
+          (funcall app env)))))
+
+(defparameter *site* (lack:builder #'strip-trailing-slash *echo*))
+
+(lack/test:testing-app *site*
+  (multiple-value-bind (body status) (lack/test:request "/hello/")
+    (list body status)))
+#+END_SRC
+
+#+RESULTS:
+("Hello, stranger" 200)
+
+To test the redirect itself, turn following off:
+
+#+BEGIN_SRC lisp
+(lack/test:testing-app *site*
+  (multiple-value-bind (body status headers)
+      (lack/test:request "/hello/" :max-redirects 0)
+    (list status (gethash "location" headers))))
+#+END_SRC
+
+#+RESULTS:
+(301 "/hello")
+
+* Keep a session between requests
+Each =request= starts with no cookies, so a session lasts one request. To
+carry cookies from one request to the next, make a cookie jar and pass it
+to each:
+
+#+BEGIN_SRC lisp
+(defparameter *visits*
+  (lack:builder
+   :session
+   (lambda (env)
+     (let ((session (getf env :lack.session)))
+       (list 200
+             '(:content-type "text/plain")
+             (list (format nil "visit ~d"
+                           (incf (gethash :visits session 0)))))))))
+
+(let ((jar (cl-cookie:make-cookie-jar)))
+  (lack/test:testing-app *visits*
+    (list (lack/test:request "/" :cookie-jar jar)
+          (lack/test:request "/" :cookie-jar jar))))
+#+END_SRC
+
+#+RESULTS:
+("visit 1" "visit 2")
+
+Without the jar both are ="visit 1"=. Use one jar for each user your test
+pretends to be.
+
+* Call the application yourself
+=request= wants a list back. For anything it can't handle, make the
+environment with =generate-env= and call the application directly. It
+takes the same =:method=, =:content=, =:headers= and =:cookie-jar=:
+
+#+BEGIN_SRC lisp
+(funcall *echo* (lack/test:generate-env "/hello?name=ada"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:CONTENT-TYPE "text/plain") ("Hello, ada"))
+
+* What goes wrong
+- *A delayed response signals an error.* An application that returns a
+  function, to respond later or to stream, can't be tested with
+  =request=: it tries to take the function apart as a list. Call the
+  application with =generate-env=, then call the function it returns with
+  a function of your own that keeps the response.
+- *A class instance signals a type error.* =testing-app= calls the
+  application with =funcall=. Pass =(lack/component:to-app instance)=.
+- *A body that is a file comes back as a pathname.* =request= joins a
+  list of strings. A pathname body, as the static middleware returns, is
+  handed back as it is.
+- *The path is decoded.* =/a%20b= arrives in =:path-info= as =/a b=, as a
+  server would deliver it.
+- *The host is localhost on port 80.* Give a full URL,
+  =https://example.com:8443/x=, to set =:server-name=, =:server-port= and
+  =:url-scheme=.
+
+* See also
+- Tutorial: Your first Lack application.
+- Explanation: Apps, middleware and the env describes delayed responses.

@@ -1,0 +1,64 @@
+; Intel's watch list: the projects whose releases and tags are fetched.
+;
+; One repository a line: its URL, then optionally the name to show it under
+; (otherwise the repository's own name is used). GitHub, GitLab and Codeberg
+; (or another Gitea or Forgejo host) are understood; a URL on any other host
+; is taken to be an Atom or RSS feed of releases. A line that starts with ;
+; or # is a comment.
+;
+; New Common Lisp repositories are found by search, and need no line here.
+
+; Implementations
+* https://github.com/sbcl/sbcl                      SBCL
+* https://github.com/Clozure/ccl                    Clozure CL
+https://github.com/clasp-developers/clasp         Clasp
+https://github.com/armedbear/abcl                 ABCL
+https://github.com/coalton-lang/coalton           Coalton
+
+; Editors and tools
+https://github.com/lem-project/lem                Lem
+https://github.com/joaotavora/sly                 Sly
+https://github.com/slime/slime                    SLIME
+* https://github.com/roswell/roswell                Roswell
+https://github.com/fukamachi/qlot                 Qlot
+https://github.com/ocicl/ocicl                    ocicl
+https://github.com/ciel-lang/CIEL                 CIEL
+
+; Applications and systems
+https://github.com/atlas-engineer/nyxt            Nyxt
+https://github.com/froggey/Mezzano                Mezzano
+https://github.com/kaveh808/kons-9                kons-9
+https://codeberg.org/McCLIM/McCLIM                McCLIM
+
+; Web
+https://github.com/edicl/hunchentoot              Hunchentoot
+https://github.com/edicl/drakma                   Drakma
+https://github.com/fukamachi/clack                Clack
+https://github.com/fukamachi/lack                 Lack
+https://github.com/fukamachi/woo                  Woo
+https://github.com/rabbibotton/clog               CLOG
+https://github.com/40ants/reblocks                Reblocks
+
+; Data
+https://github.com/fukamachi/mito                 Mito
+https://github.com/fukamachi/sxql                 SxQL
+https://github.com/fukamachi/mallet               Mallet
+https://github.com/marijnh/Postmodern             Postmodern
+https://github.com/Zulu-Inuoe/jzon                jzon
+https://github.com/eudoxia0/cl-yaml
+https://github.com/lisp-stat/lisp-stat            Lisp-Stat
+https://github.com/digikar99/numericals
+https://github.com/marcoheisig/Petalisp           Petalisp
+
+; Libraries
+https://github.com/s-expressionists/Eclector      Eclector
+https://github.com/bohonghuang/claw-raylib
+* https://github.com/taweili/sexpr
+* https://github.com/genworks/akshara
+* https://github.com/lispnik/littoral
+* https://github.com/ghuntley/jiti
+* https://github.com/atgreen/evergreen-compose
+* https://github.com/lambda-symbolics/lambda-debugger
+* https://github.com/lambda-symbolics/clasted
+* https://github.com/lambda-symbolics/surgeon
+* https://github.com/lambda-symbolics/setinka

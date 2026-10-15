@@ -360,7 +360,6 @@
   }
 
   function build(section, index) {
-    var source = section.innerHTML;
     var title = section.querySelector(".ev-title");
     var blocks = {};
     Array.prototype.forEach.call(section.querySelectorAll("figure.ev-block"), function (f) {
@@ -465,7 +464,7 @@
     section.textContent = "";
     section.appendChild(stage);
 
-    return { section: section, source: source, stage: stage, left: left, big: big, right: right, reel: reel, rail: rail, steps: steps,
+    return { section: section, stage: stage, left: left, big: big, right: right, reel: reel, rail: rail, steps: steps,
              sub: sub, subhead: subhead, label: label, number: number, title: title.textContent,
              stops: stops, total: total, blocks: blocks, meterText: meterText, meterBar: meterBar,
              current: -1 };
@@ -995,19 +994,9 @@
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && mode) full(mode);
       });
-      // htmx keeps a copy of the page it leaves, to come back to. Leave it
-      // the sections as they were written, to be built again on return; a
-      // built stage would come back with nothing driving it.
-      document.addEventListener("htmx:beforeHistorySave", function () {
-        built.forEach(function (s) {
-          s.section.innerHTML = s.source;
-          s.section.style.height = "";
-        });
-        built = [];
-        lower();
-      });
-      document.addEventListener("htmx:historyRestore", init);
-      document.addEventListener("htmx:afterSettle", init);
+      // A page without this script can take this one's place: drop what was
+      // built for it.
+      document.addEventListener("htmx:after:swap", init);
     }
     if (!fresh.length) return;
     view.w = 0;

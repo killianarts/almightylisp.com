@@ -5,6 +5,7 @@
 #+type: Tutorial
 #+topic: Native Development
 #+PART: 3
+#+recap: In part 2, I explained that I will build a native application to encode religious rules. The rules of the Hebrew calendar are surprisingly complex and Bible readings add to the complexity. I explained that the goal is to codify those rules to make it easier for future generations to follow them.
 
 * What do you mean by "native" application?
 When first setting out to make this native application for my father, I thought

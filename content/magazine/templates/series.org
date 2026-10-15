@@ -10,4 +10,6 @@
 #
 # The parts are the other files in the folder, each with #+PART. Plan a
 # part with a draft holding just #+TITLE, #+PART and #+DRAFT: t; it shows
-# as queued. See the Series section of WRITING.org.
+# as queued. From part 2, a part may have #+RECAP: for its recap of the
+# part before; without it the recap is that part's dek. See the Series
+# section of WRITING.org.

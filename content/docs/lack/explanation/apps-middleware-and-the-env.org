@@ -1,0 +1,148 @@
+#+TITLE: Apps,\\Middleware\\and the Env
+#+SUBTITLE: Lack is three agreements and very little code. What an application is, what a middleware is, and what travels between them explain everything else, including where a class fits and why a response can be a function.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: Explanation
+#+LIBRARY: lack
+#+VERIFIED: Lack 0.3.0, SBCL 2.6.3
+
+* What is there to understand?
+Lack's core is small enough to read in a sitting. =lack.lisp= exports one
+macro, and =component.lisp= is a class with no slots and two generic
+functions. So where is the framework?
+
+It is in the agreements. Lack fixes the shape of three things, and every
+server, middleware and application that keeps to those shapes works with
+every other. The code is mostly conveniences on top.
+
+* The first agreement: an application
+An application is a function of one argument that returns a list of three
+things:
+
+#+BEGIN_SRC lisp
+(lambda (env)
+  '(200 (:content-type "text/plain") ("Hello, World")))
+#+END_SRC
+
+A status, a property list of headers, and a body. The body is a list of
+strings, a vector of bytes, or a pathname of a file to send.
+
+Nothing in that needs a server, which is the point. A server's whole job
+becomes: turn the bytes of a request into =env=, call the function, turn
+the list into bytes. Clack does that for several servers, and any of them
+can run any application. A test can skip the bytes and call the function.
+
+* The second agreement: the env
+=env= is a property list that describes one request. The server makes it,
+with keys such as =:request-method=, =:path-info=, =:query-string=,
+=:headers= and =:raw-body=.
+
+It is a plain list for a reason. Anything between the server and the
+application can read it with =getf=, and can add to it. That is how
+middleware passes things inward: the session middleware puts a hash table
+under =:lack.session=, and the application finds it there. There is no
+session object to import and no registry to look in. Lack's own middleware
+names what it adds with a dot, as in =:lack.session=.
+
+=lack/request:make-request= wraps an env in a structure with readers and
+parsed parameters. It is a convenience. An application can ignore it and
+use =getf=.
+
+* The third agreement: a middleware
+A middleware is a function that takes an application and returns an
+application.
+
+#+BEGIN_SRC lisp
+(lambda (app)
+  (lambda (env)
+    ;; before: read or change env, or answer without calling app
+    (let ((response (funcall app env)))
+      ;; after: read or change the response
+      response)))
+#+END_SRC
+
+Because what comes out is the same kind of thing as what went in,
+middleware stacks without limit, and a stack of them is still one
+function of =env=. =builder= is only that stacking, written flat:
+=(lack:builder a b app)= is =(funcall a (funcall b app))=.
+
+The first one listed ends up outermost. A request passes through =a=,
+then =b=, then =app=, and the response comes back through =b=, then =a=.
+Order matters whenever one depends on another: the CSRF middleware reads
+the session, so the session middleware must be outside it. Shiso's stack
+in =vendored/shiso/src/server.lisp= is built by hand for that reason,
+error logging outermost so that it sees failures in everything inside.
+
+* Test the model: where does a class fit?
+If an application is a function, what is =lack-component= for?
+
+A function holds state only by closing over it, and you can't inspect or
+replace what a closure closed over. An application with real state of its
+own, such as a table of routes, wants to be an object. =lack-component= is
+the bridge: =to-app= turns an instance into
+=(lambda (env) (call instance env))=, and from then on it is a function
+like any other.
+
+Nothing else in Lack knows about classes. The agreement is still "a
+function of =env=". The component protocol is a way to get one from an
+object, and it brings one gain a closure doesn't have: the function looks
+the =call= method up at each request, so redefining the method changes
+the running application.
+
+Shiso leans on exactly this. Each of its modules is a =lack-component=
+holding routes, and re-evaluating a module at the REPL changes the site
+without a restart.
+
+* Test the model: mounting
+Can one application live under a path inside another? The agreements say
+how. A middleware can change =env= before calling inward, so mounting is
+a middleware that removes a prefix from =:path-info= and calls a
+different application with what is left. The mounted application sees
+=/users/7= and never learns it was reached at =/admin/users/7=.
+
+That last part is also the cost. An application that builds links needs
+the prefix back. The convention inherited from CGI is to move it to
+=:script-name=, so that script name and path info together are the
+original path. Lack's own mount middleware doesn't do that; it drops the
+prefix. Shiso writes its own mount for this, which fills in
+=:script-name= and, when the mounted module has no matching route, puts
+=env= back as it was and lets the next module try.
+
+That a framework can replace a piece of Lack with its own, and nothing
+else has to change, is the agreements doing their job.
+
+* The edge: a response that isn't a list
+The first agreement has an exception. An application may return a
+function in place of the list:
+
+#+BEGIN_SRC lisp
+(lambda (env)
+  (lambda (responder)
+    (funcall responder '(200 (:content-type "text/plain") ("later")))))
+#+END_SRC
+
+The server calls that function with a responder, and the application
+calls the responder when it has something to say, now or after waiting on
+something. Called with a status and headers and no body, the responder
+returns a writer for sending the body in pieces. This is how streaming
+and server-sent events fit an interface that otherwise returns once.
+
+It is the one place the simple model leaks. Every middleware that touches
+responses now has two shapes to handle, and one written for lists alone
+fails on the first delayed response. That is what
+=lack/util:funcall-with-cb= is for, and why Lack's own session and access
+log middleware go through it or do the same by hand. =lack/test:request=
+does not handle the second shape at all.
+
+* The rule
+An application is a function from =env= to a response. A middleware is a
+function from an application to an application. =env= is a list anyone on
+the way in may read and add to. Whatever you meet in Lack, a class, a
+keyword in =builder=, a mounted path, ask which of the three it is a way
+of writing, and the rest follows.
+
+* See also
+- Tutorial: Your first Lack application builds each of the three by hand.
+- Reference: Builder and components.
+- How-to: Write a middleware, for the two shapes of response in practice.

@@ -388,6 +388,9 @@ var highlight_lisp = function() {
 	 */
 	this.highlight_element = function(code_el)
 	{
+		// Already done: marking it up twice would show the first pass's
+		// tags as text.
+		if(/(^|\s)hl-highlighted(\s|$)/.test(code_el.className)) return;
 		code_el.className += ' hl-highlighted';
 		var html = code_el.innerHTML;
 		// can't have &...;'s running wild like a pack of animals...

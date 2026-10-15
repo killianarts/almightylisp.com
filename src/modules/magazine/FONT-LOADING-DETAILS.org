@@ -56,6 +56,9 @@ var FONTS = [
   { family: "Construct Mono", file: "ConstructMono.otf", wait: true },
   { family: "Mohave", file: "Mohave-latin.woff2", wait: true,
     weight: "300 700", unicodeRange: LATIN },
+  // Article text.
+  { family: "Geist", file: "Geist-latin.woff2", wait: true,
+    weight: "100 900", unicodeRange: LATIN },
   // Japanese labels: in the running header, so on every page.
   { family: "JF Dot M+Q 10", file: "jf-dot-mplusq10-vert.ttf", wait: true },
   { family: "KKM Analog TV", file: "kkm_analogtv_v2-vert.ttf", wait: true },
@@ -253,8 +256,8 @@ From =ac-magazine-document= in =hypermedia/sheet.lisp=:
 (noscript (link :rel "stylesheet" :href (asset "css/magazine-fonts.css")))
 (link :rel "preload" :as "style" :href "/static/css/resets.css")
 (link :rel "stylesheet" :href (asset "css/magazine.css"))
-(script :src (asset "js/htmx-2.0.11.min.js") :defer t)
-(script :src (asset "js/htmx-ext-preload-2.1.2.js") :defer t)
+(script :src (asset "js/htmx-4.0.0.min.js") :defer t)
+(script :src (asset "js/htmx-preload-4.0.0.min.js") :defer t)
 (script :src (asset "js/magazine-fx.js") :defer t)
 #+end_src
 

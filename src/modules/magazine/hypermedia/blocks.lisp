@@ -34,8 +34,8 @@ static/js/magazine-fx.js)."
                for n from 1
                collect (ah:</>
                         (div :class (ah:clsx "src-line"
-                                            (when (member n highlight) "is-hit")
-                                            (when (member n moved) "is-moved"))
+                                             (when (member n highlight) "is-hit")
+                                             (when (member n moved) "is-moved"))
                           (code :class lang (if (string= line "") " " line))))))
        (when results
          (ah:</>
@@ -101,10 +101,10 @@ Syntax is set in the code face."
 ;;; they wrap to *headline-lines* lines or fewer and no single word is wider
 ;;; than the box. The box grows with the headline; only this sets the limit.
 
-(defparameter *headline-chars* 10
+(defparameter *headline-chars* 8
   "Uppercase characters that fit on one headline line at full size.")
 
-(defparameter *headline-lines* 4
+(defparameter *headline-lines* 5
   "The most lines a headline may take before it is set smaller.")
 
 (defun wrapped-line-count (lines capacity)

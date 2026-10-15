@@ -1,0 +1,145 @@
+#+TITLE: Build an App\\From a Class
+#+SUBTITLE: When an application has state of its own, make it an object. Subclass =lack-component=, write a =call= method, and Lack treats the instance as an application.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: How-to
+#+LIBRARY: lack
+#+VERIFIED: Lack 0.3.0, SBCL 2.6.3
+
+* Define the class
+Subclass =lack/component:lack-component= and give it whatever slots the
+application needs. This one keeps a table of pages:
+
+#+BEGIN_SRC lisp
+(defclass pages (lack/component:lack-component)
+  ((table :initform (make-hash-table :test 'equal) :reader pages-table)))
+
+(defun add-page (pages path text)
+  (setf (gethash path (pages-table pages)) text))
+#+END_SRC
+
+=lack-component= has no slots and no behaviour of its own. It marks the
+class as something that answers requests. Lack's README doesn't mention
+it; it lives in the =lack-component= system, which =lack= loads.
+
+* Write the call method
+=lack/component:call= takes the instance and the request, and returns a
+response as any application does:
+
+#+BEGIN_SRC lisp
+(defmethod lack/component:call ((this pages) env)
+  (let ((text (gethash (getf env :path-info) (pages-table this))))
+    (if text
+        (list 200 '(:content-type "text/plain") (list text))
+        (list 404 '(:content-type "text/plain") (list "Not found")))))
+
+(defparameter *pages* (make-instance 'pages))
+(add-page *pages* "/" "Home")
+(add-page *pages* "/about" "About us")
+
+(lack/component:call *pages* (lack/test:generate-env "/about"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:CONTENT-TYPE "text/plain") ("About us"))
+
+* Use it where an application goes
+Put the instance last in a =builder=, where a function would go.
+=builder= turns it into a function for you:
+
+#+BEGIN_SRC lisp
+(defparameter *site* (lack:builder :accesslog *pages*))
+
+(funcall *site* (lack/test:generate-env "/about"))
+#+END_SRC
+
+The response is the one above, with a line in the access log.
+
+The mount middleware takes an instance too:
+
+#+BEGIN_SRC lisp
+(defparameter *greet*
+  (lambda (env)
+    (list 200
+          '(:content-type "text/plain")
+          (list (format nil "You asked for ~a" (getf env :path-info))))))
+
+(funcall (lack:builder (:mount "/docs" *pages*) *greet*)
+         (lack/test:generate-env "/docs/about"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:CONTENT-TYPE "text/plain") ("About us"))
+
+Anywhere else that expects a function, convert it yourself with
+=lack/component:to-app=. =lack/test:testing-app= and =clack:clackup= are
+two such places:
+
+#+BEGIN_SRC lisp
+(lack/test:testing-app (lack/component:to-app *pages*)
+  (lack/test:request "/about"))
+#+END_SRC
+
+#+RESULTS:
+"About us", 200
+
+The further values, the headers and the URI, are left out here.
+
+* Change it while it runs
+The object is still there after the application is built, so you can
+change what it serves without building again:
+
+#+BEGIN_SRC lisp
+(add-page *pages* "/contact" "Write to us")
+
+(funcall *site* (lack/test:generate-env "/contact"))
+#+END_SRC
+
+The response is 200 with ="Write to us"=. The same goes for the method.
+Evaluate a new =defmethod= for =call= and the application already built
+uses it on the next request, because =to-app= made a function that looks
+the method up each time.
+
+A plain function doesn't behave this way. =builder= takes the function
+that the variable holds when it runs; set the variable to a new function
+afterwards and the built application still calls the old one.
+
+* How Shiso uses it
+Shiso's modules are components. =vendored/shiso/src/modules.lisp= defines
+the class with the module's routes, URL prefix and static folder as slots:
+
+#+BEGIN_SRC lisp
+(defclass module (lack/component::lack-component)
+  ((routes :initarg :routes :accessor module-routes)
+   (prefix :initarg :prefix :accessor module-prefix :initform "")
+   (static-root :initarg :static-root :accessor module-static-root :initform nil)
+   (locale-root :initarg :locale-root :accessor module-locale-root :initform nil)
+   (guard :initarg :guard :accessor module-guard :initform nil)))
+#+END_SRC
+
+Its =call= method (=vendored/shiso/src/requests.lisp=) looks the path up
+in the module's routes and runs the controller it finds. It returns a
+second value as well, true when a route matched. Lack ignores that value.
+Shiso's own mount middleware reads it, and when it is false passes the
+request on to the next module in place of returning the 404.
+
+Because modules are objects that are looked up at each request,
+re-evaluating a module's definition at the REPL changes the running site.
+
+* What goes wrong
+- *"The value is not of type function."* An instance isn't a function, so
+  =(funcall *pages* env)= signals a type error. So does passing the
+  instance straight to =lack/test:testing-app=. Use
+  =lack/component:call=, or convert with =to-app=.
+- *One instance is shared by every request.* A threaded server calls the
+  same object from several threads at once. Slots that requests change
+  need a lock, or a table made to be shared.
+- *The class is internal in older code.* Shiso writes
+  =lack/component::lack-component= with two colons. The symbol is
+  exported, and one colon is enough.
+
+* See also
+- Reference: Builder and components has =lack-component=, =call= and
+  =to-app= in full.
+- How-to: Write a middleware.

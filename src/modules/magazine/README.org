@@ -1,6 +1,6 @@
 #+TITLE: The magazine
 
-The Shiso module behind =/magazine=: articles written as org files in
+The Shiso module behind the site's root, =/=: articles written as org files in
 =content/magazine/=, served live, and published as static pages to
 =static/magazine/published/=. The design is Figma's /Neoindustrial/ file:
 the frames /Homepage restyled · C1 · Landing/ and /Article restyled · C1 ·
@@ -14,7 +14,9 @@ changing the code.
 * How a page is made
 
 1. A request reaches a controller (=controllers.lisp=), routed by
-   =routes.lisp=: =/magazine=, =/magazine/archive=, =/magazine/:slug=.
+   =routes.lisp=: =/=, =/archive=, =/article/:slug=, and
+   =/search=, which answers the search palette (see [[*Search and the archive's filters][Search and
+   the archive's filters]]).
 2. The controller asks the model for the articles and series. The model
    (=model.lisp=) keeps them in an =almighty-press= collection, which reads
    =content/magazine/= and its series' folders again whenever a file there
@@ -35,6 +37,8 @@ used for another site.
 |-------------------------------+--------------------------------------------------------------------|
 | =magazine.asd=                | The system                                                         |
 | =model.lisp=                  | Articles, series, parts; parsing and checking them; homepage layout |
+| =intel.lisp=                  | Intel's updates: the watch list, fetching, the inbox, publishing    |
+| =irc.lisp=                    | The IRC listener: what is said in a channel, kept in memory        |
 | =hypermedia/package.lisp=     | Links, assets and text helpers; the list of hypermedia files       |
 | =hypermedia/sheet.lisp=       | The document and the sheet: bands, gutters, header, footer, strip  |
 | =hypermedia/logos.lisp=       | Series logos, drawn as SVG paths                                   |
@@ -44,6 +48,8 @@ used for another site.
 | =hypermedia/home.lisp=        | The homepage                                                       |
 | =hypermedia/article.lisp=     | The article page                                                   |
 | =hypermedia/archive.lisp=     | The archive and the not-found page                                 |
+| =hypermedia/search.lisp=      | Search: the palette every page carries, and its results            |
+| =hypermedia/intel.lisp=       | Intel: the homepage band, the Intel page, and the desk             |
 | =publish.lisp=                | Writing every page to =static/magazine/published/=                 |
 | =controllers.lisp=            | The three pages, and publishing when the content changed           |
 | =routes.lisp=                 | URLs                                                               |
@@ -55,6 +61,8 @@ Outside this directory:
 |-------------------------------+----------------------------------------------------------------|
 | =static/css/magazine.css=     | All the magazine's styles; see [[*The stylesheet][The stylesheet]]                |
 | =static/js/magazine-fx.js=    | htmx setup and the screen effects                              |
+| =static/js/magazine-search.js= | Opens and closes the search palette, and gives it its keys     |
+| =static/js/htmx-4.0.0.min.js= | [[https://four.htmx.org][htmx]] 4: navigation, search and the archive's filters         |
 | =static/js/magazine-fonts.js= | Loads the fonts and switches them in together                  |
 | =static/css/magazine-fonts.css= | The same fonts as =@font-face=, for browsers without JavaScript |
 | =static/js/magazine-toc.js=   | The contents strip that pins to the top of an article          |
@@ -151,9 +159,10 @@ Components reused across pages:
 | =render-book-brief=      | Keep reading, when an article names a book chapter      |
 | =render-book-band=       | The book's band on the homepage, under the plate        |
 | =render-book-ad=         | The compact book panel beside an article                |
+| =render-book-panel=      | What that panel and the footer's book hold              |
 | =render-gauge=, =render-dot-pair= | The ornaments: gutters, section heads, black panels |
 | =render-eyebrow=, =render-progress-bar= | Over and under a heading: sections, briefs in a series |
-| =render-index=, =render-index-cell= | The end of a series, and each archive month   |
+| =render-index=, =render-index-cell= | The end of a series                           |
 | =render-series-progress= | Series cards, the end of a series                       |
 | =render-headline=        | The lead and an article's lede, scaled to fit           |
 | =render-lede-row=        | The dek and byline under either headline                |
@@ -184,9 +193,9 @@ sets its colour. A code without an entry gets a square.
 
 =static/css/magazine.css= has five parts, in order:
 
-1. *Tokens*, on =.mag=: colours (=--night= and its kin are the black
-   panels'), the hatch pattern, fonts, cell padding (=--pad=), and the
-   column ratios (=--cols-lead=, =--cols-index=). The narrow layout mostly
+1. *Tokens*, on =.mag=: colours (the black panels are =--ink=; the
+   =--night-= steps are the greys on them), the hatch pattern, fonts,
+   cell padding (=--pad=), and the column ratios (=--cols-lead=, =--cols-index=). The narrow layout mostly
    works by changing =--pad=.
 2. *Base*: element defaults inside =.mag=.
 3. *Roles*: type and layout many components share. /Display/ (Science
@@ -210,11 +219,20 @@ film grain and scanlines.
 
 * Navigation and effects
 
-The body is =hx-boost="true"=: links within the magazine swap the body's
-contents instead of loading a page, and the preload extension fetches a
-page when its link is hovered. The book panel, the book band and the
-footer's shop cells are =hx-boost="false"=, since their links leave the
-magazine.
+The body is =hx-boost:inherited=: htmx (version 4) boosts every link
+below it, so links within the magazine swap the body's contents instead of
+loading a page, and its preload extension fetches a page when its link is
+hovered. htmx 4 only hands an attribute down from an element that marks it
+=:inherited=, so the book panel, the book band and the footer's shop cells
+are =hx-boost:inherited="false"=, since their links leave the magazine.
+=magazine-fx.js= sets htmx up: it keeps links that leave the magazine (the
+other modules mounted in =src/main.lisp=, listed in =OTHER_SECTIONS=) from
+being boosted at all, holds a swap until the screen effect has switched
+the screen off, and loads a page the ordinary way when its request fails.
+
+Back and forward fetch the page again and swap it in: htmx 4 keeps no
+copy of the pages it leaves. Pages may be reused from the browser's cache
+for a minute (=*page-cache*=), which keeps that quick.
 
 htmx swaps only the body's contents, so the sheet carries the body's class
 in =data-body-class=, and =magazine-fx.js= copies it to the body after
@@ -223,7 +241,9 @@ each swap.
 =magazine-fx.js= also plays the hover flicker (on the book's buttons and
 the book band's cards) and the tear when an article
 or book link is clicked, then lets htmx (or the browser, for other sites)
-navigate. Safari (and every browser on iOS) runs the tear's SVG filter
+navigate. With the search palette open over the page, the filter is on the
+palette instead; in Safari the palette goes out of sight as the effect
+starts. Safari (and every browser on iOS) runs the tear's SVG filter
 on the CPU, far too slowly, so there the page is copied instead: three
 copies tinted red, green and blue and added back together make the split,
 and more copies in sliding bands make the tear (=buildSplit= and
@@ -252,6 +272,121 @@ moment the page shows in fallback fonts meanwhile, and the switch happens
 under the arrival effect (=MagazineFx.arrive= in =magazine-fx.js=). Add a
 font to its =FONTS= list, and to =magazine-fonts.css=. The details are in
 [[file:FONT-LOADING-DETAILS.org][FONT-LOADING-DETAILS.org]].
+
+* Search and the archive's filters
+
+Both are worked out and drawn on the server, and htmx sets the HTML into
+the page. What a control asks for is in attributes written by
+=hypermedia/search.lisp= and =hypermedia/archive.lisp=.
+
+*Search.* Every page carries the palette, closed (=render-search-palette=).
+=/=, Ctrl or Cmd+K, or the strip's first cell open it. That, and closing
+it, is =static/js/magazine-search.js=: no request is needed for either.
+
+What is being searched for is in the address a control asks:
+=/search?q=window&field=body&sel=1&focus=4&wide=1= (=search-href=),
+where =sel= is the article selected, =focus= the match in focus and =wide=
+asks for more context. Typing asks for the query in the field that is
+pressed, once it has paused for 150ms. Every other control (a field, an
+article, a match) asks for the search as it stands with its own change
+made, so the server decides what each one does next. The answer is the
+palette's chips, list, preview and status (=render-search-results=), each
+marked =hx-swap-oob="outerMorph"=: htmx changes the part of the page with
+the same id to match, which keeps the panes where they were scrolled to. A
+search asked for while another is on its way takes its place (=hx-sync=).
+
+A control that a key stands for names the key in =data-keys= (=ArrowDown=
+on the article after the selected one, =Enter= on the link that opens the
+match), and =magazine-search.js= presses whichever control names the key.
+So moving through results is a request each time, and the browser holds no
+results. The link that opens a match is a link like any other, to the
+match's section, so the page is fetched while the screen effect plays. It
+also carries the matched text and which of its places in the section the
+match is (=data-find=, =data-nth=); once the page is in,
+=magazine-search.js= finds that place, scrolls to it and marks it
+(=::highlight(search-match)= in =magazine.css=).
+
+The text searched is each article's title, subtitle and body, as plain
+paragraphs (=index-article=). It is made once and kept until the org files
+change. A query is one phrase, matched whatever its case.
+
+*The archive.* A type's or a series' row is a link:
+=/archive?type=Tutorial&series=MAC=. The page it leads to lists
+those articles alone, so a filtered archive can be linked to and works
+without JavaScript. With htmx, pressing the row fetches that page, takes
+the catalogue out of it (=hx-select=) and sets it in place of the one in
+the page, and the row's address goes into the history, so Back undoes one
+filter at a time. The server sends the same page either way. =?open==
+opens a month (=2026-09=) or =all= of them. A month is a =<details>=, so
+it opens and closes with no script.
+
+To update htmx, copy =dist/htmx.min.js= and =dist/ext/hx-preload.min.js=
+from the =htmx.org= package to =static/js/= and change the names in
+=ac-magazine-document= (=hypermedia/sheet.lisp=). The package's
+=dist/skills/= has an upgrade guide.
+
+* Intel
+
+Intel is a feed of short updates about Common Lisp projects: a release or
+tag of a watched project, a new repository, or a post on a watched blog. Nothing is published
+automatically. Updates are fetched into an inbox, and a person writes one
+line for each update worth passing on.
+
+| File                          | What it is                                                   |
+|-------------------------------+--------------------------------------------------------------|
+| =content/intel/watch.txt=     | The projects to watch: a repository URL a line, then a name  |
+| =content/intel/blogs.txt=     | The blogs to watch: a feed's URL a line, then a name         |
+| =content/intel/updates.sexp=  | The published updates, a plist a line. The site reads this; commit it |
+| =content/intel/commits.sexp=  | Followed projects' commits this week: a count and the newest one's first line. Written by a fetch; commit it |
+| =content/intel/inbox.sexp=    | Everything fetched and its status. Local; git ignores it     |
+| =content/intel/following.sexp= | Followed projects' newest commits, and the last one seen. Local; git ignores it |
+
+| Address                  | What's there                                                      |
+|--------------------------+-------------------------------------------------------------------|
+| =/=                      | The Intel band, under Briefs, once something is published         |
+| =/intel=                 | Every published update by day; =?kind=release= or =?kind=new= keeps one kind |
+| =/intel/desk=            | The desk: the queue, what's published, what's dismissed           |
+
+*The desk* answers only where it is turned on: start the server with
+=INTEL_DESK=true=, or evaluate =(setf magazine/intel:*desk-enabled* t)=.
+Anywhere else its addresses are not found, so the public site never serves
+it. Fetch now runs =curl= against each watched project's feed (GitHub,
+GitLab, Codeberg or another Gitea or Forgejo host; any other URL is taken to
+be a feed), against each blog's feed, and against GitHub's search for
+repositories created in the last two weeks. =GITHUB_TOKEN=, when set, is sent with the search only.
+Publishing, changing a line and unpublishing write =updates.sexp= and the
+static pages again; deploy them as you would an article.
+
+*Following.* A project whose line in =watch.txt= starts with =*= is
+followed; so is one whose card had Follow the project pressed, which writes
+the =*= (and adds the line, for a repository the list didn't have). A
+followed project's updates come first in the queue, marked Following. A
+fetch also asks for its newest commits (on GitHub; other hosts have no feed
+of them that is read here), and the desk's Following list shows those that
+are new since Mark as seen was last pressed. The first fetch of a project
+takes its newest commit as seen. Nobody writes a line for a commit; what
+the site shows of them, in the band's Commits block, is each followed
+project's count for the week and its newest commit's first line, which a
+fetch writes to =commits.sexp=.
+
+*Active elsewhere.* A fetch also asks GitHub which Common Lisp repositories
+with twenty stars or more were pushed to in the last week, so an established
+project nobody listed is still noticed. The desk's Active elsewhere list
+shows those the watch list doesn't have: Follow the project adds one to
+=watch.txt=, followed; Hide stops it being offered again. They are kept in
+=content/intel/active.sexp=, local as the inbox is.
+
+*Live.* =irc.lisp= is a listener on IRC: a thread that joins =#commonlisp=
+on Libera Chat as =almighty-lisp-bot= and keeps the last 300 lines said
+there, in memory only. It answers the server's pings and sends nothing else:
+it never speaks. The desk's Live list has Connect and Disconnect, and shows
+the lines as they arrive; while the listener runs, the homepage shows the
+newest eight under the Intel band. Both lists ask =/intel/stream=
+for themselves again every few seconds. An image started with
+=INTEL_IRC=true= connects by itself on the homepage's first visit, which is
+how the public site would show the channel; without it, nothing connects
+until Connect is pressed. The server, channels and name are the variables at
+the top of =irc.lisp=.
 
 * Justified text
 
@@ -296,7 +431,3 @@ changes writes every page before answering. To force it from the REPL:
 #+BEGIN_SRC lisp
 (magazine:publish)
 #+END_SRC
-
-This needs the server to have served a =/magazine= page first, so that
-=s:url= knows where the magazine is mounted; until then it signals an error
-rather than write pages with broken links.

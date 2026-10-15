@@ -12,13 +12,6 @@
 ;;; An evolving article (#+LAYOUT: evolving) is the same page with other
 ;;; sections: see evolving.lisp.
 
-(defun render-series-tags (article series)
-  (ah:</>
-   (div :class "series-tags"
-     (span :class "series-tag outline" (format nil "[ Series: ~a ]" (model:series-title series)))
-     (span :class "series-tag filled" (part-of article series))
-     (span :class "series-tag slashes" :aria-hidden t "//////////////"))))
-
 (defun previous-part (article series)
   "The part before ARTICLE, when it is out."
   (let ((part (find (1- (model:article-part article)) (model:series-parts series)
@@ -27,29 +20,47 @@
       part)))
 
 (defun render-previously (article series)
+  "The recap of the part before ARTICLE (Figma: Lede D · Banner + track
+recap): its number small and pale beside its title, then ARTICLE's #+RECAP,
+or the part's dek when ARTICLE has none. The banner above the lede is this
+part, in black; the recap is kept quiet so the two don't read alike."
   (let ((part (previous-part article series)))
     (when part
-      (let ((previous (model:part-article part)))
+      (let* ((previous (model:part-article part))
+             (number (two-digits (model:part-number part)))
+             (href (article-href previous)))
         (ah:</>
          (div :class "previously"
-           (p :class "previously-label" (format nil "Previously, in part ~d" (model:part-number part)))
-           (p :class "previously-recap"
-             (a :class "inline-link" :href (article-href previous) (model:article-title previous))
-             (format nil ". ~a" (model:article-subtitle previous)))))))))
+           (p :class "previously-label" (format nil "Previously, in part ~a" number))
+           (div :class "previously-body"
+             (span :class "previously-n" :aria-hidden t number)
+             (p :class "previously-title" (a :href href (model:article-title previous)))
+             (p :class "previously-recap"
+               (render-inlines (or (model:article-recap article)
+                                   (model:article-subtitle previous))))
+             (a :class "previously-link" :href href (format nil "Return to part ~a" number)))))))))
 
 (defun render-article-lede (article series)
-  (let ((title (render-headline (model:article-title-lines article) :class "art-headline"))
-        (tags (when series (render-series-tags article series)))
-        (row (render-lede-row article :hazard))
-        (recap (when series (render-previously article series))))
-    (ah:</>
-     (header :class "neo-lead art-lede"
-       (render-crop-marks)
-       ;; A series part with a part before it closes with a recap of that
-       ;; part, under the dek.
-       (if recap
-           (ah:</> (<> title tags row (render-hatch) recap))
-           (ah:</> (<> title tags (render-hatch) row)))))))
+  "The lede. A series part has the series' banner across its top, as the
+homepage's lead does, with this part's number and the meter filled to it."
+  (let* ((title (render-headline (model:article-title-lines article) :class "art-headline"))
+         (row (render-lede-row article :hazard))
+         (recap (when series (render-previously article series)))
+         (lede (ah:</>
+                (header :class "neo-lead art-lede"
+                  (render-crop-marks)
+                  ;; A series part with a part before it closes with a recap
+                  ;; of that part, under the dek.
+                  (if recap
+                      (ah:</> (<> title row (render-hatch) recap))
+                      (ah:</> (<> title (render-hatch) row)))))))
+    (if series
+        (ah:</>
+         (div :class "lead-cell"
+           (render-featured-banner article series
+                                   :label "Series" :through (model:article-part article))
+           lede))
+        lede)))
 
 ;;; Contents: the sections, or in a series every part with this one's
 ;;; sections under it.

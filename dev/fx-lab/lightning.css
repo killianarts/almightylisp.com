@@ -1,0 +1,23 @@
+/* Effects test page: the lightning variant's rules (see lightning.js). Both
+   canvases hang off <html>, outside .mag, so the page's tokens aren't there
+   to use: the numbers are --z-overlay + 1 and --z-raise. */
+
+/* The click: one canvas over the window, for the dark, the flashes and the
+   bolts. */
+.fx-sky {
+    position: fixed;
+    inset: 0;
+    z-index: 9001;
+    display: none;
+    pointer-events: none;
+}
+
+.fx-sky.is-on { display: block; }
+
+/* A link's or a card's pulse: a canvas over it, placed in the page so it
+   scrolls with it. Under the sticky header (--z-sticky), as the link is. */
+.fx-zap {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+}

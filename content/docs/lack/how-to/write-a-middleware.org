@@ -1,0 +1,145 @@
+#+TITLE: Write a\\Middleware
+#+SUBTITLE: Answer a request before the application sees it, change a response on its way out, take options, and give your middleware a keyword that =builder= understands.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: How-to
+#+LIBRARY: lack
+#+VERIFIED: Lack 0.3.0, SBCL 2.6.3
+
+* Answer before the application
+A middleware takes an application and returns one. To answer some requests
+itself, it returns a response without calling the application it wraps.
+
+This one redirects any path that ends in a slash. It is a short form of
+the one Shiso puts in front of every application
+(=strip-trailing-slash-middleware= in =vendored/shiso/src/routing.lisp=):
+
+#+BEGIN_SRC lisp
+(defun strip-trailing-slash (app)
+  (lambda (env)
+    (let ((path (getf env :path-info)))
+      (if (and (> (length path) 1)
+               (char= (char path (1- (length path))) #\/))
+          (list 301 (list :location (string-right-trim "/" path)) (list ""))
+          (funcall app env)))))
+#+END_SRC
+
+Put it in a =builder= by naming the function. The examples here use this
+application, and =lack/test:generate-env= to make requests:
+
+#+BEGIN_SRC lisp
+(defparameter *greet*
+  (lambda (env)
+    (list 200
+          '(:content-type "text/plain")
+          (list (format nil "You asked for ~a" (getf env :path-info))))))
+
+(defparameter *site* (lack:builder #'strip-trailing-slash *greet*))
+
+(funcall *site* (lack/test:generate-env "/books/"))
+#+END_SRC
+
+#+RESULTS:
+(301 (:LOCATION "/books") (""))
+
+=/books= and =/= pass through to =*greet*=.
+
+* Change the response
+To work on the response, call the application and build a new list from
+what it returns. Use =lack/util:funcall-with-cb= to make the call. It
+runs your function on the response whether the application returned it at
+once or will produce it later (see [[*What goes wrong][What goes wrong]]).
+
+#+BEGIN_SRC lisp
+(defun add-header (app &key (name :x-served-by) (value "lack"))
+  (lambda (env)
+    (lack/util:funcall-with-cb
+     app env
+     (lambda (response)
+       (destructuring-bind (status headers &optional body) response
+         (list status (list* name value headers) body))))))
+
+(funcall (lack:builder #'add-header *greet*)
+         (lack/test:generate-env "/"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:X-SERVED-BY "lack" :CONTENT-TYPE "text/plain") ("You asked for /"))
+
+* Take options
+=add-header= above takes keyword arguments after the application. A bare
+function name in =builder= can't pass any, so wrap the call in a function
+of the application:
+
+#+BEGIN_SRC lisp
+(funcall (lack:builder
+          (lambda (app) (add-header app :value "almighty"))
+          *greet*)
+         (lack/test:generate-env "/"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:X-SERVED-BY "almighty" :CONTENT-TYPE "text/plain") ("You asked for /"))
+
+* Give it a keyword
+Lack's own middleware is named in =builder= by keyword, with the options
+after it: =(:static :path "/public/")=. Yours can be too. =builder= looks
+for a package called =lack/middleware/NAME= and, in it, a variable called
+=*lack-middleware-NAME*= that holds the function:
+
+#+BEGIN_SRC lisp
+(defpackage lack/middleware/add-header
+  (:use :cl)
+  (:export #:*lack-middleware-add-header*))
+
+(defparameter lack/middleware/add-header:*lack-middleware-add-header*
+  #'add-header)
+
+(funcall (lack:builder (:add-header :value "almighty") *greet*)
+         (lack/test:generate-env "/"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:X-SERVED-BY "almighty" :CONTENT-TYPE "text/plain") ("You asked for /"))
+
+With no options, the bare keyword =:add-header= works as well. If the
+package isn't loaded, =builder= tries to load a system named
+=lack-middleware-add-header=, so a middleware published under that name
+loads itself the first time it is used.
+
+* Leave one out
+=builder= drops any middleware form whose value is =nil=. That turns a
+middleware on or off with an ordinary condition:
+
+#+BEGIN_SRC lisp
+(lack:builder
+ (when *debug* :accesslog)
+ #'strip-trailing-slash
+ *greet*)
+#+END_SRC
+
+* What goes wrong
+- *The order is wrong.* The first middleware listed is the outermost: it
+  sees the request first and the response last. Redirects and anything
+  that rewrites the path go before the middleware that depends on the
+  path.
+- *It breaks on a delayed response.* An application may return a function
+  in place of the list, to produce its response later. A middleware that
+  runs =destructuring-bind= straight on what the application returned
+  signals an error on those. =funcall-with-cb= handles both.
+- *The body is missing.* A response may have two elements and no body,
+  when the application means to stream it. Take the body as =&optional=.
+- *Errors don't reach your handler.* A middleware that uses
+  =handler-case= around the call unwinds the stack before anything can
+  log it. Shiso's =wrap-error-logging= (=vendored/shiso/src/server.lisp=)
+  uses =handler-bind=, so it records the error and lets it carry on to
+  the server.
+- *Changing =env= changes it for everyone inside.* =(setf (getf env ...))=
+  on a key that is already there alters the list in place. Lack's own
+  mount middleware does this to =:path-info=. Shiso's version saves the
+  old value and puts it back when the mounted module doesn't answer.
+
+* See also
+- Reference: Builder and components lists every form =builder= accepts.
+- Explanation: Apps, middleware and the env.

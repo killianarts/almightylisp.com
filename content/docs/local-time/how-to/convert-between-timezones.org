@@ -1,0 +1,124 @@
+#+TITLE: Convert\\Between\\Timezones
+#+SUBTITLE: Show one moment as the clocks in Tokyo and New York read it, read a local time back into a timestamp, and add a day across a daylight saving change.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: How-to
+#+LIBRARY: local-time
+#+VERIFIED: local-time 1.0.6, SBCL 2.6.3
+
+* Load the timezones
+local-time comes with the timezone database but doesn't read it until
+asked. Before that, every lookup returns =nil=:
+
+#+BEGIN_SRC lisp
+(local-time:find-timezone-by-location-name "Asia/Tokyo")
+#+END_SRC
+
+#+RESULTS:
+NIL, NIL
+
+Read the database once, when your program starts:
+
+#+BEGIN_SRC lisp
+(local-time:reread-timezone-repository)
+
+(defparameter *tokyo* (local-time:find-timezone-by-location-name "Asia/Tokyo"))
+(defparameter *new-york* (local-time:find-timezone-by-location-name "America/New_York"))
+#+END_SRC
+
+A name that isn't in the database also returns =nil=, with no error.
+Check for it.
+
+* Show a moment in a timezone
+A timestamp is a moment and has no timezone. The zone is chosen when you
+print it, with =:timezone=:
+
+#+BEGIN_SRC lisp
+(defparameter *meeting* (local-time:parse-timestring "2026-10-12T08:30:00Z"))
+
+(list (local-time:format-timestring nil *meeting* :timezone *tokyo*)
+      (local-time:format-timestring nil *meeting* :timezone *new-york*))
+#+END_SRC
+
+#+RESULTS:
+("2026-10-12T17:30:00.000000+09:00" "2026-10-12T04:30:00.000000-04:00")
+
+For a form people read, name the zone in the format:
+
+#+BEGIN_SRC lisp
+(local-time:format-timestring
+ nil *meeting*
+ :timezone *new-york*
+ :format '((:hour 2) ":" (:min 2) " " :timezone " (" :gmt-offset ")"))
+#+END_SRC
+
+#+RESULTS:
+"04:30 EDT (-04:00)"
+
+The functions that take a timestamp apart accept =:timezone= as well:
+=(local-time:timestamp-hour *meeting* :timezone *tokyo*)= is 17.
+
+* Read a local time
+To go the other way, from "17:30 in Tokyo" to a timestamp, give
+=encode-timestamp= the zone. Its arguments run from the smallest part to
+the largest: nanoseconds, seconds, minutes, hour, day, month, year.
+
+#+BEGIN_SRC lisp
+(local-time:encode-timestamp 0 0 30 17 12 10 2026 :timezone *tokyo*)
+#+END_SRC
+
+#+RESULTS:
+@2026-10-12T08:30:00.000000Z
+
+=parse-timestring= has no =:timezone=. It takes an =:offset= in seconds,
+which =timestamp-subtimezone= finds for a zone at a given moment:
+
+#+BEGIN_SRC lisp
+(local-time:timestamp-subtimezone *meeting* *new-york*)
+#+END_SRC
+
+#+RESULTS:
+-14400, T, "EDT"
+
+The values are the offset from UTC in seconds, whether daylight saving is
+in force, and the zone's abbreviation then.
+
+* Add time across a daylight saving change
+New York's clocks went forward on 8 March 2026. A day added in that zone
+keeps the time on the clock; twenty-four hours do not:
+
+#+BEGIN_SRC lisp
+(let ((before (local-time:parse-timestring "2026-03-07T17:00:00-05:00")))
+  (list (local-time:format-timestring
+         nil (local-time:timestamp+ before 1 :day *new-york*)
+         :timezone *new-york*)
+        (local-time:format-timestring
+         nil (local-time:timestamp+ before 24 :hour *new-york*)
+         :timezone *new-york*)))
+#+END_SRC
+
+#+RESULTS:
+("2026-03-08T17:00:00.000000-04:00" "2026-03-08T18:00:00.000000-04:00")
+
+Pass the zone as the fourth argument to =timestamp+= whenever the unit is
+a day or longer. Without it, the day is counted in =*default-timezone*=.
+
+* What goes wrong
+- *The lookup returns nil.* Either =reread-timezone-repository= hasn't run
+  in this image, or the name is misspelled. Names are those of the tz
+  database, such as =Europe/Paris=, and they are case-sensitive.
+- *A built program can't find the database.* It is read from the
+  =zoneinfo/= folder beside local-time's source. Call
+  =reread-timezone-repository= before you save the image, or pass
+  =:timezone-repository= with the path of a copy that ships with the
+  program.
+- *An abbreviation is not a zone.* "EST" and "JST" name an offset, and
+  several zones share each one. =timezones-matching-subzone= lists the
+  zones that used an abbreviation at a given moment; it can't choose
+  between them.
+
+* See also
+- How-to: Parse a timestring covers =:offset= and the other options.
+- Explanation: How a timestamp is stored says why a timestamp carries no
+  zone.

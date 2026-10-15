@@ -46,8 +46,9 @@ a bar filled as far as that part."
                 :by "Lisp & Emacs Essentials"))
 
 ;;; The book panel: on the homepage in a band of its own, the pitch as a
-;;; headline over three ways to read; beside an article, a compact one with
-;;; two buttons. htmx leaves its links alone: they leave the magazine.
+;;; headline over three ways to read; beside an article, the same as the
+;;; footer's book, with the three ways as buttons. htmx leaves its links
+;;; alone: they leave the magazine.
 
 (defparameter *book-cards*
   `((,*book-href* "Free" "Read free online" "All 16 chapters, in your browser.")
@@ -97,7 +98,7 @@ pulses (see the card pulse in magazine-fx.js)."
 (defun render-book-landing ()
   "The homepage's book panel."
   (ah:</>
-   (aside :class "book-ad landing" :aria-label "Lisp & Emacs Essentials" :hx-boost "false"
+   (aside :class "book-ad landing" :aria-label "Lisp & Emacs Essentials" :|hx-boost:inherited| "false"
      (p :class "book-ad-label" "The Book (your eyes only)")
      (img :class "book-ad-logo" :src (image-src "essentials-logo.svg") :alt "Lisp & Emacs Essentials"
        :width "156" :height "69")
@@ -123,34 +124,50 @@ rapidly shifting winds of code and craft. Adapt, Build, Overcome. Embrace the pa
          (i :class "d"))))))
 
 (defun render-book-band ()
-  "The book's band on the homepage, under the plate. Narrow pages don't show
-it: there the book is in the footer."
+  "The book's band on the homepage, under the plate, at every width: narrower,
+it folds into fewer columns."
   (ah:</>
    (<>
      (div :class "band gap-band book-gap" :aria-hidden t)
      (ac-band :class "book-band" :side (list "The Book" "Flight Manual") :marks t
        (render-book-landing)))))
 
-(defun render-book-ad ()
-  "The book panel beside an article: the logo and two buttons."
+(defun render-book-panel ()
+  "What the book panel beside an article and the footer's book hold: an
+eyebrow, the logo, a gauge, the three ways to read as buttons, and dot pairs
+in the corner."
   (ah:</>
-   (aside :class "book-ad compact" :aria-label "Lisp & Emacs Essentials" :hx-boost "false"
+   (<>
      (p :class "book-ad-label" "The Book (your eyes only)")
-     (img :class "book-ad-logo" :src (image-src "essentials-logo.svg") :alt "Lisp & Emacs Essentials"
-       :width "156" :height "69")
-     (div :class "book-ad-actions"
-       (a :class "neo-button primary" :href *book-href* "Start reading")
-       (a :class "neo-button secondary" :href *hardcover-href* "Purchase hardcover")))))
+     (img :class "book-ad-logo" :src (image-src "essentials-logo.svg")
+       :alt "Lisp & Emacs Essentials" :width "156" :height "69")
+     (render-gauge :class "footer-gauge")
+     (div :class "footer-actions"
+       (a :class "neo-button primary" :href *book-href* "Read free online")
+       (a :class "neo-button secondary" :href *ebook-href* "Buy ebook")
+       (a :class "neo-button secondary" :href *hardcover-href* "Buy hardcover"))
+     (render-dot-pairs :class "panel-corner"))))
+
+(defun render-book-ad ()
+  "The book panel beside an article, drawn as the footer's book."
+  (ah:</>
+   (aside :class "book-ad compact" :aria-label "Lisp & Emacs Essentials" :|hx-boost:inherited| "false"
+     (render-book-panel))))
 
 ;;; Series progress
 
-(defun render-meter (series)
-  "One cell per part, filled when the part is out. Drawn as one bar: filled to
-the newest part, a tick, then the rest in outline."
+(defun render-meter (series &key through)
+  "One cell per part, filled when the part is out, or with THROUGH, when it is
+part THROUGH or one before it. Drawn as one bar: filled to the last filled
+part, a tick, then the rest in outline."
   (ah:</>
    (span :class "meter" :aria-hidden t
      (mapcar (lambda (part)
-               (ah:</> (span :class (ah:clsx "cell" (when (model:part-article part) "on")))))
+               (ah:</> (span :class (ah:clsx "cell"
+                                             (when (if through
+                                                       (<= (model:part-number part) through)
+                                                       (model:part-article part))
+                                               "on")))))
              (model:series-parts series)))))
 
 (defun progress-text (series)
@@ -167,19 +184,20 @@ the newest part, a tick, then the rest in outline."
      (render-rule-dots)
      (span (progress-text series)))))
 
-(defun render-featured-banner (article series)
+(defun render-featured-banner (article series &key (label "Featured series") through)
   "Across the top of the lead when the lead is part of the featured series: the
 series' name and the lead's part, over the series' progress. The part's
-number is drawn large behind the banner (data-part)."
+number is drawn large behind the banner (data-part). An article's lede has
+it too, with LABEL \"Series\" and the meter filled THROUGH its own part."
   (ah:</>
    (div :class "featured-banner" :data-part (two-digits (model:article-part article))
      (render-series-logo (model:series-code series) :class "series-logo banner-logo")
      (div :class "featured-name"
-       (p :class "featured-label" (slashed "Featured series" (model:series-code series)))
+       (p :class "featured-label" (slashed label (model:series-code series)))
        (p :class "featured-title" (model:series-title series)))
      (span :class "featured-count" (part-fraction article series))
      (div :class "progress-rule"
-       (render-meter series)
+       (render-meter series :through through)
        (render-rule-dots)
        (span :class "arrow-label" "All parts")))))
 

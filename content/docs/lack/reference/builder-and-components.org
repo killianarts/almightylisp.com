@@ -1,0 +1,165 @@
+#+TITLE: Builder and\\Components
+#+SUBTITLE: Every form =lack:builder= accepts, how a keyword becomes a middleware, the three symbols of =lack/component=, and the middleware Lack comes with.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: Reference
+#+LIBRARY: lack
+#+VERIFIED: Lack 0.3.0, SBCL 2.6.3
+
+* Overview
+| Symbol                          | Kind             | System           |
+|---------------------------------+------------------+------------------|
+| =lack:builder=                  | macro            | =lack=           |
+| =lack/util:find-middleware=     | function         | =lack-util=      |
+| =lack/util:funcall-with-cb=     | function         | =lack-util=      |
+| =lack/component:lack-component= | class            | =lack-component= |
+| =lack/component:call=           | generic function | =lack-component= |
+| =lack/component:to-app=         | generic function | =lack-component= |
+
+Loading =lack= loads =lack-component= and =lack-util=. Each package also
+has an older nickname with dots: =lack.component=, =lack.util=.
+
+* builder
+#+BEGIN_NOTE Syntax
+builder middleware* app => application
+#+END_NOTE
+
+Wraps =app= in each =middleware=, the first listed outermost, and returns
+the result, a function of one argument.
+
+=app= is evaluated and passed through =to-app=, so it may be a function or
+a =lack-component=.
+
+Each =middleware= is one of these forms:
+
+| Form                         | Meaning                                                             |
+|------------------------------+---------------------------------------------------------------------|
+| =nil=                        | Left out.                                                           |
+| =:name=                      | The middleware =find-middleware= returns for =:name=.               |
+| =(:name arg...)=             | That middleware, called with the application and then the =arg= forms. |
+| any other form               | Evaluated. Its value is then read as in the next table.             |
+
+A form such as =#'my-middleware=, =(lambda (app) ...)=, a variable, or
+=(when *debug* :accesslog)= is of the last kind. Its value is read when
+the =builder= form runs:
+
+| Value                          | Meaning                                                    |
+|--------------------------------+------------------------------------------------------------|
+| =nil=                          | Left out.                                                  |
+| a function                     | Called with the application; must return an application.   |
+| a keyword                      | As =:name= above.                                          |
+| a list starting with a keyword | As =(:name arg...)= above, the arguments already evaluated. |
+| an instance of a class         | Wrapped as a Clack 1 middleware object.                    |
+
+Expanded, =(builder a b app)= is =(funcall a (funcall b (to-app app)))=.
+
+* find-middleware
+#+BEGIN_NOTE Syntax
+find-middleware keyword => function
+#+END_NOTE
+
+Returns the middleware named by =keyword=. For =:name= it looks for:
+
+1. The package =LACK/MIDDLEWARE/NAME=. If there is none, it tries to load
+   the system =lack-middleware-name=, with Quicklisp when Quicklisp is in
+   the image and with ASDF otherwise.
+2. Failing that, the package =LACK.MIDDLEWARE.NAME=, with each hyphen in
+   the keyword turned into a dot. =:auth-basic= is found this way, as
+   =LACK.MIDDLEWARE.AUTH.BASIC=.
+3. In the package it found, the variable =*LACK-MIDDLEWARE-NAME*=, whose
+   value must be a function.
+
+Signals an error when no package is found (=Middleware
+"LACK/MIDDLEWARE/NAME" is not found=) or when the variable is unbound or
+not a function.
+
+* funcall-with-cb
+#+BEGIN_NOTE Syntax
+funcall-with-cb app env callback => response
+#+END_NOTE
+
+Calls =app= with =env= and applies =callback=, a function of one response,
+to the result.
+
+| =app= returned    | Returns                                                                |
+|-------------------+------------------------------------------------------------------------|
+| a list            | =(funcall callback list)=                                              |
+| a function        | A function that, given a responder, runs the first and passes each response through =callback= on the way to the responder. |
+| anything else     | It, unchanged.                                                         |
+
+For a middleware that changes responses and must work with delayed ones.
+
+* lack-component
+#+BEGIN_NOTE Syntax
+lack-component    class, no slots
+#+END_NOTE
+
+The class to subclass for an application that is an object. It has no
+slots and no methods of its own beyond the =to-app= method below.
+
+* call
+#+BEGIN_NOTE Syntax
+call component env => response
+#+END_NOTE
+
+Answers the request =env=. Write a method on your subclass of
+=lack-component=.
+
+| Method on    | Does                         |
+|--------------+------------------------------|
+| =function=   | =(funcall component env)=    |
+
+There is no method on =lack-component= itself. A subclass with no =call=
+method signals a no-applicable-method error at the first request.
+
+* to-app
+#+BEGIN_NOTE Syntax
+to-app component => function
+#+END_NOTE
+
+Returns =component= as a function of =env=.
+
+| Method on          | Returns                                        |
+|--------------------+------------------------------------------------|
+| =lack-component=   | =(lambda (env) (call component env))=          |
+| =t= (anything else) | =component=, unchanged.                       |
+
+The function made for a component calls =call= at each request, so a
+method defined later is the one that runs.
+
+=builder= applies =to-app= to its last argument. The mount middleware
+applies it to the application it mounts.
+
+* Middleware
+In the copy of Lack vendored in this project. Arguments follow the
+application, as they are written after the keyword in =builder=.
+
+| Keyword        | Arguments                                              | Does                                                  |
+|----------------+--------------------------------------------------------+-------------------------------------------------------|
+| =:accesslog=   | =&key logger formatter=                                | Logs a line for each request.                         |
+| =:auth-basic=  | =&key authenticator realm=                             | HTTP Basic authentication. =authenticator= is required. |
+| =:backtrace=   | =&key output result-on-error=                          | Writes a backtrace when the application signals an error. |
+| =:csrf=        | =&key block-app one-time session-key form-token=       | Refuses form posts without the session's token.       |
+| =:dbpool=      | =database-id &key connect-args pool-args=              | Keeps a pool of database connections.                 |
+| =:deflater=    | =&key content-type=                                    | Compresses response bodies.                           |
+| =:mount=       | =path mount-app=                                       | Sends requests under =path= to another application.   |
+| =:session=     | =&key store state keep-empty=                          | Keeps a session, by default in memory under a cookie. |
+| =:static=      | =&key path root headers=                               | Serves files under =root= for paths starting with =path=. |
+| =:when=        | =test middleware=                                      | Applies =middleware= only to requests =test= accepts. |
+
+* Notes
+- =:csrf= needs =:session= outside it: it keeps its token in the session.
+- =:mount= moves the mounted path off the front of =:path-info= and does
+  not add it to =:script-name=, which stays as it was.
+- =:backtrace= with no =:result-on-error= writes the backtrace and lets
+  the error carry on. Give a response, or a function of the condition
+  that returns one, to answer with it.
+- =:session= puts the session, a hash table, under =:lack.session= in the
+  environment, and its options under =:lack.session.options=.
+- Lack's README lists seven of these. =:dbpool=, =:deflater= and =:when=
+  are not in it.
+
+* See also
+- How-to: Write a middleware, and Build an app from a class.
+- Explanation: Apps, middleware and the env.

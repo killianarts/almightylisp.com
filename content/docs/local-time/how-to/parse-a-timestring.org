@@ -1,0 +1,123 @@
+#+TITLE: Parse a\\Timestring
+#+SUBTITLE: Turn text into a timestamp: a full date and time, a date alone, a local time with no offset, and text a person typed that may not be a date at all.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: How-to
+#+LIBRARY: local-time
+#+VERIFIED: local-time 1.0.6, SBCL 2.6.3
+
+* Parse a date and time
+=parse-timestring= reads the ISO 8601 shape: date, a =T=, time, then =Z=
+or an offset. Results here are printed with =*default-timezone*= set to
+=local-time:+utc-zone+=.
+
+#+BEGIN_SRC lisp
+(local-time:parse-timestring "2026-12-25T09:30:00+09:00")
+#+END_SRC
+
+#+RESULTS:
+@2026-12-25T00:30:00.000000Z
+
+The offset is used to find the moment and then dropped. A timestamp is a
+moment and has no timezone of its own.
+
+Parts can be left off from the right. A date alone is midnight UTC on that
+day:
+
+#+BEGIN_SRC lisp
+(local-time:parse-timestring "2026-12-25")
+#+END_SRC
+
+#+RESULTS:
+@2026-12-25T00:00:00.000000Z
+
+* Parse a time with no offset
+Text with no offset is read as UTC. When you know it was written in some
+other zone, say how far that zone is from UTC with =:offset=, in seconds:
+
+#+BEGIN_SRC lisp
+(local-time:parse-timestring "2026-12-25T09:30:00" :offset (* 9 60 60))
+#+END_SRC
+
+#+RESULTS:
+@2026-12-25T00:30:00.000000Z
+
+For a zone with daylight saving the offset depends on the date. The how-to
+Convert between timezones shows how to find it.
+
+* Parse other separators
+A space between the date and the time, as a database or a form often
+sends:
+
+#+BEGIN_SRC lisp
+(local-time:parse-timestring "2026-12-25 09:30:00"
+                             :date-time-separator #\Space)
+#+END_SRC
+
+#+RESULTS:
+@2026-12-25T09:30:00.000000Z
+
+=:date-separator= and =:time-separator= change the other two. The order of
+the parts is always year, month, day: there is no option that reads
+=25/12/2026=. Rearrange such text yourself first.
+
+To parse part of a longer string, give =:start= and =:end=:
+
+#+BEGIN_SRC lisp
+(local-time:parse-timestring "xx2026-12-25xx" :start 2 :end 12)
+#+END_SRC
+
+#+RESULTS:
+@2026-12-25T00:00:00.000000Z
+
+* Parse what a person typed
+Text from a form may be anything. Trim it, parse it, and treat every error
+as "not a date":
+
+#+BEGIN_SRC lisp
+(defun parse-user-date (text)
+  (handler-case (local-time:parse-timestring (string-trim " " text))
+    (error () nil)))
+
+(list (parse-user-date " 2026-12-25 ")
+      (parse-user-date "2026-02-30")
+      (parse-user-date "soon"))
+#+END_SRC
+
+#+RESULTS:
+(@2026-12-25T00:00:00.000000Z NIL NIL)
+
+Use =handler-case= for this, and not =:fail-on-error nil=. The next
+section says why.
+
+* What goes wrong
+| Text                  | What happens                                                   |
+|-----------------------+----------------------------------------------------------------|
+| ="soon"=              | Signals =local-time:invalid-timestring=.                       |
+| ="2026-13-45"=        | Signals =invalid-timestring=: the month is out of range.       |
+| ="2026-02-30"=        | Signals a different error, =invalid-time-specification=.       |
+| ="  2026-12-25  "=    | Signals =invalid-timestring=. Spaces are not skipped.          |
+| ="2026-12-25T09:30"=  | Signals =invalid-timestring=. A time needs its seconds.        |
+| ="20261225T093000Z"=  | Signals =invalid-timestring=. The separators are required.     |
+| ="09:30:00"=          | Parses, as =@2000-03-01T09:30:00.000000Z=.                     |
+
+- =:fail-on-error nil= makes =parse-timestring= return =nil= where it
+  would signal =invalid-timestring=. It does not cover a date that has the
+  right shape and doesn't exist: ="2026-02-30"= still signals, with or
+  without it. =invalid-time-specification= is not exported, so catch
+  =error=.
+- A time with no date lands on 1 March 2000, the day local-time counts
+  from. Pass =:allow-missing-date-part nil= to refuse it.
+  =:allow-missing-time-part= and =:allow-missing-timezone-part= do the
+  same for the other parts, and =:allow-missing-elements nil= sets all
+  three.
+- Fractions of a second are kept to the nanosecond but printed to the
+  microsecond: ="09:30:00.123456789"= prints as =.123456=, while
+  =nsec-of= returns 123456789.
+
+* See also
+- =parse-rfc3339-timestring= takes only the full form, with nothing left
+  off. Use it for machine-written text that should be complete.
+- Explanation: How a timestamp is stored says where 1 March 2000 comes
+  from.

@@ -21,14 +21,19 @@
       t
       nil))
 
+;; The magazine is the site's root. Its articles are at /article/:slug, which
+;; the article module's mount hands on: that module answers only /article and
+;; /article/create. static/js/magazine-fx.js lists the other modules' prefixes
+;; (OTHER_SECTIONS); a module mounted here belongs there too.
 (shiso:define-application *almightylisp-application* ()
   (:modules
    ("/admin" shiso-admin)
    ("/book" book)
    ("/article" article)
    ("/author" author)
-   ("/magazine" magazine)
-   ("" home)))
+   ("/magazine" magazine-moved)
+   ("" home)
+   ("" magazine)))
 
 (defun setup-database ()
   (ensure-directories-exist #P"db/")

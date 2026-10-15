@@ -2,8 +2,11 @@
   (:use #:cl)
   (:local-nicknames (#:ah #:almighty-html)
                     (#:s #:shiso)
-                    (#:model #:magazine/model))
-  (:export #:page-home #:page-archive #:page-article #:page-not-found))
+                    (#:model #:magazine/model)
+                    (#:intel #:magazine/intel)
+                    (#:irc #:magazine/irc))
+  (:export #:page-home #:page-archive #:page-intel #:page-intel-desk #:irc-lines-html #:page-archive-lab #:page-docs-lab #:page-article #:page-not-found
+           #:render-search-results))
 
 (in-package #:magazine/hypermedia/components)
 
@@ -21,16 +24,36 @@
 ;;;   home.lisp       the homepage
 ;;;   article.lisp    the article page
 ;;;   archive.lisp    the archive and the not-found page
+;;;   search.lisp     search: the palette every page carries, and its results
 
 (defun magazine-href ()
   (s:url "magazine:index"))
 
-(defun archive-href (&optional month)
-  "The archive, or the archive at MONTH, a date in it."
-  (let ((href (s:url "magazine:archive")))
-    (if month
-        (format nil "~a#~a" href (press:format-date month :month-id))
-        href)))
+(defun archive-href (&key month type series open)
+  "The archive. TYPE and SERIES, a series' code, keep only those articles.
+OPEN is a month to show open, by its id, or \"all\". With MONTH, a date, the
+link goes to that month, open."
+  (let* ((id (when month (press:format-date month :month-id)))
+         (query (loop for (name value) in (list (list "type" type)
+                                                (list "series" series)
+                                                (list "open" (or open id)))
+                      when value
+                        collect (format nil "~a=~a" name (quri:url-encode value)))))
+    (format nil "~a~@[?~{~a~^&~}~]~@[#~a~]" (s:url "magazine:archive") query id)))
+
+(defun search-href (&key query field selected focus wide)
+  "Where the search palette asks for its results: for QUERY in FIELD, a
+field's name, with article SELECTED chosen and match FOCUS of it in focus,
+WIDE to show more of the text around that match. What is left out is as a
+new search has it."
+  (let ((query (loop for (name value) in (list (list "q" query)
+                                               (list "field" field)
+                                               (list "sel" (and selected (plusp selected) selected))
+                                               (list "focus" (and focus (plusp focus) focus))
+                                               (list "wide" (and wide 1)))
+                     when value
+                       collect (format nil "~a=~a" name (quri:url-encode (princ-to-string value))))))
+    (format nil "~a~@[?~{~a~^&~}~]" (s:url "magazine:search") query)))
 
 (defun slug-href (slug)
   (s:url "magazine:article" :slug slug))

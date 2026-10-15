@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid lock — Almighty Lisp</title>
+<!--
+  The site's graph paper, before and after the grid lock: the site as it is
+  above, the recommended change below, at the same window width. The paper is
+  in two places, both in the specimen: the book panel beside an article
+  (.book-ad.compact), and the footer. Open it from
+  the running site:
+
+      http://127.0.0.1:5002/static/dev/grid-lock/index.html
+
+  Each pane is a frame holding specimen.html, the head of an article and the
+  footer under the site's stylesheets; "after" adds grid-lock.css and
+  grid-lock.js. The frames are the window, so the width is the one the media
+  queries see, from a phone's to a wide desktop's; when two frames fit side
+  by side at full size (phones, tablets), they stand side by side.
+  measure.js, in each frame, checks the lattice and posts what it finds here.
+
+  The address keeps the state:  ?w=1440&overlay=1&fx=0&fit=1
+-->
+<style>
+  html { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 12px/1.5 ui-monospace, Menlo, monospace; background: #111; color: #ddd; }
+  a { color: #fff; text-decoration-color: #666; text-underline-offset: 3px; }
+
+  .bar {
+    position: sticky; top: 0; z-index: 2;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px;
+    padding: 10px 16px; background: #000; border-bottom: 1px solid #2a2a2a;
+  }
+  .bar h1 { margin: 0 8px 0 0; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .field { display: flex; align-items: center; gap: 8px; }
+  .field > span { color: #888; }
+  .presets { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+  .presets .group { margin: 0 2px 0 8px; color: #888; }
+  .presets .group:first-child { margin-left: 0; }
+  button { font: inherit; color: inherit; background: none; border: 1px solid #333; padding: 4px 8px; cursor: pointer; }
+  button[aria-pressed=true] { background: #ddd; color: #111; border-color: #ddd; }
+  input[type=range] { width: min(320px, 40vw); }
+  #wv { min-width: 7ch; color: #fff; font-weight: 700; }
+  label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+  main { padding: 16px 16px 64px; }
+  .pane { margin: 0 0 28px; min-width: 0; }
+  .panes.side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; align-items: start; }
+  .pane-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin: 0 0 8px; }
+  .pane-head h2 { margin: 0; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .pane-head .what { color: #888; }
+  .chips { display: grid; gap: 6px; flex-basis: 100%; }
+  .chip-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+  .region { min-width: 24ch; color: #888; }
+  .chip { padding: 1px 7px; border: 1px solid currentColor; white-space: nowrap; }
+  .chip.ok { color: #2bd46a; } .chip.bad { color: #ff5a5a; } .chip.note { color: #9ab; }
+  .stage { position: relative; overflow: hidden; background: #fff; outline: 1px solid #2a2a2a; }
+  .stage.scroll { overflow-x: auto; }
+  .stage iframe { display: block; border: 0; transform-origin: 0 0; background: #fff; }
+
+  .notes { max-width: 96ch; margin: 8px 0 0; color: #bbb; }
+  .notes h2 { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #ddd; margin: 28px 0 8px; padding: 0 0 6px; border-bottom: 1px solid #333; }
+  .notes ol, .notes ul { margin: 0; padding-left: 2.4em; }
+  .notes li { margin: 0 0 6px; }
+  .notes code { color: #fff; }
+  .key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 18px; color: #999; }
+  .sw { display: inline-block; width: 22px; height: 10px; vertical-align: -1px; margin-right: 6px; }
+  .sw.cut { background: repeating-linear-gradient(135deg, rgb(255 59 59 / 0.85) 0 2px, rgb(255 59 59 / 0.25) 2px 5px); }
+  .sw.okb { outline: 2px solid #2bd46a; outline-offset: -2px; }
+  .sw.badb { outline: 2px dashed #ff3b3b; outline-offset: -2px; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>Grid lock</h1>
+  <div class="field"><span>Window</span><input type="range" id="w" min="320" max="2200" step="1"><span id="wv"></span></div>
+  <div class="presets" id="presets"></div>
+  <button id="sweep" aria-pressed="false">Sweep</button>
+  <label><input type="checkbox" id="overlay"> Misfit overlay</label>
+  <label><input type="checkbox" id="fx"> Film grain</label>
+  <label><input type="checkbox" id="fit"> Fit to window</label>
+</div>
+
+<main>
+  <div class="key">
+    <span><i class="sw cut"></i>a cell cut by the box's edge</span>
+    <span><i class="sw badb"></i>off the lattice</span>
+    <span><i class="sw okb"></i>on the lattice</span>
+    <span>Turn off "Fit to window" to judge the 1px lines at 1:1.</span>
+    <span>Phone and tablet sizes are drawn at this screen's pixel ratio, not a phone's.</span>
+  </div>
+
+  <div class="panes" id="panes">
+  <section class="pane" data-mode="before">
+    <div class="pane-head"><h2>Before</h2><span class="what">magazine.css as it is</span><div class="chips"></div></div>
+    <div class="stage"><iframe title="Article head and footer, before"></iframe></div>
+  </section>
+
+  <section class="pane" data-mode="after">
+    <div class="pane-head"><h2>After</h2><span class="what">+ grid-lock.css, grid-lock.js</span><div class="chips"></div></div>
+    <div class="stage"><iframe title="Article head and footer, after"></iframe></div>
+  </section>
+  </div>
+
+  <div class="notes">
+    <h2>What changes</h2>
+    <ol>
+      <li><b>One lattice per box.</b> The graph paper is drawn by the box's <code>::before</code>, under its contents. In the footer it moves from each cell onto the footer, so the three cells share it and its lines run on through them; the rules between the cells are drawn on lattice lines (an inset shadow, so they take no room). The book beside an article is a box of its own.</li>
+      <li><b>Whole cells, closed.</b> Each box's paper is rounded down to whole 28px cells plus the 1px line that closes it: <code>round(down, 100% - 1px, 28px) + 1px</code>. What's left over, under 28px, is plain black, split either side. The book beside an article keeps a cell of padding inside that.</li>
+      <li><b>Cells of whole cells.</b> The side cells are a third each, rounded down to whole cells (<code>round(down, 100% / 3, 28px)</code>); the middle takes the rest, which is whole cells too.</li>
+      <li><b>Contents measured in cells.</b> Padding is one cell (was 31.68px). A line of text is a row tall. The logos are two rows. Buttons are two rows (were 44px) with a cell between them, and reach one pixel past their area so their borders lie on the lines. They sit side by side when the cell has 13 cells inside, and stack when it hasn't (a container query).</li>
+      <li><b>Height in whole rows.</b> Because everything inside is whole rows, so is each box. <code>grid-lock.js</code> rounds it up if anything ever isn't (a fallback font, say); the chip says when it had to.</li>
+      <li><b>Whole pixels, across.</b> From 1180px, the sheet is rounded to an even width (<code>round(down, 100%, 2px)</code>), so on odd window widths over 1726px the main column no longer starts on half a pixel. (Not narrower: there the bands run to the window's edges, and on an odd-width phone, 375 or 393, the sheet would stop a pixel short of them.) And <code>--third</code>, the side column beside an article, is rounded to whole pixels, so the book panel in it no longer starts at x = 912.67 and the like. Try 1729.</li>
+      <li><b>Whole pixels, down.</b> A box starts wherever the text above it ends, usually part of the way through a pixel. <code>grid-lock.js</code> moves each box down the part of a pixel it needs (a margin under 1px); the chip says by how much.</li>
+    </ol>
+    <h2>Costs</h2>
+    <ul>
+      <li>The paper stops up to 13px short of each side of the footer, on plain black; the cells' contents stay a cell in from the paper's edge.</li>
+      <li>Both boxes are taller: buttons of two rows, and a gap of a cell between them. The book beside an article stacks its three buttons in windows under about 1550px (fewer than 13 cells inside), and is then 393px tall; the contents panel under it takes what's left of the column, as it does now.</li>
+      <li>Being on whole pixels down the page needs the script. Without it the lattice is still whole cells and closed, but may blur by a pixel.</li>
+      <li>The two side cells are equal, but the middle can be up to two cells wider than them.</li>
+      <li>Browser zoom at odd steps (110%, 90%) still puts 1px lines between device pixels. Display scaling at 1×, 1.25×, 1.5× and 2× does not.</li>
+      <li>Under 1180px neither box has paper (the footer is one black panel, and the book beside an article is hidden), so nothing changes there: the phone and tablet sizes show the two panes the same.</li>
+    </ul>
+    <h2>Files</h2>
+    <ul>
+      <li><a href="grid-lock.css">grid-lock.css</a>: the change, scoped to <code>.grid-lock</code>; drop the prefix to adopt it.</li>
+      <li><a href="grid-lock.js">grid-lock.js</a>: whole pixels down the page, and the height net.</li>
+      <li><a href="specimen.html?mode=after&overlay=1">specimen.html</a>, <a href="measure.js">measure.js</a>: the article head and footer, and their measuring.</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var PRESETS = [
+    ["Phone", [360, 375, 390, 430]],
+    ["Tablet", [768, 820, 1024]],
+    ["Desktop", [1180, 1280, 1366, 1440, 1512, 1600, 1729, 1920]]
+  ];
+  var MIN = 320, MAX = 2200, GAP = 16;
+  var q = new URLSearchParams(location.search);
+  var state = {
+    w: clamp(parseInt(q.get("w"), 10) || 1440),
+    overlay: q.get("overlay") !== "0",
+    fx: q.get("fx") === "1",
+    fit: q.get("fit") !== "0"
+  };
+  var panes = Array.prototype.map.call(document.querySelectorAll(".pane"), function (el) {
+    return { el: el, mode: el.dataset.mode, frame: el.querySelector("iframe"), stage: el.querySelector(".stage"),
+             chips: el.querySelector(".chips"), height: 420 };
+  });
+
+  var range = document.getElementById("w");
+  var wv = document.getElementById("wv");
+  var presets = document.getElementById("presets");
+  var panesEl = document.getElementById("panes");
+
+  function clamp(w) { return Math.max(MIN, Math.min(MAX, w)); }
+
+  function save() {
+    var p = new URLSearchParams({ w: state.w, overlay: state.overlay ? 1 : 0, fx: state.fx ? 1 : 0, fit: state.fit ? 1 : 0 });
+    history.replaceState(null, "", "?" + p);
+  }
+
+  function src(mode) {
+    return "specimen.html?mode=" + mode + (state.overlay ? "&overlay=1" : "") + (state.fx ? "&fx=1" : "");
+  }
+
+  function load() {
+    panes.forEach(function (p) { p.frame.src = src(p.mode); });
+  }
+
+  function layout() {
+    range.value = state.w;
+    wv.textContent = state.w + "px";
+    presets.querySelectorAll("button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(+b.dataset.w === state.w));
+    });
+    // Side by side when both frames fit at full size.
+    var side = state.w * 2 + GAP <= panesEl.clientWidth;
+    panesEl.classList.toggle("side", side);
+    panes.forEach(function (p) {
+      var avail = p.stage.parentElement.clientWidth;
+      var s = state.fit ? Math.min(1, avail / state.w) : 1;
+      p.stage.style.width = side ? state.w + "px" : "";
+      p.frame.style.width = state.w + "px";
+      p.frame.style.height = p.height + "px";
+      p.frame.style.transform = s === 1 ? "" : "scale(" + s + ")";
+      p.stage.style.height = Math.ceil(p.height * s) + "px";
+      p.stage.classList.toggle("scroll", !state.fit);
+    });
+  }
+
+  function chip(text, cls) {
+    var c = document.createElement("span");
+    c.className = "chip " + cls;
+    c.textContent = text;
+    return c;
+  }
+
+  function say(e) {
+    return e.fit === "closed" ? e.cells + " closed" : e.fit === "open" ? e.cells + " open" : e.cells + " +" + e.over + "px";
+  }
+
+  // A row of chips for each place with paper: the book beside the article,
+  // then the footer.
+  function report(p, r) {
+    p.chips.textContent = "";
+    r.regions.forEach(function (g) {
+      var row = document.createElement("div");
+      row.className = "chip-row";
+      var name = document.createElement("span");
+      name.className = "region";
+      name.textContent = g.label;
+      row.appendChild(name);
+      p.chips.appendChild(row);
+      if (g.hidden || !g.boxes.length) {
+        row.appendChild(chip(g.hidden ? "not shown at this width" : "no graph paper at this width", "note"));
+        return;
+      }
+      if (g.name === "footer") {
+        var shared = g.lattices === 1;
+        row.appendChild(chip(g.lattices + (shared ? " lattice, shared" : " lattices, unjoined"), shared ? "ok" : "bad"));
+      }
+      var closed = g.boxes.every(function (b) { return b.x.fit === "closed" && b.y.fit === "closed"; });
+      row.appendChild(chip("edges " + g.boxes.map(function (b) { return say(b.x) + " × " + say(b.y); }).join("  |  "), closed ? "ok" : "bad"));
+      var sharp = g.boxes.every(function (b) { return b.sharp; });
+      row.appendChild(chip(sharp ? "whole pixels" : "half-pixel lines", sharp ? "ok" : "bad"));
+      row.appendChild(chip(g.buttons.on + "/" + g.buttons.total + " buttons on lines", g.buttons.on === g.buttons.total ? "ok" : "bad"));
+      if (g.dividers.total) row.appendChild(chip(g.dividers.on + "/" + g.dividers.total + " rules on lines", g.dividers.on === g.dividers.total ? "ok" : "bad"));
+      if (r.mode === "after") {
+        if (g.nudged) row.appendChild(chip("moved down " + g.nudged + "px by JS", "note"));
+        row.appendChild(chip(g.snapped ? "height rounded by JS: +" + g.snapped + "px" : "height whole by CSS", "note"));
+      }
+    });
+    if (Math.abs(r.height - p.height) > 1) { p.height = r.height; layout(); }
+  }
+
+  addEventListener("message", function (e) {
+    if (!e.data || e.data.type !== "grid-lock") return;
+    panes.forEach(function (p) { if (p.frame.contentWindow === e.source) report(p, e.data); });
+  });
+
+  PRESETS.forEach(function (group) {
+    var name = document.createElement("span");
+    name.className = "group";
+    name.textContent = group[0];
+    presets.appendChild(name);
+    group[1].forEach(function (w) {
+      var b = document.createElement("button");
+      b.textContent = w; b.dataset.w = w;
+      b.addEventListener("click", function () { stopSweep(); state.w = w; layout(); save(); });
+      presets.appendChild(b);
+    });
+  });
+
+  range.addEventListener("input", function () { stopSweep(); state.w = clamp(+range.value); layout(); save(); });
+
+  var overlay = document.getElementById("overlay");
+  overlay.checked = state.overlay;
+  overlay.addEventListener("change", function () {
+    state.overlay = overlay.checked; save();
+    panes.forEach(function (p) { p.frame.contentWindow.postMessage({ type: "grid-lock-overlay", on: state.overlay }, "*"); });
+  });
+
+  var fx = document.getElementById("fx");
+  fx.checked = state.fx;
+  fx.addEventListener("change", function () { state.fx = fx.checked; save(); load(); });
+
+  var fit = document.getElementById("fit");
+  fit.checked = state.fit;
+  fit.addEventListener("change", function () { state.fit = fit.checked; save(); layout(); });
+
+  // Sweep: the window widens and narrows, a few pixels a frame, so the
+  // before pane's cut cells and the after pane's whole ones can be watched.
+  var sweepBtn = document.getElementById("sweep");
+  var sweeping = 0, dir = 3;
+  function step() {
+    state.w += dir;
+    if (state.w >= 1920 || state.w <= MIN) dir = -dir;
+    state.w = clamp(state.w);
+    layout();
+    sweeping = requestAnimationFrame(step);
+  }
+  function stopSweep() {
+    if (!sweeping) return;
+    cancelAnimationFrame(sweeping); sweeping = 0;
+    sweepBtn.setAttribute("aria-pressed", "false"); save();
+  }
+  sweepBtn.addEventListener("click", function () {
+    if (sweeping) { stopSweep(); return; }
+    sweepBtn.setAttribute("aria-pressed", "true");
+    sweeping = requestAnimationFrame(step);
+  });
+
+  addEventListener("resize", layout);
+  layout();
+  load();
+})();
+</script>
+</body>
+</html>

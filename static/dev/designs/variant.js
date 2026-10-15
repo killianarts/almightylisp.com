@@ -724,6 +724,5 @@
   window.__applyDesign = apply;
   apply();
   // htmx swaps the body when a magazine link is followed.
-  document.addEventListener("htmx:afterSettle", apply);
-  document.addEventListener("htmx:historyRestore", apply);
+  document.addEventListener("htmx:after:swap", apply);
 })();

@@ -529,11 +529,43 @@ when the text doesn't fit the shape described at the top of this file."
                       (emphasis-post-p text (1+ j)))
               return j))))
 
+(defun plain-link-end (text i)
+  "If a plain link (http:// or https://, written out in the text) starts at I,
+the index after it. It runs to the next space, less the punctuation that ends
+a sentence or closes a bracket around it."
+  (let ((scheme (find-if (lambda (scheme)
+                           (and (<= (+ i (length scheme)) (length text))
+                                (string= scheme text :start2 i :end2 (+ i (length scheme)))))
+                         '("https://" "http://"))))
+    (when (and scheme
+               (or (zerop i) (not (alphanumericp (char text (1- i))))))
+      (let* ((from (+ i (length scheme)))
+             (end (or (position-if (lambda (char) (or (member char '(#\Space #\Tab #\Newline #\Return))
+                                                     (find char "<>\"")))
+                                   text :start from)
+                      (length text))))
+        (loop while (and (< from end)
+                         (let ((last (char text (1- end))))
+                           (or (find last ".,;:!?']")
+                               (and (char= last #\))
+                                    (not (find #\( text :start from :end end))))))
+              do (decf end))
+        (when (< from end) end)))))
+
+(defun unlinked (inlines)
+  "INLINES with each link in them replaced by its label: a link's own label
+can't hold another link, as it would when it is a URL."
+  (loop for inline in inlines
+        append (cond ((stringp inline) (list inline))
+                     ((eq (first inline) :link) (unlinked (third inline)))
+                     ((eq (first inline) :code) (list inline))
+                     (t (list (list (first inline) (unlinked (second inline))))))))
+
 (defun parse-inlines (text)
   "TEXT as a list of strings and elements: (:code \"text\") for =text= or
 ~text~; (:bold inlines), (:italic inlines), (:underline inlines) and
 (:strike inlines) for *, /, _ and +; and (:link \"target\" inlines) for
-[[target][label]] or [[target]]."
+[[target][label]], [[target]], or an http(s) URL written out in the text."
   (when (and text (plusp (length text)))
     (let ((out nil)
           (i 0)
@@ -546,7 +578,8 @@ when the text doesn't fit the shape described at the top of this file."
               do (let ((emphasis-end (emphasis-end text i))
                        (link-end (and (< (1+ i) n)
                                       (string= "[[" text :start2 i :end2 (+ i 2))
-                                      (search "]]" text :start2 (+ i 2)))))
+                                      (search "]]" text :start2 (+ i 2))))
+                       (plain-end (plain-link-end text i)))
                    (cond
                      (emphasis-end
                       (let ((kind (cdr (assoc (char text i) *emphasis*)))
@@ -562,10 +595,20 @@ when the text doesn't fit the shape described at the top of this file."
                       (let* ((body (subseq text (+ i 2) link-end))
                              (sep (search "][" body))
                              (target (if sep (subseq body 0 sep) body))
-                             (label (if sep (subseq body (+ sep 2)) target)))
+                             (label (if sep
+                                        (unlinked (parse-inlines (subseq body (+ sep 2))))
+                                        (list target))))
                         (flush i)
-                        (push (list :link target (parse-inlines label)) out)
+                        (push (list :link target label) out)
                         (setf i (+ link-end 2)
+                              start i)))
+                     (plain-end
+                      (let ((url (subseq text i plain-end)))
+                        (flush i)
+                        ;; The label is the URL as text: parsed, it would
+                        ;; be a plain link again.
+                        (push (list :link url (list url)) out)
+                        (setf i plain-end
                               start i)))
                      (t (incf i)))))
         (flush n))

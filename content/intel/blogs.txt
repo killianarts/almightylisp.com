@@ -1,0 +1,10 @@
+; Intel's blogs: the feeds whose posts are fetched.
+;
+; One feed a line: the URL of its Atom or RSS feed, then optionally the name
+; to show its posts under. A feed with no name is taken to gather several
+; people's posts, each titled "Author: Title" as Planet Lisp's are, and each
+; post is shown under its author. A line that starts with ; or # is a
+; comment.
+
+; Planet Lisp gathers the Common Lisp blogs.
+https://planet.lisp.org/rss20.xml

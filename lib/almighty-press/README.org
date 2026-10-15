@@ -61,7 +61,8 @@ Inline markup stays in the text. =(press:parse-inlines text)= reads it,
 with Org's rules for where emphasis markers count: strings, =(:code "x")=
 for ~=x=~ or =~x~=, =(:bold inlines)=, =(:italic inlines)=,
 =(:underline inlines)= and =(:strike inlines)= for =*=, =/=, =_= and =+=,
-and =(:link target inlines)= for =[[target][label]]=.
+and =(:link target inlines)= for =[[target][label]]=, or for an =http://=
+or =https://= URL written out in the text (its label is the URL).
 
 Text helpers: =split-breaks=, =join-lines=, =split-words=, =slugify=,
 =truthy= (t, yes or true).

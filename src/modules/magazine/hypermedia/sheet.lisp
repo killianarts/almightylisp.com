@@ -32,15 +32,21 @@
        ;; The same URL as the import, so it's one download.
        (link :rel "preload" :as "style" :href "/static/css/resets.css")
        (link :rel "stylesheet" :href (asset "css/magazine.css"))
-       ;; htmx boosts magazine links into in-page swaps; magazine-fx.js
-       ;; configures it, so it has to load first.
-       (script :src (asset "js/htmx-2.0.11.min.js") :defer t)
-       (script :src (asset "js/htmx-ext-preload-2.1.2.js") :defer t)
+       ;; htmx boosts magazine links into in-page swaps, and fetches what a
+       ;; search or one of the archive's filters changes; its preload
+       ;; extension fetches a page when its link is hovered. magazine-fx.js
+       ;; configures both, so they load first.
+       (script :src (asset "js/htmx-4.0.0.min.js") :defer t)
+       (script :src (asset "js/htmx-preload-4.0.0.min.js") :defer t)
        (script :src (asset "js/magazine-fx.js") :defer t)
        ;; Justified text: Pretext measures it, magazine-justify.js sets it.
        (script :src (asset "js/pretext-0.0.9.min.js") :defer t)
-       (script :src (asset "js/magazine-justify.js") :defer t))
-     (body :class body-class :hx-boost "true" :hx-ext "preload"
+       (script :src (asset "js/magazine-justify.js") :defer t)
+       ;; Opens and closes the search palette, and gives it its keys.
+       (script :src (asset "js/magazine-search.js") :defer t))
+     ;; Every link below is boosted, but for those under hx-boost "false",
+     ;; and its page arrives with a view transition.
+     (body :class body-class :|hx-boost:inherited| "transition:true"
        children
        (script :src (asset "js/highlight-lisp.js"))
        (script "HighlightLisp.highlight_auto(); HighlightLisp.paren_match();")))))
@@ -64,6 +70,8 @@ the header's centre in Japanese. SCRIPTS go after the sheet."
          children
          (render-site-footer)
          (render-running-footer))
+       ;; Search, on every page: / opens the palette (see search.lisp).
+       (render-search-palette)
        scripts))))
 
 (ah:define-component ac-band (&key class side marks children)
@@ -165,8 +173,10 @@ render-jp) set upright below the text. A gutter whose label is NIL is bare."
     ("tatakawanakereba-katenai" "戦わなければ勝てない")
     ("series" "シリーズ")
     ("briefing" "ブリーフィング")
+    ("archive" "アーカイブ")
+    ("intel" "インテル")
     ("omona-series" "主なシリーズ")
-    ("shinzou-wo-sasageyou" "心臓を捧げよう"))
+    ("oorumaithiininare" "オールマイティーになれ"))
   "Name and text of each Japanese label.")
 
 (defun render-jp (name &key class)
@@ -184,7 +194,7 @@ render-jp) set upright below the text. A gutter whose label is NIL is bare."
        (render-sep)
        (render-jp "almighty" :class "running-center")
        (render-sep)
-       (span :class "running-status" "Image Status: Reading Input")))))
+       (span :class "running-status" "Machine Status: Intelligent")))))
 
 (defun render-running-footer ()
   (ah:</>
@@ -198,8 +208,9 @@ render-jp) set upright below the text. A gutter whose label is NIL is bare."
 
 (defun render-site-footer ()
   "The black band that closes every page: the colophon, the book and the theme
-packs. On a narrow page, which has no book band, this is where the book is.
-htmx leaves the shop links alone: they leave the magazine."
+packs. On a narrow article page, which has no book panel beside the lede,
+this is where the book is. htmx leaves the shop links alone: they leave the
+magazine."
   (ah:</>
    (<>
      (div :class "band gap-band footer-gap" :aria-hidden t)
@@ -211,20 +222,12 @@ htmx leaves the shop links alone: they leave the magazine."
            (img :class "footer-typemark" :src (image-src "almighty-lisp-typemark.svg")
              :alt "Almighty Lisp" :width "377" :height "17")
            (render-dot-pairs :class "panel-corner")
-           (render-jp "shinzou-wo-sasageyou" :class "footer-motto"))
+           (render-jp "oorumaithiininare" :class "footer-motto"))
          (section :class "footer-block footer-book" :aria-label "Lisp & Emacs Essentials"
-           :hx-boost "false"
-           (p :class "book-ad-label" "The Book (your eyes only)")
-           (img :class "book-ad-logo" :src (image-src "essentials-logo.svg")
-             :alt "Lisp & Emacs Essentials" :width "156" :height "69")
-           (render-gauge :class "footer-gauge")
-           (div :class "footer-actions"
-             (a :class "neo-button primary" :href *book-href* "Read free online")
-             (a :class "neo-button secondary" :href *ebook-href* "Buy ebook")
-             (a :class "neo-button secondary" :href *hardcover-href* "Buy hardcover"))
-           (render-dot-pairs :class "panel-corner"))
+           :|hx-boost:inherited| "false"
+           (render-book-panel))
          (section :class "footer-block footer-themes" :aria-label "Theme packs"
-           :hx-boost "false"
+           :|hx-boost:inherited| "false"
            (p :class "book-ad-label" (joined "Doom Emacs" "16 themes"))
            (h2 :class "footer-title" "Theme Packs")
            (render-spec *theme-packs* :class "spec book-spec")
@@ -247,7 +250,10 @@ htmx leaves the shop links alone: they leave the magazine."
   (ah:</>
    (ac-band :class "strip-band"
      (div :class "strip"
-       (div :class "strip-cell start" "Welcome Back")
+       ;; Opens the search palette (see search.lisp), as / does.
+       (button :class "strip-cell start search-open" :type "button" :data-search "open"
+         (span "Search")
+         (span :class "search-open-key" (format nil "  ■  Press /")))
        (div :class "strip-cell mid"
          (span :class "date-long" (press:format-date (press:today) :weekday))
          (span :class "date-short" (press:format-date (press:today) :short-weekday)))

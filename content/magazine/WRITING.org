@@ -10,7 +10,7 @@ can contain. =templates/= has a starting file for every article type.
 1. Pick a type (see [[*Choosing a type][Choosing a type]]) and copy its template:
    : cp templates/how-to.org my-article-slug.org
    (For a part of a series, copy it into the series' folder instead.)
-   The file name becomes the URL: =/magazine/my-article-slug=. Use
+   The file name becomes the URL: =/article/my-article-slug=. Use
    lowercase letters, digits and hyphens.
 2. Fill in the header. Leave =#+DRAFT: t= in while you write; the site
    ignores drafts entirely.
@@ -33,6 +33,7 @@ Every article starts with these lines, before its first heading.
 | =#+TYPE:=         | Required | What kind of piece it is. See [[*Types][Types]].                                   |
 | =#+RELATED:=      | Optional | Slugs for the Keep reading cards, in order. Others fill empty slots.   |
 | =#+PART:=         | In a series | The article's number in its series; only in a series' folder. See [[*Series][Series]]. |
+| =#+RECAP:=        | Optional | From part 2 of a series, the recap of the part before. Normally that part's dek. See [[*Series][Series]]. |
 | =#+BOOK_CHAPTER:= | Optional | With the next three, adds a card for the book chapter this relates to. |
 | =#+BOOK_TITLE:=   | Optional | The chapter's title on that card.                                      |
 | =#+BOOK_SUMMARY:= | Optional | One sentence about the chapter.                                        |
@@ -49,7 +50,8 @@ Writing the title and dek:
   at full size, and longer titles are set smaller to fit in four lines.
   Short titles with a deliberate =\\= break look best.
 - The dek says what the reader gets, in one or two sentences. It is also
-  the summary on cards and the recap when the next part of a series starts.
+  the summary on cards and, unless the next part has a =#+RECAP:=, the
+  recap when the next part of a series starts.
 
 * Serials
 
@@ -219,8 +221,20 @@ number. The series card shows it as "Queued", and it gets no page:
 When you write it, fill in the rest of the header and the body in that
 same file. Its title and number are only ever in that file, so to rename
 a part, change its =#+TITLE:=. Every number from 1 up needs exactly one
-file. From part 2 on, a part opens with a recap of the part before it,
-taken from that part's dek.
+file. From part 2 on, a part's lede closes with a recap of the part before it:
+its number, its title, and its dek. The dek promises what a part will do;
+a recap can say what it did, which is often more use to someone starting
+the next part. To write one, add it to the newer part, the one that opens
+with it:
+
+#+BEGIN_EXAMPLE
+#+TITLE: Building A Temperature Conversion Application
+#+PART: 4
+#+RECAP: We opened a window from the REPL and kept it open across a recompile.
+#+END_EXAMPLE
+
+That text recaps part 3. Part 1 has nothing to recap, so it can't have
+one. Inline markup works, as in the dek.
 
 The homepage shows a series once its first part is published.
 

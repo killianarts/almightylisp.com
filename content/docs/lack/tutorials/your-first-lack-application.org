@@ -1,0 +1,189 @@
+#+TITLE: Your First\\Lack\\Application
+#+SUBTITLE: Write a web application as one function, call it from the REPL with no server running, wrap it in middleware, and test it. Then put it on a port.
+#+AUTHOR: Micah Killian
+#+DATE: 2026-10-12
+#+TOPIC: Lisp
+#+TYPE: Tutorial
+#+LIBRARY: lack
+#+VERIFIED: Lack 0.3.0, SBCL 2.6.3
+
+* What you will build
+A small application that answers with the path it was asked for, with a
+header added by middleware you write yourself. You will run all of it at
+the REPL. No server starts until the last step.
+
+You need a running Lisp with Quicklisp. Type each block and check that you
+get the result shown under it.
+
+* Load Lack
+#+BEGIN_SRC lisp
+(ql:quickload '("lack" "lack-test"))
+#+END_SRC
+
+=lack= is the library. =lack-test= makes requests without a server, and
+you will use it from the first step.
+
+* Write an application
+A Lack application is a function. It takes one argument, the request, and
+returns a list of three things: a status, the headers, and the body.
+
+#+BEGIN_SRC lisp
+(defparameter *app*
+  (lambda (env)
+    (declare (ignore env))
+    '(200 (:content-type "text/plain") ("Hello, World"))))
+#+END_SRC
+
+That is a whole application. To try it you need a request to give it.
+=generate-env= makes one for a path:
+
+#+BEGIN_SRC lisp
+(funcall *app* (lack/test:generate-env "/"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:CONTENT-TYPE "text/plain") ("Hello, World"))
+
+You called a web application and got its response, and nothing is
+listening on any port. The status is 200, the headers are a property list,
+and the body is a list of strings.
+
+* Read the request
+The argument is called the environment, =env= for short. It is a property
+list too. Look at one:
+
+#+BEGIN_SRC lisp
+(lack/test:generate-env "/hello?name=ada")
+#+END_SRC
+
+Among its keys you will see these:
+
+| Key               | Value        |
+|-------------------+--------------|
+| =:request-method= | =:get=       |
+| =:path-info=      | ="/hello"=   |
+| =:query-string=   | ~"name=ada"~ |
+| =:server-name=    | ="localhost"= |
+
+Read a key with =getf=. This application answers with the path it was
+asked for:
+
+#+BEGIN_SRC lisp
+(defparameter *greet*
+  (lambda (env)
+    (list 200
+          '(:content-type "text/plain")
+          (list (format nil "You asked for ~a" (getf env :path-info))))))
+
+(funcall *greet* (lack/test:generate-env "/books/42"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:CONTENT-TYPE "text/plain") ("You asked for /books/42"))
+
+* Write a middleware
+A middleware is a function that takes an application and returns a new
+one. The new one can do something before calling the old one, something
+after, or both. This one adds a header to whatever comes back:
+
+#+BEGIN_SRC lisp
+(defun add-server-header (app)
+  (lambda (env)
+    (destructuring-bind (status headers body) (funcall app env)
+      (list status (list* :x-served-by "lack" headers) body))))
+#+END_SRC
+
+Give it =*greet*= and you get an application back. Call that:
+
+#+BEGIN_SRC lisp
+(funcall (add-server-header *greet*)
+         (lack/test:generate-env "/books/42"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:X-SERVED-BY "lack" :CONTENT-TYPE "text/plain") ("You asked for /books/42"))
+
+The body is the one =*greet*= made. The header is new.
+
+* Stack them with builder
+Wrapping by hand gets awkward with three or four layers. =lack:builder=
+takes the middleware in order and the application last:
+
+#+BEGIN_SRC lisp
+(defparameter *site*
+  (lack:builder
+   #'add-server-header
+   *greet*))
+
+(funcall *site* (lack/test:generate-env "/books/42"))
+#+END_SRC
+
+#+RESULTS:
+(200 (:X-SERVED-BY "lack" :CONTENT-TYPE "text/plain") ("You asked for /books/42"))
+
+The same response as before. =*site*= is an application like any other:
+one function of =env=.
+
+* Add a middleware Lack comes with
+Lack has middleware of its own, and =builder= finds each by a keyword.
+=:accesslog= prints a line for every request:
+
+#+BEGIN_SRC lisp
+(defparameter *site*
+  (lack:builder
+   :accesslog
+   #'add-server-header
+   *greet*))
+
+(funcall *site* (lack/test:generate-env "/books/42"))
+#+END_SRC
+
+The response is the same, and before it a line is printed. The time in
+yours will be your own:
+
+#+BEGIN_SRC text
+127.0.0.1 - [12/Oct/2026:08:01:25 +00:00] "GET /books/42 HTTP/1.1" 200 23 "-" "-"
+#+END_SRC
+
+* Test it
+=funcall= shows the raw response. For tests, =lack/test:request= is
+handier: it joins the body into one string and returns the status and the
+headers as further values. Wrap it in =testing-app= to say which
+application it is asking:
+
+#+BEGIN_SRC lisp
+(lack/test:testing-app (lack:builder #'add-server-header *greet*)
+  (multiple-value-bind (body status headers)
+      (lack/test:request "/books/42")
+    (list body status (gethash "x-served-by" headers))))
+#+END_SRC
+
+#+RESULTS:
+("You asked for /books/42" 200 "lack")
+
+* Put it on a port
+Everything so far ran without a server. To serve =*site*= to a browser,
+hand it to Clack. This block was not run for this page:
+
+#+BEGIN_SRC lisp
+(ql:quickload "clack")
+
+(defparameter *server* (clack:clackup *site* :port 5000))
+#+END_SRC
+
+Open =http://localhost:5000/books/42=. Stop it with
+=(clack:stop *server*)=.
+
+* What you have learned
+An application is a function from =env= to a list of status, headers and
+body. A middleware is a function from an application to an application.
+=builder= stacks them, and the result is still one function, which is why
+you could call it at the REPL the whole way through.
+
+From here:
+
+- How-to: Write a middleware covers options, redirects and responses that
+  arrive later.
+- How-to: Build an app from a class is for when one function isn't enough.
+- Explanation: Apps, middleware and the env says what the rules are and
+  why they are so few.
