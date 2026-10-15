@@ -10,8 +10,9 @@
   panel beside it (.book-ad.compact), and the footer. index.html shows them
   twice in frames, before and after:
 
-    ?mode=before   magazine.css alone: the site as it is.
-    ?mode=after    plus grid-lock.css and grid-lock.js, the recommended change.
+    ?mode=before   magazine-before.css: the site before the grid lock.
+    ?mode=after    the site's magazine.css and magazine-grid-lock.js: the
+                   site as it is.
     &overlay=1     measure.js marks every place the 28px lattice is broken.
     &fx=1          keep the film grain and scanlines (off by default: they sit
                    over the 1px lines being judged).
@@ -23,21 +24,23 @@
   (function () {
     var q = new URLSearchParams(location.search);
     var root = document.documentElement;
-    if (q.get("mode") === "after") root.classList.add("grid-lock");
+    var after = q.get("mode") === "after";
+    if (after) root.classList.add("grid-lock");
     if (q.get("overlay") === "1") root.classList.add("gl-overlay");
     if (q.get("fx") !== "1") root.classList.add("gl-no-fx");
+    document.write(after
+      ? '<link rel="stylesheet" href="/static/css/magazine.css">' +
+        '<script src="/static/js/magazine-grid-lock.js" defer><\/script>'
+      : '<link rel="stylesheet" href="/static/dev/grid-lock/magazine-before.css">');
   })();
 </script>
 <link rel="stylesheet" href="/static/css/magazine-fonts.css">
-<link rel="stylesheet" href="/static/css/magazine.css">
-<link rel="stylesheet" href="/static/dev/grid-lock/grid-lock.css">
 <style>
   /* Specimen only: the sheet holds two bands, not a page. */
   .sheet { min-height: 0; }
   .gl-no-fx .mag::before,
   .gl-no-fx .mag::after { display: none; }
 </style>
-<script src="/static/dev/grid-lock/grid-lock.js" defer></script>
 <script src="/static/dev/grid-lock/measure.js" defer></script>
 </head>
 <body class="mag page-article">

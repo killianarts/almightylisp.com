@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Grid lock — Almighty Lisp</title>
 <!--
-  The site's graph paper, before and after the grid lock: the site as it is
-  above, the recommended change below, at the same window width. The paper is
+  The site's graph paper, before and after the grid lock: the site as it was
+  above, as it is now below, at the same window width. The paper is
   in two places, both in the specimen: the book panel beside an article
   (.book-ad.compact), and the footer. Open it from
   the running site:
@@ -14,8 +14,9 @@
       http://127.0.0.1:5002/static/dev/grid-lock/index.html
 
   Each pane is a frame holding specimen.html, the head of an article and the
-  footer under the site's stylesheets; "after" adds grid-lock.css and
-  grid-lock.js. The frames are the window, so the width is the one the media
+  footer: "before" under magazine-before.css, a frozen copy of the
+  stylesheet from before the grid lock; "after" under the site's own
+  magazine.css and magazine-grid-lock.js. The frames are the window, so the width is the one the media
   queries see, from a phone's to a wide desktop's; when two frames fit side
   by side at full size (phones, tablets), they stand side by side.
   measure.js, in each frame, checks the lattice and posts what it finds here.
@@ -94,26 +95,26 @@
 
   <div class="panes" id="panes">
   <section class="pane" data-mode="before">
-    <div class="pane-head"><h2>Before</h2><span class="what">magazine.css as it is</span><div class="chips"></div></div>
+    <div class="pane-head"><h2>Before</h2><span class="what">magazine-before.css, frozen</span><div class="chips"></div></div>
     <div class="stage"><iframe title="Article head and footer, before"></iframe></div>
   </section>
 
   <section class="pane" data-mode="after">
-    <div class="pane-head"><h2>After</h2><span class="what">+ grid-lock.css, grid-lock.js</span><div class="chips"></div></div>
+    <div class="pane-head"><h2>After</h2><span class="what">the site: magazine.css, magazine-grid-lock.js</span><div class="chips"></div></div>
     <div class="stage"><iframe title="Article head and footer, after"></iframe></div>
   </section>
   </div>
 
   <div class="notes">
-    <h2>What changes</h2>
+    <h2>What changed</h2>
     <ol>
       <li><b>One lattice per box.</b> The graph paper is drawn by the box's <code>::before</code>, under its contents. In the footer it moves from each cell onto the footer, so the three cells share it and its lines run on through them; the rules between the cells are drawn on lattice lines (an inset shadow, so they take no room). The book beside an article is a box of its own.</li>
       <li><b>Whole cells, closed.</b> Each box's paper is rounded down to whole 28px cells plus the 1px line that closes it: <code>round(down, 100% - 1px, 28px) + 1px</code>. What's left over, under 28px, is plain black, split either side. The book beside an article keeps a cell of padding inside that.</li>
       <li><b>Cells of whole cells.</b> The side cells are a third each, rounded down to whole cells (<code>round(down, 100% / 3, 28px)</code>); the middle takes the rest, which is whole cells too.</li>
       <li><b>Contents measured in cells.</b> Padding is one cell (was 31.68px). A line of text is a row tall. The logos are two rows. Buttons are two rows (were 44px) with a cell between them, and reach one pixel past their area so their borders lie on the lines. They sit side by side when the cell has 13 cells inside, and stack when it hasn't (a container query).</li>
-      <li><b>Height in whole rows.</b> Because everything inside is whole rows, so is each box. <code>grid-lock.js</code> rounds it up if anything ever isn't (a fallback font, say); the chip says when it had to.</li>
+      <li><b>Height in whole rows.</b> Because everything inside is whole rows, so is each box. <code>magazine-grid-lock.js</code> rounds it up if anything ever isn't (a fallback font, say); the chip says when it had to.</li>
       <li><b>Whole pixels, across.</b> From 1180px, the sheet is rounded to an even width (<code>round(down, 100%, 2px)</code>), so on odd window widths over 1726px the main column no longer starts on half a pixel. (Not narrower: there the bands run to the window's edges, and on an odd-width phone, 375 or 393, the sheet would stop a pixel short of them.) And <code>--third</code>, the side column beside an article, is rounded to whole pixels, so the book panel in it no longer starts at x = 912.67 and the like. Try 1729.</li>
-      <li><b>Whole pixels, down.</b> A box starts wherever the text above it ends, usually part of the way through a pixel. <code>grid-lock.js</code> moves each box down the part of a pixel it needs (a margin under 1px); the chip says by how much.</li>
+      <li><b>Whole pixels, down.</b> A box starts wherever the text above it ends, usually part of the way through a pixel. <code>magazine-grid-lock.js</code> moves each box down the part of a pixel it needs (a margin under 1px); the chip says by how much.</li>
     </ol>
     <h2>Costs</h2>
     <ul>
@@ -126,8 +127,9 @@
     </ul>
     <h2>Files</h2>
     <ul>
-      <li><a href="grid-lock.css">grid-lock.css</a>: the change, scoped to <code>.grid-lock</code>; drop the prefix to adopt it.</li>
-      <li><a href="grid-lock.js">grid-lock.js</a>: whole pixels down the page, and the height net.</li>
+      <li><a href="/static/css/magazine.css">magazine.css</a>: the grid lock is at the end of the footer's rules, with <code>--third</code> and <code>.sheet</code>'s width.</li>
+      <li><a href="/static/js/magazine-grid-lock.js">magazine-grid-lock.js</a>: whole pixels down the page, and the height net.</li>
+      <li><a href="magazine-before.css">magazine-before.css</a>: the stylesheet before the grid lock, for the "before" pane. Frozen, so other changes to the site since show up as differences too.</li>
       <li><a href="specimen.html?mode=after&overlay=1">specimen.html</a>, <a href="measure.js">measure.js</a>: the article head and footer, and their measuring.</li>
     </ul>
   </div>

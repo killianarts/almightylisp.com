@@ -1,0 +1,5889 @@
+/* The site's stylesheet as it was before the grid lock (git: d9ee762), kept so
+   the lab can show before and after. Frozen: it does not follow later changes. */
+/* Almighty Lisp, the magazine.
+
+   Layers, lowest first: reset, base (the tokens on .mag, the two overlays,
+   element defaults), components (type and layout shared by many parts),
+   modules (each part of a page, then the narrow-screen rules), utilities
+   (the font wait and the screen effects). A later layer wins over an
+   earlier one whatever the selectors, so a module needs no extra weight
+   to change a component.
+
+   Numbers. Colors, type sizes, spacing, tracking, durations and stacking
+   come from the tokens on .mag, under these rules:
+
+   - A value takes a token only when it is that token's value. Nothing is
+     rounded to the nearest step: a 13px gap is 13px, not var(--space-12).
+   - Tokens are not added up to reach a number. calc() is for a real
+     relation: a period that is a thickness and a gap, a margin that takes
+     back a padding.
+   - A value off the scale that many rules share gets a step of its own
+     (--space-22, --text-17, --rule-heavy). One that a single part uses
+     stays a plain number there, or a custom property on that rule when
+     other values depend on it (--hatch-gap, --noise-reach).
+   - These stay exact, and literal: the pixel faces' sizes (--text-jp),
+     which blur off their own size; the headline and other fit formulas;
+     column and panel widths and breakpoints; the distances in keyframes.
+   - A color is a palette step. One used once still gets a name there.
+
+   The scripts set these custom properties, and no rule here defines them:
+   --headline-scale, --fit, --code-fit, --note-fit, --big-h, --ev-top-h,
+   --digits, --rows, --cols, --row, --indent, --i, --p, --progress,
+   --fx-link-ink.
+*/
+
+@layer reset, base, components, modules, utilities;
+
+@import url("/static/css/resets.css") layer(reset);
+
+@layer utilities {
+    /* Fonts are loaded by js/magazine-fonts.js (css/magazine-fonts.css without
+     JavaScript). While they may still come from the cache, the sheet stays
+     hidden for a moment, so it isn't drawn in fallback fonts first. */
+    .fonts-pending .sheet { visibility: hidden; }
+}
+
+@layer base {
+    .mag {
+        /* Palette. Neutrals are mixes of ink and sheet, or a lightness between
+       them. The dark panels are ink; the night steps are the greys on them.
+       Hot, cold, and the three lights are the only chromatic channels. */
+        --lch-ink: 0% 0 0;
+        --lch-sheet: 100% 0 0;
+        --lch-hot: 63.30% 0.2540 19.41;
+        --lch-cold: 87.00% 0.1481 202.88;
+        --lch-red: 62.80% 0.2577 29.23;
+        --lch-green: 86.64% 0.2948 142.50;
+        --lch-blue: 45.20% 0.3132 264.05;
+
+        --color-ink: oklch(var(--lch-ink));
+        --color-sheet: oklch(var(--lch-sheet));
+        --color-hot: oklch(var(--lch-hot));
+        --color-cold: oklch(var(--lch-cold));
+        --color-red: oklch(var(--lch-red));
+        --color-green: oklch(var(--lch-green));
+        --color-blue: oklch(var(--lch-blue));
+
+        --ink: var(--color-ink);
+        --sheet: var(--color-sheet);
+        --paper: color-mix(in oklch, var(--color-ink) 8%, var(--color-sheet));
+        --muted: color-mix(in oklch, var(--color-ink) 65%, var(--color-sheet));
+        --mid: color-mix(in oklch, var(--color-ink) 47%, var(--color-sheet));
+        --faint: color-mix(in oklch, var(--color-ink) 35%, var(--color-sheet));
+        --on-ink: color-mix(in oklch, var(--color-ink) 23%, var(--color-sheet));
+        --hairline: color-mix(in oklch, var(--color-ink) 16%, var(--color-sheet));
+        --code-ink: color-mix(in oklch, var(--color-ink) 80%, var(--color-sheet));
+        --code-bar: oklch(95.49% 0 0);
+        --code-comment: oklch(54.17% 0 0);
+        --ink-hover: oklch(21.78% 0 0);
+        --ink-hover-strong: oklch(25.2% 0 0);
+        --on-ink-bright: oklch(86.38% 0 0);
+        --ghost: color-mix(in srgb, var(--ink) 8%, transparent);
+
+        /* The night steps: the greys on the black panels, for raised cells,
+       hovers, rules and quiet text. From darkest to lightest. */
+        --night-deep: oklch(18.74% 0 0);
+        --night-card: oklch(20.09% 0 0);
+        --night-raised: oklch(24.04% 0 0);
+        --night-line: oklch(29.01% 0 0);
+        --night-hover: oklch(29.86% 0 0);
+        --night-mid: oklch(41.37% 0 0);
+        --night-edge: oklch(45.44% 0 0);
+        --night-dimmer: oklch(59.42% 0 0);
+        --night-dim: oklch(62.08% 0 0);
+        --night-soft: oklch(71.62% 0 0);
+        --night-pale: oklch(81.79% 0 0);
+
+        --hot: var(--color-hot);
+        --cold: var(--color-cold);
+        --red: var(--color-red);
+        --green: var(--color-green);
+        --blue: var(--color-blue);
+
+        /* Tiled at one space step (one diagonal period on each axis). A single
+       gradient spanning a tall column loses precision and the lines thicken.
+       The period is the diagonal of that tile: tile * sqrt(2) / 2. */
+        --hatch-tile: var(--space-8);
+        --hatch: repeating-linear-gradient(135deg, var(--hairline) 0 var(--rule), var(--sheet) var(--rule) calc(var(--hatch-tile) * sqrt(2) / 2)) 0 0 / var(--hatch-tile) var(--hatch-tile);
+
+        /* Science Gothic for display, Construct Mono for labels, Mohave for
+       reading, Geist Light for article prose, Berkeley Mono for code (its
+       Bold cut for =code= in the text, Bold UltraCondensed in a note), JF Dot
+       M+Q 10 and KKM Analog TV for Japanese labels (and JF Dot Kappa 20 0213
+       for the footer's motto). */
+        --disp: "science gothic", "arial narrow", impact, sans-serif;
+        --disp-axes: "wdth" 100, "ctrs" 0, "slnt" 0;
+        --mono: "construct mono", ui-monospace, monospace;
+        --mohave: "mohave", "geist", "helvetica neue", sans-serif;
+        --sans: "geist", "helvetica neue", helvetica, arial, sans-serif;
+        --sans-weight: 300;
+        --cond: "avenir next condensed", "avenir next", "barlow condensed", "arial narrow", sans-serif;
+        --code: "berkeley mono", "construct mono", ui-monospace, monospace;
+        --code-tight: "berkeley mono ultracondensed", "berkeley mono", "construct mono", ui-monospace, monospace;
+        --jp: "kkm analog tv", "hiragino kaku gothic pron", "yu gothic", meiryo, sans-serif;
+        --jp-dot: "jf dot m+q 10", "hiragino kaku gothic pron", "yu gothic", meiryo, sans-serif;
+
+        --text-2xs: 11px;
+        --text-xs: 12px;
+        --text-13: 13px;
+        --text-sm: 14px;
+        --text-15: 15px;
+        --text-md: 16px;
+        --text-17: 17px;
+        --text-lg: 20px;
+        --text-xl: 24px;
+        --text-2xl: 32px;
+        --text-3xl: 40px;
+        --text-4xl: 48px;
+        --text-5xl: 64px;
+
+        /* Cells are padded by the Figma grid's 32px, less the rule's subpixel
+       share. The named inset is the only place that number lives. */
+        --rule: 1px;
+        --rule-heavy: 3px;
+        --space-2: 2px;
+        --space-4: 4px;
+        --space-6: 6px;
+        --space-8: 8px;
+        --space-10: 10px;
+        --space-12: 12px;
+        --space-14: 14px;
+        --space-16: 16px;
+        --space-20: 20px;
+        --space-22: 22px;
+        --space-24: 24px;
+        --space-28: 28px;
+        --space-32: 32px;
+        --space-40: 40px;
+        --space-44: 44px;
+        --space-48: 48px;
+        --space-64: 64px;
+        --space-72: 72px;
+        --space-96: 96px;
+        --pad: 31.68px;
+        --pad-lead: var(--space-40);
+        --pad-narrow: var(--space-16);
+
+        --track-tight: 0.01em;
+        --track-snug: 0.06em;
+        --track-body: 0.14em;
+        --track: 0.22em;
+        --track-display: 0.32em;
+
+        --z-raise: 1;
+        --z-sticky: 10;
+        --z-overlay: 9000;
+        --z-noise: 9998;
+        --z-scan: 9999;
+
+        --duration-instant: 80ms;
+        --duration-fast: 150ms;
+        --duration-ui: 250ms;
+        --duration-mid: 300ms;
+        --duration-slow: 400ms;
+        --duration-linger: 450ms;
+
+        /* Column ratios of the 1440px main column. The third is a length and one
+       track takes the rest, so the rule before it lands on the same subpixel
+       wherever --cols-lead is used. fr shares round differently from row to row. */
+        --page: 1440px;
+        --third: calc((100% - var(--rule)) / 3);
+        --cols-lead: minmax(0, 1fr) var(--third);
+        --cols-index: minmax(0, 479fr) minmax(0, 958fr);
+
+        /* Film-grain noise, drawn by .mag::before. */
+        --noise-color: var(--paper);
+        --noise-opacity: 0.30;
+        --noise-size: 200px;
+        --noise-reach: 50px; /* how far past the window it goes: more than noise-flicker moves it */
+        --noise-z: var(--z-noise);
+        --noise-anim-duration: var(--duration-mid);
+
+        /* CRT scanlines, drawn by .mag::after. */
+        --scanline-color: color-mix(in srgb, var(--sheet) 15%, transparent);
+        --scanline-thickness: var(--rule);
+        --scanline-gap: var(--space-2);
+        --scanline-opacity: 0.30;
+        --scanline-speed: var(--duration-slow);
+        --scanline-z: var(--z-scan);
+    }
+}
+
+@layer base {
+    /* Whole-viewport film-grain / static noise. An inline SVG feTurbulence
+     filter (data URI, no external asset) used as an alpha *mask* over a solid
+     color fill, so the grain takes whatever --noise-color you give it.
+
+     The grain flickers by moving the whole overlay (transform), which the
+     compositor does without painting it again; moving the mask inside it
+     (mask-position) would paint the overlay at every step. So it reaches
+     --noise-reach past the window on every side, further than noise-flicker
+     moves it.
+     dev/fx-lab/overlays.html compares the two ways. */
+    .mag::before {
+        content: "";
+        position: fixed;
+        inset: calc(var(--noise-reach) * -1);
+        z-index: var(--noise-z, var(--z-noise));
+        pointer-events: none;
+        opacity: var(--noise-opacity, 0.06);
+        background-color: var(--noise-color, currentcolor);
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        -webkit-mask-size: var(--noise-size, 160px) var(--noise-size, 160px);
+        mask-size: var(--noise-size, 160px) var(--noise-size, 160px);
+        animation: noise-flicker var(--noise-anim-duration, 0.7s) steps(1) infinite;
+        will-change: transform;
+    }
+
+    @keyframes noise-flicker {
+        0%   { transform: translate(  0,     0);   }
+        10%  { transform: translate(-17px,   9px); }
+        20%  { transform: translate( 31px, -22px); }
+        30%  { transform: translate(-43px,  13px); }
+        40%  { transform: translate( 27px,  41px); }
+        50%  { transform: translate(-11px, -37px); }
+        60%  { transform: translate( 49px,  19px); }
+        70%  { transform: translate(-29px, -13px); }
+        80%  { transform: translate( 13px,  33px); }
+        90%  { transform: translate(-37px,  27px); }
+        100% { transform: translate(  0,     0);   }
+    }
+
+    /* Whole-viewport CRT scanlines. Fixed + pointer-events:none so it overlays
+     every scroll position without intercepting clicks. The lines drift downward
+     by moving the overlay exactly one period, so the loop is seamless. As the
+     noise, it is moved and not painted again, and so reaches a period past
+     the top and bottom of the window. */
+    .mag::after {
+        content: "";
+        position: fixed;
+        inset-block: calc((var(--scanline-thickness) + var(--scanline-gap)) * -1);
+        inset-inline: 0;
+        z-index: var(--scanline-z);
+        pointer-events: none;
+        opacity: var(--scanline-opacity);
+        background-image: repeating-linear-gradient(
+            to bottom,
+            var(--scanline-color) 0,
+            var(--scanline-color) var(--scanline-thickness),
+            transparent var(--scanline-thickness),
+            transparent calc(var(--scanline-thickness) + var(--scanline-gap))
+        );
+        animation: scanline-scroll var(--scanline-speed, var(--duration-slow)) linear infinite;
+        will-change: transform;
+
+        /* Honor reduced-motion: keep the lines, drop the scroll. */
+        @media (prefers-reduced-motion: reduce) {
+            animation: none !important;
+        }
+    }
+
+    /* Move one full line period (thickness + gap) so start and end frames align. */
+    @keyframes scanline-scroll {
+        from { transform: translateY(0); }
+        to   { transform: translateY(calc(var(--scanline-thickness) + var(--scanline-gap))); }
+    }
+
+    /* Base. The page, then element defaults inside the magazine. */
+    .mag {
+        margin: 0;
+        overflow-x: clip;
+        /* A word too long for its line (a symbol's name, in a narrow column)
+       breaks, and doesn't run out of its box. */
+        overflow-wrap: break-word;
+        background: var(--sheet);
+        color: var(--ink);
+        font-family: var(--sans);
+    }
+
+    .mag *,
+    .mag *::before,
+    .mag *::after { box-sizing: border-box; }
+
+    .mag a {
+        color: inherit;
+        text-decoration: none;
+
+        &:focus-visible {
+            outline: var(--space-2) solid var(--ink);
+            outline-offset: 3px;
+        }
+    }
+
+    .mag h1,
+    .mag h2,
+    .mag h3,
+    .mag p { margin: 0; }
+}
+
+@layer components {
+    /* Display: Science Gothic in capitals. */
+    .neo-headline, .section-title, .series-title, .featured-title, .featured-count,
+    .index-name, .piece-name, .contents-t, .neo-brief-title,
+    .index-cell-n, .index-cell-title, .arch-month-head, .toc-article-title,
+    .footer-title, .previously-title {
+        font-family: var(--disp);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-variation-settings: var(--disp-axes);
+        text-wrap: balance;
+    }
+
+    /* Captions: small tracked capitals, for facts and counts. */
+    .running-row, .strip-cell, .series-progress, .series-strip, .part-n, .part-new,
+    .part-state, .arch-when, .arch-code, .arch-count, .index-top, .index-cell-meta,
+    .contents-folio {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+    }
+
+    /* Labels: the size up, naming what follows. The first group is set in
+     capitals; the second as written. */
+    .book-ad-label, .neo-brief-code, .featured-label, .section-meta, .section-action,
+    .previously-label, .contents-title, .margin-note-label, .end-label {
+        font-family: var(--mono);
+        font-weight: 400;
+        font-size: var(--text-13);
+        letter-spacing: 0.1em;
+    }
+
+    .book-ad-label, .neo-brief-code, .featured-label, .section-meta, .section-action {
+        text-transform: uppercase;
+    }
+
+    /* Summaries: a short paragraph under a title. */
+    .neo-brief-dek, .series-summary, .book-ad-pitch {
+        font-family: var(--mohave);
+        font-size: var(--text-17);
+        line-height: 1.4;
+        color: var(--muted);
+    }
+
+    /* Tiles: cells laid side by side, the white rule between them is the
+     container's background showing through a 1px gap. */
+    .strip, .latest-grid, .latest-briefs, .series-cards, .art-head,
+    .art-side, .end-block, .keep-briefs, .index, .index-cells, .toc-strip {
+        gap: var(--rule);
+        background: var(--paper);
+    }
+
+    /* Lead split: two thirds beside one third. */
+    .latest-grid, .art-head {
+        display: grid;
+        grid-template-columns: var(--cols-lead);
+    }
+
+    /* Cells: padded panels on the sheet. */
+    .neo-brief, .piece-cell, .contents-panel, .index-head {
+        padding: var(--pad);
+        background: var(--sheet);
+    }
+
+    /* Columns that end in a hatch-fill: flex columns whose --gap the hatch
+     takes back, so the gap before it shows only when there is hatching. */
+    .series-body, .archive-col, .index-head {
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap);
+    }
+
+    /* The sheet: two gutters beside the 1440px main column, between dotted
+     edges. Bands sit on fixed rows so the full-height furniture can share
+     them; a section a page doesn't show leaves its rows empty. */
+    .sheet {
+        position: relative;
+        display: grid;
+        grid-template-columns:
+            [full-start] minmax(72px, 1fr) 71px
+            [main-start] minmax(0, var(--page)) [main-end]
+            71px minmax(72px, 1fr) [full-end];
+        grid-template-rows: repeat(17, auto) 1fr;
+        min-height: 100vh;
+    }
+
+    .running.top { grid-row: 1; }
+    .nameplate-band { grid-row: 2; }
+    .strip-band { grid-row: 3; }
+    .plate-band, .art-head-band, .archive-gap, .missing-gap { grid-row: 4; }
+    .book-gap { grid-row: 5; }
+    .book-band { grid-row: 6; }
+    .series-gap, .pieces-band, .archive-head, .missing-head { grid-row: 7; }
+    .series-head, .transmission-band, .archive-band { grid-row: 8; }
+    .series-band, .end-head { grid-row: 9; }
+    .latest-gap, .end-band { grid-row: 10; }
+    .latest-head { grid-row: 11; }
+    .latest-band { grid-row: 12; }
+    .intel-gap { grid-row: 13; }
+    .intel-head { grid-row: 14; }
+    .intel-band { grid-row: 15; }
+    .footer-gap { grid-row: 16; }
+    .footer-band { grid-row: 17; }
+    .running.bottom { grid-row: 18; align-self: start; }
+
+    .band {
+        grid-column: full;
+        display: grid;
+        grid-template-columns: subgrid;
+        border-bottom: var(--rule) solid var(--paper);
+
+        & > * { grid-column: main; grid-row: 1; min-width: 0; }
+    }
+
+    /* Furniture: the outer edges and the column rules, the sheet's full height.
+     An edge is a field of small plus signs, one every 24px; each side's field
+     starts at its inner edge, so the two mirror each other. */
+    .sheet-furniture { display: contents; }
+
+    .edge,
+    .vrule {
+        grid-row: 1 / -1;
+        pointer-events: none;
+    }
+
+    .edge {
+        background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3e%3cpath d='M12 8.5v7M8.5 12h7' fill='none' stroke='%2305060a' stroke-width='1'/%3e%3c/svg%3e") 0 0 / var(--space-24) var(--space-24);
+        opacity: 0.55;
+
+        &.left { grid-column: 1; background-position: right 0 top 0; }
+        &.right { grid-column: 5; background-position: left 0 top 0; }
+    }
+
+    .vrule {
+        z-index: 2;
+        width: var(--rule);
+        background: var(--paper);
+
+        &.r1 { grid-column: 2; }
+        &.r2 { grid-column: 3; }
+        &.r3 { grid-column: 4; }
+        &.r4 { grid-column: 5; }
+    }
+
+    /* Side labels sit in a band's gutter cells, so they stay centred on it. */
+    .band > .side-label {
+        z-index: 3;
+        grid-row: 1;
+        align-self: center;
+        justify-self: center;
+        pointer-events: none;
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        font-family: var(--mono);
+        font-size: var(--text-15);
+        line-height: 1;
+        letter-spacing: var(--track);
+        text-transform: uppercase;
+        white-space: pre;
+
+        &.left { grid-column: 2; }
+
+        /* A Japanese label reads down, upright, below the rotated text. */
+        &.has-jp {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            writing-mode: horizontal-tb;
+            transform: none;
+
+            & > span:not(.jp) {
+                writing-mode: vertical-rl;
+                transform: rotate(180deg);
+            }
+        }
+
+        &.right { grid-column: 4; }
+    }
+
+    /* Running header and footer. */
+    .running {
+        border-bottom: 0;
+
+        &.top { border-bottom: var(--rule) solid var(--paper); }
+    }
+
+    .running-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-16);
+        padding-block: 11px;
+        padding-inline: var(--space-32);
+        line-height: var(--space-20);
+        white-space: pre;
+    }
+
+    .running .sep { font-size: 9px; }
+
+    /* Japanese labels (see render-jp), in pixel faces, so sizes that keep them
+     sharp are few. KKM Analog TV, 11 pixels to the em, is beside a section's
+     name; the running header, the running footer and the gutters are in JF Dot
+     M+Q 10, 10 pixels to the em. The margin takes back the tracking after the
+     last character. */
+    .jp {
+        display: block;
+        flex: none;
+        margin-inline-end: calc(var(--track-body) * -1);
+        font-family: var(--jp);
+        --text-jp: 11px;
+        font-size: var(--text-jp);
+        line-height: 1;
+        letter-spacing: var(--track-body);
+        text-transform: none;
+        white-space: nowrap;
+
+        .running &,
+        .side-label > & { font-family: var(--jp-dot); }
+
+        .running.bottom & {
+            --text-jp: 11px;
+            font-size: var(--text-jp);
+        }
+
+        .section-tag > & {
+            margin-inline-end: -0.1em;
+            color: var(--on-ink);
+            line-height: var(--text-md);
+            letter-spacing: 0.1em;
+        }
+
+        /* Down the gutter, each character upright. */
+        .side-label > & {
+            margin-inline-end: -0.12em;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            --text-jp-lg: 15px;
+            font-size: var(--text-jp-lg);
+            letter-spacing: 0.12em;
+        }
+    }
+
+    /* Nameplate. */
+    .neo-nameplate {
+        display: grid;
+        justify-items: center;
+        gap: 30px;
+        padding-block: var(--space-20);
+        padding-inline: var(--space-10);
+    }
+
+    .neo-logo {
+        flex: 0 0 auto;
+        margin-block-start: -2.5px;
+        margin-inline-end: -2.9px;
+        margin-block-end: -5px;
+        margin-inline-start: -4.3px;
+    }
+
+    .neo-typemark {
+        flex: 0 1 auto;
+        min-width: 0;
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Strip: today's date between two links. */
+    .strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .strip-cell {
+        padding-block: var(--space-12);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+        line-height: 1.4;
+
+        &.mid { text-align: center; }
+        &.end { text-align: right; }
+    }
+
+    /* Crop marks at a panel's corners. */
+    .crop {
+        --border-size: var(--space-4);
+        position: absolute;
+        width: var(--space-14);
+        height: var(--space-14);
+        border: 0 solid var(--ink);
+        pointer-events: none;
+
+        &.tl {
+            inset-block-start: var(--space-10);
+            inset-inline-start: var(--space-10);
+            border-left: var(--space-2) solid var(--ink);
+            border-top: var(--space-2) solid var(--ink);
+        }
+
+        &.tr {
+            inset-block-start: var(--space-10);
+            inset-inline-end: var(--space-10);
+            border-right: var(--space-2) solid var(--ink);
+            border-top: var(--space-2) solid var(--ink);
+        }
+
+        &.bl {
+            inset-block-end: var(--space-10);
+            inset-inline-start: var(--space-10);
+            border-left: var(--space-2) solid var(--ink);
+            border-bottom: var(--space-2) solid var(--ink);
+        }
+
+        &.br {
+            inset-block-end: var(--space-10);
+            inset-inline-end: var(--space-10);
+            border-right: var(--space-2) solid var(--ink);
+            border-bottom: var(--space-2) solid var(--ink);
+        }
+    }
+
+    /* Spacer hatch (Figma: Neo / Pattern, Hatch · Paper): 1px grey diagonals
+     8px apart. It takes the space left in a flex column. The mask hides its
+     first --hatch-gap pixels, so the gap before it only shows when there is
+     room for hatching too; with no room it adds nothing. */
+    .hatch-fill {
+        --hatch-gap: 5px;
+        flex: 1 1 0;
+        min-height: 0;
+        margin-block-start: calc(var(--gap, 0px) * -1);
+        background: var(--hatch);
+        -webkit-mask-image: linear-gradient(transparent var(--hatch-gap), var(--ink) var(--hatch-gap));
+        mask-image: linear-gradient(transparent var(--hatch-gap), var(--ink) var(--hatch-gap));
+    }
+
+    /* Hazard stripes (Figma: Neo / Pattern, Hazard · Reversed): 14px bands
+     every 28px at 45 degrees, under an article's byline. */
+    .hazard-plate {
+        display: block;
+        height: 43px;
+        background: repeating-linear-gradient(135deg, var(--paper) 0 9.9px, transparent 9.9px 19.8px);
+    }
+
+    /* Ornaments (Figma: Homepage restyled · C1 · Landing), drawn in the current
+     colour. A gauge is a short bar: part filled, a tick, the rest hatched. A
+     dot pair is a filled dot and an open one; the other pair (.alt) an open
+     one and a dim one. */
+    .gauge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        width: 240px;
+        height: var(--space-6);
+
+        & > i { display: block; height: var(--space-6); }
+        & .done { flex: 0 0 24%; background: currentcolor; }
+        & .tick { flex: 0 0 7px; background: currentcolor; opacity: 0.5; }
+        & .rest {
+            flex: 1 1 0;
+            background: repeating-linear-gradient(135deg, currentcolor 0 var(--rule), transparent var(--rule) var(--rule-heavy));
+            opacity: 0.5;
+        }
+    }
+
+    .dot-pair {
+        display: inline-flex;
+        gap: var(--space-2);
+
+        & > i {
+            width: var(--space-8);
+            height: var(--space-8);
+            border-radius: 50%;
+            background: currentcolor;
+        }
+
+        & > i + i,
+        &.alt > i { background: none; box-shadow: inset 0 0 0 1.6px currentcolor; }
+        &.alt > i + i { background: currentcolor; box-shadow: none; opacity: 0.5; }
+    }
+
+    /* In the gutters beside a band, or a section of an article (the columns
+     the side labels use): a dot pair at the top of each, and a gauge at the
+     foot of the right one. */
+    :is(.band, .neo-piece) > .gutter-mark {
+        grid-column: 4;
+        grid-row: 1;
+        justify-self: center;
+        align-self: start;
+        margin-block-start: var(--space-22);
+        color: var(--ink);
+        z-index: 2;
+
+        &.left { grid-column: 2; }
+
+        &.foot {
+            align-self: end;
+            width: 52px;
+            margin-block: 0 var(--space-22);
+            margin-inline: 0;
+        }
+    }
+
+    /* Both pairs in the corner of a black panel. */
+    .panel-corner { position: absolute; display: flex; color: var(--sheet); }
+
+    /* Eyebrows and progress rules (Figma: Article (v30), Homepage (v30)). An
+     eyebrow is a small tracked label over a heading, sometimes between
+     squares; a dash can stand over the heading too. */
+    .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: var(--space-8);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        line-height: 1.2;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .sq {
+        flex: 0 0 auto;
+        width: 7px;
+        height: 7px;
+        background: currentcolor;
+
+        &.open {
+            margin-inline-start: var(--space-10);
+            background: none;
+            box-shadow: inset 0 0 0 var(--rule) currentcolor;
+        }
+    }
+
+    .dash {
+        display: block;
+        width: var(--space-28);
+        height: var(--rule-heavy);
+        background: var(--ink);
+    }
+
+    /* A progress rule: a bar, then a dot pair and sometimes an arrow label. The
+     bar is filled to --p, a tick, and the rest hatched. */
+    .progress-rule {
+        display: flex;
+        align-items: center;
+        gap: var(--space-14);
+        min-width: 0;
+    }
+
+    .progress-bar {
+        flex: 1 1 0;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        min-width: var(--space-40);
+        height: var(--space-6);
+
+        & > i { display: block; height: var(--space-6); }
+        & .done {
+            flex: 0 0 auto;
+            width: calc((100% - var(--space-12)) * var(--p, 0.5));
+            background: var(--ink);
+        }
+        & .tick { flex: 0 0 var(--space-6); background: var(--ink); }
+        & .rest {
+            flex: 1 1 0;
+            min-width: 0;
+            background: var(--hatch);
+            box-shadow: inset 0 0 0 var(--rule) var(--ink);
+        }
+        &.full .done { flex: 1 1 0; width: auto; }
+    }
+
+    .rule-dots {
+        flex: 0 0 auto;
+        display: inline-flex;
+        gap: 3px;
+
+        & > i {
+            width: var(--space-8);
+            height: var(--space-8);
+            border-radius: 50%;
+            background: var(--ink);
+        }
+
+        & > i + i { background: none; box-shadow: inset 0 0 0 1.5px var(--ink); }
+    }
+
+    .arrow-label {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-10);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track);
+        text-transform: uppercase;
+        white-space: nowrap;
+
+        &::after {
+            content: "";
+            width: var(--space-48);
+            height: 9px;
+            border-right: var(--rule) solid currentcolor;
+            background: linear-gradient(currentcolor, currentcolor) left center / 100% var(--rule) no-repeat;
+        }
+    }
+}
+
+@layer components {
+    /* Spec lists: term, dot leader, value. */
+
+    .spec {
+        margin: 0;
+        font-family: var(--mono);
+
+        & dt,
+        & dd {
+            margin: 0;
+            flex: 0 0 auto;
+        }
+
+        /* Long values wrap under a narrow panel instead of running out of it. */
+        & dd {
+            flex-shrink: 1;
+            min-width: 0;
+            white-space: normal;
+            text-align: right;
+        }
+    }
+
+    .spec-row {
+        display: flex;
+        align-items: baseline;
+        white-space: nowrap;
+    }
+
+    .spec-lead {
+        flex: 1 1 0;
+        min-width: 1ch;
+        overflow: hidden;
+        contain: inline-size;
+
+        &::before {
+            content: "................................................................................................................................................................................................................................................................";
+        }
+    }
+
+    .byline-spec {
+        font-size: var(--text-md);
+        line-height: 1.2;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--faint);
+
+        & dd {
+            color: var(--ink);
+            background: var(--sheet);
+            padding-inline: 1ch;
+        }
+    }
+
+    .book-spec {
+        font-size: var(--text-xs);
+        line-height: 1.5;
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+
+        & dd {
+            color: var(--sheet);
+        }
+    }
+
+    /* Buttons (Figma: Neo / Button). Primary carries a dither strip on its
+     right edge; the call to action on the lead is the black one. */
+
+    .neo-button {
+        position: relative;
+        flex: 1 0 auto;
+        display: flex;
+        align-items: center;
+        height: var(--space-44);
+        padding-block: 0;
+        padding-inline: var(--space-16);
+        overflow: hidden;
+        font-family: var(--mono);
+        font-size: var(--text-sm);
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        white-space: nowrap;
+
+        &.primary::after {
+            content: "";
+            position: absolute;
+            inset-block: 0;
+            inset-inline-end: 0;
+            width: 52px;
+            /* The button's own colour behind the dither, so it follows :hover too. */
+            background: url("/static/assets/images/magazine/patterns/dither-ramp-paper.svg") 0 0 / 224px 224px;
+            background-color: inherit;
+        }
+    }
+
+    .mag a.neo-button.primary {
+        padding-inline-end: 60px;
+        background: var(--sheet);
+        color: var(--ink);
+
+        &:hover {
+            background: var(--sheet);
+        }
+    }
+
+    .mag a.neo-button.secondary {
+        border: var(--rule) solid var(--paper);
+        color: var(--paper);
+
+        &:hover {
+            background: var(--ink-hover);
+        }
+    }
+
+    .mag a.neo-cta {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 43px;
+        padding-block: 0;
+        padding-inline: 18px 0;
+        overflow: hidden;
+        background: var(--ink);
+        color: var(--sheet);
+        font-family: var(--mohave);
+        font-weight: 500;
+        font-size: var(--text-md);
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        text-transform: uppercase;
+
+        &:hover {
+            background: var(--ink-hover-strong);
+        }
+    }
+
+    /* The dither keeps to the button's right end, however wide it grows. */
+    .neo-cta::after {
+        content: "";
+        position: absolute;
+        inset-inline-end: -55px;
+        inset-block-start: -27px;
+        width: 118px;
+        height: 118px;
+        opacity: 0.4;
+        background: url("/static/assets/images/magazine/patterns/dither-ramp-reversed.svg") 0 0 / 224px 224px;
+        pointer-events: none;
+    }
+
+    /* Section heads: a grey gap band, then the name set large on black, with
+     a rule beside it: a gauge and two dot pairs. */
+
+    .gap-band {
+        height: var(--space-48);
+    }
+
+    .head-band > .section-head {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-24);
+        margin: 0;
+        padding-block: 26px var(--space-20);
+        padding-inline: var(--pad);
+        background: var(--ink);
+        color: var(--sheet);
+        position: relative;
+
+        /* Dither ramp at the band's right end (Figma: Neo / Pattern, Dither ramp ·
+       Reversed, 30%), set under the text so the action link stays legible. */
+        &::after {
+            content: "";
+            position: absolute;
+            inset-block: 0;
+            inset-inline-end: 0;
+            width: 224px;
+            background: url("/static/assets/images/magazine/patterns/dither-ramp-reversed.svg") 0 -78px / 224px 224px;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        & > * {
+            position: relative;
+            z-index: var(--z-raise);
+        }
+    }
+
+    .section-title {
+        font-size: var(--text-5xl);
+        line-height: 0.84;
+        letter-spacing: -0.015em;
+    }
+
+    .section-meta {
+        color: var(--on-ink);
+    }
+
+    .head-rule {
+        display: flex;
+        align-items: center;
+        gap: var(--space-22);
+        height: var(--space-16);
+        color: var(--sheet);
+
+        & .dot-pair + .dot-pair {
+            margin-inline-start: calc(var(--space-8) * -1);
+        }
+    }
+
+    /* A Japanese label over the rule, spanning the title's height. */
+    .section-tag {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .section-action {
+        margin-inline-start: auto;
+        color: var(--on-ink);
+    }
+
+    .mag a.section-action {
+        color: var(--paper);
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    /* Series marks: one logo per series (Figma: Neo / Series logo), filled
+     with currentColor. A stamp puts it in a small square. */
+
+    .series-logo {
+        display: block;
+        flex: 0 0 auto;
+        overflow: visible;
+    }
+
+    .series-stamp {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--space-16);
+        height: var(--space-16);
+
+        & .series-logo {
+            width: 64%;
+            height: 64%;
+        }
+
+        &.ink {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        &.paper {
+            background: var(--paper);
+            color: var(--ink);
+        }
+    }
+
+    /* Progress meter: one cell per part, drawn as one bar. It is filled to the
+     newest part; then a tick, and the parts to come in outline. */
+
+    .meter {
+        flex: 1 1 0;
+        display: flex;
+        min-width: var(--space-40);
+        height: var(--space-6);
+
+        & .cell {
+            flex: 1 1 0;
+            height: var(--space-6);
+            border: solid currentcolor;
+            border-width: var(--rule) 0;
+
+            &.on {
+                background: currentcolor;
+            }
+
+            &.on + .cell:not(.on) {
+                position: relative;
+                margin-inline-start: var(--space-12);
+                border-left-width: var(--rule);
+
+                &::before {
+                    content: "";
+                    position: absolute;
+                    inset-block-start: calc(var(--rule) * -1);
+                    inset-inline-start: calc(var(--space-10) * -1);
+                    width: 6px;
+                    height: 6px;
+                    background: currentcolor;
+                }
+            }
+
+            &:last-child:not(.on) {
+                border-right-width: var(--rule);
+            }
+        }
+    }
+
+    .series-progress {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+
+        & > span:last-child {
+            flex: 0 0 auto;
+        }
+    }
+}
+
+@layer modules {
+    /* The lead: a headline scaled to fit (--headline-scale, set per title),
+     the dek, and the byline. The article's lede is the same panel. On the
+     homepage the lead has the plate to itself. */
+
+    .neo-plate {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .neo-lead {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 577px;
+        padding: var(--pad-lead);
+        background: var(--sheet);
+
+        & > .hatch-fill {
+            --hatch-gap: var(--space-24);
+        }
+    }
+
+    .mag .neo-headline {
+        /* Figma gives the headline 894px of the lead's 958px: 12px more than the
+       dek row below it. The size tracks the main column, 136.7px at 1440px. */
+        margin-block: 0;
+        margin-inline: 0 calc(var(--space-12) * -1);
+        font-size: calc(min(136.7px, calc((100vw - 286px) * 0.102 - 10.5px)) * var(--headline-scale, 1));
+        line-height: 0.84;
+        letter-spacing: -0.015em;
+    }
+
+    /* The plate is half as wide again as an article's lede, and so is its
+     headline. (Narrow pages size both the same: see Responsive.) */
+    .mag .neo-plate .neo-headline {
+        @media (min-width: 1180px) {
+            font-size: calc(min(136.7px, calc((100vw - 286px) * 0.102 - 10.5px)) * 1.5 * var(--headline-scale, 1));
+        }
+    }
+
+    .neo-headline a {
+        color: var(--ink);
+
+        &:hover {
+            text-decoration: underline;
+            text-decoration-thickness: 0.06em;
+        }
+    }
+
+    .neo-lead-row {
+        margin-block-start: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: var(--space-32);
+        padding-block-start: var(--space-32);
+    }
+
+    .neo-dek {
+        max-width: 632px;
+        align-self: center;
+        font-family: var(--mohave);
+        font-size: var(--text-xl);
+        line-height: 1.44;
+    }
+
+    .neo-lead-meta {
+        flex: 0 0 216px;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-10);
+        padding-block-end: 2.67px;
+    }
+
+    /* The featured-series banner, across the top of the lead, in black: the
+     series' name and the lead's part, over a progress rule. The part's
+     number is a ghost numeral behind the count (data-part). */
+
+    .lead-cell {
+        display: flex;
+        flex-direction: column;
+        background: var(--sheet);
+
+        & > .neo-lead {
+            flex: 1 1 auto;
+        }
+    }
+
+    /* Black panels on the sheet turn the ink and paper round for what is in
+     them, and have no hatching. Inside them --ink is the sheet, so their
+     own black is --color-ink. */
+    .featured-banner,
+    .series-card.featured {
+        --ink: var(--sheet);
+        --paper: var(--color-ink);
+        --hatch: none;
+        --ghost: color-mix(in srgb, var(--sheet) 9%, transparent);
+        background: var(--color-ink);
+        color: var(--sheet);
+    }
+
+    .featured-banner {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: var(--space-14) var(--space-24);
+        padding-block: var(--space-16);
+        padding-inline: var(--pad);
+        overflow: hidden;
+        border-bottom: var(--rule) solid var(--color-ink);
+
+        &::before {
+            content: attr(data-part);
+            position: absolute;
+            inset-block-start: -30px;
+            inset-inline-end: -34px;
+            font-family: var(--disp);
+            font-weight: 500;
+            font-variation-settings: var(--disp-axes);
+            font-size: 180px;
+            line-height: 0.84;
+            color: var(--ghost);
+            pointer-events: none;
+        }
+
+        & > * {
+            position: relative;
+        }
+
+        & > .progress-rule {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .banner-logo {
+        width: var(--space-64);
+        height: var(--space-64);
+    }
+
+    .featured-name {
+        min-width: 0;
+    }
+
+    .featured-label {
+        letter-spacing: var(--track);
+        color: var(--night-soft);
+
+        &::before {
+            content: "\25a0\20 ";
+        }
+    }
+
+    .featured-title,
+    .featured-count,
+    .series-title {
+        font-size: 30px;
+        line-height: 0.9;
+        letter-spacing: calc(var(--track-tight) * -1);
+    }
+
+    /* The book panel. Beside an article it is compact, drawn as the footer's
+     book (see the footer below). On the homepage it is a band of its own
+     (see below). */
+
+    .book-ad {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-10);
+        padding: var(--pad);
+        background:
+            url("/static/assets/images/magazine/patterns/dither-fade-reversed.svg") right top / 336px 336px no-repeat,
+            url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
+            var(--ink);
+        color: var(--on-ink);
+
+        &.compact {
+            flex: 0 0 auto;
+        }
+
+        & a:focus-visible {
+            outline-color: var(--paper);
+        }
+    }
+
+    .book-ad-label {
+        line-height: 1.2;
+        text-box: trim-both cap alphabetic;
+    }
+
+    .book-ad-logo {
+        display: block;
+    }
+
+    /* The homepage's book band (Figma: Book ad / C1 Landing): the logo and an
+     eyebrow, the pitch as a headline over a gauge, the dither in the corner,
+     and three ways to read as cards. Under the logo, a ring of dots and a
+     slider.
+
+     Narrower, it folds up. Under 1180px the logo's column narrows and loses
+     the ring and slider. Under 900px the cards stack. Under 700px everything
+     goes in one column: the eyebrow, the logo, the pitch, the rule, then the
+     cards; the corner dots go. */
+
+    .book-ad.landing {
+        --night-dim: oklch(64.12% 0 0);
+        position: relative;
+        display: grid;
+        grid-template-columns: clamp(200px, 20.6%, 296px) minmax(0, 780px) minmax(0, 1fr);
+        gap: 0;
+        padding-block: var(--space-44) 56px;
+        padding-inline: var(--space-64);
+        background:
+            url("/static/assets/images/magazine/patterns/dither-fade-reversed.svg") right top / 336px 336px no-repeat,
+            var(--ink);
+        color: var(--sheet);
+
+        @media (max-width: 1399px) {
+            padding-block: 36px var(--space-44);
+            padding-inline: var(--space-40);
+        }
+
+        @media (max-width: 1179px) {
+            grid-template-columns: 140px minmax(0, 1fr);
+            column-gap: var(--space-32);
+            padding-block: var(--space-32) var(--space-40);
+            padding-inline: var(--pad);
+        }
+
+        @media (max-width: 699px) {
+            grid-template-columns: minmax(0, 1fr);
+            padding-block: var(--space-24) var(--space-28);
+        }
+    }
+
+    .landing .book-ad-logo {
+        grid-column: 1;
+        grid-row: 1 / 3;
+        width: 170px;
+        height: auto;
+
+        @media (max-width: 1179px) {
+            width: 140px;
+        }
+
+        @media (max-width: 699px) {
+            grid-column: 1;
+            grid-row: auto;
+            margin-block-start: var(--space-20);
+        }
+    }
+
+    .landing .book-ad-label {
+        grid-column: 2;
+        grid-row: 1;
+        padding-block-start: 18px;
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-display);
+        color: var(--night-dim);
+        text-box: none;
+
+        @media (max-width: 1179px) {
+            padding-block-start: var(--space-12);
+        }
+
+        @media (max-width: 699px) {
+            grid-column: 1;
+            grid-row: auto;
+            padding-block-start: 0;
+        }
+    }
+
+    /* Justified like the rest of the body text. At this size the measure is
+     short for the script (js/magazine-justify.js), so the browser sets it;
+     a word broken at this size reads badly, so it doesn't hyphenate. */
+    .landing .book-ad-pitch {
+        grid-column: 2;
+        grid-row: 2;
+        margin-block-start: var(--space-28);
+        font-size: clamp(30px, 2.67vw, 46px);
+        line-height: 1.04;
+        letter-spacing: calc(var(--track-tight) * -1);
+        color: var(--sheet);
+
+        @media (max-width: 1179px) {
+            margin-block-start: var(--space-20);
+        }
+
+        @media (max-width: 699px) {
+            grid-column: 1;
+            grid-row: auto;
+            font-size: 26px;
+        }
+
+        & p {
+            -webkit-hyphens: manual;
+            hyphens: manual;
+        }
+    }
+
+    .book-rule {
+        grid-column: 2;
+        grid-row: 3;
+        display: flex;
+        align-items: center;
+        gap: var(--space-22);
+        margin-block-start: 26px;
+
+        & .gauge {
+            width: 355px;
+            min-width: 0;
+        }
+
+        @media (max-width: 699px) {
+            grid-column: 1;
+            grid-row: auto;
+        }
+    }
+
+    .landing > .panel-corner {
+        inset-block-start: 62px;
+        inset-inline-end: var(--space-64);
+        gap: 42px;
+
+        @media (max-width: 1399px) {
+            inset-block-start: 50px;
+            inset-inline-end: var(--space-40);
+        }
+
+        @media (max-width: 1179px) {
+            inset-block-start: var(--space-32);
+            inset-inline-end: var(--pad);
+            gap: var(--space-20);
+        }
+
+        @media (max-width: 699px) {
+            display: none;
+        }
+    }
+
+    .book-side {
+        grid-column: 1;
+        grid-row: 2 / 4;
+        display: flex;
+        flex-direction: column;
+        gap: 58px;
+        margin-block-start: var(--space-96);
+        padding-inline-end: var(--space-32);
+
+        @media (max-width: 1399px) {
+            margin-block-start: var(--space-72);
+            gap: 36px;
+        }
+
+        @media (max-width: 1179px) {
+            display: none;
+        }
+    }
+
+    .book-ring {
+        position: relative;
+        width: var(--space-40);
+        height: var(--space-40);
+
+        & > i {
+            position: absolute;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: currentcolor;
+        }
+    }
+
+    .book-slider {
+        position: relative;
+        width: min(220px, 100%);
+        height: var(--space-44);
+        background:
+            linear-gradient(currentcolor, currentcolor) right center / var(--rule) 11px no-repeat,
+            linear-gradient(color-mix(in srgb, var(--sheet) 50%, transparent), color-mix(in srgb, var(--sheet) 50%, transparent)) left center / 100% var(--rule) no-repeat;
+
+        & > i {
+            position: absolute;
+            width: var(--space-8);
+            height: var(--space-8);
+        }
+
+        & > .a {
+            inset-block-start: var(--space-2);
+            inset-inline-start: 0;
+            border-radius: 50%;
+            box-shadow: inset 0 0 0 var(--rule) var(--night-dim);
+        }
+
+        & > .b {
+            inset-block-end: var(--space-2);
+            inset-inline-start: 0;
+            border-radius: 50%;
+            background: currentcolor;
+        }
+
+        & > .c {
+            inset-block-start: var(--space-2);
+            inset-inline-end: var(--space-4);
+            background: var(--night-dim);
+        }
+
+        & > .d {
+            inset-block-end: var(--space-2);
+            inset-inline-end: var(--space-4);
+            box-shadow: inset 0 0 0 var(--rule) currentcolor;
+        }
+    }
+
+    /* The cards: the price in the corner, a dash, the title, a line under it,
+     and an arrow. The first is lit, white with the call to action's dither
+     (.neo-cta) down its right side; the last, the hardcover's, is fainter,
+     and pulses (the card pulse in js/magazine-fx.js). */
+
+    .book-cards {
+        grid-column: 1 / -1;
+        grid-row: 4;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-8);
+        margin-block-start: 38px;
+
+        @media (max-width: 1179px) {
+            margin-block-start: var(--space-32);
+        }
+
+        @media (max-width: 899px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        @media (max-width: 699px) {
+            grid-column: 1;
+            grid-row: auto;
+            margin-block-start: var(--space-24);
+        }
+    }
+
+    .mag .book-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 132px;
+        padding-block: 52px var(--space-20);
+        padding-inline: var(--space-24) var(--space-64);
+        border: var(--rule) solid var(--paper);
+        border-radius: 4px;
+        background: var(--night-raised);
+        color: var(--sheet);
+
+        @media (max-width: 1399px) {
+            padding-inline-end: 60px;
+        }
+
+        &:hover {
+            background: var(--night-hover);
+        }
+
+        &.on {
+            padding-inline-end: 112px;
+            overflow: hidden;
+            border-color: var(--sheet);
+            background: var(--sheet);
+            color: var(--ink);
+        }
+
+        &.faint {
+            border-color: var(--night-edge);
+            background: var(--night-deep);
+            color: var(--night-pale);
+
+            &:hover {
+                border-color: var(--paper);
+                background: var(--night-raised);
+                color: var(--sheet);
+            }
+        }
+    }
+
+    .book-card::before {
+        content: "";
+        position: absolute;
+        inset-block-start: 52px;
+        inset-inline-start: var(--space-24);
+        width: 14px;
+        height: 3px;
+        background: currentcolor;
+    }
+
+    /* The corner icon: a 3 by 3 grid of dots, some of them left out. */
+    .book-card-icon {
+        position: absolute;
+        inset-block-start: var(--space-22);
+        inset-inline-start: var(--space-24);
+        width: 16px;
+        height: 16px;
+
+        & > i {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: currentcolor;
+
+            &.dim {
+                opacity: 0.5;
+            }
+        }
+    }
+
+    .book-card-meta {
+        position: absolute;
+        inset-block-start: var(--space-24);
+        inset-inline-end: var(--space-24);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+        color: var(--on-ink);
+    }
+
+    .book-card-title {
+        margin-block-start: var(--space-16);
+        font-family: var(--disp);
+        font-weight: 700;
+        font-variation-settings: var(--disp-axes);
+        font-size: var(--text-md);
+        line-height: 1.1;
+        letter-spacing: var(--track-tight);
+        text-transform: uppercase;
+    }
+
+    .book-card-sub {
+        margin-block-start: var(--space-6);
+        font-family: var(--mohave);
+        font-size: var(--text-sm);
+        line-height: 1.3;
+        color: var(--on-ink);
+    }
+
+    .book-card-arrow {
+        position: absolute;
+        inset-inline-end: var(--space-24);
+        inset-block-end: var(--space-22);
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        box-shadow: inset 0 0 0 var(--rule) var(--paper);
+        color: var(--sheet);
+        font-family: var(--sans);
+        font-size: var(--text-sm);
+    }
+
+    /* The dither's tile is drawn in white, for black; here it is inverted. */
+    .book-card.on {
+        &::after {
+            content: "";
+            position: absolute;
+            inset-block-start: 0;
+            inset-inline-end: -118px;
+            width: 224px;
+            height: 100%;
+            background: url("/static/assets/images/magazine/patterns/dither-ramp-reversed.svg") 0 -40px / 224px 224px;
+            filter: invert(1);
+            opacity: 0.55;
+            pointer-events: none;
+        }
+
+        & > * {
+            z-index: var(--z-raise);
+        }
+
+        & > .book-card-title,
+        & > .book-card-sub {
+            position: relative;
+        }
+
+        & .book-card-sub {
+            color: var(--night-mid);
+        }
+
+        /* The price sits on the dither, so it has a ground of its own. */
+        & .book-card-meta {
+            inset-block-start: var(--space-20);
+            inset-inline-end: var(--space-20);
+            padding-block: var(--space-4);
+            padding-inline: var(--space-6);
+            background: var(--sheet);
+            color: var(--ink);
+        }
+
+        & .book-card-arrow {
+            background: var(--ink);
+            box-shadow: none;
+        }
+    }
+
+    .book-card.faint {
+        & .book-card-sub,
+        & .book-card-meta {
+            color: var(--night-dimmer);
+        }
+
+        & .book-card-icon,
+        &::before {
+            opacity: 0.6;
+        }
+
+        & .book-card-arrow {
+            box-shadow: inset 0 0 0 var(--rule) var(--night-edge);
+        }
+    }
+
+    /* Stacked (under 900px), a card loses its height: the icon stands beside
+     the text, the price leads it, the dash goes, and the arrow is centred
+     on the right. */
+    @media (max-width: 899px) {
+        .mag .book-card {
+            min-height: 0;
+            padding-block: var(--space-16);
+            padding-inline-start: 56px;
+        }
+
+        .book-card::before {
+            display: none;
+        }
+
+        .book-card-icon {
+            inset-block-start: var(--space-16);
+        }
+
+        .book-card .book-card-meta {
+            position: static;
+            align-self: flex-start;
+        }
+
+        .book-card.on .book-card-meta {
+            padding: 0;
+        }
+
+        .book-card-title {
+            margin-block-start: var(--space-6);
+        }
+
+        .book-card-arrow {
+            inset-block: 0;
+            margin-block: auto;
+        }
+    }
+
+    .date-short {
+        display: none;
+    }
+
+    /* The footer (Figma: Homepage restyled · C1 · Landing): the colophon, the
+     book and the theme packs, three near-black cells with dot pairs in their
+     corners. A narrow article page has no book panel beside its lede, so
+     this is where the book is there. The book panel beside an article is a cell like the footer's book, a
+     third of the sheet wide, and shares these rules. */
+
+    .site-footer {
+        display: grid;
+        grid-template-columns: var(--third) minmax(0, 1fr) var(--third);
+        gap: var(--rule);
+        background: var(--night-line);
+        color: var(--on-ink);
+    }
+
+    .site-footer,
+    .book-ad.compact {
+        & .panel-corner {
+            inset-block-start: 34px;
+            inset-inline-end: var(--space-32);
+            gap: var(--space-10);
+
+            @media (max-width: 1499px) {
+                display: none;
+            }
+        }
+
+        & .book-ad-label {
+            font-size: var(--text-2xs);
+            letter-spacing: var(--track-display);
+            color: var(--night-dim);
+
+            @media (min-width: 1180px) and (max-width: 1499px) {
+                letter-spacing: 0.2em;
+                white-space: nowrap;
+            }
+        }
+
+        & .neo-button.primary::after {
+            inset-block-start: calc(50% - 48.5px);
+            inset-inline-end: -55px;
+            inset-block-end: auto;
+            width: 118px;
+            height: 118px;
+            background: url("/static/assets/images/magazine/patterns/dither-ramp-reversed.svg") 0 0 / 224px 224px;
+            filter: invert(1);
+            opacity: 0.55;
+            pointer-events: none;
+        }
+
+        & a:focus-visible {
+            outline-color: var(--paper);
+        }
+    }
+
+    .footer-colophon,
+    .footer-block,
+    .book-ad.compact {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-10);
+        padding-block: var(--pad) 30px;
+        padding-inline: var(--pad);
+        background:
+            url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
+            var(--ink);
+    }
+
+    .footer-themes {
+        background:
+            url("/static/assets/images/magazine/patterns/dither-fade-reversed.svg") right top / 336px 336px no-repeat,
+            url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px,
+            var(--ink);
+    }
+
+    /* The logo is its white outline, exported from the design file. The
+     typemark is drawn in black; inverted, it sits on it. Under them, the
+     motto, in JF Dot Kappa 20 0213. */
+    .footer-colophon {
+        align-items: center;
+        gap: var(--space-14);
+    }
+
+    .footer-typemark {
+        width: 377px;
+        max-width: 100%;
+        height: auto;
+        filter: invert(0.9);
+    }
+
+    .footer-motto {
+        margin-top: var(--space-20);
+        font-family: "jf dot kappa 20 0213", var(--jp-dot);
+        font-weight: 400;
+        font-size: var(--text-xl);
+        line-height: 1.2;
+        color: var(--sheet);
+
+        @media (max-width: 1399px) {
+            font-size: var(--text-lg);
+        }
+    }
+
+    .footer-title {
+        font-weight: 700;
+        font-size: var(--text-lg);
+        line-height: 1.5;
+        letter-spacing: 0.02em;
+        color: var(--sheet);
+    }
+
+    /* A gauge over the book's buttons. */
+    .footer-gauge {
+        align-self: flex-end;
+        width: 180px;
+        margin-block: calc(var(--space-6) * -1) var(--space-2);
+        margin-inline: 0;
+        color: var(--sheet);
+
+        @media (min-width: 1180px) and (max-width: 1499px) {
+            display: none;
+        }
+    }
+
+    /* Buttons as small cards. They keep their words: each takes the room it
+     needs, the first a row of its own, and they wrap when the cell is narrow.
+     The first is lit like the book band's first card. */
+    .footer-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-8);
+
+        & .neo-button {
+            flex: 1 1 auto;
+            min-width: max-content;
+        }
+
+        & .neo-button.primary {
+            flex-basis: 100%;
+        }
+    }
+
+    .mag :is(.site-footer, .book-ad.compact) a.neo-button {
+        border: var(--rule) solid var(--paper);
+        border-radius: 4px;
+        background: var(--night-raised);
+        color: var(--sheet);
+        font-family: var(--mohave);
+        font-weight: 500;
+        font-size: var(--text-md);
+        letter-spacing: 0;
+        text-transform: uppercase;
+
+        &:hover {
+            background: var(--night-hover);
+        }
+
+        &.primary {
+            border-color: var(--sheet);
+            background: var(--sheet);
+            color: var(--ink);
+        }
+    }
+
+    /* A desktop under 1500px: the cells are narrow. No corner dots (they would
+     sit on the eyebrows) and no gauge, the eyebrows are tracked tighter to
+     keep to a line, and each theme pack's name stands over its themes, which
+     no longer fit beside it. */
+    .footer-themes .book-spec {
+        @media (min-width: 1180px) and (max-width: 1499px) {
+            display: grid;
+            gap: var(--space-6);
+        }
+    }
+
+    .footer-themes .spec-row {
+        @media (min-width: 1180px) and (max-width: 1499px) {
+            display: block;
+        }
+    }
+
+    .footer-themes .spec-lead {
+        @media (min-width: 1180px) and (max-width: 1499px) {
+            display: none;
+        }
+    }
+
+    .footer-themes .spec-row dt {
+        @media (min-width: 1180px) and (max-width: 1499px) {
+            display: block;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            opacity: 0.75;
+        }
+    }
+
+    .footer-themes .spec-row dd {
+        @media (min-width: 1180px) and (max-width: 1499px) {
+            display: block;
+            margin: 0;
+            text-align: left;
+            white-space: nowrap;
+        }
+    }
+}
+
+@layer modules {
+    /* Briefs: the card an article, or a book chapter, is listed with: its
+     serial as an eyebrow, a dash over the title, and an arrow beside the
+     byline. Its place in the list is a ghost numeral in the corner. */
+
+    .latest-briefs,
+    .keep-briefs {
+        counter-reset: brief;
+    }
+
+    .neo-brief {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-14);
+        overflow: hidden;
+        color: var(--ink);
+        counter-increment: brief;
+
+        &::after {
+            content: counter(brief, decimal-leading-zero);
+            position: absolute;
+            inset-inline-end: calc(var(--space-22) * -1);
+            inset-block-end: -34px;
+            font-family: var(--disp);
+            font-weight: 500;
+            font-variation-settings: var(--disp-axes);
+            font-size: 150px;
+            line-height: 0.84;
+            color: var(--ghost);
+            pointer-events: none;
+        }
+
+        > * {
+            position: relative;
+            z-index: var(--z-raise);
+        }
+
+        &:hover .neo-brief-title {
+            text-decoration: underline;
+        }
+    }
+
+    .neo-brief-head {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 33px;
+    }
+
+    .neo-brief-mark {
+        flex: 0 0 auto;
+    }
+
+    /* The space between the mark and the serial. */
+    .neo-brief-dots {
+        flex: 1 1 auto;
+        height: var(--space-14);
+        margin-inline: 15px;
+    }
+
+    .neo-brief-code {
+        line-height: 1.2;
+        letter-spacing: var(--track);
+        color: var(--mid);
+
+        &::before {
+            content: "\25a0\20 ";
+        }
+    }
+
+    .neo-brief-title {
+        font-weight: 400;
+        font-size: clamp(19px, calc((100vw - 286px) * 0.0175), 25.2px);
+        line-height: 1.14;
+        letter-spacing: -0.005em;
+        text-wrap: balance;
+
+        &::before {
+            content: "";
+            display: block;
+            width: var(--space-28);
+            height: var(--rule-heavy);
+            margin-block-end: var(--space-14);
+            background: var(--ink);
+        }
+    }
+
+    .neo-brief-by {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-block-start: auto;
+        padding-block-start: var(--space-6);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        line-height: 1.4;
+        text-transform: uppercase;
+        color: var(--muted);
+
+        /* The arrow: a line 48px long that ends in a stop. */
+        &::after {
+            content: "Read";
+            padding-inline-end: 58px;
+            letter-spacing: var(--track);
+            color: var(--ink);
+            background:
+                linear-gradient(var(--ink), var(--ink)) right center / var(--rule) 9px no-repeat,
+                linear-gradient(var(--ink), var(--ink)) right center / var(--space-48) var(--rule) no-repeat;
+        }
+    }
+
+    /* A brief in a series: across its top, a black chip naming the series and
+     part, and a thin bar filled as far as that part. */
+    .series-strip {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline: 0;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        height: var(--space-22);
+        padding-block: 0;
+        padding-inline: var(--pad);
+        white-space: pre;
+
+        > .series-stamp,
+        > .series-stamp + span {
+            align-self: stretch;
+            display: inline-flex;
+            align-items: center;
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        > .series-stamp {
+            width: var(--space-28);
+            height: auto;
+            padding-block: 3px;
+            padding-inline: var(--space-6);
+
+            .series-logo {
+                width: var(--space-16);
+                height: var(--space-16);
+                padding: 3px;
+                background: var(--paper);
+                color: var(--ink);
+            }
+        }
+
+        > .series-stamp + span {
+            padding-inline-end: var(--space-10);
+            letter-spacing: var(--track);
+        }
+
+        .progress-bar {
+            margin-inline-start: var(--space-10);
+            height: var(--space-4);
+
+            > i {
+                height: var(--space-4);
+            }
+
+            .tick {
+                flex-basis: var(--space-4);
+            }
+
+            .done {
+                width: calc((100% - var(--space-10)) * var(--p, 0.5));
+            }
+        }
+    }
+
+    /* Series cards: the series' code as an eyebrow, and a dash over its title.
+     The featured series is the black one (see the featured banner). */
+    .series-cards {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+    }
+
+    .series-card {
+        display: flex;
+        flex-direction: column;
+        background: var(--sheet);
+
+        &.featured .series-summary {
+            color: var(--on-ink-bright);
+        }
+    }
+
+    .series-bar {
+        display: flex;
+        align-items: center;
+        gap: var(--space-10);
+        height: var(--space-40);
+        padding-block: 0;
+        padding-inline: var(--pad);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        letter-spacing: var(--track);
+        text-transform: uppercase;
+        white-space: pre;
+
+        .series-stamp {
+            width: var(--space-20);
+            height: var(--space-20);
+        }
+    }
+
+    .series-body {
+        --gap: var(--space-16);
+        flex: 1 1 auto;
+        padding-block: 5px var(--pad);
+        padding-inline: var(--pad);
+
+        &::before {
+            content: "";
+            flex: 0 0 auto;
+            width: var(--space-28);
+            height: var(--rule-heavy);
+            background: var(--ink);
+        }
+    }
+
+    .series-title-row {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-20);
+    }
+
+    .series-title {
+        flex: 1 1 auto;
+        margin: 0;
+    }
+
+    .card-logo {
+        width: 56px;
+        height: 56px;
+    }
+
+    .series-parts {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .part-row {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-14);
+        padding-block: var(--space-8);
+        padding-inline: 0;
+        border-top: var(--rule) solid var(--paper);
+
+        .series-card.featured & {
+            border-top-color: var(--night-line);
+        }
+
+        &.summary .part-n {
+            flex-basis: var(--space-44);
+        }
+
+        &.newest .part-t {
+            text-decoration: underline;
+        }
+
+        &.queued,
+        &.queued .part-t {
+            color: var(--faint);
+        }
+
+        .series-card.featured &.queued,
+        .series-card.featured &.queued .part-t {
+            color: var(--night-dim);
+        }
+    }
+
+    .part-n {
+        flex: 0 0 var(--space-20);
+    }
+
+    .part-t {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-family: var(--mohave);
+        font-size: var(--text-17);
+        line-height: 1.3;
+        color: var(--ink);
+
+        .mag a&:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .part-new,
+    .part-state {
+        flex: 0 0 auto;
+    }
+
+    .part-new {
+        padding-block: var(--rule);
+        padding-inline: 5px;
+        background: var(--ink);
+        color: var(--paper);
+    }
+
+    /* Latest: four briefs in two columns, the archive column in the third. */
+
+    .latest-grid.no-archive {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .latest-briefs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .archive-col {
+        --gap: var(--space-20);
+        padding-block: var(--space-24) var(--pad);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+    }
+
+    .arch-month-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: var(--space-12);
+        margin: 0;
+        padding-block-end: var(--space-10);
+        border-bottom: var(--rule) solid var(--ink);
+        font-size: var(--text-lg);
+        letter-spacing: -0.005em;
+    }
+
+    .arch-count {
+        font-weight: 400;
+        color: var(--faint);
+        white-space: pre;
+    }
+
+    .arch-lines {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .mag a.arch-line {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        padding-block: var(--space-6);
+        padding-inline: 0;
+        border-bottom: var(--rule) solid var(--paper);
+        color: var(--ink);
+
+        &:hover .arch-name {
+            text-decoration: underline;
+        }
+    }
+
+    .arch-when {
+        flex: 0 0 var(--space-48);
+    }
+
+    .arch-mark {
+        flex: 0 0 52px;
+        display: flex;
+        align-items: center;
+        gap: var(--space-6);
+    }
+
+    .arch-name {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-family: var(--mohave);
+        font-size: var(--text-md);
+        line-height: 1.3;
+    }
+
+    /* Article: the lede beside the book and the contents; then one row of
+     cells per section; then the end band. */
+
+    .neo-lead.art-lede {
+        min-height: 0;
+    }
+
+    .art-lede {
+        > .hatch-fill {
+            min-height: 0;
+        }
+
+        .neo-lead-row {
+            margin-block-start: 0;
+        }
+    }
+
+    .series-tags {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-6);
+        margin-block-start: var(--space-20);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .series-tag {
+        &.outline {
+            padding-block: var(--space-4);
+            padding-inline: var(--space-8);
+            border: var(--rule) solid var(--ink);
+        }
+
+        &.filled {
+            padding-block: var(--space-4);
+            padding-inline: var(--space-8);
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        &.slashes {
+            font-size: var(--text-sm);
+            letter-spacing: 0;
+        }
+    }
+
+    .previously-label {
+        padding-block: var(--space-24);
+        border-bottom: var(--rule) solid var(--ink);
+        color: var(--muted);
+        text-transform: uppercase;
+
+        &::before {
+            content: "\25a0\20\20";
+            color: var(--ink);
+        }
+    }
+
+    .previously-body {
+        display: grid;
+        grid-template-columns: var(--space-96) minmax(0, 1fr);
+        row-gap: var(--space-10);
+        padding-block-start: var(--space-14);
+
+        & > :not(.previously-n) {
+            grid-column: 2;
+        }
+    }
+
+    .previously-n {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        font-family: var(--disp);
+        font-weight: 500;
+        font-variation-settings: var(--disp-axes);
+        font-size: 48px;
+        line-height: 0.84;
+        color: var(--ghost);
+        user-select: none;
+    }
+
+    .previously-title {
+        font-size: 20px;
+        line-height: 1.1;
+        letter-spacing: calc(var(--track-tight) * -1);
+
+        & a:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .previously-recap {
+        font-family: var(--mohave);
+        font-size: 19px;
+        line-height: 1.44;
+        color: var(--muted);
+    }
+
+    .mag a.previously-link {
+        justify-self: start;
+        display: inline-flex;
+        gap: var(--space-10);
+        padding-block: 6px 5px;
+        border-bottom: var(--rule) solid var(--ink);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+
+        &::after {
+            content: ">";
+        }
+    }
+
+    .art-side {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Contents: the sections, or in a series every part with this one's
+     sections under it. */
+
+    .contents-panel {
+        position: relative;
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+
+        &.in-series {
+            padding-inline: 21.68px;
+        }
+
+        > .hatch-fill {
+            --hatch-gap: var(--space-32);
+        }
+    }
+
+    .contents-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding-block-end: var(--space-12);
+        border-bottom: var(--rule) solid var(--paper);
+
+        .in-series & {
+            margin-inline: var(--space-10);
+        }
+    }
+
+    .contents-folio {
+        color: var(--faint);
+    }
+
+    .contents-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .contents-row {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-14);
+        padding-block: 11px;
+        padding-inline: 0;
+        border-bottom: var(--rule) solid var(--paper);
+        color: var(--ink);
+
+        .in-series & {
+            padding-inline: var(--space-10);
+        }
+
+        .in-series &.sub {
+            padding-inline-start: var(--space-44);
+        }
+
+        &.sub .contents-t {
+            font-size: var(--text-sm);
+        }
+
+        a&:hover .contents-t {
+            text-decoration: underline;
+        }
+
+        &.current {
+            background: var(--ink);
+            color: var(--paper);
+
+            .contents-n {
+                color: var(--on-ink);
+            }
+        }
+
+        &.queued,
+        &.queued .contents-n {
+            color: var(--faint);
+        }
+    }
+
+    .contents-n {
+        flex: 0 0 20px;
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-body);
+        color: var(--mid);
+    }
+
+    .contents-t {
+        font-weight: 400;
+        font-size: var(--text-md);
+        line-height: 1.3;
+        letter-spacing: -0.005em;
+    }
+
+    /* Sections (Figma: Article · Single column · C1 · Landing): one cell, the
+     heading and then the text in the order it is written. Paragraphs and
+     notes keep to a measure at the left; code blocks, tables and the heading
+     run the cell's width. */
+
+    .pieces-band {
+        > .piece-list {
+            grid-column: full;
+            display: grid;
+            grid-template-columns: subgrid;
+        }
+
+        > .side-label {
+            z-index: 3;
+        }
+    }
+
+    .neo-piece {
+        grid-column: full;
+        display: grid;
+        grid-template-columns: subgrid;
+        border-bottom: var(--rule) solid var(--paper);
+        scroll-margin-block-start: 90px;
+
+        &:last-child {
+            border-bottom: 0;
+        }
+    }
+
+    .piece-row {
+        grid-column: main;
+        background: var(--paper);
+    }
+
+    .piece-cell {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    /* The text cell clips the heading's ghost numeral. */
+    .piece-text {
+        position: relative;
+        gap: var(--space-22);
+        overflow: hidden;
+
+        > * {
+            position: relative;
+        }
+    }
+
+    .piece-body {
+        display: flex;
+        flex-direction: column;
+        gap: inherit;
+        min-width: 0;
+    }
+
+    /* A section's heading: its place among the sections as an eyebrow, its
+     name, and a rule filled as far as it. Behind, its number. */
+    .piece-heading {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-14);
+
+        > :not(.ghost-numeral) {
+            position: relative;
+        }
+
+        .progress-rule {
+            padding-block-start: var(--space-10);
+        }
+    }
+
+    .ghost-numeral {
+        position: absolute;
+        inset-block-start: calc(var(--space-40) * -1);
+        inset-inline-start: -70px;
+        font-family: var(--disp);
+        font-weight: 500;
+        font-variation-settings: var(--disp-axes);
+        font-size: 190px;
+        line-height: 0.84;
+        color: var(--ghost);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .mag .piece-name {
+        margin: 0;
+        font-size: var(--text-3xl);
+        line-height: 0.95;
+        letter-spacing: calc(var(--track-tight) * -1);
+    }
+}
+
+@layer modules {
+    /* Article text. */
+
+    .prose {
+        /* Align to grid content container above. */
+        max-width: 75ch;
+        margin: 0;
+        font-family: var(--sans);
+        font-weight: var(--sans-weight);
+        font-size: var(--text-17);
+        line-height: 1.6;
+    }
+
+    /* Bold in Light text: "bolder" from 300 is only 400. */
+    .prose strong,
+    .prose-list strong { font-weight: 600; }
+
+    /* Justified text: all the site's body text. The browser justifies it, hyphenating to keep the spaces
+     down; that's what narrow columns (phones) get. In wider ones
+     js/magazine-justify.js chooses the breaks: each line's text is in a span
+     that can't wrap, so the lines break where the script chose, and the
+     browser only stretches them to the measure. */
+    .prose, .prose-list li, .margin-note:not(.syntax) .margin-note-body,
+    .neo-dek, .neo-brief-dek, .series-summary, .book-ad-pitch p {
+        text-align: justify;
+        -webkit-hyphens: auto;
+        hyphens: auto;
+    }
+    .just { -webkit-hyphens: manual; hyphens: manual; }
+    .just-line { white-space: nowrap; }
+    /* the space a line ends at, which mustn't take room (see plan in
+       magazine-justify.js) */
+    .just-gap { font-size: 0; }
+    /* The dek is as wide as its text, up to its room in the row. Lines that
+     can't wrap would have it shrink to the longest of them, and then not
+     give way as the row narrows. */
+    .neo-dek.just { width: 100%; min-width: 0; }
+    .neo-dek code { font-size: inherit; }
+    .neo-dek code.verb { font-family: var(--code-tight); }
+
+    /* Lists in article text, set like its paragraphs. */
+    .prose-list {
+        max-width: 80ch;
+        margin: 0;
+        padding-inline-start: 1.6em;
+        font-family: var(--sans);
+        font-weight: var(--sans-weight);
+        font-size: var(--text-17);
+        line-height: 1.6;
+    }
+
+    ol.prose-list { list-style: decimal; }
+    ul.prose-list { list-style: square; }
+    .prose-list li + li { margin-block-start: 0.4em; }
+    .prose-list li > p { margin-block-start: 0.6em; }
+    .prose-list .prose-list { margin-block-start: 0.4em; }
+    .prose-list li::marker { font-family: var(--mono); font-size: 0.84em; }
+
+    /* A subheading, under a dash and its number as an eyebrow. */
+    .subhead-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-10);
+        padding-block-start: var(--space-10);
+    }
+
+    .subhead-group .eyebrow { color: var(--mid); }
+
+    .subhead {
+        margin: 0;
+        font-family: var(--disp);
+        font-size: var(--text-xl);
+        font-weight: 650;
+        line-height: 1.2;
+        font-variation-settings: "wdth" 100, "CTRS" 0;
+    }
+
+    /* Links in text: a hairline underline, set in black on hover. .mag a clears
+     every link's underline, so this has to be as specific. */
+    .mag a.inline-link {
+        color: var(--ink);
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+
+        &:hover {
+            background: var(--ink);
+            color: var(--sheet);
+            text-decoration: none;
+        }
+    }
+
+    .mag .underline { text-decoration: underline; text-underline-offset: var(--space-2); }
+
+    /* =code= in text. Beside Mohave and Geist, Construct Mono a size down. */
+    code.verb {
+        font-family: var(--code);
+        font-weight: 700;
+    }
+
+    .rule td code.verb { font-size: 0.8em; }
+
+    /* A note, in the text where it is written: an aside under a rule down its
+     left, as wide as the paragraphs. */
+    .inline-note {
+        max-width: 48em;
+        padding-block: var(--space-4);
+        padding-inline-start: var(--space-22);
+        padding-inline-end: 0;
+        border-inline-start: var(--rule-heavy) solid var(--ink);
+    }
+
+    .margin-note-label {
+        padding-block-end: 1ch;
+        color: var(--mid);
+    }
+
+    .margin-note-body {
+        font-family: var(--mohave);
+        font-size: var(--text-15);
+        line-height: 1.45;
+        color: var(--muted);
+    }
+
+    .margin-note-body + .margin-note-body { margin-block-start: 0.6em; }
+
+    /* =code= in a note is in the narrow cut: a note's lines are short. */
+    .margin-note code.verb { font-family: var(--code-tight); }
+
+    .margin-note.syntax .margin-note-body {
+        font-family: var(--mono);
+        font-size: var(--text-13);
+        line-height: 1.55;
+        color: var(--ink);
+    }
+
+    /* Code blocks, drawn as an evolving article draws one (.ev-block): white on
+     black, the buffer's name dim over the code, the lines numbered, a band
+     and a + on a highlighted line, and what the code returns under a dashed
+     rule. Each of those is left out when it isn't given. A block runs the
+     width of its cell. highlight-lisp.js marks up the code. */
+
+    .src {
+        /* Inverted for the black block. The highlight rules below read these. */
+        --code-ink: color-mix(in srgb, var(--sheet) 92%, transparent);
+        --code-comment: color-mix(in srgb, var(--sheet) 50%, transparent);
+        --lh: 1.76em;
+        /* the line numbers' column, and the marker's beside it */
+        --gutter: calc(var(--digits, 2) * 1ch + 0.2em);
+        --mark: 3ch;
+        margin: 0;
+        padding-block: var(--space-28) 30px;
+        padding-inline: clamp(var(--space-16), 3vw, var(--space-32));
+        background: var(--ink);
+        color: var(--sheet);
+        font-family: var(--code);
+        font-size: var(--text-15);
+    }
+
+    .src-name {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-4) var(--space-20);
+        margin-block: 0 var(--space-22);
+        margin-inline: 0;
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        line-height: var(--space-16);
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+        opacity: 0.5;
+    }
+    .src-package::before { content: "/"; margin-inline-end: var(--space-20); opacity: 0.6; }
+    .src-package:first-child::before { content: none; }
+
+    /* Long lines scroll inside the block; every line is as wide as the longest,
+     so a highlighted line's band runs the whole way. The column is at least
+     the longest line and grows to fill the block: with 100% as its least
+     width it would stay there, since a block as wide as its column has no
+     space left over to grow it into. */
+    .src-body {
+        display: grid;
+        grid-template-columns: minmax(max-content, 1fr);
+        overflow-x: auto;
+        counter-reset: src-line;
+    }
+
+    /* A code block's scrollbar, here and in an evolving article (.ev-view): a
+     dim bar for the track and a white one for the thumb, 5px high, with a
+     block of hatching hanging under the thumb. Firefox, which can't draw one,
+     gets a thin bar in the same colours. */
+    :is(.src-body, .ev-view)::-webkit-scrollbar { height: 26px; background: none; }
+    :is(.src-body, .ev-view)::-webkit-scrollbar-track {
+        background: linear-gradient(color-mix(in srgb, var(--sheet) 30%, transparent), color-mix(in srgb, var(--sheet) 30%, transparent)) 0 7px / 100% 5px no-repeat;
+    }
+    :is(.src-body, .ev-view)::-webkit-scrollbar-thumb {
+        background:
+            linear-gradient(var(--sheet), var(--sheet)) 0 7px / 100% 5px no-repeat,
+            repeating-linear-gradient(135deg, color-mix(in srgb, var(--sheet) 40%, transparent) 0 1px, transparent 1px 5px) 0 12px / 100% 14px no-repeat;
+
+        &:hover {
+            background:
+                linear-gradient(var(--sheet), var(--sheet)) 0 7px / 100% 5px no-repeat,
+                repeating-linear-gradient(135deg, color-mix(in srgb, var(--sheet) 70%, transparent) 0 1px, transparent 1px 5px) 0 12px / 100% 14px no-repeat;
+        }
+    }
+    @supports not selector(::-webkit-scrollbar) {
+        .src-body, .ev-view { scrollbar-width: thin; scrollbar-color: var(--sheet) color-mix(in srgb, var(--sheet) 20%, transparent); }
+    }
+
+    .src-result,
+    .src-line,
+    .src-line code {
+        font-family: var(--code);
+        font-size: inherit;
+        line-height: var(--lh);
+    }
+
+    .src-line {
+        position: relative;
+        padding-inline-start: calc(var(--gutter) + var(--mark));
+        white-space: pre;
+        counter-increment: src-line;
+    }
+    /* The numbers and the marker are drawn, so copying the code leaves them. */
+    .src-line::before {
+        content: counter(src-line);
+        position: absolute;
+        inset-inline-start: 0;
+        color: color-mix(in srgb, var(--sheet) 30%, transparent);
+    }
+    .src-line code { white-space: pre; }
+    .src-line.is-hit {
+        background: linear-gradient(color-mix(in srgb, var(--sheet) 14%, transparent), color-mix(in srgb, var(--sheet) 14%, transparent)) no-repeat var(--gutter) 0 / 100% 100%;
+    }
+    /* A line an :evolve step changed without adding it is marked more quietly. */
+    .src-line.is-hit::after,
+    .src-line.is-moved::after {
+        content: "+";
+        position: absolute;
+        inset-inline-start: var(--gutter);
+        width: var(--mark);
+        text-align: center;
+    }
+    .src-line.is-moved::after { content: "›"; }
+    .mag .src-line.is-hit code.hl-highlighted { color: var(--sheet); }
+    /* A marked line's colours split, over and over (the code pulse in
+     magazine-fx.js). Its box is wider, with the text where it was: the
+     split's filter reaches a share of the box past its sides, and a short
+     line has a narrow one. */
+    .mag .src-line.is-hit code {
+        display: inline-block;
+        vertical-align: top;
+        padding-inline: 3em;
+        margin-inline: -3em;
+    }
+
+    .src-result {
+        margin-block: var(--space-14) 0;
+        margin-inline: calc(var(--gutter) + var(--mark)) 0;
+        padding-block-start: var(--space-12);
+        border-block-start: var(--rule) dashed color-mix(in srgb, var(--sheet) 35%, transparent);
+        line-height: 1.6;
+        white-space: pre-wrap;
+        opacity: 0.8;
+    }
+
+    .mag code.hl-highlighted {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: none;
+        color: var(--code-ink);
+        white-space: pre;
+    }
+
+    .mag code.hl-highlighted .comment,
+    .mag code.hl-highlighted .comment * { color: var(--code-comment); font-style: italic; }
+
+    .mag code.hl-highlighted .string,
+    .mag code.hl-highlighted .string * { color: var(--code-ink); }
+
+    /* Tables. */
+
+    .rule {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+        background: var(--paper);
+        font-size: var(--text-15);
+    }
+
+    .rule th,
+    .rule td {
+        padding-block: var(--space-10);
+        padding-inline: var(--space-14);
+        border: var(--rule) solid var(--ink);
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .rule th {
+        background: var(--code-bar);
+        font-family: var(--mono);
+        font-size: var(--text-13);
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        color: var(--mid);
+    }
+
+    .rule td {
+        font-family: var(--sans);
+        font-size: var(--text-md);
+        line-height: 1.45;
+    }
+
+    /* End transmission (Figma: Neo / End transmission, Wide): closes an
+     article's text. Science Gothic at its widest, between dot leaders. */
+
+    .end-transmission {
+        display: flex;
+        align-items: center;
+        gap: var(--space-20);
+        padding-block: var(--space-24);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+        white-space: nowrap;
+
+        /* Below this the words are as wide as the page allows, and there is no
+       room for the leaders beside them. */
+        @media (max-width: 899px) {
+            justify-content: center;
+        }
+    }
+
+    .end-transmission .spec-lead {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        letter-spacing: var(--track-body);
+        color: var(--mid);
+
+        @media (max-width: 899px) {
+            display: none;
+        }
+    }
+
+    /* 22.6em wide at this setting; it shrinks to fit a narrow page. */
+    .end-transmission-text {
+        font-family: var(--disp);
+        font-weight: 900;
+        font-size: min(var(--text-2xl), calc((100vw - 2 * var(--pad)) / 22.6));
+        line-height: 1.2;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-variation-settings: "wdth" 200, "ctrs" 0, "slnt" 0;
+    }
+
+    /* End band: under the end head, what to read next or the rest of the
+     series. A page that isn't an article labels it instead. */
+
+    .end-block {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .end-label {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--space-16);
+        padding-block: var(--space-14);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+        white-space: pre;
+        position: relative;
+    }
+
+    /* The rule under the label runs across the gutters, like a band's. The
+     band clips it at the page's edges. */
+    .end-band { overflow-x: clip; }
+
+    .end-label::after {
+        content: "";
+        position: absolute;
+        inset-inline: -100vw;
+        inset-block-end: calc(-1 * var(--rule));
+        height: var(--rule);
+        background: var(--paper);
+    }
+
+    .keep-briefs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* Indexes: a head cell, then cells filled column by column. The end of a
+     series lists its parts in one, the archive each month. */
+
+    .index {
+        display: grid;
+        grid-template-columns: var(--cols-index);
+    }
+
+    .index-head { --gap: 18px; }
+
+    .index-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--mid);
+    }
+
+    .index-top > span:last-child { padding-block: 0; padding-inline: 5px; }
+
+    .index-name {
+        font-size: 44px;
+        line-height: 0.88;
+        letter-spacing: -0.015em;
+
+        /* Where its column is narrow the name is set smaller, so a nine-letter
+       word (SEPTEMBER, the widest month) fits on a line. The column is a
+       third of the page less 478px of margins and padding beside the other
+       two; on a phone it is the page less 32px. */
+        @media (min-width: 1180px) and (max-width: 1499px) {
+            font-size: min(44px, calc((100vw - 478px) * 0.044));
+        }
+
+        @media (max-width: 699px) {
+            font-size: min(44px, calc((100vw - 32px) * 0.133));
+        }
+    }
+
+    .index-cells {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(var(--rows, 3), auto);
+        grid-auto-flow: column;
+    }
+
+    .index-fill { background: var(--hatch); }
+
+    .index-cell {
+        display: flex;
+        gap: var(--space-14);
+        padding-block: var(--space-20);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+        color: var(--ink);
+    }
+
+    .index-cell.current { background: var(--ink); color: var(--paper); }
+    .index-cell.queued { color: var(--faint); }
+
+    .index-cell-n,
+    .index-cell-title { font-weight: 400; }
+
+    .index-cell-n { flex: 0 0 44px; font-size: 25.2px; line-height: 1.14; }
+    .index-cell-text { display: flex; flex-direction: column; gap: var(--space-8); min-width: 0; }
+    .index-cell-title {
+        font-size: 19px;
+        line-height: 1.14;
+        letter-spacing: -0.005em;
+
+        /* As the name: smaller where the cell is narrowest, for an eleven-letter word. */
+        @media (min-width: 1180px) and (max-width: 1499px) {
+            font-size: min(19px, calc((100vw - 700px) * 0.035));
+        }
+
+        a.index-cell:hover & { text-decoration: underline; }
+    }
+
+    .index-cell-meta {
+        color: var(--muted);
+        white-space: pre;
+    }
+
+    .index-cell.current .index-cell-meta { color: var(--on-ink); }
+    .index-cell.queued .index-cell-meta { color: var(--faint); }
+
+    /* The archive stacks day over month, and its facts may wrap. */
+    .archive-band .index-cell-n { flex-basis: 60px; }
+    .archive-band .index-cell-meta { white-space: pre-wrap; }
+
+    /* Contents strip (Sticky contents C). It sits in the sections' row with no
+     height, so position: sticky pins it to the top of the window over the
+     sections; magazine-toc.js shows it once the lede has gone. */
+
+    .toc-dock {
+        grid-row: 5;
+        grid-column: main;
+        align-self: start;
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 6;
+        height: 0;
+    }
+
+    .toc-strip {
+        display: flex;
+        height: var(--space-72);
+        border-block-end: var(--rule) solid var(--ink);
+        transform: translateY(-110%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 180ms ease, opacity 180ms ease;
+    }
+
+    .toc-dock.is-shown .toc-strip { transform: none; opacity: 1; pointer-events: auto; }
+
+    .mag a.toc-article {
+        flex: 0 0 calc(359 / 1438 * 100%);
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        min-width: 0;
+        padding-block: 0;
+        padding-inline: var(--space-20);
+        background: var(--sheet);
+        color: var(--ink);
+    }
+
+    .toc-article .series-stamp { width: var(--space-28); height: var(--space-28); }
+    .toc-article-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+    .toc-article-label {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    /* Two lines at most: a longer title is cut short with an ellipsis. */
+    .toc-article-title {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        font-size: var(--text-sm);
+        line-height: 1.1;
+        text-wrap: balance;
+    }
+
+    .mag a.toc-cell {
+        position: relative;
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+        padding-block: var(--space-12) 0;
+        padding-inline: var(--space-16);
+        overflow: hidden;
+        background: var(--sheet);
+        color: var(--ink);
+
+        &:hover .strip-t { text-decoration: underline; }
+    }
+
+    .strip-n {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: 0.12em;
+    }
+
+    .strip-t {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        font-family: var(--mohave);
+        font-size: var(--text-md);
+        line-height: 1.15;
+    }
+
+    .mag a.toc-cell.is-passed { color: var(--faint); }
+    .mag a.toc-cell.is-current { background: var(--ink); color: var(--paper); }
+
+    .strip-bar {
+        position: absolute;
+        inset-inline-start: var(--gauge-inset);
+        inset-block-end: var(--gauge-bottom);
+        display: none;
+        width: var(--gauge-done);
+        height: var(--gauge-h);
+        background: var(--sheet);
+    }
+
+    .toc-cell.is-current .strip-bar { display: block; }
+
+    /* The strip's progress bar is the rule under a section heading: the part
+     read is a solid bar, then a square tick, then the rest as a hatched
+     outline, and a pair of dots to close. The bar is .strip-bar; the tick,
+     the rest and the dots are drawn on it and on the cell, from the cell's
+     --progress. */
+    .toc-cell {
+        --gauge-inset: var(--space-16); /* from the cell's sides */
+        --gauge-bottom: var(--space-4);
+        --gauge-h: 5px;
+        --gauge-gap: 3px;
+        /* the bar's room: the cell less its sides and the dots */
+        --gauge-w: calc(100% - 2 * var(--gauge-inset) - 29px);
+        /* the part read: that room less the tick and the gaps beside it */
+        --gauge-done: calc((var(--gauge-w) - var(--gauge-h) - 2 * var(--gauge-gap)) * var(--progress, 0));
+    }
+    .strip-bar::after {
+        content: "";
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline-start: calc(100% + var(--gauge-gap));
+        width: var(--gauge-h);
+        height: var(--gauge-h);
+        background: var(--sheet);
+    }
+    .toc-cell.is-current::after {
+        content: "";
+        position: absolute;
+        inset-inline-start: calc(var(--gauge-inset) + var(--gauge-done) + var(--gauge-h) + 2 * var(--gauge-gap));
+        inset-inline-end: calc(var(--gauge-inset) + 29px);
+        inset-block-end: var(--gauge-bottom);
+        height: var(--gauge-h);
+        background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--sheet) 45%, transparent) 0 1px, transparent 1px 4px);
+        box-shadow: inset 0 0 0 var(--rule) var(--sheet);
+    }
+    .toc-cell.is-current::before {
+        content: "";
+        position: absolute;
+        inset-inline-end: var(--gauge-inset);
+        inset-block-end: calc(var(--gauge-bottom) + var(--gauge-h) / 2 - var(--space-4));
+        width: 19px;
+        height: 8px;
+        background:
+            radial-gradient(circle at 4px 4px, var(--sheet) 0 3.6px, transparent 4.2px),
+            radial-gradient(circle at 15px 4px, transparent 0 2.2px, var(--sheet) 2.8px 3.6px, transparent 4.2px);
+    }
+
+    /* On a wide page the strip gives its room to the section being read: that
+     cell has its title on one line, and the others are their numbers alone
+     (a cell's title is its tooltip). */
+    @media (min-width: 1180px) {
+        .mag a.toc-cell {
+            flex: 0 0 58px;
+            transition: flex-grow 350ms ease, flex-basis 350ms ease;
+        }
+        .mag a.toc-cell.is-current { flex: 1 1 58px; }
+        .toc-cell:not(.is-current) .strip-t { display: none; }
+        .toc-cell:not(.is-current) .strip-n { font-size: var(--text-13); line-height: 46px; }
+        .toc-cell.is-current .strip-t {
+            display: block;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 18px;
+        }
+    }
+
+    /* Under 1180px the article's cell goes and only the section being read
+     shows. */
+    @media (max-width: 1179px) {
+        .mag a.toc-article, .mag a.toc-cell:not(.is-current) { display: none; }
+        .toc-strip { height: 56px; }
+    }
+
+    /* Under 900px (where an evolving article's halves stack) the strip is the
+     section's heading as well: its number of how many, the title in the
+     display face, and the rule. */
+    @media (max-width: 899px) {
+        .toc-strip { height: var(--space-96); }
+        .neo-piece { scroll-margin-block-start: var(--space-96); }
+        .mag a.toc-cell {
+            --gauge-inset: clamp(var(--space-20), 6.6vw, var(--space-96));
+            --gauge-bottom: 11px;
+            --gauge-h: 6px;
+            gap: 5px;
+            padding-block: 13px 0;
+            padding-inline: var(--gauge-inset);
+        }
+        .strip-n { font-size: var(--text-xs); line-height: var(--space-16); letter-spacing: var(--track-body); }
+        .strip-n::before {
+            content: "";
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            margin-inline-end: var(--space-12);
+            background: currentColor;
+        }
+        .strip-n[data-total]::after { content: " / " attr(data-total); color: var(--on-ink); }
+        .strip-t {
+            font-family: var(--disp);
+            font-variation-settings: var(--disp-axes);
+            font-weight: 500;
+            font-size: var(--text-md);
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .toc-strip, .mag a.toc-cell { transition: none !important; }
+    }
+
+    /* Evolving articles (#+LAYOUT: evolving). hypermedia/evolving.lisp writes
+     each section out plainly and js/magazine-evolving.js builds the stage out
+     of it.
+
+     A section is a tall track with one sticky stage in it. The stage is the
+     window's height less the contents strip, split in two: the heading, a
+     note or a code block on the left, the paragraph being read on the right.
+     Its narrow-screen rules are kept here with it, not in part 5.
+
+     It animates whatever the system's Reduce Motion setting says. */
+
+    .ev {
+        --ev-top: var(--space-72); /* the contents strip */
+        --ev-h: calc(100vh - var(--ev-top));
+        --ev-pad: clamp(var(--space-20), 6.6vw, var(--space-96));
+        --ev-pad-text: clamp(var(--space-20), 4vw, 56px); /* beside the text, which needs the room more */
+        --ev-pad-code: clamp(var(--space-16), 3vw, var(--space-44)); /* beside a block, and the label and meter with it */
+        --ev-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+        position: relative;
+
+        @supports (height: 100dvh) {
+            --ev-h: calc(100dvh - var(--ev-top));
+        }
+    }
+}
+
+@layer modules {
+    /* Until the script has built a section, or without it, it reads as text. */
+    .ev > :not(.ev-stage) {
+        grid-column: main;
+        max-width: 40em;
+        margin: 0;
+        padding-block: var(--space-10);
+        padding-inline: var(--pad);
+    }
+
+    .ev > .ev-block pre {
+        overflow-x: auto;
+        font-family: var(--code);
+        font-size: var(--text-sm);
+        line-height: 1.6;
+    }
+
+    .ev-stage {
+        grid-column: main;
+        align-self: start;
+        position: sticky;
+        inset-block-start: var(--ev-top);
+        z-index: 2;
+        display: grid;
+        /* The text has the wider half. */
+        grid-template-columns: minmax(0, 9fr) minmax(0, 11fr);
+        min-width: 0;
+        height: var(--ev-h);
+        overflow: hidden;
+        background: var(--sheet);
+    }
+
+    /* Labels, as on the rest of the sheet. */
+    .ev-eyebrow,
+    .ev-tag,
+    .ev-name,
+    .ev-meter {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        line-height: var(--space-16);
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+    }
+
+    /* Left: the heading, then the code. */
+
+    .ev-left {
+        position: relative;
+        overflow: hidden;
+        background: var(--ink);
+        color: var(--sheet);
+    }
+
+    .ev-eyebrow,
+    .ev-label {
+        position: absolute;
+        inset-block-start: var(--space-40);
+        inset-inline: var(--ev-pad);
+        margin: 0;
+        transition: opacity var(--duration-mid) ease, transform var(--duration-linger) var(--ev-ease);
+    }
+
+    .ev-eyebrow::before,
+    .ev-tag::before {
+        content: "";
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        margin-inline-end: var(--space-12);
+        background: currentColor;
+    }
+
+    /* The heading once a block has its place: a line along the top, as far
+     out as the block. */
+    .ev-label {
+        inset-inline: var(--ev-pad-code);
+        display: flex;
+        gap: var(--space-14);
+        padding-block-end: var(--space-16);
+        border-bottom: var(--rule) solid color-mix(in srgb, var(--sheet) 25%, transparent);
+        font-family: var(--disp);
+        font-variation-settings: var(--disp-axes);
+        font-weight: 500;
+        font-size: var(--text-17);
+        line-height: 24px;
+        text-transform: uppercase;
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    .ev-label-n { opacity: 0.45; }
+
+    .ev-label-t[data-text]::after { content: attr(data-text); }
+
+    .ev-label span + span {
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .mag .ev-big {
+        position: absolute;
+        inset-block-start: 50%;
+        inset-inline: var(--ev-pad);
+        margin: 0;
+        font-family: var(--disp);
+        font-variation-settings: var(--disp-axes);
+        font-weight: 500;
+        /* magazine-evolving.js lowers --fit until the longest word fits the panel,
+       which it can only tell while a word too long runs out and doesn't break. */
+        overflow-wrap: normal;
+        font-size: calc(clamp(var(--text-3xl), 7.4vw, 118px) * var(--fit, 1));
+        line-height: 0.9;
+        letter-spacing: -0.015em;
+        text-transform: uppercase;
+        transform: translateY(-50%);
+        transform-origin: 0 0;
+        transition: opacity var(--duration-mid) ease, transform var(--duration-linger) var(--ev-ease);
+    }
+
+    /* The subheading being read under, beneath the heading (--big-h is the
+     heading's height, from magazine-evolving.js): a dash, its number as an
+     eyebrow, its words. With a block on show it is on the label's line. */
+    .ev-subhead {
+        position: absolute;
+        inset-block-start: calc(50% + var(--big-h, 0px) / 2 + 34px);
+        inset-inline: var(--ev-pad);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-10);
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity var(--duration-mid) ease, transform var(--duration-linger) var(--ev-ease);
+
+        &.is-on { opacity: 1; transform: none; }
+
+        span::after { content: attr(data-text); }
+
+        .ev-head-dash { background: currentColor; }
+
+        .ev-head-n { color: inherit; opacity: 0.6; }
+    }
+
+    .ev-stage.is-code .ev-subhead { opacity: 0; transform: translateY(-10px); }
+
+    .ev-stage.is-code .ev-eyebrow { opacity: 0; }
+
+    .ev-stage.is-code .ev-label { opacity: 1; transform: none; }
+
+    .ev-stage.is-code .ev-big { opacity: 0; transform: translateY(-85%) scale(0.7); }
+
+    /* Code blocks. Every line is its own element on a row, so a change of frame
+     can move the lines that stay and slide the new ones in. A block sits in
+     the middle of the room between the heading's line and the step meter.
+     Code is never broken to fit. .ev-view is the window it is seen through:
+     a block wider than it scrolls sideways there, under a bar drawn like the
+     site's gauges. magazine-evolving.js sets a block too tall for the room
+     smaller (--code-fit), and moves one still too tall up through the window
+     as the reader scrolls the page. */
+
+    .mag .ev-block {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin: 0;
+        padding-block: 98px var(--ev-pad-code);
+        padding-inline: var(--ev-pad-code);
+        opacity: 0;
+        transform: translateY(48px);
+        pointer-events: none;
+        transition: opacity var(--duration-mid) ease, transform var(--duration-linger) var(--ev-ease);
+
+        /* Room for the step meter under a block that has steps. */
+        @media (min-width: 900px) {
+            &.has-steps { padding-block-end: 76px; }
+        }
+    }
+
+    .ev-block.is-on { opacity: 1; transform: none; pointer-events: auto; }
+
+    .ev-name {
+        margin-block: 0 var(--space-22);
+        margin-inline: 0;
+        opacity: 0.5;
+    }
+
+    .ev-view {
+        flex: 0 1 auto;
+        min-height: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+    }
+
+    .ev-code {
+        --lh: 1.76em;
+        position: relative;
+        font-family: var(--code);
+        font-size: calc(clamp(var(--text-2xs), 1.18vw, var(--text-17)) * var(--code-fit, 1));
+        /* the line numbers' column: as wide as the longest number (--digits) */
+        --gutter: calc(var(--digits, 2) * 1ch + 0.2em);
+        /* as wide as its widest line (--cols characters), or the window */
+        min-width: calc(var(--gutter) + 1.4ch + var(--cols, 0) * 1ch + 1ch);
+        height: calc(var(--rows) * var(--lh));
+        transition: height var(--duration-linger) var(--ev-ease), transform var(--duration-linger) var(--ev-ease);
+
+        &.is-scrub {
+            transition: height var(--duration-linger) var(--ev-ease), transform var(--duration-instant) linear;
+        }
+    }
+
+    /* The line numbers stay where they are while the code scrolls under. */
+    .ev-nums {
+        position: sticky;
+        inset-inline-start: 0;
+        z-index: 2;
+        width: var(--gutter);
+        height: 0;
+
+        span {
+            display: block;
+            height: var(--lh);
+            line-height: var(--lh);
+            background: var(--ink);
+            color: color-mix(in srgb, var(--sheet) 30%, transparent);
+        }
+    }
+
+    .ev-line {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline-start: var(--gutter);
+        inset-inline-end: 0;
+        height: var(--lh);
+        line-height: var(--lh);
+        white-space: pre;
+        transform: translate(var(--dx, 0px), calc(var(--row) * var(--lh)));
+        transition: transform var(--duration-linger) var(--ev-ease), opacity var(--duration-mid) ease, background-color var(--duration-mid) ease;
+    }
+
+    .ev-m { display: inline-block; width: 1.4ch; text-align: center; vertical-align: top; }
+
+    .mag .ev-line code {
+        display: inline-block;
+        vertical-align: top;
+        padding: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        opacity: 0.92;
+        transform: translateX(calc(var(--indent) * 1ch));
+        transition: transform var(--duration-linger) var(--ev-ease), opacity var(--duration-mid) ease;
+    }
+
+    /* Where a search can be told what it found (see Block in magazine-evolving.js), the
+     moving lines are drawn by CSS, and each frame's code lies over them as
+     unseen text for the search to mark. */
+    .mag .ev-line code[data-text]::after { content: attr(data-text); }
+
+    .ev-find {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline-start: var(--gutter);
+        inset-inline-end: 0;
+        z-index: var(--z-raise); /* over the lines, so the search's mark isn't under them */
+        white-space: pre;
+        color: transparent;
+
+        div {
+            height: var(--lh);
+            padding-inline-start: calc(1.4ch + var(--indent) * 1ch);
+            line-height: var(--lh);
+        }
+    }
+
+    /* What a line did in the step shown: stayed, moved, or arrived. */
+    .mag .ev-line.k-same code { opacity: 0.5; }
+
+    .mag .ev-line.k-moved code { opacity: 0.85; }
+
+    .ev-line.k-new { background: color-mix(in srgb, var(--sheet) 14%, transparent); }
+
+    .mag .ev-line.k-new code { opacity: 1; }
+
+    /* New lines wait for the gap to open, then come in from the right. */
+    .ev-line.is-entering { --dx: 72px; opacity: 0; transition: none !important; }
+
+    /* A line the step adds is plugged in and powered on. It waits for the gap
+     to open, is driven in hard from the right, goes past its place and
+     springs back and forth into it; the lines already there are knocked
+     sideways by the hit (.is-jolted). At the hit the row flares white and
+     flickers down to its highlight, while the text's colours stand apart and
+     snap together, in steps. The colours are the site's own split, the one a
+     link in an article plays (MagazineFx.burst in magazine-fx.js, called by
+     magazine-evolving.js); ev-aberrate's text shadows stand in where that
+     can't run. Lines added together go one after another (--i). The line
+     numbers keep still.
+
+     Its measures are these properties. dev/evolving-fx/ is a page for trying
+     others: it plays the effect and writes this rule out. */
+    .ev-code {
+        --plug-from: 590px;
+        --plug-ms: 370ms;
+        --plug-hit: 0.82;
+        /* spring: overshoot 0.6, 10 swings, damping 6 (dev/evolving-fx/ease.js) */
+        --plug-ease: linear(0, 0, 0, 0, 0, 0.001, 0.001, 0.002, 0.002, 0.004, 0.005, 0.006, 0.008, 0.011, 0.013, 0.016, 0.02, 0.024, 0.028, 0.033, 0.039, 0.045, 0.052, 0.059, 0.067, 0.076, 0.085, 0.096, 0.107, 0.119, 0.131, 0.145, 0.159, 0.175, 0.191, 0.208, 0.227, 0.246, 0.267, 0.288, 0.311, 0.335, 0.36, 0.386, 0.414, 0.443, 0.473, 0.504, 0.537, 0.572, 0.607, 0.645, 0.683, 0.723, 0.765, 0.808, 0.853, 0.9, 0.948, 0.998, 1.368, 0.708, 1.13, 0.984, 0.973, 1.028, 0.986, 1.004, 1.001, 0.998, 1.001, 1, 1);
+        --plug-stagger: 0ms;
+        --plug-jolt: 3px;
+        --plug-flare: 1;
+        --plug-flare-ms: 420ms;
+        --plug-split: 58px;
+        --plug-tear: 60px;
+    }
+
+    .ev-line.is-powering {
+        --at: calc(140ms + var(--i, 0) * var(--plug-stagger));
+        --hit: calc(var(--at) + var(--plug-ms) * var(--plug-hit));
+        animation:
+            ev-plug var(--plug-ms) var(--plug-ease) var(--at) both,
+            ev-plug-in 60ms linear var(--at) both,
+            ev-flare var(--plug-flare-ms) steps(1) var(--hit) both;
+
+        .ev-m { animation: ev-flare-mark var(--plug-flare-ms) steps(1) var(--hit) both; }
+    }
+
+    .mag .ev-line.is-powering code {
+        /* a wider box, with the text where it was: the split's filter reaches
+       a share of the box past its sides, and a short line has a narrow one */
+        padding-inline: 3em;
+        margin-inline: -3em;
+        animation: ev-aberrate var(--plug-flare-ms) steps(1) var(--hit) both;
+    }
+
+    /* Not the lines just plugged in (.k-new): one stops powering while the
+     block is still jolted, and would take the knock then, late. */
+    .ev-code.is-jolted .ev-line:not(.is-powering):not(.k-new) {
+        animation: ev-jolt 420ms linear calc(140ms + var(--plug-ms) * var(--plug-hit));
+    }
+
+    @keyframes ev-plug {
+        from { translate: var(--plug-from) 0; }
+        to { translate: 0 0; }
+    }
+
+    @keyframes ev-plug-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes ev-jolt {
+        0% { translate: 0 0; animation-timing-function: cubic-bezier(0.1, 0.8, 0.3, 1); }
+        18% { translate: calc(var(--plug-jolt) * -1) 0; animation-timing-function: ease-in-out; }
+        45% { translate: calc(var(--plug-jolt) * 0.43) 0; animation-timing-function: ease-in-out; }
+        70% { translate: calc(var(--plug-jolt) * -0.21) 0; animation-timing-function: ease-in-out; }
+        100% { translate: 0 0; }
+    }
+
+    @keyframes ev-flare {
+        0% { background-color: color-mix(in srgb, var(--sheet) 0%, transparent); }
+        1% { background-color: rgb(from var(--sheet) r g b / var(--plug-flare)); }
+        9% { background-color: rgb(from var(--sheet) r g b / calc(var(--plug-flare) * 0.2)); }
+        16% { background-color: rgb(from var(--sheet) r g b / calc(var(--plug-flare) * 0.55)); }
+        27% { background-color: rgb(from var(--sheet) r g b / calc(var(--plug-flare) * 0.08)); }
+        38% { background-color: rgb(from var(--sheet) r g b / calc(var(--plug-flare) * 0.34)); }
+        55% { background-color: color-mix(in srgb, var(--sheet) 10%, transparent); }
+        70% { background-color: color-mix(in srgb, var(--sheet) 22%, transparent); }
+        100% { background-color: color-mix(in srgb, var(--sheet) 14%, transparent); }
+    }
+
+    /* Red to one side and cyan to the other: together, behind white text, they
+     are its colours pulled apart. */
+    @keyframes ev-aberrate {
+        0% { text-shadow: none; opacity: 0; }
+        1% { text-shadow: calc(var(--plug-split) * -1) 0 var(--hot), var(--plug-split) 0 var(--cold); opacity: 1; color: var(--ink); }
+        9% { text-shadow: calc(var(--plug-split) * 0.64) 2px var(--hot), calc(var(--plug-split) * -0.64) -2px var(--cold); opacity: 0.7; color: inherit; }
+        16% { text-shadow: calc(var(--plug-split) * -0.73) 0 var(--hot), calc(var(--plug-split) * 0.73) 0 var(--cold); opacity: 1; }
+        27% { text-shadow: calc(var(--plug-split) * 0.36) -1px var(--hot), calc(var(--plug-split) * -0.36) 1px var(--cold); opacity: 0.6; }
+        38% { text-shadow: calc(var(--plug-split) * -0.36) 0 var(--hot), calc(var(--plug-split) * 0.36) 0 var(--cold); opacity: 1; }
+        55% { text-shadow: calc(var(--plug-split) * 0.14) 0 var(--hot), calc(var(--plug-split) * -0.14) 0 var(--cold); }
+        70% { text-shadow: calc(var(--plug-split) * -0.09) 0 var(--hot), calc(var(--plug-split) * 0.09) 0 var(--cold); }
+        85% { text-shadow: calc(var(--plug-split) * 0.05) 0 var(--hot), calc(var(--plug-split) * -0.05) 0 var(--cold); }
+        100% { text-shadow: none; opacity: 1; }
+    }
+
+    @keyframes ev-flare-mark {
+        0% { opacity: 0; }
+        16% { opacity: 1; }
+        27% { opacity: 0.3; }
+        38%, 100% { opacity: 1; }
+    }
+
+    .ev-line.k-new { transition-delay: 140ms; }
+
+    .ev-line.is-leaving { --dx: -40px; opacity: 0; transition-delay: 0ms; }
+
+    /* What the frame on show returns, under its code. */
+    .mag .ev-stage .ev-returns {
+        display: none;
+        margin-block: var(--space-14) 0;
+        margin-inline: calc((var(--digits, 2) + 1.4) * 1ch + 0.2em) 0;
+        padding-block-start: var(--space-12);
+        border-top: var(--rule) dashed color-mix(in srgb, var(--sheet) 35%, transparent);
+        font-family: var(--code);
+        font-size: clamp(var(--text-2xs), 1.18vw, var(--text-17));
+        line-height: 1.6;
+        white-space: pre-wrap;
+        opacity: 0.8;
+
+        &.is-given { display: block; }
+    }
+
+    /* A note takes the left side the way a block does. */
+    .mag .ev-note-body p {
+        max-width: 24em;
+        margin: 0;
+        font-family: var(--mohave);
+        font-size: clamp(18px, 1.75vw, 25px);
+        line-height: 1.35;
+    }
+
+    .mag .ev-note-body p + p { margin-block-start: 0.6em; }
+
+    .mag .ev-note-body a {
+        color: inherit;
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+    }
+
+    .mag .ev-note { padding-inline: var(--ev-pad); }
+
+    .ev-meter {
+        position: absolute;
+        inset-inline: var(--ev-pad-code);
+        inset-block-end: var(--space-40);
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        opacity: 0;
+        transition: opacity var(--duration-mid) ease;
+    }
+
+    .ev-stage.is-code.has-steps .ev-meter { opacity: 1; }
+
+    .ev-meter-bar {
+        flex: 1 1 auto;
+        display: flex;
+        gap: var(--space-4);
+        min-width: 0;
+    }
+
+    .ev-meter-bar i {
+        flex: 0 1 48px;
+        min-width: 6px;
+        height: 6px;
+        box-sizing: border-box;
+        border: var(--rule) solid color-mix(in srgb, var(--sheet) 50%, transparent);
+        transition: background-color var(--duration-mid) ease;
+
+        &.is-on { background: var(--sheet); border-color: var(--sheet); }
+    }
+
+    /* Right: one paragraph at a time. */
+
+    .ev-right { position: relative; overflow: hidden; }
+
+    .ev-reel {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline-start: var(--ev-pad-text);
+        inset-inline-end: calc(var(--ev-pad-text) + var(--space-28));
+        transition: transform 550ms var(--ev-ease);
+
+        &.is-scrub { transition: transform var(--duration-instant) linear; }
+    }
+
+    .ev-step {
+        box-sizing: border-box;
+        max-width: 34em;
+        padding-block: 30px;
+        padding-inline: 0;
+        opacity: 0;
+        transition: opacity var(--duration-slow) ease;
+
+        &.is-near { opacity: 0.13; }
+    }
+
+    /* Where the faded neighbours are ghosts, a paragraph comes into focus from
+     its ghost's strength. */
+    .ev-stage.is-findable .ev-step { opacity: 0.13; }
+
+    .ev-step.is-active,
+    .ev-stage.is-findable .ev-step.is-active { opacity: 1; }
+
+    /* A ghost: a copy of a paragraph (or list, or table) over where it sits,
+     its text drawn by CSS, for the faded neighbours of the one in focus. Find
+     in page doesn't read it, so a match is always in the real paragraph. It
+     is set by the same rules as the real one, so the two lie exactly over
+     each other. */
+    .ev-ghost {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline: 0;
+        box-sizing: border-box;
+        max-width: 34em;
+        padding-block: 30px;
+        padding-inline: 0;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        -webkit-user-select: none;
+        user-select: none;
+        transition: opacity var(--duration-slow) ease;
+
+        &.is-near { opacity: 0.13; }
+
+        &.was-active { animation: ev-dim var(--duration-slow) ease both; }
+    }
+
+    @keyframes ev-dim {
+        from { opacity: 1; }
+        to { opacity: 0.13; }
+    }
+
+    .ev-ghost [data-text]::after { content: attr(data-text); }
+
+    .mag :is(.ev-step, .ev-ghost) :is(p, ul, ol) {
+        margin: 0;
+        font-family: var(--sans);
+        font-size: clamp(var(--text-17), 1.4vw, var(--text-lg));
+        line-height: 1.6;
+    }
+
+    .mag :is(.ev-step, .ev-ghost) :is(ul, ol) { padding-inline-start: 1.3em; }
+
+    /* Ragged, like the paragraphs (and so never set by magazine-justify.js). */
+    .mag :is(.ev-step, .ev-ghost) li {
+        text-align: left;
+        -webkit-hyphens: manual;
+        hyphens: manual;
+    }
+
+    /* A list or table under the line that introduces it. */
+    .mag .ev-stop > * + * { margin-block-start: 0.5em; }
+
+    .mag :is(.ev-step, .ev-ghost) a { color: inherit; }
+
+    .ev-tag {
+        margin-block: 0 var(--space-14);
+        margin-inline: 0;
+    }
+
+    /* A subheading, set as a section's subheading is in an ordinary article: a
+     dash, its number as an eyebrow, then its words. Side by side, the left
+     half has it (.ev-subhead). Where the halves stack there is no heading
+     there, so it is here: over the paragraph it leads into (.ev-head), and
+     then along the top of the panel (.ev-sub). */
+    .ev-head {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-10);
+        margin-block: 0 var(--space-20);
+        margin-inline: 0;
+
+        @media (min-width: 900px) {
+            display: none;
+        }
+    }
+
+    @media (min-width: 900px) {
+        .ev-sub { display: none !important; }
+    }
+
+    .ev-head-dash {
+        width: 28px;
+        height: 3px;
+        background: var(--ink);
+    }
+
+    .ev-head-n,
+    .ev-sub-n {
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        line-height: 1.2;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--mid);
+    }
+
+    .ev-head-t {
+        font-family: var(--disp);
+        font-variation-settings: var(--disp-axes);
+        font-weight: 650;
+        font-size: clamp(22px, 2vw, 30px);
+        line-height: 1.1;
+        text-transform: uppercase;
+    }
+}
+
+@layer modules {
+    /* The subheading being read under, along the top of the panel while the
+       paragraphs after its own are read. */
+    .ev-sub {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline: 0;
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-16);
+        padding-block: var(--ev-pad-text) var(--space-12);
+        padding-inline: var(--ev-pad-text);
+        border-bottom: var(--rule) solid var(--paper);
+        background: var(--sheet);
+        opacity: 0;
+        transform: translateY(-100%);
+        transition: opacity var(--duration-mid) ease, transform var(--duration-linger) var(--ev-ease);
+
+        &.is-on { opacity: 1; transform: none; }
+
+        @media (max-width: 899px) {
+            padding-block: 9px 8px;
+        }
+    }
+
+    .ev-sub span::after { content: attr(data-text); }
+
+    .ev-sub-n {
+        flex: 0 0 auto;
+
+        @media (max-width: 899px) {
+            display: none;
+        }
+    }
+
+    .ev-sub-t {
+        min-width: 0;
+        overflow: hidden;
+        font-family: var(--disp);
+        font-variation-settings: var(--disp-axes);
+        font-weight: 600;
+        font-size: var(--text-sm);
+        line-height: 1.2;
+        text-transform: uppercase;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .ev-tag.is-inline::before {
+        background: none;
+        box-shadow: inset 0 0 0 var(--rule) currentcolor;
+    }
+
+    /* An expression that moves the block: dotted while it waits, inverted as it
+       fires, underlined once it has. The inverted box is drawn with shadows so
+       the text doesn't move. */
+    .mag :is(.ev-step, .ev-ghost) mark {
+        background: none;
+        color: inherit;
+        border-bottom: calc(var(--rule) * 2) dotted transparent;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+        transition:
+            background-color var(--duration-ui) ease,
+            color var(--duration-ui) ease,
+            box-shadow var(--duration-ui) ease,
+            border-color var(--duration-ui) ease;
+    }
+
+    .mag :is(.ev-step, .ev-ghost) mark code {
+        font-family: var(--code);
+        font-size: 0.9em;
+        background: none;
+        color: inherit;
+        padding: 0;
+    }
+
+    .mag .ev-step.is-active mark {
+        border-bottom-color: var(--faint);
+
+        &.is-passed {
+            border-bottom-style: solid;
+            border-bottom-color: var(--ink);
+        }
+
+        &.is-active {
+            background: var(--ink);
+            color: var(--sheet);
+            border-bottom-color: var(--ink);
+            box-shadow:
+                var(--rule-heavy) 0 0 var(--ink),
+                calc(var(--rule-heavy) * -1) 0 0 var(--ink),
+                0 calc(var(--rule-heavy) * -1) 0 var(--ink);
+        }
+    }
+
+    /* Scroll stops down the edge: paragraphs, and the expressions inside them. */
+    .ev-rail {
+        position: absolute;
+        inset-block-start: 50%;
+        inset-inline-end: var(--space-28);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-14);
+        transform: translateY(-50%);
+
+        @media (max-width: 899px) {
+            inset-inline-end: var(--space-14);
+            gap: var(--space-10);
+        }
+    }
+
+    .ev-rail i {
+        width: var(--space-8);
+        height: var(--space-8);
+        box-sizing: border-box;
+        border: var(--rule) solid var(--faint);
+        transition: background-color var(--duration-ui) ease, transform var(--duration-ui) ease;
+
+        &.is-trigger { width: var(--space-4); height: var(--space-4); }
+        &.is-past { background: var(--faint); }
+
+        &.is-current {
+            background: var(--ink);
+            border-color: var(--ink);
+            transform: scale(1.5);
+        }
+    }
+
+    /* No transitions while the stage is first set, or jumps to a far place. */
+    .ev-stage.is-jump,
+    .ev-stage.is-jump * {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    /* Tablets and phones: the two halves stack, code over text. */
+    @media (max-width: 1179px) {
+        .ev { --ev-top: 56px; }
+    }
+
+    @media (max-width: 899px) {
+        /* magazine-evolving.js sets the top half's height to what it holds. */
+        .ev-stage {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: var(--ev-top-h, 42%) minmax(0, 1fr);
+            transition: grid-template-rows 260ms var(--ev-ease);
+        }
+
+        /* The contents strip above is the heading here (see below), so the
+           stage has none of its own: its top half is empty until a block or a
+           note comes, and then only as tall as that. */
+        .ev-eyebrow, .ev-label, .mag .ev-big, .ev-subhead { display: none; }
+        .mag .ev-block { transform: none; transition: opacity 260ms ease; }
+        .mag .ev-note-body p { font-size: calc(var(--text-17) * var(--note-fit, 1)); line-height: 1.3; }
+        .ev-meter { inset-block-end: var(--space-14); }
+        .ev-meter-bar i { width: var(--space-28); }
+        .ev-code { font-size: calc(clamp(10px, 2.6vw, var(--text-sm)) * var(--code-fit, 1)); }
+        .ev-name { margin-block-end: var(--space-10); }
+        .mag .ev-block {
+            padding-block: var(--ev-pad-code) 0;
+            padding-inline: var(--ev-pad-code);
+        }
+        .ev-stage.has-steps .ev-block { padding-block-end: 34px; }
+        .ev-step, .ev-ghost {
+            padding-block: 18px;
+            padding-inline: 0;
+        }
+        .ev-reel { inset-inline-end: var(--space-40); }
+    }
+
+    /* The dock (magazine-evolving.js): at the foot of the window while a stage
+       is in it. A step back and a step on, then two switches that give the
+       whole stage to the block or to the text. */
+    .ev-dock {
+        position: fixed;
+        inset-inline-start: 50%;
+        inset-block-end: calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
+        z-index: 7;
+        display: flex;
+        /* an edge that shows on either half of the stage */
+        border: var(--rule) solid var(--sheet);
+        outline: var(--rule) solid var(--ink);
+        background: var(--ink);
+        color: var(--sheet);
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, var(--space-12));
+        transition: opacity 200ms ease, transform var(--duration-mid) var(--ev-ease, ease);
+
+        &.is-on {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, 0);
+        }
+    }
+
+    .ev-dock .ev-dock-b {
+        display: grid;
+        place-items: center;
+        width: var(--space-44);
+        height: var(--space-44);
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: none;
+        color: inherit;
+        cursor: pointer;
+
+        &:disabled { opacity: 0.3; cursor: default; }
+
+        &[aria-pressed="true"] {
+            background: var(--sheet);
+            color: var(--ink);
+
+            &:focus-visible { outline-color: var(--ink); }
+        }
+
+        &:focus-visible {
+            outline: calc(var(--rule) * 2) solid var(--sheet);
+            outline-offset: -5px;
+        }
+
+        @media (hover: hover) {
+            &:not(:disabled, [aria-pressed="true"]):hover {
+                background: color-mix(in srgb, var(--sheet) 16%, transparent);
+            }
+        }
+    }
+
+    .ev-dock-b svg {
+        width: var(--space-20);
+        height: var(--space-20);
+        fill: none;
+        stroke: currentcolor;
+        stroke-width: 2;
+        stroke-linecap: square;
+    }
+
+    .ev-dock-rule {
+        width: var(--rule);
+        margin-block: var(--space-10);
+        margin-inline: 0;
+        background: color-mix(in srgb, var(--sheet) 30%, transparent);
+    }
+
+    /* Each half keeps to its place in the stage, so that one can be lifted out
+       of it. */
+    .ev-left { grid-area: 1 / 1; }
+
+    .ev-right {
+        grid-area: 1 / 2;
+
+        @media (max-width: 899px) {
+            grid-area: 2 / 1;
+        }
+    }
+
+    /* The block given the whole stage: the left side lies over the text for as
+       long as it holds a block or a note, and is back in its half for a
+       heading. .is-sizing is the script measuring the blocks for that room. */
+    .ev-full-code .ev-stage:is(.is-code, .is-sizing) .ev-left {
+        position: absolute;
+        inset: 0;
+        grid-area: auto;
+        z-index: 3;
+    }
+
+    @media (min-width: 900px) {
+        .ev-full-code .ev-code {
+            font-size: calc(clamp(var(--text-xs), 1.5vw, 21px) * var(--code-fit, 1));
+        }
+    }
+
+    @media (max-width: 899px) {
+        /* The dock is at the foot of the block here: the meter goes over it. */
+        .ev-full-code .ev-meter { inset-block-end: 76px; }
+        .ev-full-code .ev-stage .ev-block { padding-block-end: 76px; }
+        .ev-full-code .ev-stage.has-steps .ev-block { padding-block-end: 106px; }
+    }
+
+    /* The text given the whole stage: the right side lies over the left. */
+    .ev-full-text .ev-right {
+        position: absolute;
+        inset: 0;
+        grid-area: auto;
+        z-index: 3;
+        background: var(--sheet);
+    }
+
+    @media (min-width: 900px) {
+        .ev-full-text :is(.ev-step, .ev-ghost) { margin-inline: auto; }
+    }
+
+    /* Where the halves stack the contents strip is taller (see the strip's
+       own rules), and the stage starts under it. */
+    @media (max-width: 899px) {
+        .page-evolving .ev { --ev-top: var(--space-96); }
+    }
+
+    /* 5. Responsive ------------------------------------------------------------ */
+
+    /* Tablets (under 1180px): the gutters go, the columns stack, and the book
+       moves into the footer. Phones (under 700px) narrow it further. */
+
+    @media (max-width: 1179px) {
+        .sheet {
+            grid-template-columns:
+                [full-start] 0 0 [main-start] minmax(0, 1fr) [main-end] 0 0 [full-end];
+        }
+        .edge, .vrule, .band > .side-label, .gutter-mark, .crop,
+        .art-lede .hatch-fill { display: none; }
+        .mag { --pad: var(--pad-narrow); --pad-lead: var(--pad-narrow); }
+
+        /* One column. */
+        .latest-grid, .art-head, .keep-briefs, .index {
+            grid-template-columns: minmax(0, 1fr);
+        }
+        .latest-briefs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .series-cards { grid-auto-flow: row; }
+        .index-cells { grid-template-rows: none; grid-auto-flow: row; }
+
+        /* The book band stays (see the book band's own rules); beside an
+           article the book is in the footer: one black panel, the colophon
+           across the top and the book beside the theme packs. */
+        .art-side > .book-ad { display: none; }
+        .footer-gap { display: none; }
+        .site-footer {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: var(--space-28) var(--space-32);
+            padding-block: var(--space-24) var(--space-28);
+            padding-inline: var(--pad);
+            background: var(--ink);
+        }
+        .footer-colophon, .footer-block { padding: 0; background: none; }
+        .footer-colophon { grid-column: 1 / -1; }
+        .footer-motto { margin-block-start: 0; font-size: var(--text-xl); }
+
+        /* Header: one row of cells. */
+        .running-row {
+            justify-content: space-between;
+            padding-block: 11px;
+            padding-inline: var(--space-16);
+            white-space: nowrap;
+        }
+        .running .sep { display: none; }
+        .neo-nameplate { gap: var(--space-16); padding: var(--space-16); }
+        .neo-logo { width: 48px; height: auto; }
+        .strip-cell {
+            padding-block: var(--space-12);
+            padding-inline: var(--space-16);
+        }
+        .strip-cell.mid, .strip-cell.end { text-align: left; }
+
+        /* Lede: headline, then the dek beside the byline and button, as on a
+           desktop. Under 900px there is no room beside the dek: the byline
+           and button go under it, 380px wide. */
+        .neo-lead { min-height: 0; padding-block: var(--space-24); }
+        .mag .neo-headline {
+            margin-inline-end: 0;
+            font-size: calc(min(136.7px, calc((100vw - 32px) / 6.7)) * var(--headline-scale, 1));
+        }
+        .neo-dek {
+            max-width: 620px;
+            font-size: var(--text-lg);
+        }
+        @media (max-width: 899px) {
+            .neo-lead-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-24);
+            }
+            .neo-dek { align-self: flex-start; }
+            .neo-lead-meta { flex: 0 0 auto; width: 100%; max-width: 380px; }
+            .mag a.neo-cta { width: 100%; }
+        }
+
+        /* Cells lose some height. */
+        .neo-brief, .piece-cell, .contents-panel, .index-head,
+        .archive-col { padding-block: var(--space-24); }
+        .series-body { padding-block-end: var(--space-24); }
+        .gap-band { height: var(--space-32); }
+        .head-band > .section-head {
+            flex-wrap: wrap;
+            row-gap: var(--space-8);
+            padding-block: var(--space-20) var(--space-16);
+            padding-inline: var(--pad);
+        }
+        .head-rule .gauge { width: 140px; }
+        .section-title { font-size: var(--text-4xl); }
+        .neo-brief-title { font-size: 25.2px; }
+        .end-label { flex-wrap: wrap; white-space: normal; }
+
+        /* Article. */
+        .ghost-numeral {
+            inset-block-start: calc(-1 * var(--space-28));
+            inset-inline-start: calc(-1 * var(--space-40));
+            font-size: 130px;
+        }
+        .mag .piece-name { font-size: 28px; }
+        .piece-text { padding-block-start: var(--space-16); }
+        .prose, .prose-list { max-width: 75ch; overflow-wrap: anywhere; }
+        .inline-note {
+            max-width: 620px;
+            padding-inline-start: var(--space-14);
+            border-left-width: 1ch;
+        }
+        .src { padding-block: var(--space-20) var(--space-22); font-size: var(--text-13); }
+        .src-name { margin-block-end: var(--space-14); }
+    }
+
+    @media (max-width: 699px) {
+        /* Featured banner: the part count goes under the name, which needs the width. */
+        .featured-banner { grid-template-columns: auto minmax(0, 1fr); }
+        .featured-count { grid-column: 2; }
+        /* The recap's number takes a narrower column. */
+        .previously-body { grid-template-columns: var(--space-64) minmax(0, 1fr); }
+        .previously-n { font-size: 36px; }
+
+        /* A section's name, small enough for a fourteen-letter word on the narrowest phones. */
+        .mag .piece-name { font-size: min(28px, calc((100vw - 32px) * 0.092)); }
+
+        /* Header: one line, and a strip of the date and since. */
+        .running-status { display: none; }
+        .running.bottom .running-row {
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            white-space: normal;
+        }
+        .running.bottom .barcode { display: none; }
+        .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .strip-cell.end { display: none; }
+        .strip-cell.mid { order: -1; }
+        .date-long { display: none; }
+        .date-short { display: inline; }
+
+        .latest-briefs { grid-template-columns: minmax(0, 1fr); }
+        .section-title { font-size: var(--text-3xl); }
+        .neo-brief-title { font-size: 21px; }
+        .neo-brief-dots { margin-inline-end: var(--space-12); }
+        .neo-dek { font-size: 18px; }
+        .neo-lead-meta { max-width: none; }
+
+        /* End transmission has no room for its leaders. */
+        .end-transmission { padding-block: var(--space-20); }
+
+        /* The footer stacks, and so do the book's buttons. */
+        .site-footer { grid-template-columns: minmax(0, 1fr); }
+        .footer-typemark { width: 309px; }
+        .footer-actions .neo-button { flex-basis: 100%; }
+        .index-cells { grid-template-columns: minmax(0, 1fr); }
+        .index-fill { display: none; }
+    }
+}
+
+@layer modules {
+    /* 6. The archive's catalogue, and search ------------------------------------ */
+
+    /* Captions and display type, as the components layer sets its own. */
+    .cat-label, .cat-head, .cat-row, .cat-line-meta, .cat-foot, .cat-foot-button,
+    .search-label, .search-chip, .search-key, .search-list-head, .search-item-facts,
+    .search-facts, .search-map, .search-match-where, .search-keys {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+    }
+
+    .cat-count, .search-input, .search-item-n, .search-title, .search-match-text.title {
+        font-family: var(--disp);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-variation-settings: var(--disp-axes);
+        letter-spacing: -0.005em;
+    }
+
+    .cat-row, .cat-month-head, .cat-foot-button, .search-open, .search-chip, .search-key,
+    .search-item {
+        margin: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        text-align: start;
+        cursor: pointer;
+    }
+
+    .cat-row, .cat-month-head { padding: 0; }
+
+    /* The archive (Figma: Archive C · Card catalogue): a black index beside
+     the catalogue. The index stays in view while the catalogue scrolls. */
+
+    .catalogue {
+        display: grid;
+        grid-template-columns: var(--cols-index);
+        gap: var(--rule);
+        background: var(--paper);
+
+        [hidden] { display: none; }
+    }
+
+    .cat-index {
+        min-width: 0;
+        padding: var(--pad);
+        background: var(--ink);
+        color: var(--sheet);
+    }
+
+    .cat-index-inner {
+        position: sticky;
+        inset-block-start: var(--space-24);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-28);
+    }
+
+    .cat-label,
+    .cat-head { color: var(--night-dim); }
+
+    .cat-label.on { color: var(--ink); }
+
+    .cat-count {
+        margin-block: var(--space-10);
+        font-size: 150px;
+        line-height: 0.84;
+    }
+
+    .cat-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-10);
+    }
+
+    .cat-head {
+        padding-block-end: var(--space-8);
+        border-bottom: var(--rule) solid var(--night-edge);
+    }
+
+    /* A row: a name, a dot leader as the lead's byline sets one, a number.
+     The filter in use is marked with a square. */
+    .cat-row {
+        display: flex;
+        align-items: baseline;
+        width: 100%;
+        font-size: var(--text-13);
+        color: var(--sheet);
+        white-space: nowrap;
+
+        > .series-stamp {
+            align-self: center;
+            margin-inline-end: var(--space-8);
+        }
+
+        > .cat-row-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        > .spec-lead {
+            letter-spacing: 0.1em;
+            color: var(--night-dim);
+        }
+
+        &:hover > .spec-lead { color: var(--sheet); }
+
+        &[aria-current="true"]::before {
+            content: "\25a0";
+            margin-inline-end: var(--space-8);
+        }
+
+        &:focus-visible {
+            outline: var(--space-2) solid var(--sheet);
+            outline-offset: 3px;
+        }
+    }
+
+    .cat-list,
+    .cat-month,
+    .cat-month-body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--rule);
+        min-width: 0;
+        background: var(--paper);
+    }
+
+    /* A month is a <details>: its heading opens and closes it. A closed
+     month is its heading alone, with an arrow after its count. */
+    .cat-month-head {
+        display: block;
+        width: 100%;
+        list-style: none;
+
+        &::-webkit-details-marker { display: none; }
+
+        padding-block: var(--space-24) 0;
+        padding-inline: var(--pad);
+        background: var(--sheet);
+
+        > .arch-month-head { width: 100%; }
+
+        &:hover .arch-month-head > :first-child { text-decoration: underline; }
+
+        &:focus-visible {
+            outline: var(--space-2) solid var(--ink);
+            outline-offset: -3px;
+        }
+    }
+
+    .cat-month:not([open]) > .cat-month-head {
+        padding-block-end: var(--space-24);
+
+        .arch-count::after { content: "  >>>"; }
+    }
+
+    /* A type and a series with no article in both. */
+    .cat-none {
+        margin: 0;
+        padding: var(--space-24) var(--pad);
+        background: var(--sheet);
+        font-family: var(--mono);
+        font-size: var(--text-13);
+        color: var(--mid);
+    }
+
+    .cat-card {
+        display: flex;
+        min-width: 0;
+
+        > .neo-brief { flex: 1 1 auto; }
+    }
+
+    .cat-lines {
+        margin: 0;
+        padding-block: 0 var(--space-24);
+        padding-inline: var(--pad);
+        list-style: none;
+        background: var(--sheet);
+    }
+
+    .cat-line-meta {
+        flex: 0 0 auto;
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    .cat-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-16);
+        padding-block: var(--space-20);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+        white-space: pre;
+    }
+
+    .cat-foot-button {
+        text-decoration: none;
+        padding-block: var(--space-10);
+        padding-inline: var(--space-16);
+        background: var(--ink);
+        color: var(--sheet);
+        letter-spacing: var(--track);
+
+        &:hover { background: var(--ink-hover-strong); }
+    }
+
+    /* Search (Figma: Search B · Command palette · 4 · Alternative: split
+     preview). The strip's first cell opens it, as "/" does. */
+
+    .search-open {
+        background: var(--sheet);
+        white-space: pre;
+
+        &:hover { background: var(--paper); }
+    }
+
+    /* The page behind an open palette stays where it is. */
+    html:has(.search.open) { overflow: hidden; }
+
+    /* The palette lies over the page, on a scrim of dots: 3px squares every
+     5px. Its shadow is hatching, set down and to the right of it. */
+    .search {
+        position: fixed;
+        inset: 0;
+        z-index: var(--z-overlay);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-block: 9vh var(--space-40);
+        padding-inline: var(--space-24);
+        color: var(--ink);
+
+        /* Closed until magazine-search.js opens it. */
+        &:not(.open) { display: none; }
+    }
+
+    .search-scrim {
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='5' height='5'%3e%3crect width='3' height='3'/%3e%3c/svg%3e") 0 0 / 2px 2px;
+    }
+
+    .search-frame {
+        position: relative;
+        display: flex;
+        width: min(1300px, 100%);
+        max-height: 100%;
+    }
+
+    .search-palette {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-height: 0;
+        border: var(--rule) solid var(--ink);
+        background: var(--sheet);
+    }
+
+    .search-field {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: var(--space-14);
+        padding-block: var(--space-24);
+        padding-inline: var(--space-28);
+        border-bottom: var(--rule-heavy) solid var(--ink);
+    }
+
+    .search-label {
+        letter-spacing: var(--track);
+        color: var(--mid);
+    }
+
+    .search-input {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        outline: 0;
+        background: none;
+        color: var(--ink);
+        caret-color: var(--ink);
+        font-size: var(--text-3xl);
+        line-height: 1;
+    }
+
+    .search-chips {
+        display: flex;
+        gap: var(--space-8);
+    }
+
+    .search-chip {
+        display: inline-flex;
+        gap: var(--space-8);
+        padding-block: var(--space-6);
+        padding-inline: var(--space-10);
+        border: var(--rule) solid var(--paper);
+        white-space: pre;
+
+        > .n { color: var(--mid); }
+
+        &:hover { border-color: var(--ink); }
+
+        &[aria-pressed="true"] {
+            border-color: var(--ink);
+            background: var(--ink);
+            color: var(--sheet);
+
+            > .n { color: inherit; }
+        }
+    }
+
+    /* A key and what it does. The one for Enter is filled. */
+    .search-key {
+        flex: 0 0 auto;
+        padding-block: 5px;
+        padding-inline: 9px;
+        border: var(--rule) solid currentcolor;
+        white-space: pre;
+
+        &.on {
+            border-color: var(--sheet);
+            background: var(--sheet);
+            color: var(--ink);
+        }
+    }
+
+    .search-panes {
+        flex: 1 1 auto;
+        display: grid;
+        grid-template-columns: 470px minmax(0, 1fr);
+        gap: var(--rule);
+        min-height: 0;
+        background: var(--paper);
+    }
+
+    .search-list,
+    .search-preview {
+        min-height: 0;
+        overflow-y: auto;
+        background: var(--sheet);
+    }
+
+    .search-list-head {
+        display: flex;
+        justify-content: space-between;
+        padding-block: var(--space-10);
+        padding-inline: var(--space-20);
+        border-bottom: var(--rule) solid var(--paper);
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    /* A match is set in reverse: white on ink, and ink on white where the
+     ground is already ink. */
+    .search-mark {
+        padding-inline: 3px;
+        background: var(--ink);
+        color: var(--sheet);
+    }
+
+    /* The match an article was opened at from the palette, marked in the
+       article's own text (see magazine-search.js). */
+    ::highlight(search-match) {
+        background-color: var(--ink);
+        color: var(--sheet);
+    }
+
+    .search-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        width: 100%;
+        padding-block: var(--space-12);
+        padding-inline: var(--space-20);
+        border-bottom: var(--rule) solid var(--paper);
+
+        &:hover { background: var(--paper); }
+
+        &[aria-selected="true"] {
+            background: var(--ink);
+            color: var(--sheet);
+
+            .search-mark,
+            .series-stamp {
+                background: var(--sheet);
+                color: var(--ink);
+            }
+
+            .search-item-facts { color: var(--on-ink); }
+        }
+    }
+
+    .search-stamp {
+        flex: 0 0 var(--space-16);
+        display: flex;
+        height: var(--space-16);
+    }
+
+    .search-item-text {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+    }
+
+    .search-item-title {
+        font-family: var(--mohave);
+        font-size: var(--text-17);
+        line-height: 1.25;
+    }
+
+    .search-item-facts {
+        color: var(--mid);
+        white-space: pre-wrap;
+    }
+
+    .search-item-n { font-size: var(--text-md); }
+
+    .search-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding-block: 26px var(--space-28);
+        padding-inline: var(--space-28);
+    }
+
+    .search-note {
+        font-family: var(--mohave);
+        font-size: var(--text-17);
+        line-height: 1.4;
+        color: var(--muted);
+    }
+
+    .search-facts {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        color: var(--mid);
+        white-space: pre-wrap;
+
+        > .search-stamp:empty { display: none; }
+    }
+
+    .search-facts-n {
+        margin-inline-start: auto;
+        color: var(--ink);
+        white-space: pre;
+    }
+
+    .search-title {
+        margin: 0;
+        font-size: 30px;
+        line-height: 1.14;
+    }
+
+    /* The hit map: a tick a slice of the article, tall where a match falls
+     in it, and the match in focus at full strength. */
+    .search-map {
+        display: flex;
+        align-items: flex-end;
+        gap: var(--space-12);
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    .search-map-bars {
+        flex: 1 1 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        height: var(--space-16);
+
+        > i {
+            flex: 0 0 var(--space-2);
+            height: 5px;
+            background: var(--faint);
+
+            &.on {
+                flex-basis: var(--space-6);
+                height: 100%;
+                background: var(--ink);
+                opacity: 0.4;
+            }
+
+            &.now { opacity: 1; }
+        }
+    }
+
+    .search-match {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-10);
+        padding-block: var(--space-12) var(--space-14);
+        padding-inline: var(--space-14);
+        border: var(--rule) solid var(--paper);
+        cursor: pointer;
+
+        &:hover { border-color: var(--ink); }
+
+        &.on {
+            border-color: var(--ink);
+            background: var(--ink);
+            color: var(--sheet);
+            cursor: auto;
+
+            .search-mark,
+            .search-match-field {
+                border-color: var(--sheet);
+                background: var(--sheet);
+                color: var(--ink);
+            }
+
+            .search-match-section,
+            .search-match-near { color: var(--mid); }
+
+            .search-match-n,
+            .search-match-text { color: var(--sheet); }
+        }
+    }
+
+    .search-match-where {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    .search-match-field {
+        padding-block: 3px;
+        padding-inline: var(--space-8);
+        border: var(--rule) solid var(--paper);
+    }
+
+    .search-match-section {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .search-match-n { margin-inline-start: auto; }
+
+    .search-match-text,
+    .search-match-near {
+        font-family: var(--mohave);
+        font-size: var(--text-17);
+        line-height: 1.4;
+        color: var(--muted);
+        overflow-wrap: anywhere;
+    }
+
+    .search-match-text.title {
+        font-weight: 400;
+        font-size: var(--text-15);
+        line-height: 1.2;
+    }
+
+    .search-match-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-8);
+        padding-block-start: var(--space-4);
+    }
+
+    .search-keys {
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: space-between;
+        gap: var(--space-16);
+        padding-block: var(--space-14);
+        padding-inline: var(--space-28);
+        border-top: var(--rule) solid var(--paper);
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    .search-status { color: var(--ink); }
+
+    /* Narrow screens: the index sits over the catalogue; the palette's panes
+     stack, the articles in a short list over the matches. */
+
+    @media (max-width: 1179px) {
+        .catalogue { grid-template-columns: minmax(0, 1fr); }
+        .cat-index-inner { position: static; }
+        .cat-count { font-size: var(--space-96); }
+        .cat-line-meta { display: none; }
+
+        .search-field { flex-wrap: wrap; }
+        .search-input { flex-basis: 60%; }
+        .search-chips { order: 1; flex-wrap: wrap; }
+        .search-panes { grid-template-columns: 320px minmax(0, 1fr); }
+    }
+
+    @media (max-width: 899px) {
+        .search-open-key { display: none; }
+
+        .search {
+            padding-block: var(--space-12) var(--space-24);
+            padding-inline: var(--space-12);
+        }
+
+        .search-frame { --shadow: var(--space-8); }
+        .search-field, .search-preview, .search-keys { padding-inline: var(--space-16); }
+        .search-input { font-size: var(--text-2xl); }
+
+        .search-panes {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: minmax(0, 34%) minmax(0, 1fr);
+        }
+
+        .search-keys > :first-child { display: none; }
+    }
+}
+
+@layer modules {
+    /* 7. Intel: updates about Common Lisp projects ------------------------------ */
+
+    /* An update (Figma: Intel band · B · Two streams): the project, its
+     version and the date, then the line written for it. */
+
+    .intel-kind, .intel-version, .intel-host, .intel-when, .intel-stream-head,
+    .intel-day-bar, .intel-none, .desk-meta, .desk-source-label, .desk-line-label,
+    .desk-open, .desk-button {
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+    }
+
+    .intel-project, .intel-count {
+        font-family: var(--disp);
+        font-variation-settings: var(--disp-axes);
+    }
+
+    .intel-kind {
+        flex: 0 0 auto;
+        align-self: center;
+        padding-block: 3px;
+        padding-inline: var(--space-8);
+        border: var(--rule) solid var(--ink);
+        background: var(--ink);
+        color: var(--sheet);
+        font-size: 10px;
+        line-height: 1;
+
+        &.new {
+            background: none;
+            color: var(--ink);
+        }
+
+        &.post {
+            border-color: var(--paper);
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        /* A followed project's update. */
+        &.follow {
+            background: none;
+            color: var(--ink);
+
+            &::before {
+                content: "\25a0";
+                margin-inline-end: var(--space-6);
+            }
+        }
+    }
+
+    .mag a.intel-row {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        padding-block: 7px;
+        border-bottom: var(--rule) solid var(--paper);
+        color: var(--ink);
+
+        &:hover .intel-project { text-decoration: underline; }
+    }
+
+    .intel-row-top {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-10);
+        min-width: 0;
+    }
+
+    .intel-project {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: var(--text-15);
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .intel-version {
+        flex: 0 0 auto;
+        font-size: var(--text-xs);
+    }
+
+    .intel-host,
+    .intel-when {
+        flex: 0 0 auto;
+        font-size: 10px;
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    .intel-when { margin-inline-start: auto; }
+
+    .intel-line {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: var(--mohave);
+        font-size: var(--text-15);
+        line-height: 1.3;
+        color: var(--muted);
+    }
+
+    /* The home page's band: a black rail, the releases, the new projects. */
+
+    .intel-streams {
+        display: grid;
+        grid-template-columns: 264px minmax(0, 1fr) minmax(0, 1fr);
+        gap: var(--rule);
+        background: var(--paper);
+    }
+
+    /* The rail stands beside both rows of blocks. */
+    .intel-rail {
+        grid-row: span 2;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-8);
+        min-width: 0;
+        padding: var(--space-24);
+        background: var(--sheet);
+        color: var(--ink);
+
+        .cat-label { color: var(--ink); }
+
+        > p { margin: 0; }
+
+        > .neo-button {
+            flex: 0 0 auto;
+            align-self: flex-start;
+            margin-block-start: auto;
+            background-color: var(--ink);
+            color: var(--sheet);
+        }
+
+        > .neo-button::after {
+            content: "";
+            background: url("/static/assets/images/magazine/patterns/dither-ramp-reversed.svg") 0 0 / 224px 224px;
+            opacity: 40%;
+        }
+    }
+
+    .intel-count {
+        font-size: 84px;
+        font-weight: 900;
+        line-height: 0.9;
+        letter-spacing: -0.005em;
+    }
+
+    /* A bar a day, as tall as the day's share of the week's busiest. */
+    .intel-chart {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        align-items: end;
+        gap: var(--space-6);
+        margin-block-start: var(--space-16);
+    }
+
+    .intel-day-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        font-size: 9px;
+        letter-spacing: 0;
+        color: var(--ink);
+
+        > i {
+            width: 100%;
+            height: max(var(--rule), calc(var(--share) * 54px));
+            background: var(--ink);
+        }
+    }
+
+    .intel-spec {
+        margin-block: var(--space-12) var(--space-24);
+        font-size: 10px;
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+        color: var(--night-dim);
+
+        & .spec-row {
+            padding-block: 7px;
+        }
+
+        & dd { color: var(--ink); background: var(--sheet); padding-inline: 1ch;}
+    }
+
+    .intel-stream {
+        min-width: 0;
+        padding-block: 0 var(--space-8);
+        padding-inline: var(--space-24);
+        background: var(--sheet);
+
+        > .intel-row:last-child { border-bottom: 0; }
+    }
+
+    .intel-stream-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: var(--space-12);
+        margin: 0;
+        padding-block: var(--space-12) var(--space-10);
+        border-bottom: var(--rule) solid var(--ink);
+        font-weight: 400;
+        white-space: pre;
+    }
+
+    .intel-stream-note { color: var(--mid); font-size: 10px; }
+
+    .intel-none {
+        margin: 0;
+        padding-block: var(--space-16);
+        color: var(--mid);
+    }
+
+    /* Live: what is being said in the channel, a line each: the time, who,
+     what. On the homepage it is a black strip under the streams. */
+
+    .irc-window {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .irc-line {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-12);
+        padding-block: var(--space-4);
+        font-family: var(--mohave);
+        font-size: var(--text-15);
+        line-height: 1.35;
+
+        &.action > .irc-text { font-style: italic; }
+    }
+
+    .irc-time,
+    .irc-nick {
+        flex: 0 0 auto;
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-snug);
+    }
+
+    .irc-time { opacity: 0.55; }
+
+    .irc-nick {
+        flex-basis: 15ch;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: end;
+    }
+
+    .irc-text {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .irc-none {
+        padding-block: var(--space-8);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+        opacity: 0.6;
+    }
+
+    .intel-body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--rule);
+        background: var(--paper);
+    }
+
+    .intel-live {
+        padding-block: var(--space-16) var(--space-20);
+        padding-inline: var(--space-24);
+        background: var(--ink);
+        color: var(--sheet);
+    }
+
+    .intel-live-head {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--space-12);
+        margin: 0;
+        padding-block-end: var(--space-8);
+        margin-block-end: var(--space-6);
+        border-bottom: var(--rule) solid var(--night-line);
+        font-family: var(--mono);
+        font-size: var(--text-2xs);
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+        white-space: pre;
+    }
+
+    .intel-live-note { color: var(--night-dim); }
+
+    .intel-live .irc-line { padding-block: var(--space-2); }
+    .intel-live .irc-nick { color: var(--night-pale); }
+
+    .desk-live {
+        padding-block: var(--space-16) var(--space-24);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+    }
+
+    /* The Intel page: the archive's index beside the updates, a day each. */
+
+    .intel-day {
+        padding-block: var(--space-24) var(--space-8);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+
+        > .intel-row:last-child { border-bottom: 0; }
+
+        & .intel-project { font-size: var(--text-17); }
+
+        & .intel-line {
+            white-space: normal;
+            font-size: var(--text-md);
+            color: var(--ink);
+        }
+    }
+
+    /* The desk (Figma: Intel desk A · Inbox ledger): an update a card, with
+     the field its line is written in. */
+
+    .desk-list-head {
+        padding-block: var(--space-24) var(--space-10);
+        padding-inline: var(--pad);
+        border-bottom: 0;
+        background: var(--sheet);
+    }
+
+    .desk-card {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-14);
+        margin: 0;
+        padding-block: var(--space-24);
+        padding-inline: var(--pad);
+        background: var(--sheet);
+    }
+
+    .desk-card-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: var(--space-12);
+
+        & .intel-project { font-size: var(--text-lg); }
+        & .intel-version { font-size: var(--text-13); }
+    }
+
+    .desk-meta {
+        margin-inline-start: auto;
+        color: var(--mid);
+        white-space: pre;
+    }
+
+    .desk-source {
+        padding-block: var(--space-12);
+        padding-inline: var(--space-16);
+        background: var(--paper);
+
+        > p { margin: 0; }
+    }
+
+    .desk-source-label {
+        margin-block-end: var(--space-6);
+        font-size: 10px;
+        color: var(--mid);
+    }
+
+    .desk-source-text {
+        max-height: 9.2em;
+        overflow: auto;
+        font-family: var(--mohave);
+        font-size: var(--text-15);
+        line-height: 1.3;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
+    .desk-line {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-6);
+
+        > input {
+            width: 100%;
+            height: var(--space-44);
+            padding-block: 0;
+            padding-inline: var(--space-12);
+            border: var(--rule) solid var(--ink);
+            border-radius: 0;
+            background: var(--sheet);
+            color: var(--ink);
+            font-family: var(--mohave);
+            font-size: var(--text-17);
+
+            &:focus-visible {
+                outline: var(--space-2) solid var(--ink);
+                outline-offset: var(--space-2);
+            }
+        }
+    }
+
+    .desk-line-label {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--space-12);
+    }
+
+    .desk-count { color: var(--mid); }
+
+    .desk-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-8);
+    }
+
+    .desk-button {
+        height: var(--space-40);
+        padding-block: 0;
+        padding-inline: var(--space-16);
+        border: var(--rule) solid var(--ink);
+        border-radius: 0;
+        background: var(--sheet);
+        color: var(--ink);
+        font-size: var(--text-13);
+        letter-spacing: 0.09em;
+        cursor: pointer;
+
+        &:hover { background: var(--paper); }
+
+        &.primary {
+            background: var(--ink);
+            color: var(--sheet);
+            &:hover { background: var(--ink-hover-strong); }
+        }
+
+        /* On the black index. */
+        &.paper {
+            align-self: flex-start;
+            margin-block-start: var(--space-8);
+            border-color: var(--sheet);
+        }
+    }
+
+    .desk-button.quiet {
+        border-color: var(--paper);
+        color: var(--muted);
+    }
+
+    /* A followed project's commits: a date, the message, who wrote it. */
+    .desk-commits {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .mag a.desk-commit {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-12);
+        padding-block: var(--space-6);
+        border-bottom: var(--rule) solid var(--paper);
+        color: var(--ink);
+
+        > .arch-when {
+            font-family: var(--mono);
+            font-size: var(--text-2xs);
+            letter-spacing: var(--track-body);
+            text-transform: uppercase;
+            color: var(--mid);
+        }
+
+        &:hover .desk-commit-title { text-decoration: underline; }
+    }
+
+    .desk-commit-title {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: var(--mohave);
+        font-size: var(--text-md);
+    }
+
+    .desk-commit-by {
+        flex: 0 0 auto;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: var(--track-body);
+        text-transform: uppercase;
+        color: var(--mid);
+    }
+
+    .desk-quiet {
+        margin: 0;
+        font-family: var(--mohave);
+        font-size: var(--text-15);
+        color: var(--muted);
+    }
+
+    .mag a.desk-open {
+        margin-inline-start: auto;
+        white-space: pre;
+
+        &:hover { text-decoration: underline; }
+    }
+
+    .desk-note {
+        margin: 0;
+        font-family: var(--mohave);
+        font-size: var(--text-sm);
+        line-height: 1.35;
+        color: var(--night-soft);
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 1179px) {
+        .intel-streams { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+        .intel-rail { grid-column: 1 / -1; grid-row: auto; }
+        .intel-chart { max-width: 264px; }
+    }
+
+    @media (max-width: 699px) {
+        .intel-streams { grid-template-columns: minmax(0, 1fr); }
+        .intel-stream { padding-inline: var(--pad-narrow); }
+        .intel-line { white-space: normal; }
+        .intel-day, .desk-card, .desk-list-head { padding-inline: var(--pad-narrow); }
+        .desk-meta { margin-inline-start: 0; }
+    }
+}
+
+@layer utilities {
+    /* Screen effects (static/js/magazine-fx.js). */
+
+    /* Hover flicker: scanlines and a one-frame inversion over the window. Only
+       opacity animates, so it stays on the compositor. */
+    .fx-flicker {
+        position: fixed;
+        inset: 0;
+        z-index: var(--z-overlay);
+        pointer-events: none;
+
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+        }
+
+        &::before {
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    color-mix(in srgb, var(--ink) 34%, transparent) 0 var(--rule),
+                    transparent var(--rule) var(--rule-heavy)
+                ),
+                color-mix(in srgb, var(--ink) 10%, transparent);
+            mix-blend-mode: multiply;
+        }
+
+        &::after {
+            background: var(--sheet);
+            mix-blend-mode: difference;
+        }
+
+        &.is-on::before { animation: fx-scan 260ms linear; }
+        &.is-on::after { animation: fx-invert 260ms linear; }
+    }
+
+    @keyframes fx-scan {
+        0% { opacity: 0.9; }
+        10% { opacity: 0.2; }
+        18% { opacity: 1; }
+        34% { opacity: 0.35; }
+        46% { opacity: 0.8; }
+        62% { opacity: 0.1; }
+        76% { opacity: 0.5; }
+        100% { opacity: 0; }
+    }
+
+    /* Held for about 30ms each, so a 60Hz screen always shows them. */
+    @keyframes fx-invert {
+        0%, 12% { opacity: 0.9; }
+        13%, 39% { opacity: 0; }
+        40%, 51% { opacity: 0.45; }
+        52%, 100% { opacity: 0; }
+    }
+
+    /* Click: the page splits and tears (SVG filter), under the WebGL overlay. */
+    .sheet.fx-torn {
+        filter: url(#fx-aberration);
+        will-change: transform, filter;
+    }
+
+    /* The search palette instead, when it is open over the page: it covers
+       nearly all of the sheet, and a filter on each is twice the work. The
+       sheet behind it only shakes. */
+    .search.fx-torn {
+        filter: url(#fx-aberration);
+        will-change: transform, filter;
+    }
+
+    /* WebKit runs that filter too slowly (see magazine-fx.js). There the split
+       is three copies of the page over it, each tinted to one channel by a
+       multiplied layer and added back together (see buildSplit). */
+    .fx-lite .sheet.fx-torn {
+        filter: none;
+        will-change: auto;
+    }
+
+    /* The palette isn't copied, and is out of sight while the copies play:
+       the page tears as it does with the palette closed. */
+    .fx-lite .search.fx-torn {
+        filter: none;
+        will-change: auto;
+        visibility: hidden;
+    }
+
+    .mag.fx-rgb {
+        position: fixed;
+        inset: 0;
+        z-index: calc(var(--z-overlay) - 1);
+        overflow: hidden;
+        pointer-events: none;
+        isolation: isolate;
+        background: var(--ink);
+
+        &::before,
+        &::after { display: none; }
+    }
+
+    .fx-rgb-copy {
+        position: absolute;
+        isolation: isolate;
+        mix-blend-mode: plus-lighter;
+        will-change: transform;
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            mix-blend-mode: multiply;
+        }
+
+        /* Rec. 2020's primaries are past the screen's gamut, so they come out as
+           its own pure primaries; sRGB's aren't pure on a wide-gamut screen, and
+           are only there for browsers without Rec. 2020. */
+        &.r::after { background: var(--red); background: color(rec2020 1 0 0); }
+        &.g::after { background: var(--green); background: color(rec2020 0 1 0); }
+        &.b::after { background: var(--blue); background: color(rec2020 0 0 1); }
+    }
+
+    /* Nothing in a copy gets a layer of its own: the tint would mix with
+       everything under it, not just the copy. */
+    .fx-rgb-copy * {
+        animation: none !important;
+        transition: none !important;
+        will-change: auto !important;
+    }
+
+    /* An article link's pulse (see "link pulse" in magazine-fx.js). In WebKit
+       the link's lines are cut into bands, each a window onto three copies of
+       the link's paragraph, with everything in them clear but the link, which
+       is in one ink. The copies mix with each other inside a band, and the band
+       with the page. Neither gets a layer of its own (will-change): in Safari
+       the inks then stop mixing. */
+    .fx-link-band {
+        position: absolute;
+        overflow: hidden;
+        pointer-events: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .fx-link-copy {
+        position: absolute;
+        margin: 0;
+        /* a copy of a line of code (.src-line) isn't another line to number */
+        counter-increment: none;
+
+        &::before,
+        &::after { content: none !important; }
+    }
+
+    .fx-link-band.ink, .fx-link-copy.ink { mix-blend-mode: multiply; }
+    .fx-link-band.light, .fx-link-copy.light { mix-blend-mode: plus-lighter; }
+
+    .fx-link-copy,
+    .fx-link-copy * {
+        color: transparent !important;
+        background: none !important;
+        border-color: transparent !important;
+        text-shadow: none !important;
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .mag .fx-link-copy [data-fx-link],
+    .mag .fx-link-copy [data-fx-link] * { color: var(--fx-link-ink) !important; }
+
+    /* The tear: copies of the page in bands that slide (see buildTear in
+       magazine-fx.js). The layer has .mag for the page's tokens, but none of
+       its background or overlays. A band is painted once and after that only
+       moved: off screen when it isn't tearing. */
+    .mag.fx-tear {
+        position: fixed;
+        inset: 0;
+        z-index: var(--z-overlay);
+        overflow: hidden;
+        pointer-events: none;
+        background: none;
+
+        &::before,
+        &::after { display: none; }
+    }
+
+    .fx-tear-band {
+        position: absolute;
+        overflow: hidden;
+        background: var(--ink);
+        will-change: transform;
+    }
+
+    /* While the page tears, the gaps it leaves are black. */
+    html.fx-broken,
+    html.fx-broken body { background: var(--ink); }
+
+    .fx-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: calc(var(--z-overlay) + 1);
+        display: none;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+
+        &.is-on { display: block; }
+    }
+
+    /* View transitions for boosted magazine navigation (htmx). The header and
+       nameplate hold still while the rest of the page crossfades. */
+    .running.top { view-transition-name: running-header; }
+    .nameplate-band { view-transition-name: nameplate; }
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: 180ms;
+    }
+}
+

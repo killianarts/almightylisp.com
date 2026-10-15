@@ -42,6 +42,9 @@
        ;; Justified text: Pretext measures it, magazine-justify.js sets it.
        (script :src (asset "js/pretext-0.0.9.min.js") :defer t)
        (script :src (asset "js/magazine-justify.js") :defer t)
+       ;; Puts the graph paper on whole pixels and rounds it to whole rows
+       ;; (the grid lock, in magazine.css).
+       (script :src (asset "js/magazine-grid-lock.js") :defer t)
        ;; Opens and closes the search palette, and gives it its keys.
        (script :src (asset "js/magazine-search.js") :defer t))
      ;; Every link below is boosted, but for those under hx-boost "false",

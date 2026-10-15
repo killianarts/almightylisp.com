@@ -195,7 +195,7 @@
   function queue() {
     if (queued) return;
     queued = true;
-    // Two frames: after grid-lock.js has rounded the heights.
+    // Two frames: after magazine-grid-lock.js has rounded the heights.
     requestAnimationFrame(function () { requestAnimationFrame(function () { queued = false; measure(); }); });
   }
 

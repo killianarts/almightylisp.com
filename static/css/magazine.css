@@ -183,9 +183,11 @@
 
         /* Column ratios of the 1440px main column. The third is a length and one
        track takes the rest, so the rule before it lands on the same subpixel
-       wherever --cols-lead is used. fr shares round differently from row to row. */
+       wherever --cols-lead is used. fr shares round differently from row to row.
+       Whole pixels, so the column beside it starts on one too (the grid lock,
+       in the footer's rules). */
         --page: 1440px;
-        --third: calc((100% - var(--rule)) / 3);
+        --third: round(down, (100% - var(--rule)) / 3, 1px);
         --cols-lead: minmax(0, 1fr) var(--third);
         --cols-index: minmax(0, 479fr) minmax(0, 958fr);
 
@@ -400,6 +402,16 @@
             71px minmax(72px, 1fr) [full-end];
         grid-template-rows: repeat(17, auto) 1fr;
         min-height: 100vh;
+
+        /* An even number of pixels wide, so the gutters, and so the main
+           column, never start on half a pixel (the grid lock, in the
+           footer's rules). Only where there is graph paper: narrower, the
+           bands run to the window's edges, and a sheet a pixel short of an
+           odd width (375, 393) would leave a white pixel beside each black
+           one. */
+        @media (min-width: 1180px) {
+            width: round(down, 100%, 2px);
+        }
     }
 
     .running.top { grid-row: 1; }
@@ -1815,9 +1827,8 @@
 
     .site-footer,
     .book-ad.compact {
+        /* Placed on the lattice (see the grid lock, below). */
         & .panel-corner {
-            inset-block-start: 34px;
-            inset-inline-end: var(--space-32);
             gap: var(--space-10);
 
             @media (max-width: 1499px) {
@@ -1918,8 +1929,10 @@
         margin-inline: 0;
         color: var(--sheet);
 
+        /* Unseen, but keeping its row, so the rows below it stay on the
+           lattice. */
         @media (min-width: 1180px) and (max-width: 1499px) {
-            display: none;
+            visibility: hidden;
         }
     }
 
@@ -1966,11 +1979,11 @@
     /* A desktop under 1500px: the cells are narrow. No corner dots (they would
      sit on the eyebrows) and no gauge, the eyebrows are tracked tighter to
      keep to a line, and each theme pack's name stands over its themes, which
-     no longer fit beside it. */
+     no longer fit beside it, each a half row tall. */
     .footer-themes .book-spec {
         @media (min-width: 1180px) and (max-width: 1499px) {
             display: grid;
-            gap: var(--space-6);
+            gap: 0;
         }
     }
 
@@ -1990,6 +2003,7 @@
         @media (min-width: 1180px) and (max-width: 1499px) {
             display: block;
             font-size: 10px;
+            line-height: calc(var(--cell) / 2);
             letter-spacing: 0.2em;
             opacity: 0.75;
         }
@@ -1999,8 +2013,209 @@
         @media (min-width: 1180px) and (max-width: 1499px) {
             display: block;
             margin: 0;
+            line-height: calc(var(--cell) / 2);
             text-align: left;
             white-space: nowrap;
+        }
+    }
+
+    /* The grid lock: the graph paper, kept to whole cells at every width
+     (lab: /static/dev/grid-lock/).
+
+     The paper is graph-reversed.svg: a 1px line on the top and left of every
+     28px cell. A box of N cells is then 28N + 1 wide, the last pixel being
+     the line that closes it; the same down the side. Two boxes carry it: the
+     footer, a row of three cells, and the book panel beside an article, a
+     cell of its own.
+
+     1. One lattice per box. The paper is the box's ::before, under its
+        contents; in the footer the three cells share it, and the rules
+        between them are drawn on its lines.
+     2. The lattice is a whole number of cells. The box's width is rounded
+        down to whole cells plus the closing line, and the pixels left over
+        (fewer than 28) go to plain black either side of it, split as evenly
+        as whole pixels allow.
+     3. The footer's cells are whole cells. The two side cells are a third
+        each, rounded down to whole cells; the middle takes the rest, also
+        whole cells.
+     4. Everything inside is measured in cells: padding one cell, a label one
+        row, the logo two, the buttons two rows with a cell between them and
+        their borders on the lines. The height is then whole rows by
+        construction; magazine-grid-lock.js rounds it up if anything ever
+        isn't.
+     5. Whole pixels, where a 1px line is sharp. Across: the sheet is an even
+        number of pixels wide (see .sheet), so the main column never starts
+        on half a pixel, and --third is whole pixels, so the column beside it
+        doesn't either. Down: a box starts wherever the text above it ends,
+        so magazine-grid-lock.js moves it down the part of a pixel it needs.
+
+     Below 1180px neither box has paper (the footer is one black panel, and
+     the book panel beside an article is hidden), so this starts there. */
+
+    @media (min-width: 1180px) {
+        /* The boxes. --grid is the lattice without its closing line; --inset
+           the black left of it. Both are worked out from the box's width:
+           100% is the width of the box's container, which the box fills, in
+           its padding, and of the box itself, in the ::before's offsets and
+           the corner dots'. */
+        .site-footer,
+        .book-ad.compact {
+            --cell: 28px;
+            --grid: round(down, 100% - 1px, var(--cell));
+            --inset: round(down, (100% - var(--grid) - 1px) / 2, 1px);
+            --outset: calc(100% - var(--grid) - var(--inset));
+            position: relative;
+            isolation: isolate;
+            background: var(--ink);
+
+            &::before {
+                content: "";
+                position: absolute;
+                z-index: -1;
+                inset-block: 0;
+                inset-inline-start: var(--inset);
+                inline-size: calc(var(--grid) + 1px);
+                background: url("/static/assets/images/magazine/patterns/graph-reversed.svg") 0 0 / 672px 672px;
+                pointer-events: none;
+            }
+        }
+
+        /* The footer: three cells on the lattice, no padding of its own but
+           the black either side and the closing line's pixel below. */
+        .site-footer {
+            grid-template-columns:
+                round(down, 100% / 3, var(--cell))
+                minmax(0, 1fr)
+                round(down, 100% / 3, var(--cell));
+            gap: 0;
+            padding-block: 0 1px;
+            padding-inline: var(--inset) var(--outset);
+        }
+
+        /* The cells: clear, so the paper shows, with the rule between them
+           drawn on the lattice line at their left edge. A shadow, not a
+           border, so it takes no room. */
+        .footer-colophon,
+        .footer-block {
+            gap: 0;
+            padding: var(--cell);
+            background: none;
+        }
+
+        .site-footer > * + * {
+            box-shadow: inset var(--rule) 0 0 var(--night-line);
+        }
+
+        .footer-themes {
+            background: url("/static/assets/images/magazine/patterns/dither-fade-reversed.svg") right top / 336px 336px no-repeat;
+        }
+
+        /* The book beside an article: a cell in from the lattice on every
+           side, and the closing line's pixel below. */
+        .book-ad.compact {
+            gap: 0;
+            padding-block: var(--cell) calc(var(--cell) + 1px);
+            padding-inline: calc(var(--inset) + var(--cell)) calc(var(--outset) + var(--cell));
+        }
+
+        /* The two book panels size their buttons by their own width. */
+        .footer-colophon,
+        .footer-block,
+        .book-ad.compact {
+            container: lock-cell / inline-size;
+        }
+
+        /* Corner dots: centred on the label's row, their right edge on the
+           line a cell in from the lattice's right. */
+        .site-footer .panel-corner {
+            inset-block-start: calc(var(--cell) + 10px);
+            inset-inline-end: var(--cell);
+        }
+
+        .book-ad.compact > .panel-corner {
+            inset-block-start: calc(var(--cell) + 10px);
+            inset-inline-end: calc(var(--outset) + var(--cell));
+        }
+
+        /* Rows. A line of text is a row tall, centred in it. */
+        :is(.site-footer, .book-ad.compact) .book-ad-label {
+            line-height: var(--cell);
+            text-box: none;
+            white-space: nowrap;
+        }
+
+        .footer-title,
+        .footer-themes .book-spec {
+            line-height: var(--cell);
+        }
+
+        /* The colophon: the mark two rows, a row's gap, the typemark (17px)
+           in a row, a row's gap, the motto in a row. */
+        .footer-mark {
+            width: auto;
+            height: calc(var(--cell) * 2);
+        }
+
+        .footer-typemark {
+            height: 17px;
+            width: auto;
+            object-fit: contain;
+            margin-block: calc(var(--cell) + 5px) 6px;
+        }
+
+        .footer-motto {
+            margin-block-start: var(--cell);
+            line-height: var(--cell);
+        }
+
+        /* The book, in the footer and beside an article: label, the logo two
+           rows, the gauge (6px) centred in a row and six cells long, then the
+           buttons. */
+        :is(.footer-book, .book-ad.compact) {
+            & .book-ad-logo {
+                align-self: flex-start;
+                width: auto;
+                height: calc(var(--cell) * 2);
+            }
+
+            & .footer-gauge {
+                width: calc(var(--cell) * 6);
+                margin-block: 11px;
+            }
+        }
+
+        /* Buttons on the lattice: each two rows tall, a cell between them,
+           side by side when the cell has room (13 cells inside), stacked
+           when it hasn't. The grid's tracks are whole cells; each button
+           reaches one pixel past its area so its right and bottom borders
+           lie on the next line, as the lattice's own do. */
+        :is(.footer-block, .book-ad.compact) .footer-actions {
+            display: grid;
+            grid-template-columns: round(down, (100% - var(--cell)) / 2, var(--cell)) minmax(0, 1fr);
+            grid-auto-rows: calc(var(--cell) * 2);
+            gap: var(--cell);
+
+            & .neo-button {
+                min-width: 0;
+                height: auto;
+                margin: 0 -1px -1px 0;
+                padding-inline: calc(var(--cell) - 1px);
+            }
+
+            & .neo-button.primary {
+                grid-column: 1 / -1;
+                padding-inline-end: 60px;
+            }
+        }
+
+        .footer-themes .footer-actions {
+            margin-block-start: var(--cell);
+        }
+
+        @container lock-cell (width < 364px) {
+            :is(.footer-block, .book-ad.compact) .footer-actions {
+                grid-template-columns: minmax(0, 1fr);
+            }
         }
     }
 }

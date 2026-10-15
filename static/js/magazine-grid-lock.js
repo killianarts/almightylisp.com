@@ -1,5 +1,5 @@
-// Grid lock: puts each lattice box on a whole pixel and rounds its height up
-// to whole rows.
+// The grid lock (see magazine.css): puts each box of graph paper on a whole
+// pixel and rounds its height up to whole rows.
 //
 // A box starts wherever the text above it ends, which is as often as not
 // part of the way through a pixel, and a 1px line drawn there blurs over
@@ -7,7 +7,7 @@
 // down the part of a pixel it needs (a margin under 1px), in the order they
 // come, as each moves the ones after it.
 //
-// grid-lock.css builds the footer and the book panel beside an article from
+// magazine.css builds the footer and the book panel beside an article from
 // whole rows, so their heights are whole rows already and the rounding does
 // nothing. It is the net under that: a fallback font with other metrics, an
 // image that loads late, text that wraps differently. CSS can't round a
@@ -15,12 +15,13 @@
 //
 // The box's ::before is the lattice; a box without one (under 1180px, where
 // neither has paper) is left alone. data-gl-nudged and data-gl-snapped say by
-// how much a box was moved and rounded, for measure.js to show.
+// how much a box was moved and rounded (the lab, /static/dev/grid-lock/,
+// shows them).
 (function () {
   "use strict";
 
   var CELL = 28;
-  var BOXES = ".grid-lock .site-footer, .grid-lock .book-ad.compact";
+  var BOXES = ".site-footer, .book-ad.compact";
   var queued = false;
 
   function fix() {
@@ -37,7 +38,7 @@
     boxes.forEach(function (box) {
       if (getComputedStyle(box, "::before").content === "none") return;
 
-      var top = (box.getBoundingClientRect().top + scrollY) * dpr;
+      var top = (box.getBoundingClientRect().top + window.scrollY) * dpr;
       var part = Math.ceil(top - 0.001) - top;
       if (part > 0.001) {
         box.style.marginBlockStart = part / dpr + "px";
@@ -60,19 +61,35 @@
   function queue() {
     if (queued) return;
     queued = true;
-    requestAnimationFrame(fix);
+    window.requestAnimationFrame(fix);
   }
 
-  // What's inside each box, and the page: the boxes' own margins and
+  // What's inside each box, and the sheet: the boxes' own margins and
   // heights are what this sets.
-  var watch = new ResizeObserver(queue);
-  document.querySelectorAll(BOXES).forEach(function (box) {
-    Array.prototype.forEach.call(box.children, function (child) { watch.observe(child); });
+  var observer = new ResizeObserver(queue);
+
+  function init() {
+    observer.disconnect();
+    document.querySelectorAll(BOXES).forEach(function (box) {
+      Array.prototype.forEach.call(box.children, function (child) { observer.observe(child); });
+    });
+    var sheet = document.querySelector(".sheet");
+    if (sheet) observer.observe(sheet);
+    queue();
+  }
+
+  // Pages arrive by htmx swap as well as by normal loads. Not the search
+  // palette's results: there is no paper in them.
+  document.addEventListener("htmx:after:swap", function (e) {
+    if (e.target.closest && e.target.closest("#search")) return;
+    init();
   });
-  var sheet = document.querySelector(".sheet");
-  if (sheet) watch.observe(sheet);
-  addEventListener("resize", queue);
-  addEventListener("load", queue);
-  if (document.fonts) document.fonts.ready.then(queue);
-  queue();
+  window.addEventListener("resize", queue);
+  window.addEventListener("load", queue);
+  if (document.fonts) {
+    document.fonts.ready.then(queue);
+    if (document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", queue);
+  }
+
+  init();
 })();
