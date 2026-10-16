@@ -62,3 +62,4 @@ https://github.com/bohonghuang/claw-raylib
 * https://github.com/lambda-symbolics/clasted
 * https://github.com/lambda-symbolics/surgeon
 * https://github.com/lambda-symbolics/setinka
+* https://github.com/atgreen/cadr-mono

@@ -197,7 +197,7 @@ render-jp) set upright below the text. A gutter whose label is NIL is bare."
        (render-sep)
        (render-jp "almighty" :class "running-center")
        (render-sep)
-       (span :class "running-status" "Machine Status: Intelligent")))))
+       (span :class "running-status" "Machine Status: Sentient But Friendly")))))
 
 (defun render-running-footer ()
   (ah:</>

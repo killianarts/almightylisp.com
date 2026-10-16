@@ -1,4 +1,6 @@
 ;;;; Intel's published updates, one a line. Written by the desk at /intel/desk.
+(:ID "github.com/lispnik/littoral@v0.3.0" :KIND :RELEASE :PROJECT "littoral" :HOST "github.com" :URL "https://github.com/lispnik/littoral/releases/tag/v0.3.0" :VERSION "0.3.0" :DATE "2026-10-15" :LINE "Adds auth, user roles, and config.")
+(:ID "github.com/atgreen/cadr-mono" :KIND :NEW :PROJECT "cadr-mono" :HOST "github.com" :URL "https://github.com/atgreen/cadr-mono" :VERSION NIL :DATE "2026-10-15" :LINE "A monospace typeface for terminals and code, generated from Common Lisp. 935 glyphs, two grades, box drawing and braille computed from the cell.")
 (:ID "github.com/genworks/akshara" :KIND :NEW :PROJECT "akshara" :HOST "github.com" :URL "https://github.com/genworks/akshara" :VERSION NIL :DATE "2026-10-14" :LINE "OpenType shaping in portable Common Lisp")
 (:ID "github.com/roswell/roswell@v26.10.118" :KIND :RELEASE :PROJECT "Roswell" :HOST "github.com" :URL "https://github.com/roswell/roswell/releases/tag/v26.10.118" :VERSION "26.10.118" :DATE "2026-10-12" :LINE "Minor release.")
 (:ID "github.com/flambard/gdecl_first_2d_game" :KIND :NEW :PROJECT "gdecl_first_2d_game" :HOST "github.com" :URL "https://github.com/flambard/gdecl_first_2d_game" :VERSION NIL :DATE "2026-10-11" :LINE "Godot Dodge the Creeps in Common Lisp")
