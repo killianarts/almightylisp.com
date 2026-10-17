@@ -6,10 +6,12 @@ content/magazine/, served live and published as static pages."
   :version "0.2"
   :depends-on (:shiso :quri :almighty-html :almighty-toki :almighty-press
                :cl-ppcre :com.inuoe.jzon
-               :usocket :cl+ssl :bordeaux-threads :babel)
+               :usocket :cl+ssl :bordeaux-threads :babel :md5)
   :pathname "."
   :serial t
   :components ((:file "model")
+               (:file "font-metrics")
+               (:file "og-image")
                (:file "intel")
                (:file "irc")
                (:module "hypermedia"
@@ -26,7 +28,8 @@ content/magazine/, served live and published as static pages."
                              (:file "archive")
                              (:file "intel")
                              (:file "archive-lab")
-                             (:file "docs-lab")))
+                             (:file "docs-lab")
+                             (:file "og-preview")))
                (:file "publish")
                (:file "controllers")
                (:file "routes")

@@ -25,6 +25,7 @@
          (:GET "/intel/stream" #'controllers:intel-stream "intel-stream")
          (:POST "/intel/desk/irc/start" #'controllers:intel-irc-start "intel-irc-start")
          (:POST "/intel/desk/irc/stop" #'controllers:intel-irc-stop "intel-irc-stop")
+         (:GET "/og-preview" #'controllers:og-preview "og-preview")
          (:GET "/article/:slug" #'controllers:article "article")))
 
 ;; The magazine used to be at /magazine. This is mounted there, and sends each

@@ -1,0 +1,278 @@
+#+title: almighty-settei
+
+Settings for web applications: declared where they are used, typed,
+documented, read from the environment when the program starts, and checked
+all at once. 設定 (settei) is Japanese for settings.
+
+#+begin_src lisp
+(settei:define-setting :server/port settei:integer-setting
+  "The port the server listens on."
+  :environment "PORT"
+  :minimum 1 :maximum 65535
+  :default 5000)
+
+(settei:define-setting :magazine/desk-enabled settei:boolean-setting
+  "Whether the Intel desk answers on this machine."
+  :environment "INTEL_DESK"
+  :default (settei:per-environment :development t :otherwise nil))
+
+(settei:define-setting :magazine/github-token settei:string-setting
+  "Sent with the desk's GitHub searches, for a higher rate limit."
+  :environment "GITHUB_TOKEN"
+  :secret t)
+
+(settei:define-setting :shiso/site-origin settei:string-setting
+  "Scheme and host of the public site, for absolute URLs."
+  :required-in :production)
+
+;; When the program starts:
+(settei:load-settings)
+
+(settei:setting :server/port)          ; => 5000
+(settei:setting-source :server/port)   ; => :DEFAULT
+(setf (settei:setting :server/port) 5002)
+#+end_src
+
+=(settei:print-settings)= shows them all:
+
+#+begin_example
+Environment: development
+
+server
+  :server/port            5002          session      PORT
+                          The port the server listens on.
+
+magazine
+  :magazine/desk-enabled  true          default      INTEL_DESK
+                          Whether the Intel desk answers on this machine.
+  :magazine/github-token  ••••          environment  GITHUB_TOKEN
+                          Sent with the desk's GitHub searches, for a higher rate limit.
+#+end_example
+
+And a server that can't start says everything that is wrong at once:
+
+#+begin_example
+2 settings are wrong for production:
+
+  :server/port        "50OO" from PORT is not an integer
+  :shiso/site-origin  is required in production, and not set (SHISO_SITE_ORIGIN)
+#+end_example
+
+* Settings
+
+=define-setting= makes a setting: a name, a kind and options. The name is a
+keyword written =module/name=; settings are shown grouped by the module.
+
+| Kind               | Takes                                                   |
+|--------------------+---------------------------------------------------------|
+| =boolean-setting=  | =t= or =nil=; from a string, true/yes/on/1 or false/no/off/0 |
+| =integer-setting=  | An integer, within =:minimum= and =:maximum=             |
+| =string-setting=   | A string                                                |
+| =pathname-setting= | A pathname, or a native namestring                      |
+| =choice-setting=   | One of =:options=, a list or a function of the configuration; from a string, case aside |
+| =list-setting=     | A list of strings; from a string, the parts between its commas |
+| =setting=          | Anything of =:type=                                     |
+
+| Option          | Meaning                                                        |
+|-----------------+----------------------------------------------------------------|
+| A string first  | Its documentation                                              |
+| =:default=      | A value; a function of the configuration; or a =per-environment= |
+| =:environment=  | The environment variable that sets it, or a list of them, the first set winning |
+| =:secret=       | Read only from the environment; masked when shown              |
+| =:required-in=  | Environments, or one, where it must have a value               |
+| =:validator=    | A function of the value and configuration: =NIL=, or why not   |
+| =:label=, =:group= | How a settings page shows it                                |
+
+=nil= means "not set" for every kind but booleans. Whether a setting must
+have a value is =:required-in='s business.
+
+Without =:environment=, the variable is derived from the name:
+=:magazine/desk-enabled= is set by =MAGAZINE_DESK_ENABLED=, after
+=*environment-variable-prefix*= (="SHISO_"= makes =SHISO_MAGAZINE_DESK_ENABLED=).
+A name that starts with the prefix doesn't repeat it: =:shiso/site-origin='s
+is =SHISO_SITE_ORIGIN=.
+
+Defining a setting again replaces its definition. A value set in the REPL is
+kept; any other is read again under the new definition.
+
+A new kind is a subclass of =setting= with methods on =coerce-value= (read
+a value, or =reject= it) and =check-value=.
+
+* Where a value comes from
+
+A setting takes the first value found among:
+
+| Source                 | What                                               |
+|------------------------+----------------------------------------------------|
+| =:session=             | Set in this run: =(setf setting)=, or =load-settings='s =:overrides= |
+| =:environment=         | Its environment variable                           |
+| =:dotenv=              | The same variable in the =.env= file               |
+| =:project=             | =configure=, the project's settings file           |
+| =:environment-default= | Its default, when that is a =per-environment=      |
+| =:computed=            | Its default, when that is a function               |
+| =:default=             | Its default                                        |
+
+=setting-source= says which. An empty environment variable counts as not
+set.
+
+** The project's settings
+
+What =settings.py= is to Django: one file giving the project's values, for
+the framework's settings and every module's.
+
+#+begin_src lisp
+(settei:configure
+  (:shiso    :site-origin "https://almightylisp.com")
+  (:server   :host "0.0.0.0" :port 5000)
+  (:database :name "db/almightylisp2.db")
+  (:magazine :desk-enabled (settei:per-environment :development t :otherwise nil)))
+#+end_src
+
+A group is a module and its settings' short names; =:server/host "0.0.0.0"=
+written out works too. Values are evaluated, and may be:
+
+- a =per-environment=. An environment it doesn't name, with no
+  =:otherwise=, keeps the setting's default: =(per-environment :production
+  "https://example.com")= sets production's and leaves development's alone.
+- a function of the configuration, called when the settings load: for a
+  value that depends on the machine, such as a path under the user's home,
+  which a value written in the file would fix when the file is compiled.
+
+The settings needn't be defined yet: the file may load before the modules
+that define them. =load-settings= reports a configured name that is still
+not a setting then, as a misspelling would be. A secret can't be configured:
+it goes in an environment variable, never in a file that may be committed.
+
+=add-project-values= does the same with a plist made as the program runs.
+
+** .env
+
+=load-settings= reads =.env= in the current directory when there is one:
+
+#+begin_example
+# Comments, blank lines and "export " are fine.
+INTEL_DESK=true
+GREETING="Hello\n"     # escapes inside double quotes
+LITERAL='as $written'
+#+end_example
+
+Its variables count only in development (=*dotenv-environments*=), except
+the environment setting's, which counts anywhere: a =.env= with
+=SETTEI_ENV=development= makes a machine development without setting
+anything in the shell, and a real environment variable still wins over it.
+=:dotenv nil= turns the file off; =:dotenv #p"..."= reads another.
+
+* The environment
+
+Every registry has =:settei/environment=, set by =SETTEI_ENV=:
+=:development=, =:test= or =:production=. (A framework renames it: see
+[[*Under a framework][Under a framework]].) Defaults may depend on it:
+
+#+begin_src lisp
+:default (settei:per-environment :development t :otherwise nil)
+#+end_src
+
+=development-p=, =test-p= and =production-p= ask which it is.
+
+When =SETTEI_ENV= isn't set, the environment is =*default-environment*=,
+or =load-settings='s =:environment=. It is =:development= in an image loaded
+from source and =:production= in one started from a saved image, such as a
+built program. A feature meant for this machine only is off wherever nobody
+turned it on.
+
+* Loading
+
+Nothing is read from the environment when code is loaded. Call
+=load-settings= when the program starts: it reads every setting, checks them
+all, and signals =settings-invalid= listing every problem, with a
+=continue= restart that uses the defaults of those that are wrong.
+
+In an image loaded from source, the first setting read loads them if
+nothing has yet. In a saved image starting up, what was loaded when it was
+saved is forgotten, and reading a setting before =load-settings= is
+=settings-not-loaded=: a built program always reads the machine it runs on.
+
+=reload-settings= reads the environment and =.env= again, keeping the values
+set in this session.
+
+* Threads
+
+The program's configuration is the global value of =*configuration*=:
+=load-settings= and =(setf setting)= change it, and every thread sees them.
+
+=with-settings= changes settings for its body, in its own thread only, for
+tests that call the program directly:
+
+#+begin_src lisp
+(settei:with-settings (:magazine/desk-enabled t)
+  (assert-eql 200 (status (request "/intel/desk"))))
+#+end_src
+
+* Listeners
+
+#+begin_src lisp
+(settei:on-setting-change :server/debugp
+  (lambda (before after) (rebuild-middleware after)))
+#+end_src
+
+A listener is called when the value changes: set, unset, or different when
+the settings are loaded again.
+
+* Showing the settings
+
+- =print-settings= prints them grouped, with value, source, variables and
+  documentation; =:changed t= only those not at their defaults.
+- =settings-report= gives the same as plists, for a settings page.
+- =redact= replaces every secret's value in a string with =••••=, for error
+  pages and logs.
+
+* Misspelt names
+
+=setting= with an unknown name signals =setting-unknown=. When the name is
+a constant, the compiler warns (=unknown-setting-warning=, a style warning)
+if no setting of that name was defined before, in this file or loaded.
+
+* Under a framework
+
+A framework can offer these settings as its own, so its users never meet
+this library's name:
+
+- Re-export the user-facing symbols from the framework's package:
+  =define-setting= and the kinds, =setting=, =setting-source=,
+  =setting-unset=, =configure=, =per-environment=, =development-p= and its
+  kin, =load-settings=, =reload-settings=, =with-settings=, the listeners,
+  =print-settings=, =settings-report=, =redact=, and the conditions.
+- Name the environment setting and its variable:
+
+  #+begin_src lisp
+  (settei:define-environment-setting :shiso/environment
+    "What kind of machine this is: development, test or production."
+    :environment "SHISO_ENV")
+  #+end_src
+
+  =:settei/environment= and =SETTEI_ENV= are then gone, from every registry.
+- Set =*environment-variable-prefix*= (="SHISO_"=), so a setting without
+  =:environment= is set by =SHISO_<MODULE>_<NAME>=.
+- Give its own condition classes, subclasses of these, to be signalled in
+  their place, so the debugger names the framework's types:
+
+  #+begin_src lisp
+  (define-condition settings-invalid (settei:settings-invalid) ())
+  (settei:use-condition-class 'settei:settings-invalid 'settings-invalid)
+  #+end_src
+
+  A handler for the library's class still catches them.
+
+* Tests
+
+#+begin_src lisp
+(asdf:test-system :almighty-settei)
+#+end_src
+
+A test binds =*registry*= to =(make-registry)=: what it defines, configures
+and loads is its own.
+
+* Acknowledgements
+
+The design follows [[https://github.com/lambda-symbolics/setinka][setinka]]'s: settings as typed, documented objects in a
+registry, read through a function, each value knowing its source.

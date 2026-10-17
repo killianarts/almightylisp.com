@@ -251,6 +251,7 @@ cell's number carries the count of sections, for layouts that show both."
      (ah:</>
       (ac-sheet-page :title (format nil "~a — Almighty Lisp" (model:article-title article))
         :description (model:article-subtitle article)
+        :share (article-share article series)
         :page-class (ah:clsx "page-article" (when evolving "page-evolving")) :sheet-id "top"
         :scripts (ah:</>
                   (<>

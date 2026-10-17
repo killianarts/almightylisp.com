@@ -57,10 +57,16 @@ allow fewer characters than that has. After this, a number is added.")
   "How the listener is: :state is :off, :connecting, :listening or :waiting;
 :nick the name it has; :note what last went wrong, as text.")
 
+(shiso:define-setting :magazine/irc-enabled shiso:boolean-setting
+  "Whether the server listens to IRC from the first visit, without being
+asked on the Intel desk."
+  :environment "INTEL_IRC"
+  :default nil)
+
 (defun enabled-p ()
-  "True in an image that is to listen without being asked: one started with
-INTEL_IRC=true."
-  (string-equal (uiop:getenv "INTEL_IRC") "true"))
+  "True in an image that is to listen without being asked
+(:magazine/irc-enabled)."
+  (shiso:setting :magazine/irc-enabled))
 
 (defun running-p ()
   (and *thread* (bt:thread-alive-p *thread*)))

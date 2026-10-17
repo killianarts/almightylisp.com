@@ -4,9 +4,10 @@
                     (#:s #:shiso)
                     (#:model #:magazine/model)
                     (#:intel #:magazine/intel)
-                    (#:irc #:magazine/irc))
+                    (#:irc #:magazine/irc)
+                    (#:og #:magazine/og-image))
   (:export #:page-home #:page-archive #:page-intel #:page-intel-desk #:irc-lines-html #:page-archive-lab #:page-docs-lab #:page-article #:page-not-found
-           #:render-search-results))
+           #:render-search-results #:page-og-preview))
 
 (in-package #:magazine/hypermedia/components)
 
@@ -25,6 +26,7 @@
 ;;;   article.lisp    the article page
 ;;;   archive.lisp    the archive and the not-found page
 ;;;   search.lisp     search: the palette every page carries, and its results
+;;;   og-preview.lisp the articles' preview images as the social sites show them
 
 (defun magazine-href ()
   (s:url "magazine:index"))

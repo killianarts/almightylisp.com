@@ -1,65 +1,62 @@
 #+title: Main
 #+property: header-args:common-lisp :tangle ../src/main.lisp
 
-Application entry point: the =almightylisp= package, environment helpers,
-application definition, and server start/stop.
+Application entry point: the =almightylisp= package, the application
+definition, and server start/stop.
+
+The settings live in =src/settings.lisp=: Shiso's and every module's, in one
+=shiso:configure=. What differs between machines goes in the environment
+(=almightylisp.env= on the server, =.env= here). =shiso:start= loads them,
+connects to the database and makes its tables, so this file does neither.
 
 * Package Definition
 #+begin_src common-lisp
 (defpackage #:almightylisp
   (:use #:cl)
   (:export
+   #:main
    #:start-server
-   #:stop-server))
+   #:stop-server
+   #:*almightylisp-application*))
 (in-package #:almightylisp)
-#+end_src
-
-* Environment Variable Utilities
-#+begin_src common-lisp
-(defun get-env-int (env default)
-  (let ((env (uiop:getenv env)))
-    (if env
-        (parse-integer env :junk-allowed t)
-        default)))
-
-(defun get-env (env default)
-  (or (uiop:getenv env) default))
-
-(defun envp (env)
-  (if (string-equal (uiop:getenvp env) "true")
-      t
-      nil))
 #+end_src
 
 * Application Configuration
 
-Mount the =books= and =articles= modules at their respective URL prefixes.
+The magazine is the site's root. Its articles are at /article/:slug, which
+the article module's mount hands on: that module answers only /article and
+/article/create. static/js/magazine-fx.js lists the other modules' prefixes
+(OTHER_SECTIONS); a module mounted here belongs there too.
 
 #+begin_src common-lisp
 (shiso:define-application *almightylisp-application* ()
   (:modules
    ("/admin" shiso-admin)
-    ("/books" books)
-    ("/articles" articles)))
-#+end_src
-
-* Database Setup
-
-Connect to SQLite and auto-migrate all registered models.
-
-#+begin_src common-lisp
-(defun setup-database ()
-  (ensure-directories-exist #P"db/")
-  (mito:connect-toplevel :sqlite3 :database-name "db/almightylisp.db")
-  (dolist (model-name (shiso/models:all-models))
-    (mito:ensure-table-exists (shiso/models:model-class model-name))))
+   ("/book" book)
+   ("/article" article)
+   ("/author" author)
+   ("/magazine" magazine-moved)
+   ("" home)
+   ("" magazine)))
 #+end_src
 
 * Server Lifecycle
+
+=start-server='s keywords set =:server/host=, =:server/port= and
+=:server/debugp= for this run; without them, the settings say.
+
 #+begin_src common-lisp
-(defun start-server (&key (host (get-env "HOST" "127.0.0.1")) (port (get-env-int "PORT" 5000)) (debugp (envp "DEBUGP")))
-  (setup-database)
-  (shiso:start *almightylisp-application* :host host :port port :debugp debugp))
+;;; The settings (src/settings.lisp, the environment, and .env in
+;;; development) are loaded, the database connected and its tables made, by
+;;; SHISO:START. `(shiso:print-settings)` lists them.
+
+(defun start-server (&key (host nil host-p) (port nil port-p) (debugp nil debugp-p))
+  "Start the site. HOST, PORT and DEBUGP, when given, set :server/host,
+:server/port and :server/debugp for this run."
+  (when host-p (setf (shiso:setting :server/host) host))
+  (when port-p (setf (shiso:setting :server/port) port))
+  (when debugp-p (setf (shiso:setting :server/debugp) debugp))
+  (shiso:start *almightylisp-application*))
 ,#+nil
 (start-server)
 
@@ -67,4 +64,30 @@ Connect to SQLite and auto-migrate all registered models.
   (shiso:stop))
 ,#+nil
 (stop-server)
+#+end_src
+
+* The Binary
+
+With no arguments, the binary starts the server: the systemd unit runs it so.
+With a management command's name, the command runs and the binary exits.
+
+#+begin_src common-lisp
+(defun run-server ()
+  "Start the server, and keep the process alive."
+  (handler-case
+      (progn
+        (start-server)
+        (loop (sleep 60)))
+    (error (c)
+      (format *error-output* "Aborting. ~a ~&" c)
+      (force-output *error-output*)
+      (uiop:quit 1))))
+
+(defun main ()
+  "Executable entry point. With no arguments, the server starts; with a
+management command's name, it runs: `almightylisp settings` lists the
+settings, `almightylisp createsuperuser` makes an admin."
+  (shiso:run-cli (uiop:command-line-arguments)
+                 :program "almightylisp"
+                 :serve #'run-server))
 #+end_src

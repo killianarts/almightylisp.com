@@ -13,3 +13,6 @@ content/intel/inbox.sexp
 content/intel/following.sexp
 content/intel/active.sexp
 static/magazine/published
+
+# This machine's settings (see src/settings.lisp)
+.env

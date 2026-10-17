@@ -50,6 +50,10 @@ used for another site.
 | =hypermedia/archive.lisp=     | The archive and the not-found page                                 |
 | =hypermedia/search.lisp=      | Search: the palette every page carries, and its results            |
 | =hypermedia/intel.lisp=       | Intel: the homepage band, the Intel page, and the desk             |
+| =hypermedia/og-preview.lisp=  | =/og-preview=: the preview images as the social sites show them    |
+| =font-metrics.lisp=           | How wide a line of text is, read from a font file                  |
+| =og-image.lisp=               | Each article's social preview image: its layout, SVG and PNG       |
+| =og-fonts/=                   | The fonts the preview images are drawn with, and =fonts.conf=      |
 | =publish.lisp=                | Writing every page to =static/magazine/published/=                 |
 | =controllers.lisp=            | The three pages, and publishing when the content changed           |
 | =routes.lisp=                 | URLs                                                               |
@@ -347,13 +351,15 @@ line for each update worth passing on.
 | =/intel=                 | Every published update by day; =?kind=release= or =?kind=new= keeps one kind |
 | =/intel/desk=            | The desk: the queue, what's published, what's dismissed           |
 
-*The desk* answers only where it is turned on: start the server with
-=INTEL_DESK=true=, or evaluate =(setf magazine/intel:*desk-enabled* t)=.
-Anywhere else its addresses are not found, so the public site never serves
-it. Fetch now runs =curl= against each watched project's feed (GitHub,
+*The desk* answers only where =:magazine/desk-enabled= is true: in
+development by default; anywhere else with =INTEL_DESK=true=, or
+=(setf (shiso:setting :magazine/desk-enabled) t)= in the REPL. Anywhere
+else its addresses are not found, so the public site never serves it. Fetch now runs =curl= against each watched project's feed (GitHub,
 GitLab, Codeberg or another Gitea or Forgejo host; any other URL is taken to
 be a feed), against each blog's feed, and against GitHub's search for
-repositories created in the last two weeks. =GITHUB_TOKEN=, when set, is sent with the search only.
+repositories created in the last two weeks. =:magazine/github-token=
+(=GITHUB_TOKEN=, a secret: set it in the environment or =.env=), when set,
+is sent with the search only.
 Publishing, changing a line and unpublishing write =updates.sexp= and the
 static pages again; deploy them as you would an article.
 
@@ -382,8 +388,8 @@ there, in memory only. It answers the server's pings and sends nothing else:
 it never speaks. The desk's Live list has Connect and Disconnect, and shows
 the lines as they arrive; while the listener runs, the homepage shows the
 newest eight under the Intel band. Both lists ask =/intel/stream=
-for themselves again every few seconds. An image started with
-=INTEL_IRC=true= connects by itself on the homepage's first visit, which is
+for themselves again every few seconds. Where =:magazine/irc-enabled= is
+true (=INTEL_IRC=true=), the listener connects by itself on the homepage's first visit, which is
 how the public site would show the channel; without it, nothing connects
 until Connect is pressed. The server, channels and name are the variables at
 the top of =irc.lisp=.
@@ -431,3 +437,44 @@ changes writes every page before answering. To force it from the REPL:
 #+BEGIN_SRC lisp
 (magazine:publish)
 #+END_SRC
+
+* Preview images
+
+A link to an article shows a picture on X, Facebook, Discord and the like:
+the article's preview image (Figma: Social Media · Article OG image). Its
+page names it in its Open Graph tags; every other page names the site's
+picture, =static/assets/images/x-posts-preview-image.png=.
+
+Publishing draws each article's image that isn't drawn yet
+(=og-image.lisp=): an SVG, made into a 1200 x 630 PNG in
+=static/magazine/published/og/= by =rsvg-convert=. The file is named after
+the slug and a hash of what it shows, so an image is drawn again only when
+it changes, under a new name the social sites haven't kept. Images of
+articles that changed or are gone are deleted.
+
+The title is set as large as it fits, from 180px down to 54px: the largest
+size whose lines fill the space above the subtitle, leaving a strip of
+hatching. Its own line breaks (=\\= in =#+TITLE=) are kept. Past three
+lines at 54px it is cut short with an ellipsis, and the subtitle past four
+lines. SVG doesn't wrap text, so the lines are broken in Lisp, measured with
+the font files' widths (=font-metrics.lisp=).
+
+=rsvg-convert= must be installed where the server runs: =apt install
+librsvg2-bin=, or =brew install librsvg=. Without it the pages still
+publish, with the site's picture, and =/og-preview= says why. It draws with
+the fonts in =og-fonts/= alone (=fonts.conf=), so an image comes out the same
+on any machine: Science Gothic Medium and Mohave Regular, fixed from their
+variable fonts with fontTools, Construct Mono, and JF Dot M+Q 10 cut down to
+the running header's and footer's Japanese.
+
+| Address                  | What's there                                                      |
+|--------------------------+-------------------------------------------------------------------|
+| =/og-preview=            | Every article's image at full size, and as X, Facebook and LinkedIn, Discord and Slack show it |
+| =/og-preview?slug=SLUG=  | One article's                                                     |
+
+=/og-preview= answers only where =:magazine/og-preview-enabled= is true: in
+development, unless the setting says otherwise. It is for checking an image
+on this machine before anyone sees it. The sites'
+cards there are close copies of theirs; for a published page, the Facebook
+Sharing Debugger and LinkedIn's Post Inspector show their own and fetch the
+image again.

@@ -77,11 +77,15 @@ automatically detected and registered as the module's static root.
 - Type :: Macro
 
 #+begin_src lisp
-(start app &key (host "127.0.0.1") (port 5000) (debugp t))
+(start app &key host port debugp)
 #+end_src
 
 Start the HTTP server. =APP= is a symbol naming the application variable
-(e.g., =*almightylisp-application*=). The server runs on Woo via Clack.
+(e.g., =*almightylisp-application*=). =start= loads the settings unless they
+are loaded, connects to the database (=:database/=) and makes its tables,
+and serves on =:server/host= and =:server/port= with =:server/backend=
+(Woo by default) via Clack. =HOST=, =PORT= and =DEBUGP=, when given, set
+those settings for this run.
 
 If a server is already running, a =restart-server= restart is available
 to stop and restart.
@@ -89,10 +93,12 @@ to stop and restart.
 ** Example
 
 #+begin_src lisp
+;; src/settings.lisp
+(shiso:configure
+  (:database :name "db/almightylisp2.db"))
+
 ;; From almightylisp.com/src/main.lisp
-(defun start-server (&key (host "127.0.0.1") (port 5000) (debugp nil))
-  (setup-database)
-  (shiso:start *almightylisp-application* :host host :port port :debugp debugp))
+(shiso:start *almightylisp-application*)
 #+end_src
 
 * stop

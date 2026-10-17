@@ -7,20 +7,6 @@
    #:*almightylisp-application*))
 (in-package #:almightylisp)
 
-(defun get-env-int (env default)
-  (let ((env (uiop:getenv env)))
-    (if env
-        (parse-integer env :junk-allowed t)
-        default)))
-
-(defun get-env (env default)
-  (or (uiop:getenv env) default))
-
-(defun envp (env)
-  (if (string-equal (uiop:getenvp env) "true")
-      t
-      nil))
-
 ;; The magazine is the site's root. Its articles are at /article/:slug, which
 ;; the article module's mount hands on: that module answers only /article and
 ;; /article/create. static/js/magazine-fx.js lists the other modules' prefixes
@@ -35,25 +21,17 @@
    ("" home)
    ("" magazine)))
 
-(defun setup-database ()
-  (ensure-directories-exist #P"db/")
-  (mito:connect-toplevel :sqlite3 :database-name "db/almightylisp2.db")
-  (shiso:ensure-session-table :table-name "shiso_session")
-  (dolist (model-name (shiso/models:all-models))
-    (mito:ensure-table-exists (shiso/models:model-class model-name)))
+;;; The settings (src/settings.lisp, the environment, and .env in
+;;; development) are loaded, the database connected and its tables made, by
+;;; SHISO:START. `(shiso:print-settings)` lists them.
 
-  ;; If you are using Lack's DBI-backed session store (e.g. via shiso/auth/session
-  ;; or directly with (:session :store (lack/session/store/dbi:make-dbi-store ...))
-  ;; with table-name "shiso_session"), make sure the table exists:
-  ;; (shiso:ensure-session-table :table-name "shiso_session")
-  ;;
-  ;; Call it here after the mito connection so the session table is created
-  ;; alongside your models. The lack dbi store itself does not create the table.
-  )
-
-(defun start-server (&key (host (get-env "HOST" "127.0.0.1")) (port (get-env-int "PORT" 5000)) (debugp (envp "DEBUGP")))
-  (setup-database)
-  (shiso:start *almightylisp-application* :host host :port port :debugp debugp))
+(defun start-server (&key (host nil host-p) (port nil port-p) (debugp nil debugp-p))
+  "Start the site. HOST, PORT and DEBUGP, when given, set :server/host,
+:server/port and :server/debugp for this run."
+  (when host-p (setf (shiso:setting :server/host) host))
+  (when port-p (setf (shiso:setting :server/port) port))
+  (when debugp-p (setf (shiso:setting :server/debugp) debugp))
+  (shiso:start *almightylisp-application*))
 #+nil
 (start-server)
 
@@ -62,18 +40,21 @@
 #+nil
 (stop-server)
 
+(defun run-server ()
+  "Start the server, and keep the process alive."
+  (handler-case
+      (progn
+        (start-server)
+        (loop (sleep 60)))
+    (error (c)
+      (format *error-output* "Aborting. ~a ~&" c)
+      (force-output *error-output*)
+      (uiop:quit 1))))
+
 (defun main ()
-  "Executable entry point. Connects the DB, then starts the server.
-Must call setup-database: the Lack DBI session store reuses
-mito.connection:*connection*, which is NIL until connect-toplevel runs."
-  (let ((host (get-env "HOST" "127.0.0.1"))
-        (port (get-env-int "PORT" 5000))
-        (debugp (envp "DEBUGP")))
-    (handler-case
-        (progn
-          (start-server :host host :port port :debugp debugp)
-          (loop (sleep 60)))
-      (error (c)
-        (format *error-output* "Aborting. ~a ~&" c)
-        (force-output *error-output*)
-        (uiop:quit 1)))))
+  "Executable entry point. With no arguments, the server starts; with a
+management command's name, it runs: `almightylisp settings` lists the
+settings, `almightylisp createsuperuser` makes an admin."
+  (shiso:run-cli (uiop:command-line-arguments)
+                 :program "almightylisp"
+                 :serve #'run-server))

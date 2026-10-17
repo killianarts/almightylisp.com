@@ -30,6 +30,7 @@
                 :components ((:file "components")
                              (:file "package")))
                (:file "utils")
+               (:file "settings")
                (:file "main")))
 
 

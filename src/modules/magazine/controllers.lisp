@@ -5,13 +5,14 @@
                     (#:intel #:magazine/intel)
                     (#:irc #:magazine/irc)
                     (#:pub #:magazine/publish)
+                    (#:og #:magazine/og-image)
                     (#:hhc #:magazine/hypermedia/components))
   (:export #:index #:archive #:archive-lab #:docs-lab #:search-results #:article
            #:intel #:intel-desk #:intel-fetch #:intel-publish #:intel-unpublish
            #:intel-dismiss #:intel-restore
            #:intel-follow #:intel-unfollow #:intel-seen #:intel-hide
            #:intel-stream #:intel-irc-start #:intel-irc-stop
-           #:moved))
+           #:og-preview #:moved))
 
 (in-package #:magazine/controllers)
 
@@ -185,6 +186,17 @@ the followed projects' commits."
 
 (defun intel-irc-stop ()
   (irc-action #'irc:stop))
+
+(defun og-preview ()
+  "Each article's social preview image, as the sites that show it will
+(see hypermedia/og-preview.lisp); ?slug shows one article's. Found only
+where :magazine/og-preview-enabled is true: in development."
+  (cond ((not (shiso:setting :magazine/og-preview-enabled)) (not-found))
+        (t (ensure-published)
+           (let ((images (og:ensure-images (model:magazine-articles) (model:magazine-series))))
+             (s:http-response (hhc:page-og-preview images (og:renderer-problem)
+                                                   :slug (query-param "slug"))
+                              :headers '(:cache-control "no-store"))))))
 
 (defun article (slug)
   (ensure-published)

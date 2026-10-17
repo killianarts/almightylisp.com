@@ -5,7 +5,7 @@
    ;; What the site shows
    #:published-updates #:update-date #:watch-list #:blog-list #:published-commits
    ;; The desk
-   #:*desk-enabled* #:desk-enabled-p #:*line-limit*
+   #:desk-enabled-p #:*line-limit*
    #:inbox #:fetch-updates
    #:publish-update #:unpublish-update #:dismiss-update #:restore-update
    ;; Following
@@ -102,14 +102,20 @@ many as GitHub gives in one answer.")
 (defparameter *commits-kept* 20
   "The newest commits kept for each followed project.")
 
-(defvar *desk-enabled* nil
-  "True where the desk may be used. See DESK-ENABLED-P.")
+(shiso:define-setting :magazine/desk-enabled shiso:boolean-setting
+  "Whether the Intel desk answers on this machine: anywhere else its
+addresses are not found, so the public site never serves it."
+  :environment "INTEL_DESK"
+  :default (shiso:per-environment :development t :otherwise nil))
+
+(shiso:define-setting :magazine/github-token shiso:string-setting
+  "Sent with the desk's GitHub searches, for a higher rate limit."
+  :environment "GITHUB_TOKEN"
+  :secret t)
 
 (defun desk-enabled-p ()
-  "True on a machine the desk is for: one that set *DESK-ENABLED*, or that was
-started with INTEL_DESK=true. Anywhere else its addresses are not found."
-  (or *desk-enabled*
-      (string-equal (uiop:getenv "INTEL_DESK") "true")))
+  "True on a machine the desk is for (:magazine/desk-enabled)."
+  (shiso:setting :magazine/desk-enabled))
 
 ;;; Places
 
@@ -478,7 +484,7 @@ search for new repositories', and the search for active ones'."
                      collect (merge-pathnames (format nil "feed-~d.xml" index) directory)))
         (search (merge-pathnames "new.json" directory))
         (active (merge-pathnames "active.json" directory))
-        (token (uiop:getenv "GITHUB_TOKEN")))
+        (token (shiso:setting :magazine/github-token)))
     (when sources
       (curl (loop for source in sources
                   for file in feeds

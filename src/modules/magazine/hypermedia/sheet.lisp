@@ -13,7 +13,53 @@
 ;;; of dots. They stand in the gutters beside a band, in section heads and in
 ;;; the black panels.
 
-(ah:define-component ac-magazine-document (&key title description body-class children)
+;;; Sharing: what a link to the page shows on X, Facebook, Discord and the
+;;; like, from its Open Graph tags. An article's picture is its own preview
+;;; image (see og-image.lisp); every other page's is the site's.
+
+(defparameter *default-share-image* "assets/images/x-posts-preview-image.png"
+  "The picture a page without one of its own shows, under static/.")
+
+(defun article-share (article series)
+  "ARTICLE's sharing tags, as a plist for AC-MAGAZINE-DOCUMENT's SHARE: its
+preview image once it is drawn. SERIES is every series."
+  (let ((image (og:article-image article series)))
+    (list :title (model:article-title article)
+          :description (og:plain-text (model:article-subtitle article))
+          :type "article"
+          :url (s:absolute-url (article-href article))
+          :image (when (og:image-drawn-p image)
+                   (s:static (og:image-static-path image)))
+          :width og:+width+ :height og:+height+
+          :alt (model:article-title article))))
+
+(defun render-share-tags (share)
+  "The Open Graph and X tags for SHARE, a plist of :TITLE, :DESCRIPTION,
+:TYPE, :URL and :IMAGE, an address under /static/, with its :WIDTH, :HEIGHT
+and :ALT text. Without an image, the site's."
+  (destructuring-bind (&key title description (type "website") url image width height alt)
+      share
+    (let ((image-url (s:absolute-url (or image (s:static *default-share-image*)))))
+      (ah:</>
+       (<>
+         (meta :property "og:site_name" :content "Almighty Lisp")
+         (meta :property "og:type" :content type)
+         (meta :property "og:title" :content title)
+         (meta :property "og:description" :content description)
+         (when url (ah:</> (meta :property "og:url" :content url)))
+         (meta :property "og:image" :content image-url)
+         (when image
+           (ah:</>
+            (<>
+              (meta :property "og:image:width" :content (princ-to-string width))
+              (meta :property "og:image:height" :content (princ-to-string height))
+              (meta :property "og:image:alt" :content alt))))
+         (meta :name "twitter:card" :content "summary_large_image")
+         (meta :name "twitter:site" :content "@almighty_lisp"))))))
+
+(ah:define-component ac-magazine-document (&key title description share body-class children)
+  "SHARE is the page's sharing tags (see RENDER-SHARE-TAGS); without them, its
+TITLE and DESCRIPTION and the site's picture."
   (ah:</>
    (html :lang "en"
      (head
@@ -21,6 +67,7 @@
        (meta :name "viewport" :content "width=device-width, initial-scale=1")
        (title title)
        (meta :name "description" :content description)
+       (render-share-tags (or share (list :title title :description description)))
        (link :rel "icon" :type "image/png" :sizes "32x32"
          :href (asset "assets/images/favicon/favicon-32x32.png"))
        ;; Loads the fonts once the page is up, and switches them in once
@@ -56,13 +103,15 @@
 
 (ah:define-component ac-sheet-page (&key title
                                          (description "A magazine about Common Lisp and Emacs.")
-                                         page-class sheet-id scripts children)
+                                         share page-class sheet-id scripts children)
   "A whole magazine page: the sheet with its running header, nameplate and
 strip, then CHILDREN, the page's own bands, then the footer. JP sets
-the header's centre in Japanese. SCRIPTS go after the sheet."
+the header's centre in Japanese. SCRIPTS go after the sheet. SHARE is the
+page's sharing tags (see RENDER-SHARE-TAGS)."
   (let ((body-class (ah:clsx "mag" page-class)))
     (ah:</>
-     (ac-magazine-document :title title :description description :body-class body-class
+     (ac-magazine-document :title title :description description :share share
+                           :body-class body-class
        ;; htmx swaps only the body's contents; magazine-fx.js sets the body's
        ;; class from data-body-class after a swap.
        (div :class "sheet" :id sheet-id :data-body-class body-class
