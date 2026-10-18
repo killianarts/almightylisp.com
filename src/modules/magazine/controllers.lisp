@@ -16,10 +16,16 @@
 
 (in-package #:magazine/controllers)
 
-(defparameter *page-cache* '(:cache-control "private, max-age=60")
+(defparameter *page-cache* '(:cache-control "public, max-age=60"
+                             :cloudflare-cdn-cache-control "max-age=2592000")
   "Magazine pages may be reused from the browser's cache for a minute. htmx's
 preload extension depends on it: it fetches a page when a link is hovered,
-and the click is then served from the cache.")
+and the click is then served from the cache.
+
+Cloudflare keeps them for 30 days, so visitors far from the server get them
+from nearby. Only Cloudflare reads its header, so no other shared cache keeps
+a page that long. `make update' purges Cloudflare's cache, so a deploy shows
+at once.")
 
 (defun page-response (html &key (code 200))
   (s:http-response html :code code :headers *page-cache*))

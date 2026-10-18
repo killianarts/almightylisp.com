@@ -79,3 +79,5 @@ https://github.com/bohonghuang/claw-raylib
 * https://github.com/nasa/pvslib
 * https://github.com/theangelperalta/cl-objc
 * https://github.com/40ants/setup-lisp
+* https://github.com/sroerick/autolith-webui
+* https://github.com/joachifm/cl-webkit

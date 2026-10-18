@@ -25,10 +25,27 @@
   var LATIN_EXT = "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, " +
     "U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, " +
     "U+2113, U+2C60-2C7F, U+A720-A7FF";
+  // Science Gothic comes in two files cut from ScienceGothic-Variable.ttf, with
+  // its CTRS and slnt axes fixed at 0: Latin with the arrows and shapes the
+  // pages use, and every other character the font has.
+  var SCIENCE_LATIN = LATIN + ", U+2190-2199, U+25A0-25CF";
+  var SCIENCE_OTHER = "U+0100-0130, U+0134-0148, U+014A-0151, U+0154-017E, U+0181, " +
+    "U+0186, U+018A, U+018F-0190, U+0192, U+0198-0199, U+019D, U+01A0-01A1, U+01AF-01B0, " +
+    "U+01B3-01B4, U+01C4-01CC, U+01E6-01E7, U+01EA-01EB, U+01F8-021B, U+022A-022D, " +
+    "U+0230-0233, U+0237, U+0253-0254, U+0257, U+0259, U+025B, U+0272, U+02B9-02BA, " +
+    "U+02C7, U+02D8-02D9, U+02DB, U+02DD, U+0300-0303, U+0306-0307, U+0309-030C, U+030F, " +
+    "U+0311-0312, U+031B, U+0323-0324, U+0326-0328, U+032E, U+0331, U+0335, U+03C0, " +
+    "U+0400-045F, U+0462-0463, U+046A-046B, U+0472-0475, U+0490-049D, U+04A0-04A5, " +
+    "U+04AA-04AB, U+04AE-04B3, U+04B6-04BB, U+04C0-04C2, U+04CB-04CC, U+04CF-04D9, " +
+    "U+04DC-04DF, U+04E2-04E9, U+04EE-04F9, U+051A-051D, U+0E3F, U+1E3E-1E3F, U+1E44-1E45, " +
+    "U+1E62-1E63, U+1E80-1E85, U+1E9E, U+1EA0-1EF9, U+2070, U+2074-2079, U+2080-2089, " +
+    "U+20A1, U+20A3-20A4, U+20A6-20A7, U+20A9-20AB, U+20AD-20AE, U+20B1-20B2, U+20B4-20B5, " +
+    "U+20B8-20BA, U+20BC-20BF, U+2113, U+2116, U+2153-2154, U+215B-215E, U+2219, U+223C, " +
+    "U+2248, U+2260, U+2264-2265, U+24B9, U+27E8-27E9";
 
   var FONTS = [
-    { family: "Science Gothic", file: "ScienceGothic-Variable.ttf", wait: true,
-      weight: "100 900", stretch: "50% 200%" },
+    { family: "Science Gothic", file: "ScienceGothic-latin.woff2", wait: true,
+      weight: "100 900", stretch: "50% 200%", unicodeRange: SCIENCE_LATIN },
     { family: "Construct Mono", file: "ConstructMono.otf", wait: true },
     { family: "Mohave", file: "Mohave-latin.woff2", wait: true,
       weight: "300 700", unicodeRange: LATIN },
@@ -38,6 +55,8 @@
     // Japanese labels: in the running header, so on every page.
     { family: "JF Dot M+Q 10", file: "jf-dot-mplusq10-vert.ttf", wait: true },
     { family: "KKM Analog TV", file: "kkm_analogtv_v2-vert.ttf", wait: true },
+    { family: "Science Gothic", file: "ScienceGothic-other.woff2",
+      weight: "100 900", stretch: "50% 200%", unicodeRange: SCIENCE_OTHER },
     { family: "Mohave", file: "Mohave-latin-ext.woff2",
       weight: "300 700", unicodeRange: LATIN_EXT },
     { family: "Geist", file: "Geist-latin-ext.woff2",
