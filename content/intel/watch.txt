@@ -83,3 +83,7 @@ https://github.com/bohonghuang/claw-raylib
 * https://github.com/sroerick/autolith-webui
 * https://github.com/joachifm/cl-webkit
 * https://github.com/sionescu/bordeaux-threads
+* https://github.com/byulparan/cl-collider
+* https://github.com/atgreen/pure-tls
+* https://github.com/jscl-project/jscl
+* https://github.com/modus-lisp/trellis

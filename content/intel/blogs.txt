@@ -8,3 +8,4 @@
 
 ; Planet Lisp gathers the Common Lisp blogs.
 https://planet.lisp.org/rss20.xml
+view-source:https://scottlburson2.blogspot.com/feeds/posts/default
