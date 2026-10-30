@@ -87,3 +87,10 @@ https://github.com/bohonghuang/claw-raylib
 * https://github.com/atgreen/pure-tls
 * https://github.com/jscl-project/jscl
 * https://github.com/modus-lisp/trellis
+* https://github.com/PHRaposo/alloy-desktop
+* https://github.com/lispnik/image-describe-app
+* https://github.com/eric-zhu-2019/zparen
+* https://github.com/nodecode-ai/nodecode
+* https://github.com/quasi/cl-mcp-server
+* https://github.com/phantomics/specops
+* https://github.com/xach/zpb-ttf

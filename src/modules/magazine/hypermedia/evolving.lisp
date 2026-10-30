@@ -68,6 +68,7 @@ link as a mark for the next of STEPS, a list of (id . frame)."
            (ecase (first block)
              (:p (ah:</> (p (render-evolving-inlines (second block) (getf stop :steps)))))
              (:list (render-list block))
+             (:quote (render-quote block))
              (:table (render-table (second block) (third block))))))
     (let ((frame (getf stop :frame)))
       (ah:</>

@@ -3076,6 +3076,25 @@
         border-inline-start: var(--rule-heavy) solid var(--ink);
     }
 
+    /* A quotation, in the text where it is written: set like a note, in the
+     prose face, with its attribution beneath. */
+    .pull-quote {
+        max-width: 48em;
+        margin-inline: 0;
+        padding-inline-start: var(--space-22);
+        border-inline-start: var(--rule-heavy) solid var(--ink);
+    }
+
+    .pull-quote p { font-style: italic; }
+    .pull-quote p + p { margin-block-start: 0.6em; }
+
+    .pull-quote footer {
+        margin-block-start: 0.6em;
+        color: var(--mid);
+    }
+
+    .pull-quote footer::before { content: "\2014\00a0"; }
+
     .margin-note-label {
         padding-block-end: 1ch;
         color: var(--mid);

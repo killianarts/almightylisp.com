@@ -80,7 +80,20 @@ more are set as paragraphs under it, then its sublists."
     (:src (render-src block))
     (:table (render-table (second block) (third block)))
     (:list (render-list block))
-    (:note (render-note block))))
+    (:note (render-note block))
+    (:quote (render-quote block))))
+
+(defun render-quote (quote)
+  "A #+BEGIN_QUOTE block: a blockquote, with the rest of the begin line, if
+any, as its attribution."
+  (destructuring-bind (attribution paragraphs) (rest quote)
+    (ah:</>
+     (blockquote :class "pull-quote"
+       (mapcar (lambda (paragraph)
+                 (ah:</> (p (render-inlines paragraph))))
+               paragraphs)
+       (when (plusp (length attribution))
+         (ah:</> (footer (render-inlines attribution))))))))
 
 (defun render-note (note)
   "A #+BEGIN_NOTE block, set in the text where it is written. A note labelled

@@ -96,7 +96,8 @@
   number title article)
 
 ;; Sections are almighty-press's. Their blocks are press's too, except that
-;; notes become (:note label paragraphs) and source blocks get :highlight.
+;; notes become (:note label paragraphs), quotes (:quote attribution
+;; paragraphs), and source blocks get :highlight.
 (defun section-title-lines (section) (press:section-title-lines section))
 (defun section-title (section) (press:section-title section))
 (defun section-id (section) (press:section-id section))
@@ -195,14 +196,17 @@
 
 (defun article-block (block)
   "BLOCK as the article page renders it. Notes become (:note label
-paragraphs), and a source block gets :highlight, a list of line numbers
+paragraphs), quotes (:quote attribution paragraphs), and a source block gets :highlight, a list of line numbers
 (MARK-STEPS adds to it)."
   (case (first block)
     (:block
         (destructuring-bind (name label paragraphs) (rest block)
-          (unless (string= name "NOTE")
-            (error "#+BEGIN_~a isn't used in articles; use #+BEGIN_NOTE or #+BEGIN_SRC." name))
-          (list :note (if (plusp (length label)) label "Note") paragraphs)))
+          (cond ((string= name "NOTE")
+                 (list :note (if (plusp (length label)) label "Note") paragraphs))
+                ((string= name "QUOTE")
+                 (list :quote label paragraphs))
+                (t
+                 (error "#+BEGIN_~a isn't used in articles; use #+BEGIN_NOTE, #+BEGIN_QUOTE or #+BEGIN_SRC." name)))))
     (:src
      (list* :src :highlight (highlighted-lines block) (rest block)))
     (t block)))
@@ -436,7 +440,7 @@ The rules, each an error when broken:
               (incf subs))
           (:p (open-stop block))
           ;; "Strengths:" and its list are read together.
-          ((:list :table)
+          ((:list :table :quote)
            (if (introduced-p)
                (setf (getf stop :more) (list block))
                (open-stop block)))
